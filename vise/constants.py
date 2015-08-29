@@ -4,7 +4,6 @@
 
 import sys
 import os
-import errno
 
 from PyQt5.Qt import QStandardPaths
 
@@ -36,9 +35,8 @@ def _get_cache_dir():
     ans = os.path.join(candidate, appname)
     try:
         os.makedirs(ans)
-    except EnvironmentError as e:
-        if e.errno != errno.EEXIST:
-            raise
+    except FileExistsError:
+        pass
     return ans
 cache_dir = _get_cache_dir()
 del _get_cache_dir
@@ -60,9 +58,8 @@ def _get_config_dir():
     ans = os.path.join(candidate, appname)
     try:
         os.makedirs(ans)
-    except EnvironmentError as e:
-        if e.errno != errno.EEXIST:
-            raise
+    except FileExistsError:
+        pass
     return ans
 config_dir = _get_config_dir()
 del _get_config_dir

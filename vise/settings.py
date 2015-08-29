@@ -5,7 +5,6 @@
 import os
 import apsw
 import json
-import errno
 from base64 import standard_b64decode, standard_b64encode
 from collections import defaultdict
 
@@ -99,9 +98,8 @@ gprefs = DynamicPrefs('gui-dynamic')
 def safe_makedirs(path):
     try:
         os.makedirs(path)
-    except EnvironmentError as e:
-        if e.errno != errno.EEXIST:
-            raise
+    except FileExistsError:
+        pass
 
 
 def create_profile(parent=None, private=False):

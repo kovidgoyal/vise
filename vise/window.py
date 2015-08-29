@@ -14,23 +14,6 @@ from .tab_tree import TabTree
 from .view import WebView
 
 
-class Tabs:
-
-    def __init__(self, view=None):
-        self._tabs = set()
-        self.view = view
-        self.is_root = view is None
-
-    def add(self, tab):
-        self._tabs.add(Tabs(tab))
-
-    def __iter__(self):
-        return iter(self._tabs)
-
-    def __len__(self):
-        return len(self._tabs)
-
-
 class MainWindow(QMainWindow):
 
     def __init__(self, is_private=False):
@@ -41,9 +24,10 @@ class MainWindow(QMainWindow):
         self.main_splitter = w = QSplitter(self)
         self.setCentralWidget(w)
 
-        self.tabs = Tabs()
-        self.tab_tree = tt = TabTree(self)
+        self.tabs = []
         self.current_tab = None
+        self.tab_tree = tt = TabTree(self)
+        tt.tab_activated.connect(self.show_tab)
         w.addWidget(tt)
         self.stack = s = QStackedWidget(self)
         s.currentChanged.connect(self.current_tab_changed)
@@ -82,28 +66,37 @@ class MainWindow(QMainWindow):
     def create_new_tab(self):
         ans = WebView(self.profile, self.stack)
         self.stack.addWidget(ans)
-        self.tabs.add(ans)
+        self.tabs.append(ans)
         ans.titleChanged.connect(self.update_window_title)
         return ans
 
-    def open_url(self, qurl, in_current_tab=True):
+    def get_tab_for_load(self, in_current_tab=True):
         in_current_tab = self.current_tab is not None and in_current_tab
-        tab = self.current_tab if in_current_tab else self.create_new_tab()
+        if in_current_tab:
+            tab = self.current_tab
+        else:
+            tab = self.create_new_tab()
+            self.tab_tree.add_tab(tab)
+            if self.current_tab is None:
+                self.current_tab = tab
+        return tab
+
+    def open_url(self, qurl, in_current_tab=True):
+        tab = self.get_tab_for_load(in_current_tab=in_current_tab)
         tab.load(qurl)
-        if self.current_tab is None:
-            self.current_tab = tab
 
     def show_html(self, html, in_current_tab=True):
         if isinstance(html, bytes):
             html = html.decode('utf-8')
-        in_current_tab = self.current_tab is not None and in_current_tab
-        tab = self.current_tab if in_current_tab else self.create_new_tab()
+        tab = self.get_tab_for_load(in_current_tab=in_current_tab)
         tab.setHtml(html, QUrl.fromLocalFile(os.path.expanduser('~')))
-        if self.current_tab is None:
-            self.current_tab = tab
 
     def current_tab_changed(self):
         self.update_window_title()
+
+    def show_tab(self, tab):
+        if tab is not None:
+            self.stack.setCurrentWidget(tab)
 
     def update_window_title(self):
         title = at = appname.capitalize()

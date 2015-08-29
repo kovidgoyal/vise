@@ -4,10 +4,13 @@
 
 import argparse
 import gc
+import os
 
-from PyQt5.Qt import QApplication
+from PyQt5.Qt import (
+    QApplication, QFontDatabase, QNetworkAccessManager, QNetworkDiskCache
+)
 
-from .constants import appname, str_version
+from .constants import appname, str_version, cache_dir
 from .settings import delete_profile
 from .window import MainWindow
 from .utils import parse_url
@@ -26,6 +29,17 @@ class Application(QApplication):
     def __init__(self, args):
         QApplication.__init__(self, [])
         self.windows = []
+        f = self.font()
+        if (f.family(), f.pointSize()) == ('Sans Serif', 9):  # Hard coded Qt settings, no user preference detected
+            f.setPointSize(10)
+            if 'Ubuntu' in QFontDatabase().families():
+                f.setFamily('Ubuntu')
+            self.setFont(f)
+        self.network_access_manager = nam = QNetworkAccessManager(self)
+        c = QNetworkDiskCache(nam)
+        c.setCacheDirectory(os.path.join(cache_dir, 'favicons'))
+        c.setMaximumCacheSize(10 * 1024 * 1024)
+        nam.setCache(c)
 
     def new_window(self, is_private=False):
         w = MainWindow(is_private=is_private)
@@ -56,7 +70,7 @@ def main():
     app.setApplicationVersion(str_version)
     app.open_urls(args.urls)
     app.exec_()
-    del app.windows
+    del app.windows, app.network_access_manager
     delete_profile()
     del app
     gc.collect(), gc.collect(), gc.collect()
