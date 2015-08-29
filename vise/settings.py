@@ -126,3 +126,8 @@ def profile():
     if _profile is None:
         _profile = create_profile()
     return _profile
+
+
+def delete_profile():
+    global _profile
+    _profile = None

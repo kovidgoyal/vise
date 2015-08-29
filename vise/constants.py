@@ -48,7 +48,7 @@ def _get_config_dir():
     if 'VISE_CONFIG_DIRECTORY' in os.environ:
         return os.path.abspath(os.path.expanduser(os.environ['VISE_CONFIG_DIRECTORY']))
 
-    candidate = QStandardPaths.writableLocation(QStandardPaths.CacheLocation)
+    candidate = QStandardPaths.writableLocation(QStandardPaths.ConfigLocation)
     if not candidate:
         if isosx:
             candidate = os.path.expanduser('~/Library/Preferences')

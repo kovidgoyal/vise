@@ -8,7 +8,9 @@ import gc
 from PyQt5.Qt import QApplication
 
 from .constants import appname, str_version
+from .settings import delete_profile
 from .window import MainWindow
+from .utils import parse_url
 
 app = None
 
@@ -30,6 +32,19 @@ class Application(QApplication):
         self.windows.append(w)
         return w
 
+    def remove_window(self, window):
+        try:
+            self.windows.remove(window)
+        except ValueError:
+            pass
+
+    def open_urls(self, urls):
+        if not self.windows:
+            self.new_window().show()
+        w = self.windows[0]
+        for i, url in enumerate(urls):
+            w.open_url(parse_url(url), in_current_tab=i == 0)
+
 
 def main():
     global app
@@ -39,7 +54,9 @@ def main():
     app.setOrganizationName('kovidgoyal')
     app.setApplicationName(appname)
     app.setApplicationVersion(str_version)
-    app.new_window().show()
+    app.open_urls(args.urls)
     app.exec_()
     del app.windows
+    delete_profile()
+    del app
     gc.collect(), gc.collect(), gc.collect()
