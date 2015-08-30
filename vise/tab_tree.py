@@ -7,7 +7,7 @@ from gettext import gettext as _
 from functools import partial
 
 from PyQt5.Qt import (
-    QTreeWidget, QTreeWidgetItem, Qt, pyqtSignal
+    QTreeWidget, QTreeWidgetItem, Qt, pyqtSignal, QSize
 )
 
 
@@ -47,6 +47,7 @@ class TabTree(QTreeWidget):
         self.setHeaderHidden(True)
         self.setSelectionMode(self.NoSelection)
         self.itemClicked.connect(self.item_clicked)
+        self.setIconSize(QSize(24, 24))
 
     def __iter__(self):
         for i in range(self.topLevelItemCount()):
