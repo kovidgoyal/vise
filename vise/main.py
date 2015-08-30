@@ -75,7 +75,7 @@ class Application(QApplication):
                     pass
             if not ls.listen(server_name):
                 raise SystemExit('Failed to establish local listening socket at: %s with error: %s' % (
-                    ls.errorString(), ls.fullServerName()))
+                    ls.fullServerName(), ls.errorString()))
 
     def another_instance_wants_to_talk(self):
         s = self.local_server.nextPendingConnection()
