@@ -46,10 +46,14 @@ class WebView(QWebEngineView):
     def icon_loaded(self):
         self.icon = QIcon()
         if self._icon_reply is not None:
-            data = self._icon_reply.readAll()
-            pixmap = QPixmap()
-            pixmap.loadFromData(data)
-            self.icon.addPixmap(pixmap)
-            self._icon_reply.deleteLater()
-            self._icon_reply = None
+            if self._icon_reply.error() == self._icon_reply.NoError:
+                data = self._icon_reply.readAll()
+                pixmap = QPixmap()
+                pixmap.loadFromData(data)
+                self.icon.addPixmap(pixmap)
+                self._icon_reply.deleteLater()
+                self._icon_reply = None
+            else:
+                QApplication.instance().error('Failed to download favicon from %s with error: %s' % (
+                    self._icon_reply.url().toString(), self._icon_reply.errorString()))
         self.icon_changed.emit(self.icon)
