@@ -10,6 +10,10 @@ def get_data_as_file(name):
     base = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'resources')
     return open(os.path.join(base, name), 'rb')
 
+
+def get_data(name):
+    return get_data_as_file(name).read()
+
 _icon_cache = {}
 
 

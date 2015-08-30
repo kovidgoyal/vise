@@ -4,16 +4,34 @@
 
 from PyQt5.Qt import (
     QWebEngineView, QWebEnginePage, QSize, QNetworkRequest, QIcon,
-    QApplication, QPixmap, pyqtSignal
+    QApplication, QPixmap, pyqtSignal, QWebChannel, pyqtSlot, QObject,
 )
 
+
 view_id = 0
+
+
+class Bridge(QObject):
+
+    @pyqtSlot(str)
+    def text_to_python(self, text):
+        print(111111111, text)
 
 
 class WebPage(QWebEnginePage):
 
     def __init__(self, profile, parent):
         QWebEnginePage.__init__(self, profile, parent)
+        self.bridge = Bridge(self)
+        self.channel = QWebChannel(self)
+        self.setWebChannel(self.channel)
+        self.channel.registerObject('bridge', self.bridge)
+
+    def javaScriptConsoleMessage(self, level, msg, linenumber, source_id):
+        try:
+            print('%s:%s: %s' % (source_id, linenumber, msg))
+        except OSError:
+            pass
 
 
 class WebView(QWebEngineView):

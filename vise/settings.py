@@ -8,9 +8,12 @@ import json
 from base64 import standard_b64decode, standard_b64encode
 from collections import defaultdict
 
-from PyQt5.Qt import QWebEngineProfile, QApplication
+from PyQt5.Qt import (
+    QWebEngineProfile, QApplication, QWebEngineScript, QFile, QIODevice
+)
 
 from .constants import config_dir, appname, cache_dir, str_version
+from .resources import get_data
 
 
 def to_json(obj):
@@ -93,6 +96,10 @@ class DynamicPrefs:
         self.buffer_commits = False
 
 gprefs = DynamicPrefs('gui-dynamic')
+qwebchannel_js = QFile(':/qtwebchannel/qwebchannel.js')
+if not qwebchannel_js.open(QIODevice.ReadOnly):
+    raise SystemExit('Failed to load qwebchannel.js with error: %s' % qwebchannel_js.errorString())
+qwebchannel_js = bytes(qwebchannel_js.readAll()).decode('utf-8')
 
 
 def safe_makedirs(path):
@@ -100,6 +107,28 @@ def safe_makedirs(path):
         os.makedirs(path)
     except FileExistsError:
         pass
+
+
+def create_script(name, src, world=QWebEngineScript.MainWorld, injection_point=QWebEngineScript.DocumentCreation, on_subframes=True):
+    script = QWebEngineScript()
+    script.setSourceCode(src)
+    script.setName(name)
+    script.setWorldId(world)
+    script.setInjectionPoint(injection_point)
+    script.setRunsOnSubFrames(on_subframes)
+    return script
+
+
+def client_script():
+    # Has to be in main world for the webChannelTransport to work
+    src = qwebchannel_js + get_data('client.js').decode('utf-8')
+    return create_script('%s-client' % appname, src)
+
+
+def insert_script(profile, script):
+    for existing in profile.scripts().findScripts(script.name()):
+        profile.scripts().remove(existing)
+    profile.scripts().insert(script)
 
 
 def create_profile(parent=None, private=False):
@@ -114,6 +143,7 @@ def create_profile(parent=None, private=False):
         ans.setPersistentStoragePath(os.path.join(cache_dir, appname, 'storage'))
         safe_makedirs(ans.persistentStoragePath())
     ans.setHttpUserAgent(ans.httpUserAgent().replace('QtWebEngine/', '%s/%s QtWebEngine/' % (appname, str_version)))
+    insert_script(ans, client_script())
     return ans
 
 _profile = None

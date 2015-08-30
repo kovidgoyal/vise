@@ -1,0 +1,16 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+
+# globals: qt, QWebChannel
+
+bridge = None
+channel = new QWebChannel(qt.webChannelTransport, def(channel):
+    nonlocal bridge
+    bridge = channel.objects.bridge
+    bridge.text_to_python('hello world!')
+)
+
+def on_document_loaded():
+    pass
+
+document.addEventListener("DOMContentLoaded", on_document_loaded)
