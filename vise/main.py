@@ -86,6 +86,12 @@ class Application(QApplication):
         parent = self.activeWindow()
         error_dialog(parent, _('Unhandled exception'), msg, det_msg=det_msg)
 
+    def break_cycles(self):
+        # Make sure the application object has no references in python and the
+        # other global objects can also be garbage collected
+        del self.windows, self.network_access_manager
+        sys.excepthook = sys.__excepthook__
+
 
 def main():
     global app
@@ -97,7 +103,7 @@ def main():
     app.setApplicationVersion(str_version)
     app.open_urls(args.urls)
     app.exec_()
-    del app.windows, app.network_access_manager
+    app.break_cycles()
     delete_profile()
     del app
     gc.collect(), gc.collect(), gc.collect()
