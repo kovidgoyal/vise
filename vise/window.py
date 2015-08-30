@@ -68,6 +68,7 @@ class MainWindow(QMainWindow):
         self.stack.addWidget(ans)
         self.tabs.append(ans)
         ans.titleChanged.connect(self.update_window_title)
+        ans.open_in_new_tab.connect(self.open_in_new_tab)
         return ans
 
     def get_tab_for_load(self, in_current_tab=True):
@@ -90,6 +91,15 @@ class MainWindow(QMainWindow):
             html = html.decode('utf-8')
         tab = self.get_tab_for_load(in_current_tab=in_current_tab)
         tab.setHtml(html, QUrl.fromLocalFile(os.path.expanduser('~')))
+
+    def open_in_new_tab(self, qurl):
+        if isinstance(qurl, str):
+            qurl = QUrl(qurl)
+        if self.current_tab is None:
+            return self.open_url(qurl, in_current_tab=False)
+        tab = self.create_new_tab()
+        self.tab_tree.add_tab(tab, parent=self.current_tab)
+        tab.load(qurl)
 
     def current_tab_changed(self):
         self.update_window_title()

@@ -1,16 +1,12 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-# globals: qt, QWebChannel
+from qt import connect_bridge
+from middle_click import onload as mc_onload
 
-bridge = None
-channel = new QWebChannel(qt.webChannelTransport, def(channel):
-    nonlocal bridge
-    bridge = channel.objects.bridge
-    bridge.text_to_python('hello world!')
-)
+connect_bridge()
 
 def on_document_loaded():
-    pass
+    mc_onload()
 
 document.addEventListener("DOMContentLoaded", on_document_loaded)

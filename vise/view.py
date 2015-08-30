@@ -4,7 +4,7 @@
 
 from PyQt5.Qt import (
     QWebEngineView, QWebEnginePage, QSize, QNetworkRequest, QIcon,
-    QApplication, QPixmap, pyqtSignal, QWebChannel, pyqtSlot, QObject,
+    QApplication, QPixmap, pyqtSignal, QWebChannel, pyqtSlot, QObject
 )
 
 
@@ -13,9 +13,12 @@ view_id = 0
 
 class Bridge(QObject):
 
+    middle_clicked = pyqtSignal(object)
+
     @pyqtSlot(str)
-    def text_to_python(self, text):
-        print(111111111, text)
+    def middle_clicked_link(self, href):
+        if href:
+            self.middle_clicked.emit(href)
 
 
 class WebPage(QWebEnginePage):
@@ -37,6 +40,7 @@ class WebPage(QWebEnginePage):
 class WebView(QWebEngineView):
 
     icon_changed = pyqtSignal(object)
+    open_in_new_tab = pyqtSignal(object)
 
     def __init__(self, profile, parent):
         global view_id
@@ -47,6 +51,7 @@ class WebView(QWebEngineView):
         self.iconUrlChanged.connect(self.icon_url_changed)
         self._icon_reply = None
         self.icon = QIcon()
+        self._page.bridge.middle_clicked.connect(self.open_in_new_tab.emit)
 
     def create_page(self, profile):
         self._page = WebPage(profile, self)

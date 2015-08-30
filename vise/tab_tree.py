@@ -58,14 +58,15 @@ class TabTree(QTreeWidget):
     def item_for_tab(self, tab):
         for q in self:
             if q.tab is tab:
-                return tab
+                return q
 
     def add_tab(self, tab, parent=None):
         i = TabItem(tab)
         if parent is None:
             self.addTopLevelItem(i)
         else:
-            self.item_for_tab(parent).addChild(tab)
+            self.item_for_tab(parent).addChild(i)
+            self.scrollToItem(i)
 
     def item_clicked(self, item, column):
         if item is not None:

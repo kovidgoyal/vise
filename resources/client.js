@@ -1907,21 +1907,85 @@ var str = _$rapyd$_str;
                 return arr.hasOwnProperty(val);
             };
         })();
+    var _$rapyd$_modules = {};
+    _$rapyd$_modules["qt"] = {};
+    _$rapyd$_modules["middle_click"] = {};
+
+    (function(){
+        var __name__ = "qt";
+        var bridge, channel;
+        bridge = null;
+        channel = null;
+        function qt_bridge() {
+            return bridge;
+        }
+        function connect_bridge() {
+            channel = new QWebChannel(qt.webChannelTransport, function(channel) {
+                bridge = channel.objects.bridge;
+            });
+        }
+        _$rapyd$_modules["qt"]["bridge"] = bridge;
+
+        _$rapyd$_modules["qt"]["channel"] = channel;
+
+        _$rapyd$_modules["qt"]["qt_bridge"] = qt_bridge;
+
+        _$rapyd$_modules["qt"]["connect_bridge"] = connect_bridge;
+    })();
+
+    (function(){
+        var __name__ = "middle_click";
+        var qt_bridge = _$rapyd$_modules["qt"].qt_bridge;
+        
+        function find_link(node) {
+            if (node && node.nodeType === Node.ELEMENT_NODE) {
+                if (node.nodeName.toUpperCase() === "A" && node.getAttribute("href")) {
+                    return node.href;
+                }
+                return find_link(node.parentElement);
+            }
+        }
+        function handle_middle_click(ev) {
+            var href, bridge;
+            if (ev.button !== 1) {
+                return true;
+            }
+            href = find_link(ev.target);
+            if (!href) {
+                return true;
+            }
+            bridge = qt_bridge();
+            if (!bridge) {
+                console.error("The JS-to-python bridge is not initialized, ignoring middle click");
+                return true;
+            }
+            bridge.middle_clicked_link(href);
+            ev.preventDefault();
+            ev.stopPropagation();
+            return false;
+        }
+        function onload() {
+            document.addEventListener("click", handle_middle_click);
+        }
+        _$rapyd$_modules["middle_click"]["find_link"] = find_link;
+
+        _$rapyd$_modules["middle_click"]["handle_middle_click"] = handle_middle_click;
+
+        _$rapyd$_modules["middle_click"]["onload"] = onload;
+    })();
 
     (function(){
 
         var __name__ = "__main__";
 
 
-        var bridge, channel;
-        bridge = null;
-        channel = null;
-        channel = new QWebChannel(qt.webChannelTransport, function(channel) {
-            print("in channel inited callback");
-            bridge = channel.objects.bridge;
-            bridge.text_to_python("hello world!");
-        });
+        var connect_bridge = _$rapyd$_modules["qt"].connect_bridge;
+        
+        var mc_onload = _$rapyd$_modules["middle_click"].onload;
+        
+        connect_bridge();
         function on_document_loaded() {
+            mc_onload();
         }
         document.addEventListener("DOMContentLoaded", on_document_loaded);
     })();

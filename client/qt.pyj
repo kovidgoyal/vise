@@ -1,0 +1,18 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+
+# globals: qt, QWebChannel
+
+bridge = None
+channel = None
+
+def qt_bridge():
+    nonlocal bridge
+    return bridge
+
+def connect_bridge():
+    nonlocal channel
+    channel = new QWebChannel(qt.webChannelTransport, def(channel):
+        nonlocal bridge
+        bridge = channel.objects.bridge
+    )
