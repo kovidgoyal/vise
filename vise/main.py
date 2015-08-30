@@ -103,6 +103,8 @@ def main():
     app.setApplicationVersion(str_version)
     app.open_urls(args.urls)
     app.exec_()
+
+    # Without the following cleanup code, PyQt segfaults on exit
     app.break_cycles()
     delete_profile()
     del app
