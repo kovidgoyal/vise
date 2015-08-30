@@ -7,7 +7,7 @@ from gettext import gettext as _
 from functools import partial
 
 from PyQt5.Qt import (
-    QTreeWidget, QTreeWidgetItem, Qt, pyqtSignal, QSize
+    QTreeWidget, QTreeWidgetItem, Qt, pyqtSignal, QSize, QFont
 )
 
 
@@ -48,6 +48,9 @@ class TabTree(QTreeWidget):
         self.setSelectionMode(self.NoSelection)
         self.itemClicked.connect(self.item_clicked)
         self.setIconSize(QSize(24, 24))
+        self.current_item = None
+        self.bold_font = QFont(self.font())
+        self.bold_font.setBold(True)
 
     def __iter__(self):
         for i in range(self.topLevelItemCount()):
@@ -73,3 +76,12 @@ class TabTree(QTreeWidget):
             tab = item.tab
             if tab is not None:
                 self.tab_activated.emit(item.tab)
+
+    def current_changed(self, tab):
+        if self.current_item is not None:
+            self.current_item.set_data(Qt.FontRole, None)
+            self.current_item = None
+        item = self.item_for_tab(tab)
+        if item is not None:
+            self.current_item = item
+            item.set_data(Qt.FontRole, self.bold_font)
