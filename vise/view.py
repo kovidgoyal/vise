@@ -38,6 +38,9 @@ class WebView(QWebEngineView):
         return QSize(800, 600)
 
     def icon_url_changed(self, qurl):
+        if qurl.isEmpty():
+            self.icon_loaded()
+            return
         req = QNetworkRequest(qurl)
         self._icon_reply = QApplication.instance().network_access_manager.get(req)
         self._icon_reply.setParent(self)
