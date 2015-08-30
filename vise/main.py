@@ -8,15 +8,16 @@ import os
 import sys
 import traceback
 import json
+import tempfile
 from datetime import datetime
 from gettext import gettext as _
 
 from PyQt5.Qt import (
     QApplication, QFontDatabase, QNetworkAccessManager, QNetworkDiskCache,
-    QLocalSocket, QLocalServer, QSslSocket, QTextStream
+    QLocalSocket, QLocalServer, QSslSocket, QTextStream, QAbstractSocket
 )
 
-from .constants import appname, str_version, cache_dir
+from .constants import appname, str_version, cache_dir, iswindows
 from .message_box import error_dialog
 from .settings import delete_profile
 from .window import MainWindow
@@ -54,7 +55,8 @@ class Application(QApplication):
         nam.setCache(c)
 
     def run_local_server(self, args):
-        server_name = appname + '-local-server'
+        prefix = r'\\.\pipe' if iswindows else tempfile.gettempdir().rstrip('/')
+        server_name = prefix + os.sep + appname + '-local-server'
         s = QLocalSocket()
         s.connectToServer(server_name)
         if s.waitForConnected(500):
@@ -68,14 +70,14 @@ class Application(QApplication):
         self.local_server = ls = QLocalServer(self)
         ls.newConnection.connect(self.another_instance_wants_to_talk)
         if not ls.listen(server_name):
-            if ls.serverError() == QLocalSocket.AddressInUseError:
+            if ls.serverError() == QAbstractSocket.AddressInUseError:
                 try:
-                    os.remove(ls.fullServerName())
+                    os.remove(server_name)
                 except FileNotFoundError:
                     pass
             if not ls.listen(server_name):
                 raise SystemExit('Failed to establish local listening socket at: %s with error: %s' % (
-                    ls.fullServerName(), ls.errorString()))
+                    server_name, ls.errorString()))
 
     def another_instance_wants_to_talk(self):
         s = self.local_server.nextPendingConnection()
@@ -158,11 +160,12 @@ def main():
     app.setOrganizationName('kovidgoyal')
     app.setApplicationName(appname)
     app.setApplicationVersion(str_version)
-    app.open_urls(args.urls)
-    app.exec_()
-
-    # Without the following cleanup code, PyQt segfaults on exit
-    app.break_cycles()
-    delete_profile()
-    del app
-    gc.collect(), gc.collect(), gc.collect()
+    try:
+        app.open_urls(args.urls)
+        app.exec_()
+    finally:
+        # Without the following cleanup code, PyQt segfaults on exit
+        app.break_cycles()
+        delete_profile()
+        del app
+        gc.collect(), gc.collect(), gc.collect()
