@@ -103,7 +103,8 @@ class MainWindow(QMainWindow):
 
     def current_tab_changed(self):
         self.update_window_title()
-        self.tab_tree.current_changed(self.stack.currentWidget())
+        self.current_tab = self.stack.currentWidget()
+        self.tab_tree.current_changed(self.current_tab)
 
     def show_tab(self, tab):
         if tab is not None:
