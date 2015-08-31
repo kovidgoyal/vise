@@ -100,6 +100,7 @@ qwebchannel_js = QFile(':/qtwebchannel/qwebchannel.js')
 if not qwebchannel_js.open(QIODevice.ReadOnly):
     raise SystemExit('Failed to load qwebchannel.js with error: %s' % qwebchannel_js.errorString())
 qwebchannel_js = bytes(qwebchannel_js.readAll()).decode('utf-8')
+# qwebchannel_js = open('/usr/src/qt5/qtwebchannel/src/webchannel/qwebchannel.js').read()
 
 
 def safe_makedirs(path):
