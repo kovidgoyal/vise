@@ -42,6 +42,8 @@ class TabItem(QTreeWidgetItem):
         QTreeWidgetItem.__init__(self)
         self.set_data(Qt.DisplayRole, tab.title() or _('Loading...'))
         self.set_data(Qt.DecorationRole, missing_icon())
+        self.set_data(Qt.SizeHintRole, QSize(300, ICON_SIZE + 8))
+
         self.tabref = weakref.ref(tab)
         self.set_data(TAB_ROLE, self.tabref)
         tab.titleChanged.connect(partial(self.set_data, Qt.DisplayRole))
@@ -77,8 +79,9 @@ class TabTree(QTreeWidget):
         self.itemClicked.connect(self.item_clicked)
         self.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
         self.current_item = None
-        self.bold_font = QFont(self.font())
-        self.bold_font.setBold(True)
+        self.emphasis_font = QFont(self.font())
+        self.emphasis_font.setBold(True), self.emphasis_font.setItalic(True)
+        self.setFocusPolicy(Qt.NoFocus)
 
     def __iter__(self):
         for i in range(self.topLevelItemCount()):
@@ -112,4 +115,4 @@ class TabTree(QTreeWidget):
         item = self.item_for_tab(tab)
         if item is not None:
             self.current_item = item
-            item.set_data(Qt.FontRole, self.bold_font)
+            item.set_data(Qt.FontRole, self.emphasis_font)
