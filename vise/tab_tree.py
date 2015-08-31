@@ -7,11 +7,26 @@ from gettext import gettext as _
 from functools import partial
 
 from PyQt5.Qt import (
-    QTreeWidget, QTreeWidgetItem, Qt, pyqtSignal, QSize, QFont
+    QTreeWidget, QTreeWidgetItem, Qt, pyqtSignal, QSize, QFont, QPen,
+    QApplication, QPainter, QPixmap, QIcon
 )
 
 
 TAB_ROLE = Qt.UserRole
+ICON_SIZE = 24
+
+
+def missing_icon():
+    p = QPixmap(ICON_SIZE, ICON_SIZE)
+    p.fill(Qt.transparent)
+    painter = QPainter(p)
+    pal = QApplication.instance().palette()
+    painter.setPen(QPen(pal.color(pal.Text), 0, Qt.DashLine))
+    margin = 3
+    r = p.rect().adjusted(margin, margin, -margin, -margin)
+    painter.drawRect(r)
+    painter.end()
+    return QIcon(p)
 
 
 class TabItem(QTreeWidgetItem):
@@ -21,8 +36,14 @@ class TabItem(QTreeWidgetItem):
         self.set_data(Qt.DisplayRole, tab.title() or _('Loading...'))
         self.tabref = weakref.ref(tab)
         self.set_data(TAB_ROLE, self.tabref)
+        self.missing_icon = missing_icon()
         tab.titleChanged.connect(partial(self.set_data, Qt.DisplayRole))
-        tab.icon_changed.connect(partial(self.set_data, Qt.DecorationRole))
+        tab.icon_changed.connect(self.icon_changed)
+
+    def icon_changed(self, new_icon):
+        if new_icon.isNull():
+            new_icon = self.missing_icon
+        self.set_data(Qt.DecorationRole, new_icon)
 
     @property
     def tab(self):
@@ -47,7 +68,7 @@ class TabTree(QTreeWidget):
         self.setHeaderHidden(True)
         self.setSelectionMode(self.NoSelection)
         self.itemClicked.connect(self.item_clicked)
-        self.setIconSize(QSize(24, 24))
+        self.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
         self.current_item = None
         self.bold_font = QFont(self.font())
         self.bold_font.setBold(True)
