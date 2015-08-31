@@ -1047,8 +1047,26 @@ function _$rapyd$_mixin(target, source, overwrite) {
     }
 }
 function _$rapyd$_print() {
+    var parts, part;
     if (typeof console === "object") {
-        console.log.apply(console, arguments);
+        parts = [];
+        for (i = 0; i < arguments.length; i++) {
+            part = arguments[i];
+            if (typeof part === "string") {
+                parts.push(part);
+            } else if (part === null) {
+                parts.push("None");
+            } else if (typeof part === "boolean") {
+                parts.push((part) ? "True" : "False");
+            } else {
+                try {
+                    parts.push(JSON.stringify(part));
+                } catch (_$rapyd$_Exception) {
+                    parts.push(part.toString());
+                }
+            }
+        }
+        console.log(parts.join(" "));
     }
 }
 function _$rapyd$_int(val, base) {
@@ -1916,7 +1934,7 @@ var str = _$rapyd$_str;
         var bridge, channel, bridge_name;
         bridge = null;
         channel = null;
-        bridge_name = Symbol('qtjs');
+        bridge_name = "qt-js-bridge";
         function qt_bridge() {
             if (window.self !== window.top) {
                 return window.top[bridge_name];
