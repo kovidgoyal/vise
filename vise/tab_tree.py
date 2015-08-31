@@ -13,20 +13,27 @@ from PyQt5.Qt import (
 
 
 TAB_ROLE = Qt.UserRole
+PROGRESS_ROLE = TAB_ROLE + 1
 ICON_SIZE = 24
 
 
+_missing_icon = None
+
+
 def missing_icon():
-    p = QPixmap(ICON_SIZE, ICON_SIZE)
-    p.fill(Qt.transparent)
-    painter = QPainter(p)
-    pal = QApplication.instance().palette()
-    painter.setPen(QPen(pal.color(pal.Text), 0, Qt.DashLine))
-    margin = 3
-    r = p.rect().adjusted(margin, margin, -margin, -margin)
-    painter.drawRect(r)
-    painter.end()
-    return QIcon(p)
+    global _missing_icon
+    if _missing_icon is None:
+        p = QPixmap(ICON_SIZE, ICON_SIZE)
+        p.fill(Qt.transparent)
+        painter = QPainter(p)
+        pal = QApplication.instance().palette()
+        painter.setPen(QPen(pal.color(pal.Text), 0, Qt.DashLine))
+        margin = 3
+        r = p.rect().adjusted(margin, margin, -margin, -margin)
+        painter.drawRect(r)
+        painter.end()
+        _missing_icon = QIcon(p)
+    return _missing_icon
 
 
 class TabItem(QTreeWidgetItem):
@@ -34,15 +41,15 @@ class TabItem(QTreeWidgetItem):
     def __init__(self, tab):
         QTreeWidgetItem.__init__(self)
         self.set_data(Qt.DisplayRole, tab.title() or _('Loading...'))
+        self.set_data(Qt.DecorationRole, missing_icon())
         self.tabref = weakref.ref(tab)
         self.set_data(TAB_ROLE, self.tabref)
-        self.missing_icon = missing_icon()
         tab.titleChanged.connect(partial(self.set_data, Qt.DisplayRole))
         tab.icon_changed.connect(self.icon_changed)
 
     def icon_changed(self, new_icon):
         if new_icon.isNull():
-            new_icon = self.missing_icon
+            new_icon = missing_icon()
         self.set_data(Qt.DecorationRole, new_icon)
 
     @property
