@@ -47,6 +47,7 @@ class TabDelegate(QAbstractItemDelegate):
         pal = parent.palette()
         self.dark = pal.color(pal.Text)
         self.light = pal.color(pal.Base)
+        self.errored_out = False
 
     def sizeHint(self, option, index):
         return QSize(300, ICON_SIZE + 2 * self.MARGIN)
@@ -63,8 +64,14 @@ class TabDelegate(QAbstractItemDelegate):
         text = elided_text(index.data(Qt.DisplayRole) or '', font, text_rect.width(), 'right')
         painter.drawText(text_rect, text_flags, text)
         if index.data(LOADING_ROLE):
-            angle = index.data(ANGLE_ROLE)
-            draw_snake_spinner(painter, icon_rect, angle, self.light, self.dark)
+            if not self.errored_out:
+                angle = index.data(ANGLE_ROLE)
+                try:
+                    draw_snake_spinner(painter, icon_rect, angle, self.light, self.dark)
+                except Exception:
+                    import traceback
+                    traceback.print_exc()
+                    self.errored_out = True
         else:
             icon = index.data(Qt.DecorationRole)
             icon.paint(painter, icon_rect)
