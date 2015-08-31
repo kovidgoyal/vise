@@ -1913,20 +1913,32 @@ var str = _$rapyd$_str;
 
     (function(){
         var __name__ = "qt";
-        var bridge, channel;
+        var bridge, channel, bridge_name;
         bridge = null;
         channel = null;
+        bridge_name = Symbol('qtjs');
         function qt_bridge() {
+            if (window.self !== window.top) {
+                return window.top[bridge_name];
+            }
             return bridge;
         }
         function connect_bridge() {
+            if (window.self !== window.top) {
+                return;
+            }
             channel = new QWebChannel(qt.webChannelTransport, function(channel) {
                 bridge = channel.objects.bridge;
+                Object.defineProperty(window, bridge_name, {
+                    "value": bridge
+                });
             });
         }
         _$rapyd$_modules["qt"]["bridge"] = bridge;
 
         _$rapyd$_modules["qt"]["channel"] = channel;
+
+        _$rapyd$_modules["qt"]["bridge_name"] = bridge_name;
 
         _$rapyd$_modules["qt"]["qt_bridge"] = qt_bridge;
 
