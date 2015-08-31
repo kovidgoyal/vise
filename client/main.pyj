@@ -4,9 +4,9 @@
 from qt import connect_bridge
 from middle_click import onload as mc_onload
 
-connect_bridge()
 
 def on_document_loaded():
+    connect_bridge()
     mc_onload()
 
 document.addEventListener("DOMContentLoaded", on_document_loaded)

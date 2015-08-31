@@ -121,8 +121,13 @@ def create_script(name, src, world=QWebEngineScript.MainWorld, injection_point=Q
 
 def client_script():
     # Has to be in main world for the webChannelTransport to work
-    src = qwebchannel_js + get_data('client.js').decode('utf-8')
+    src = get_data('client.js').decode('utf-8')
     return create_script('%s-client' % appname, src)
+
+
+def qwebchannel_script():
+    # Has to be in main world for the webChannelTransport to work
+    return create_script('qwebchannel.js', qwebchannel_js)
 
 
 def insert_script(profile, script):
@@ -143,6 +148,7 @@ def create_profile(parent=None, private=False):
         ans.setPersistentStoragePath(os.path.join(cache_dir, appname, 'storage'))
         safe_makedirs(ans.persistentStoragePath())
     ans.setHttpUserAgent(ans.httpUserAgent().replace('QtWebEngine/', '%s/%s QtWebEngine/' % (appname, str_version)))
+    insert_script(ans, qwebchannel_script())
     insert_script(ans, client_script())
     return ans
 

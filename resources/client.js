@@ -1983,8 +1983,8 @@ var str = _$rapyd$_str;
         
         var mc_onload = _$rapyd$_modules["middle_click"].onload;
         
-        connect_bridge();
         function on_document_loaded() {
+            connect_bridge();
             mc_onload();
         }
         document.addEventListener("DOMContentLoaded", on_document_loaded);
