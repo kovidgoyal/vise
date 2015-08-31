@@ -42,6 +42,7 @@ class WebView(QWebEngineView):
     icon_changed = pyqtSignal(object)
     open_in_new_tab = pyqtSignal(object)
     loading_status_changed = pyqtSignal(object)
+    link_hovered = pyqtSignal(object)
 
     def __init__(self, profile, parent):
         global view_id
@@ -55,6 +56,7 @@ class WebView(QWebEngineView):
         self._page.bridge.middle_clicked.connect(self.open_in_new_tab.emit)
         self.loadStarted.connect(lambda: self.loading_status_changed.emit(True))
         self.loadFinished.connect(lambda: self.loading_status_changed.emit(False))
+        self._page.linkHovered.connect(self.link_hovered.emit)
 
     def create_page(self, profile):
         self._page = WebPage(profile, self)

@@ -3,9 +3,11 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
+from functools import partial
 
 from PyQt5.Qt import (
-    QMainWindow, Qt, QSplitter, QApplication, QStackedWidget, QUrl)
+    QMainWindow, Qt, QSplitter, QApplication, QStackedWidget, QUrl, QLabel
+)
 
 from .constants import appname
 from .resources import get_data_as_file
@@ -20,6 +22,8 @@ class MainWindow(QMainWindow):
         QMainWindow.__init__(self)
         self.is_private = is_private
         self.setAttribute(Qt.WA_DeleteOnClose, True)
+        self.url_label = QLabel('')
+        self.statusBar().addWidget(self.url_label)
 
         self.main_splitter = w = QSplitter(self)
         self.setCentralWidget(w)
@@ -69,7 +73,19 @@ class MainWindow(QMainWindow):
         self.tabs.append(ans)
         ans.titleChanged.connect(self.update_window_title)
         ans.open_in_new_tab.connect(self.open_in_new_tab)
+        ans.urlChanged.connect(self.url_changed)
+        ans.link_hovered.connect(partial(self.link_hovered, ans))
         return ans
+
+    def url_changed(self):
+        if self.current_tab is None:
+            self.url_label.setText('')
+        else:
+            self.url_label.setText('<b>' + self.current_tab.url().toDisplayString())
+
+    def link_hovered(self, tab, href):
+        if tab is self.current_tab:
+            self.statusBar().showMessage(href, 10000)
 
     def get_tab_for_load(self, in_current_tab=True):
         in_current_tab = self.current_tab is not None and in_current_tab
