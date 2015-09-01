@@ -49,7 +49,7 @@ class Application(QApplication):
                 f.setFamily('Ubuntu')
             self.setFont(f)
         self.network_access_manager = nam = QNetworkAccessManager(self)
-        c = QNetworkDiskCache(nam)
+        self.disk_cache = c = QNetworkDiskCache(nam)
         c.setCacheDirectory(os.path.join(cache_dir, 'favicons'))
         c.setMaximumCacheSize(10 * 1024 * 1024)
         nam.setCache(c)

@@ -2,6 +2,8 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
+from contextlib import closing
+
 from PyQt5.Qt import (
     QWebEngineView, QWebEnginePage, QSize, QNetworkRequest, QIcon,
     QApplication, QPixmap, pyqtSignal, QWebChannel, pyqtSlot, QObject
@@ -69,10 +71,21 @@ class WebView(QWebEngineView):
         if qurl.isEmpty():
             self.icon_loaded()
             return
+        self.icon = QIcon()
+        f = QApplication.instance().disk_cache.data(qurl)
+        if f is not None:
+            with closing(f):
+                raw = bytes(f.readAll())
+                p = QPixmap()
+                p.loadFromData(raw)
+                if not p.isNull():
+                    self.icon.addPixmap(p)
+
         req = QNetworkRequest(qurl)
         self._icon_reply = QApplication.instance().network_access_manager.get(req)
         self._icon_reply.setParent(self)
         self._icon_reply.finished.connect(self.icon_loaded)
+        self.icon_changed.emit(self.icon)
 
     def icon_loaded(self):
         self.icon = QIcon()
