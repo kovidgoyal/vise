@@ -12,6 +12,7 @@ from PyQt5.Qt import (
 
 from .constants import appname, str_version
 from .resources import get_icon
+from .settings import gprefs
 
 
 class MessageBox(QDialog):  # {{{
@@ -168,13 +169,52 @@ class MessageBox(QDialog):  # {{{
 
 def warning_dialog(parent, title, msg, det_msg='', show=False, show_copy_button=True):
     d = MessageBox(MessageBox.WARNING, _('WARNING:') + ' ' +
-                   title, msg, det_msg, parent=parent,
-                   show_copy_button=show_copy_button)
+                   title, msg, det_msg, parent=parent, show_copy_button=show_copy_button)
     return d.exec_() if show else d
 
 
 def error_dialog(parent, title, msg, det_msg='', show=True, show_copy_button=True):
     d = MessageBox(MessageBox.ERROR, _('ERROR:') + ' ' +
-                   title, msg, det_msg, parent=parent,
-                   show_copy_button=show_copy_button)
+                   title, msg, det_msg, parent=parent, show_copy_button=show_copy_button)
     return d.exec_() if show else d
+
+
+def question_dialog(
+        parent, title, msg, det_msg='', show_copy_button=False,
+        default_yes=True,
+        # Skippable dialogs
+        # Set skip_dialog_name to a unique name for this dialog
+        # Set skip_dialog_msg to a message displayed to the user
+        skip_dialog_name=None, skip_dialog_msg=_('Show this confirmation again'),
+        skip_dialog_skipped_value=True, skip_dialog_skip_precheck=True,
+        # Override icon (QIcon to be used as the icon for this dialog or string for I())
+        override_icon=None,
+        # Change the text/icons of the yes and no buttons.
+        # The icons must be QIcon objects or strings for I()
+        yes_text=None, no_text=None, yes_icon=None, no_icon=None,
+):
+    from calibre.gui2.dialogs.message_box import MessageBox
+
+    auto_skip = set(gprefs.get('questions_to_auto_skip', []))
+    if (skip_dialog_name is not None and skip_dialog_name in auto_skip):
+        return bool(skip_dialog_skipped_value)
+
+    d = MessageBox(MessageBox.QUESTION, title, msg, det_msg, parent=parent,
+                   show_copy_button=show_copy_button, default_yes=default_yes,
+                   q_icon=override_icon, yes_text=yes_text, no_text=no_text,
+                   yes_icon=yes_icon, no_icon=no_icon)
+
+    if skip_dialog_name is not None and skip_dialog_msg:
+        tc = d.toggle_checkbox
+        tc.setVisible(True)
+        tc.setText(skip_dialog_msg)
+        tc.setChecked(bool(skip_dialog_skip_precheck))
+        d.resize_needed.emit()
+
+    ret = d.exec_() == d.Accepted
+
+    if skip_dialog_name is not None and not d.toggle_checkbox.isChecked():
+        auto_skip.add(skip_dialog_name)
+        gprefs.set('questions_to_auto_skip', list(auto_skip))
+
+    return ret
