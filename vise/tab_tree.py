@@ -8,13 +8,13 @@ from functools import partial
 
 from PyQt5.Qt import (
     QTreeWidget, QTreeWidgetItem, Qt, pyqtSignal, QSize, QFont, QPen, QRect,
-    QApplication, QPainter, QPixmap, QIcon, QTimer, QAbstractItemDelegate
+    QApplication, QPainter, QPixmap, QIcon, QTimer, QStyledItemDelegate,
+    QModelIndex
 )
 
 from .utils import elided_text, draw_snake_spinner
 
-TAB_ROLE = Qt.UserRole
-LOADING_ROLE = TAB_ROLE + 1
+LOADING_ROLE = Qt.UserRole
 ANGLE_ROLE = LOADING_ROLE + 1
 ICON_SIZE = 24
 
@@ -38,12 +38,12 @@ def missing_icon():
     return _missing_icon
 
 
-class TabDelegate(QAbstractItemDelegate):
+class TabDelegate(QStyledItemDelegate):
 
     MARGIN = 2
 
     def __init__(self, parent):
-        QAbstractItemDelegate.__init__(self, parent)
+        QStyledItemDelegate.__init__(self, parent)
         pal = parent.palette()
         self.dark = pal.color(pal.Text)
         self.light = pal.color(pal.Base)
@@ -53,6 +53,7 @@ class TabDelegate(QAbstractItemDelegate):
         return QSize(300, ICON_SIZE + 2 * self.MARGIN)
 
     def paint(self, painter, option, index):
+        QStyledItemDelegate.paint(self, painter, option, QModelIndex())
         painter.save()
         rect = option.rect
         icon_rect = QRect(rect.left() + self.MARGIN, rect.top() + self.MARGIN, ICON_SIZE, ICON_SIZE)
@@ -90,13 +91,12 @@ class TabItem(QTreeWidgetItem):
         tab_item_counter += 1
         self.uid = tab_item_counter
         self.loading_status_changed = loading_status_changed
+        self.setFlags(self.flags() | Qt.ItemIsDragEnabled | Qt.ItemIsDropEnabled)
         self.set_data(LOADING_ROLE, False)
         self.set_data(Qt.DisplayRole, tab.title() or _('Loading...'))
         self.set_data(Qt.DecorationRole, missing_icon())
         self.set_data(ANGLE_ROLE, 0)
-
         self.tabref = weakref.ref(tab)
-        self.set_data(TAB_ROLE, self.tabref)
         tab.titleChanged.connect(partial(self.set_data, Qt.DisplayRole))
         tab.icon_changed.connect(self.icon_changed)
         tab.loading_status_changed.connect(self._loading_status_changed)
@@ -134,10 +134,18 @@ class TabTree(QTreeWidget):
 
     def __init__(self, parent):
         QTreeWidget.__init__(self, parent)
-        self.setHeaderHidden(True)
-        self.setSelectionMode(self.NoSelection)
-        self.itemClicked.connect(self.item_clicked)
         self.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
+        self.setAutoScrollMargin(ICON_SIZE * 2)
+        self.setAnimated(True)
+        self.setHeaderHidden(True)
+        self.setSelectionMode(self.ExtendedSelection)
+        self.setDragEnabled(True)
+        self.viewport().setAcceptDrops(True)
+        self.setDropIndicatorShown(True)
+        self.setDragDropMode(self.InternalMove)
+        self.setDefaultDropAction(Qt.MoveAction)
+        self.invisibleRootItem().setFlags(Qt.ItemIsDragEnabled | Qt.ItemIsDropEnabled | self.invisibleRootItem().flags())
+        self.itemClicked.connect(self.item_clicked)
         self.current_item = None
         self.emphasis_font = QFont(self.font())
         self.emphasis_font.setBold(True)
