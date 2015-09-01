@@ -64,7 +64,7 @@ class MessageBox(QDialog):  # {{{
                 self.ERROR: QStyle.SP_MessageBoxCritical,
                 self.WARNING: QStyle.SP_MessageBoxWarning,
                 self.INFO:    QStyle.SP_MessageBoxInformation,
-                self.QUESTION: QStyle.SP_MessageBoxInformation,
+                self.QUESTION: QStyle.SP_MessageBoxQuestion,
             }[type_]
             self.icon = self.style().standardIcon(icon)
         else:
