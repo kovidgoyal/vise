@@ -53,15 +53,17 @@ class TabDelegate(QAbstractItemDelegate):
         return QSize(300, ICON_SIZE + 2 * self.MARGIN)
 
     def paint(self, painter, option, index):
+        painter.save()
         rect = option.rect
         icon_rect = QRect(rect.left() + self.MARGIN, rect.top() + self.MARGIN, ICON_SIZE, ICON_SIZE)
         left = icon_rect.right() + 2 * self.MARGIN
         text_rect = QRect(left, icon_rect.top(), rect.width() - left, icon_rect.height())
+        text = index.data(Qt.DisplayRole) or ''
         font = index.data(Qt.FontRole)
         if font:
             painter.setFont(font)
         text_flags = Qt.AlignVCenter | Qt.AlignLeft | Qt.TextSingleLine
-        text = elided_text(index.data(Qt.DisplayRole) or '', font, text_rect.width(), 'right')
+        text = elided_text(text, font, text_rect.width(), 'right')
         painter.drawText(text_rect, text_flags, text)
         if index.data(LOADING_ROLE):
             if not self.errored_out:
@@ -75,6 +77,7 @@ class TabDelegate(QAbstractItemDelegate):
         else:
             icon = index.data(Qt.DecorationRole)
             icon.paint(painter, icon_rect)
+        painter.restore()
 
 tab_item_counter = 0
 
