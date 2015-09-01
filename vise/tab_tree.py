@@ -9,7 +9,7 @@ from functools import partial
 from PyQt5.Qt import (
     QTreeWidget, QTreeWidgetItem, Qt, pyqtSignal, QSize, QFont, QPen, QRect,
     QApplication, QPainter, QPixmap, QIcon, QTimer, QStyledItemDelegate,
-    QModelIndex
+    QModelIndex, QStyle
 )
 
 from .utils import elided_text, draw_snake_spinner
@@ -47,6 +47,7 @@ class TabDelegate(QStyledItemDelegate):
         pal = parent.palette()
         self.dark = pal.color(pal.Text)
         self.light = pal.color(pal.Base)
+        self.highlighted_text = pal.color(pal.HighlightedText)
         self.errored_out = False
 
     def sizeHint(self, option, index):
@@ -65,6 +66,8 @@ class TabDelegate(QStyledItemDelegate):
             painter.setFont(font)
         text_flags = Qt.AlignVCenter | Qt.AlignLeft | Qt.TextSingleLine
         text = elided_text(text, font, text_rect.width(), 'right')
+        if option.state & QStyle.State_Selected:
+            painter.setPen(QPen(self.highlighted_text))
         painter.drawText(text_rect, text_flags, text)
         if index.data(LOADING_ROLE):
             if not self.errored_out:
