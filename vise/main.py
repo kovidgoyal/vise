@@ -22,6 +22,7 @@ from .message_box import error_dialog
 from .settings import delete_profile
 from .window import MainWindow
 from .utils import parse_url
+from .certs import handle_qt_ssl_error
 
 app = ADDRESS = None
 
@@ -49,6 +50,7 @@ class Application(QApplication):
                 f.setFamily('Ubuntu')
             self.setFont(f)
         self.network_access_manager = nam = QNetworkAccessManager(self)
+        nam.sslErrors.connect(handle_qt_ssl_error)
         self.disk_cache = c = QNetworkDiskCache(nam)
         c.setCacheDirectory(os.path.join(cache_dir, 'favicons'))
         c.setMaximumCacheSize(10 * 1024 * 1024)

@@ -8,7 +8,9 @@ from functools import lru_cache
 
 from PyQt5.Qt import (
     QUrl, QFontMetrics, QApplication, QConicalGradient, QPen, QBrush, QPainter,
-    QRect, Qt)
+    QRect, Qt, QDialog, QDialogButtonBox)
+
+from .settings import gprefs
 
 upat = re.compile(r'[a-zA-Z0-9]+://')
 
@@ -67,3 +69,52 @@ def draw_snake_spinner(painter, rect, angle, light, dark):
     pen.setCapStyle(Qt.RoundCap)
     painter.setPen(pen)
     painter.drawArc(drawing_rect, angle * 16, (360 - 2 * angle_for_width) * 16)
+
+
+class Dialog(QDialog):
+
+    '''
+    An improved version of Qt's QDialog class. This automatically remembers the
+    last used size, automatically connects the signals for QDialogButtonBox,
+    automatically sets the window title and if the dialog has an object named
+    splitter, automatically saves the splitter state.
+
+    In order to use it, simply subclass an implement setup_ui(). You can also
+    implement sizeHint() to give the dialog a different default size when shown
+    for the first time.
+    '''
+
+    def __init__(self, title, name, parent=None, prefs=gprefs):
+        QDialog.__init__(self, parent)
+        self.prefs_for_persistence = prefs
+        self.setWindowTitle(title)
+        self.name = name
+        self.bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        self.bb.accepted.connect(self.accept)
+        self.bb.rejected.connect(self.reject)
+
+        self.setup_ui()
+
+        self.resize(self.sizeHint())
+        geom = self.prefs_for_persistence.get(name + '-geometry', None)
+        if geom is not None:
+            self.restoreGeometry(geom)
+        if hasattr(self, 'splitter'):
+            state = self.prefs_for_persistence.get(name + '-splitter-state', None)
+            if state is not None:
+                self.splitter.restoreState(state)
+
+    def accept(self):
+        self.prefs_for_persistence.set(self.name + '-geometry', bytearray(self.saveGeometry()))
+        if hasattr(self, 'splitter'):
+            self.prefs_for_persistence.set(self.name + '-splitter-state', bytearray(self.splitter.saveState()))
+        QDialog.accept(self)
+
+    def reject(self):
+        self.prefs_for_persistence.set(self.name + '-geometry', bytearray(self.saveGeometry()))
+        if hasattr(self, 'splitter'):
+            self.prefs_for_persistence.set(self.name + '-splitter-state', bytearray(self.splitter.saveState()))
+        QDialog.reject(self)
+
+    def setup_ui(self):
+        raise NotImplementedError('You must implement this method in Dialog subclasses')

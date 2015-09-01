@@ -53,10 +53,10 @@ class MainWindow(QMainWindow):
             gprefs['main-splitter-state'] = bytearray(self.main_splitter.saveState())
 
     def restore_state(self):
-        geom = gprefs['main-window-geometry']
+        geom = gprefs.get('main-window-geometry')
         if geom is not None:
             self.restoreGeometry(geom)
-        ms = gprefs['main-splitter-state']
+        ms = gprefs.get('main-splitter-state')
         if ms is not None:
             self.main_splitter.restoreState(ms)
         else:

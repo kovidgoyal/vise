@@ -9,6 +9,7 @@ from PyQt5.Qt import (
     QApplication, QPixmap, pyqtSignal, QWebChannel, pyqtSlot, QObject
 )
 
+from .certs import cert_exceptions
 
 view_id = 0
 
@@ -37,6 +38,16 @@ class WebPage(QWebEnginePage):
             print('%s:%s: %s' % (source_id, linenumber, msg))
         except OSError:
             pass
+
+    def certificateError(self, err):
+        code = err.error()
+        qurl = err.url()
+        domain = qurl.host()
+        if cert_exceptions.has_exception(domain, code):
+            return True
+        if not err.isOverridable():
+            return False
+        return cert_exceptions.ask(domain, code, self.parent())
 
 
 class WebView(QWebEngineView):

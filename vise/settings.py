@@ -29,6 +29,8 @@ def from_json(obj):
         return bytearray(standard_b64decode(obj['__value__']))
     return obj
 
+nodef = object()
+
 
 class DynamicPrefs:
 
@@ -36,7 +38,7 @@ class DynamicPrefs:
         self.path = os.path.join(config_dir, '%s.sqlite' % name)
         self._conn = None
         self._cache = {}
-        self.defaults = defaultdict(lambda: None)
+        self.defaults = defaultdict(lambda: nodef)
         self.pending_commits = {}
         self._buffer_commits = False
 
@@ -50,6 +52,13 @@ class DynamicPrefs:
                 c.execute('CREATE TABLE prefs (id INTEGER PRIMARY KEY, name TEXT NOT NULL, value TEXT NOT NULL, UNIQUE(name)); PRAGMA user_version=1;')
             c.close()
         return self._conn
+
+    def get(self, name, default=None):
+        ans = self[name]
+        return default if ans is nodef else ans
+
+    def set(self, name, val):
+        self[name] = val
 
     def __getitem__(self, name):
         try:
@@ -67,12 +76,19 @@ class DynamicPrefs:
         if self._buffer_commits:
             self.pending_commits[name] = val
             return
+        self._cache.pop(name, None)
         c = self.conn.cursor()
         if val == self.defaults[name]:
             c.execute('DELETE FROM prefs WHERE name=?', (name,))
         else:
+            self._cache[name] = val
             val = json.dumps(val, ensure_ascii=False, indent=2, default=to_json)
             c.execute('INSERT or REPLACE INTO prefs(name, value) VALUES (?, ?)', (name, val))
+
+    def __delitem__(self, name):
+        self._cache.pop(name, None)
+        c = self.conn.cursor()
+        c.execute('DELETE FROM prefs WHERE name=?', (name,))
 
     @property
     def buffer_commits(self):
