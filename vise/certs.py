@@ -14,6 +14,7 @@ from PyQt5.Qt import (
 )
 
 from .constants import config_dir
+from .message_box import error_dialog
 from .settings import gprefs
 from .utils import Dialog
 
@@ -37,7 +38,7 @@ class Ask(Dialog):
         self.la = la = QLabel(self.msg)
         la.setWordWrap(True)
         l.addWidget(la, 0, 1)
-        self.permanent = p = QCheckBox(_('Permanently store exception for this site'))
+        self.permanent = p = QCheckBox(_('Permanently store permission for this site'))
         p.setToolTip(_('If checked you will never be asked for confirmation for this site again,'
                        '\notherwise, you will be asked again after restarting the browser.'))
         p.setChecked(gprefs.get('permanently_store_ssl_exception', True))
@@ -93,15 +94,20 @@ class CertExceptions:
             pass
         return False
 
-    def ask(self, domain, code, parent=None):
-        domain = ascii_lowercase(domain)
+    def show_error(self, domain, error_string, parent=None):
+        error_dialog(parent, _('SSL Certificate invalid'), _(
+            'The SSL certificate used by <i>{0}</i> is not valid, with error: {1}').format(domain, error_string))
+
+    def ask(self, odomain, code, error_string, parent=None):
+        domain = ascii_lowercase(odomain)
         if code == QWebEngineCertificateError.CertificateAuthorityInvalid:
             msg = _('The SSL certificate for {0} has an unknown certificate authority'
-                    ' do you want to trust it nevertheless?')
+                    ' (could be a self signed certificate) do you want to trust it nevertheless?')
         elif code == QWebEngineCertificateError.CertificateWeakSignatureAlgorithm:
             msg = _('The SSL certificate for {0} uses a weak signature algorithm,'
                     ' do you want to trust it nevertheless?')
         else:
+            self.show_error(odomain, error_string, parent)
             return False
         msg = msg.format('<i>%s</i>' % domain)
         d = Ask(msg, parent=parent)

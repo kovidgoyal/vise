@@ -46,8 +46,9 @@ class WebPage(QWebEnginePage):
         if cert_exceptions.has_exception(domain, code):
             return True
         if not err.isOverridable():
+            cert_exceptions.show_error(domain, err.errorDescription(), self.parent())
             return False
-        return cert_exceptions.ask(domain, code, self.parent())
+        return cert_exceptions.ask(domain, code, err.errorDescription(), self.parent())
 
 
 class WebView(QWebEngineView):
