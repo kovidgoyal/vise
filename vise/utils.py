@@ -14,7 +14,7 @@ from .settings import gprefs
 
 
 def parse_url(url_or_path):
-    QUrl.fromUserInput(url_or_path, os.getcwd())
+    return QUrl.fromUserInput(url_or_path, os.getcwd())
 
 
 @lru_cache(maxsize=500)
