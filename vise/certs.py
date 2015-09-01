@@ -53,6 +53,8 @@ class Ask(Dialog):
         ans.setWidth(ans.width() + 150)
         return ans
 
+code_map = {int(v): k for k, v in vars(QWebEngineCertificateError).items() if isinstance(v, QWebEngineCertificateError.Error)}
+
 
 class CertExceptions:
 
@@ -75,7 +77,7 @@ class CertExceptions:
 
     def add_exception(self, domain, etype, permanent=True):
         domain = ascii_lowercase(domain)
-        etype = str(etype)
+        etype = code_map[etype]
         if permanent:
             c = self.conn.cursor()
             c.execute('INSERT OR REPLACE INTO exceptions(domain, type) VALUES (?, ?)', (domain, etype))
@@ -84,7 +86,7 @@ class CertExceptions:
 
     def has_exception(self, domain, etype):
         domain = ascii_lowercase(domain)
-        etype = str(etype)
+        etype = code_map[etype]
         if etype in self.temporary[domain]:
             return True
         try:
