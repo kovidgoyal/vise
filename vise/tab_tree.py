@@ -137,11 +137,15 @@ class TabTree(QTreeWidget):
 
     def __init__(self, parent):
         QTreeWidget.__init__(self, parent)
+        pal = self.palette()
+        pal.setColor(pal.Highlight, pal.color(pal.Base))
+        pal.setColor(pal.HighlightedText, pal.color(pal.Text))
+        self.setPalette(pal)
         self.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
         self.setAutoScrollMargin(ICON_SIZE * 2)
         self.setAnimated(True)
         self.setHeaderHidden(True)
-        self.setSelectionMode(self.ExtendedSelection)
+        self.setSelectionMode(self.SingleSelection)
         self.setDragEnabled(True)
         self.viewport().setAcceptDrops(True)
         self.setDropIndicatorShown(True)
