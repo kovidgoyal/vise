@@ -6,10 +6,11 @@ from contextlib import closing
 
 from PyQt5.Qt import (
     QWebEngineView, QWebEnginePage, QSize, QNetworkRequest, QIcon,
-    QApplication, QPixmap, pyqtSignal, QWebChannel, pyqtSlot, QObject
+    QApplication, QPixmap, pyqtSignal, QWebChannel, pyqtSlot, QObject,
 )
 
 from .certs import cert_exceptions
+from .auth import get_http_auth_credentials, get_proxy_auth_credentials
 
 view_id = 0
 
@@ -32,6 +33,8 @@ class WebPage(QWebEnginePage):
         self.channel = QWebChannel(self)
         self.setWebChannel(self.channel)
         self.channel.registerObject('bridge', self.bridge)
+        self.authenticationRequired.connect(self.authentication_required)
+        self.proxyAuthenticationRequired.connect(self.proxy_authentication_required)
 
     def javaScriptConsoleMessage(self, level, msg, linenumber, source_id):
         try:
@@ -49,6 +52,12 @@ class WebPage(QWebEnginePage):
             cert_exceptions.show_error(domain, err.errorDescription(), self.parent())
             return False
         return cert_exceptions.ask(domain, code, err.errorDescription(), self.parent())
+
+    def authentication_required(self, qurl, authenticator):
+        get_http_auth_credentials(qurl, authenticator, parent=self.parent())
+
+    def proxy_authentication_required(self, qurl, authenticator, proxy_host):
+        get_proxy_auth_credentials(qurl, authenticator, proxy_host, parent=self.parent())
 
 
 class WebView(QWebEngineView):
