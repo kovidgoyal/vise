@@ -77,6 +77,9 @@ class MainWindow(QMainWindow):
         ans.link_hovered.connect(partial(self.link_hovered, ans))
         return ans
 
+    def raise_tab(self, tab):
+        self.stack.setCurrentWidget(tab)
+
     def url_changed(self):
         if self.current_tab is None:
             self.url_label.setText('')

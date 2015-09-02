@@ -8,13 +8,43 @@ from gettext import gettext as _
 from PyQt5.Qt import (
     QWebEngineView, QWebEnginePage, QSize, QNetworkRequest, QIcon,
     QApplication, QPixmap, pyqtSignal, QWebChannel, pyqtSlot, QObject,
+    QGridLayout, QCheckBox, QLabel
 )
 
 from .auth import get_http_auth_credentials, get_proxy_auth_credentials
 from .certs import cert_exceptions
 from .message_box import question_dialog
+from .utils import Dialog
 
 view_id = 0
+
+
+class Alert(Dialog):
+
+    suppressed_alerts = set()
+
+    def __init__(self, title, qurl, msg, parent):
+        title = title or qurl.host() or qurl.toString()
+        self.msg = msg
+        self.key = qurl.toString()
+        Dialog.__init__(self, _('Alert from') + ': ' + title, 'alert', parent)
+
+    def setup_ui(self):
+        self.l = l = QGridLayout(self)
+        self.la = la = QLabel(self.msg)
+        la.setWordWrap(True)
+        l.addWidget(la, 0, 0, 1, -1)
+        self.setMaximumWidth(self.parent().width())
+        self.setMaximumHeight(self.parent().height())
+        self.cb = cb = QCheckBox(_('&Suppress future alerts from this site'), self)
+        cb.toggled.connect(lambda: cb.isChecked() and Alert.suppressed_alerts.add(self.key))
+        l.addWidget(cb, 1, 0)
+        l.addWidget(self.bb, 1, 1), self.bb.setStandardButtons(self.bb.Close)
+
+    def sizeHint(self):
+        ans = Dialog.sizeHint(self)
+        ans.setWidth(min(self.maximumWidth(), ans.width() + 150))
+        return ans
 
 
 class Bridge(QObject):
@@ -60,6 +90,14 @@ class WebPage(QWebEnginePage):
 
     def proxy_authentication_required(self, qurl, authenticator, proxy_host):
         get_proxy_auth_credentials(qurl, authenticator, proxy_host, parent=self.parent())
+
+    def javaScriptAlert(self, qurl, msg):
+        key = qurl.toString()
+        if key in Alert.suppressed_alerts:
+            print('Suppressing alert from:', qurl.toString())
+            return
+        self.parent().raise_tab()
+        Alert(self.title(), qurl, msg, self.parent()).exec_()
 
 
 class WebView(QWebEngineView):
@@ -125,6 +163,9 @@ class WebView(QWebEngineView):
                 QApplication.instance().error('Failed to download favicon from %s with error: %s' % (
                     self._icon_reply.url().toString(), self._icon_reply.errorString()))
         self.icon_changed.emit(self.icon)
+
+    def raise_tab(self):
+        self.main_window.raise_tab(self)
 
     def createWindow(self, window_type):
         if window_type in (QWebEnginePage.WebBrowserTab, QWebEnginePage.WebBrowserWindow):
