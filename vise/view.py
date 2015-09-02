@@ -131,4 +131,4 @@ class WebView(QWebEngineView):
             site = '<b>%s</b>' % self.title() or self.url().host() or self.url().toString()
             if question_dialog(self, _('Allow new window?'), _(
                     'The site {0} wants to open a new tab, allow it?').format(site)):
-                    return self.main_window.get_tab_for_load(in_current_tab=False)
+                return self.main_window.get_tab_for_load(in_current_tab=False)
