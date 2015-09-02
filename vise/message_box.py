@@ -193,7 +193,6 @@ def question_dialog(
         # The icons must be QIcon objects or strings for I()
         yes_text=None, no_text=None, yes_icon=None, no_icon=None,
 ):
-    from calibre.gui2.dialogs.message_box import MessageBox
 
     auto_skip = set(gprefs.get('questions_to_auto_skip', []))
     if (skip_dialog_name is not None and skip_dialog_name in auto_skip):

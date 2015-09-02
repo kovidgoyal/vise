@@ -3,14 +3,16 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 from contextlib import closing
+from gettext import gettext as _
 
 from PyQt5.Qt import (
     QWebEngineView, QWebEnginePage, QSize, QNetworkRequest, QIcon,
     QApplication, QPixmap, pyqtSignal, QWebChannel, pyqtSlot, QObject,
 )
 
-from .certs import cert_exceptions
 from .auth import get_http_auth_credentials, get_proxy_auth_credentials
+from .certs import cert_exceptions
+from .message_box import question_dialog
 
 view_id = 0
 
@@ -67,9 +69,10 @@ class WebView(QWebEngineView):
     loading_status_changed = pyqtSignal(object)
     link_hovered = pyqtSignal(object)
 
-    def __init__(self, profile, parent):
+    def __init__(self, profile, main_window):
         global view_id
-        QWebEngineView.__init__(self, parent)
+        QWebEngineView.__init__(self, main_window)
+        self.main_window = main_window
         self.create_page(profile)
         self.view_id = view_id
         view_id += 1
@@ -122,3 +125,10 @@ class WebView(QWebEngineView):
                 QApplication.instance().error('Failed to download favicon from %s with error: %s' % (
                     self._icon_reply.url().toString(), self._icon_reply.errorString()))
         self.icon_changed.emit(self.icon)
+
+    def createWindow(self, window_type):
+        if window_type in (QWebEnginePage.WebBrowserTab, QWebEnginePage.WebBrowserWindow):
+            site = '<b>%s</b>' % self.title() or self.url().host() or self.url().toString()
+            if question_dialog(self, _('Allow new window?'), _(
+                    'The site {0} wants to open a new tab, allow it?').format(site)):
+                    return self.main_window.get_tab_for_load(in_current_tab=False)

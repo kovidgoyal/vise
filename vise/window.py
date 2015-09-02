@@ -68,7 +68,7 @@ class MainWindow(QMainWindow):
         QApplication.instance().remove_window(self)
 
     def create_new_tab(self):
-        ans = WebView(self.profile, self.stack)
+        ans = WebView(self.profile, self)
         self.stack.addWidget(ans)
         self.tabs.append(ans)
         ans.titleChanged.connect(self.update_window_title)
