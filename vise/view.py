@@ -14,7 +14,7 @@ from PyQt5.Qt import (
 from .auth import get_http_auth_credentials, get_proxy_auth_credentials
 from .certs import cert_exceptions
 from .message_box import question_dialog
-from .utils import Dialog
+from .utils import Dialog, safe_disconnect
 
 view_id = 0
 
@@ -99,6 +99,11 @@ class WebPage(QWebEnginePage):
         self.parent().raise_tab()
         Alert(self.title(), qurl, msg, self.parent()).exec_()
 
+    def break_cycles(self):
+        for s in ('authenticationRequired proxyAuthenticationRequired linkHovered featurePermissionRequested'
+                  ' featurePermissionRequestCanceled windowCloseRequested').split():
+            safe_disconnect(getattr(self, s))
+
 
 class WebView(QWebEngineView):
 
@@ -106,6 +111,7 @@ class WebView(QWebEngineView):
     open_in_new_tab = pyqtSignal(object)
     loading_status_changed = pyqtSignal(object)
     link_hovered = pyqtSignal(object)
+    window_close_requested = pyqtSignal(object)
 
     def __init__(self, profile, main_window):
         global view_id
@@ -121,6 +127,12 @@ class WebView(QWebEngineView):
         self.loadStarted.connect(lambda: self.loading_status_changed.emit(True))
         self.loadFinished.connect(lambda: self.loading_status_changed.emit(False))
         self._page.linkHovered.connect(self.link_hovered.emit)
+        self._page.windowCloseRequested.connect(lambda: self.window_close_requested.emit(self))
+
+    def break_cycles(self):
+        self._page.break_cycles()
+        for s in 'icon_changed open_in_new_tab loading_status_changed link_hovered loadStarted loadFinished window_close_requested'.split():
+            safe_disconnect(getattr(self, s))
 
     def create_page(self, profile):
         self._page = WebPage(profile, self)

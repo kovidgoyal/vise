@@ -113,6 +113,7 @@ class Application(QApplication):
         return w
 
     def remove_window(self, window):
+        window.break_cycles()
         try:
             self.windows.remove(window)
         except ValueError:
@@ -150,6 +151,8 @@ class Application(QApplication):
         # Make sure the application object has no references in python and the
         # other global objects can also be garbage collected
         self.local_server.close()
+        for w in self.windows:
+            w.break_cycles()
         del self.windows, self.network_access_manager, self.local_server
         sys.excepthook = sys.__excepthook__
 

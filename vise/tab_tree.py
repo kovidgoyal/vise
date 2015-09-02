@@ -183,6 +183,12 @@ class TabTree(QTreeWidget):
             self.item_for_tab(parent).addChild(i)
             self.scrollToItem(i)
 
+    def remove_tab(self, tab):
+        item = self.item_for_tab(tab)
+        if item is not None:
+            p = item.parent() or self.invisibleRootItem()
+            p.removeChild(item)
+
     def loading_status_changed(self, item, loading):
         if loading:
             self.loading_items.add(item)

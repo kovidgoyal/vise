@@ -75,10 +75,23 @@ class MainWindow(QMainWindow):
         ans.open_in_new_tab.connect(self.open_in_new_tab)
         ans.urlChanged.connect(self.url_changed)
         ans.link_hovered.connect(partial(self.link_hovered, ans))
+        ans.window_close_requested.connect(self.close_tab)
         return ans
 
     def raise_tab(self, tab):
         self.stack.setCurrentWidget(tab)
+
+    def close_tab(self, tab):
+        self.tab_tree.remove_tab(tab)
+        tab.break_cycles()
+        self.tabs.remove(tab)
+        self.stack.removeWidget(tab)
+
+    def break_cycles(self):
+        for tab in self.tabs:
+            self.stack.removeWidget(tab)
+            tab.break_cycles()
+        self.tabs = []
 
     def url_changed(self):
         if self.current_tab is None:

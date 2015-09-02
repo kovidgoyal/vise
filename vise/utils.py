@@ -17,6 +17,13 @@ def parse_url(url_or_path):
     return QUrl.fromUserInput(url_or_path, os.getcwd())
 
 
+def safe_disconnect(signal):
+    try:
+        signal.disconnect()
+    except TypeError:
+        pass  # signal was not connected
+
+
 @lru_cache(maxsize=500)
 def elided_text(text, font=None, width=300, pos='middle'):
     ''' Return a version of text that is no wider than width pixels when
