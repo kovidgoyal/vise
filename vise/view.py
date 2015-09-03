@@ -14,12 +14,13 @@ from PyQt5.Qt import (
 from .auth import get_http_auth_credentials, get_proxy_auth_credentials
 from .certs import cert_exceptions
 from .message_box import question_dialog
+from .popup import Popup
 from .utils import Dialog, safe_disconnect
 
 view_id = 0
 
 
-class Alert(Dialog):
+class Alert(Dialog):  # {{{
 
     suppressed_alerts = set()
 
@@ -45,6 +46,7 @@ class Alert(Dialog):
         ans = Dialog.sizeHint(self)
         ans.setWidth(min(self.maximumWidth(), ans.width() + 150))
         return ans
+# }}}
 
 
 class Bridge(QObject):
@@ -112,6 +114,8 @@ class WebView(QWebEngineView):
     loading_status_changed = pyqtSignal(object)
     link_hovered = pyqtSignal(object)
     window_close_requested = pyqtSignal(object)
+    resized = pyqtSignal()
+    moved = pyqtSignal()
 
     def __init__(self, profile, main_window):
         global view_id
@@ -128,10 +132,39 @@ class WebView(QWebEngineView):
         self.loadFinished.connect(lambda: self.loading_status_changed.emit(False))
         self._page.linkHovered.connect(self.link_hovered.emit)
         self._page.windowCloseRequested.connect(lambda: self.window_close_requested.emit(self))
+        self.popup = Popup(self)
+        self._page.featurePermissionRequested.connect(self.feature_permission_requested)
+        self._page.featurePermissionRequestCanceled.connect(self.feature_permission_request_canceled)
+        self.feature_permission_map = {}
+
+    def feature_permission_requested(self, qurl, feature):
+        key = (qurl.toString(), feature)
+        what = {QWebEnginePage.Geolocation: _('current location'), QWebEnginePage.MediaAudioCapture: _('microphone'),
+                QWebEnginePage.MediaVideoCapture: _('webcam'), QWebEnginePage.MediaAudioVideoCapture: _('microphone and webcam')
+                }[feature]
+        self.feature_permission_map[key] = self.popup(
+            _('Grant this site access to your <b>%s</b>?') % what,
+            lambda ok: self._page.setFeaturePermission(qurl, feature, (
+                QWebEnginePage.PermissionGrantedByUser if ok else QWebEnginePage.PermissionDeniedByUser))
+        )
+
+    def feature_permission_request_canceled(self, qurl, feature):
+        key = (qurl.toString(), feature)
+        qid = self.feature_permission_map.pop(key, None)
+        if qid is not None:
+            self.popup.abort_question(qid)
+
+    def resizeEvent(self, ev):
+        self.resized.emit()
+        return QWebEngineView.resizeEvent(self, ev)
+
+    def moveEvent(self, ev):
+        self.moved.emit()
+        return QWebEngineView.moveEvent(self, ev)
 
     def break_cycles(self):
         self._page.break_cycles()
-        for s in 'icon_changed open_in_new_tab loading_status_changed link_hovered loadStarted loadFinished window_close_requested'.split():
+        for s in 'resized moved icon_changed open_in_new_tab loading_status_changed link_hovered loadStarted loadFinished window_close_requested'.split():
             safe_disconnect(getattr(self, s))
 
     def create_page(self, profile):
