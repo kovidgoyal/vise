@@ -3,6 +3,8 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
+import re
+import sys
 import math
 from functools import lru_cache
 
@@ -10,6 +12,7 @@ from PyQt5.Qt import (
     QUrl, QFontMetrics, QApplication, QConicalGradient, QPen, QBrush, QPainter,
     QRect, Qt, QDialog, QDialogButtonBox)
 
+from .constants import cache_dir, str_version
 from .settings import gprefs
 
 
@@ -121,3 +124,36 @@ class Dialog(QDialog):
 
     def setup_ui(self):
         raise NotImplementedError('You must implement this method in Dialog subclasses')
+
+
+def ipython(user_ns=None):
+    import IPython
+    from traitlets.config import Config
+    ipydir = os.path.join(cache_dir, 'ipython')
+    defns = {'os': os, 're': re, 'sys': sys}
+    BANNER = ('Welcome to the interactive vise shell!\n')
+    if not user_ns:
+        user_ns = defns
+    else:
+        defns.update(user_ns)
+        user_ns = defns
+
+    c = Config()
+    c.TerminalInteractiveShell.confirm_exit = False
+    c.PromptManager.in_template = (r'{color.LightGreen}vise '
+                                   '{color.LightBlue}[{color.LightCyan}%s{color.LightBlue}]'
+                                   r'{color.Green}|\#> ' % str_version)
+    c.PromptManager.in2_template = r'{color.Green}|{color.LightGreen}\D{color.Green}> '
+    c.PromptManager.out_template = r'<\#> '
+    c.TerminalInteractiveShell.banner1 = BANNER
+    c.PromptManager.justify = True
+    c.TerminalIPythonApp.ipython_dir = ipydir
+    os.environ['IPYTHONDIR'] = ipydir
+
+    c.InteractiveShell.separate_in = ''
+    c.InteractiveShell.separate_out = ''
+    c.InteractiveShell.separate_out2 = ''
+
+    c.PrefilterManager.multi_line_specials = True
+
+    IPython.embed(config=c, user_ns=user_ns)

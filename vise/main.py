@@ -29,6 +29,8 @@ app = ADDRESS = None
 
 def option_parser():
     parser = argparse.ArgumentParser(description='Run the {} browser'.format(appname))
+    parser.add_argument('--shell', action='store_true', default=False, help=_(
+        'Start an interactive shell'))
     parser.add_argument('urls', metavar='URL', nargs='*', help='urls to open')
     return parser
 
@@ -161,6 +163,10 @@ def main():
     global app
     parser = option_parser()
     args = parser.parse_args()
+    if args.shell:
+        from .utils import ipython
+        ipython()
+        raise SystemExit(0)
     app = Application(args)
     app.setOrganizationName('kovidgoyal')
     app.setApplicationName(appname)
