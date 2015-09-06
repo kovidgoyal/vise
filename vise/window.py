@@ -51,15 +51,19 @@ class PassthroughButton(QToolButton):
 
     def __init__(self, main_window):
         QToolButton.__init__(self, main_window)
+        self.setCursor(Qt.PointingHandCursor)
         self.main_window = main_window
-        self.setCheckable(True), self.setChecked(False)
+        self.setCheckable(True)
         self.setIcon(get_icon('images/passthrough.png'))
         self.toggled.connect(self.change_passthrough)
+        self.update_state()
 
     def update_state(self):
         self.blockSignals(True)
         tab = self.main_window.current_tab
         self.setChecked(getattr(tab, 'force_passthrough', False))
+        self.setToolTip(_('Disable passthrough mode') if self.isChecked() else _(
+            'Enable passthrough mode'))
         self.blockSignals(False)
 
     def change_passthrough(self):
@@ -76,6 +80,7 @@ class MainWindow(QMainWindow):
     def __init__(self, is_private=False):
         global _window_id
         QMainWindow.__init__(self)
+        self.current_tab = None
         _window_id += 1
         self.window_id = _window_id
         self.is_private = is_private
@@ -98,7 +103,6 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(w)
 
         self.tabs = []
-        self.current_tab = None
         self.tab_tree = tt = TabTree(self)
         tt.tab_activated.connect(self.show_tab)
         w.addWidget(tt)
