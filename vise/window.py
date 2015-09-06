@@ -8,12 +8,12 @@ from gettext import gettext as _
 
 from PyQt5.Qt import (
     QMainWindow, Qt, QSplitter, QApplication, QStackedWidget, QUrl, QLabel,
-    QToolButton, QFrame
+    QToolButton, QFrame, QKeySequence
 )
 
 from .constants import appname
 from .resources import get_data_as_file, get_icon
-from .settings import gprefs, profile, create_profile
+from .settings import gprefs, profile, create_profile, quickmarks
 from .tab_tree import TabTree
 from .view import WebView
 
@@ -25,6 +25,8 @@ class Status(QStackedWidget):
         self.msg = QLabel('')
         self.msg.setFocusPolicy(Qt.NoFocus)
         self.addWidget(self.msg)
+        self.setFocusPolicy(Qt.NoFocus)
+        self.msg.setFocusPolicy(Qt.NoFocus)
 
     def __call__(self, text=''):
         self.msg.setText('<b>' + text)
@@ -35,6 +37,7 @@ class ModeLabel(QLabel):
     def __init__(self, main_window):
         QLabel.__init__(self, '')
         self.main_window = main_window
+        self.setFocusPolicy(Qt.NoFocus)
 
     def update_mode(self):
         tab = self.main_window.current_tab
@@ -51,6 +54,7 @@ class PassthroughButton(QToolButton):
 
     def __init__(self, main_window):
         QToolButton.__init__(self, main_window)
+        self.setFocusPolicy(Qt.NoFocus)
         self.setCursor(Qt.PointingHandCursor)
         self.main_window = main_window
         self.setCheckable(True)
@@ -81,6 +85,7 @@ class MainWindow(QMainWindow):
         global _window_id
         QMainWindow.__init__(self)
         self.current_tab = None
+        self.quickmark_pending = None
         _window_id += 1
         self.window_id = _window_id
         self.is_private = is_private
@@ -226,3 +231,13 @@ class MainWindow(QMainWindow):
             if x:
                 title = '%s - %s' % (x, at)
         self.setWindowTitle(title)
+
+    def quickmark(self, key):
+        in_current_tab = self.quickmark_pending == 'sametab'
+        self.quickmark_pending = None
+        url = quickmarks().get(key)
+        if url is None:
+            key = QKeySequence(key).toString()
+            self.statusBar().showMessage(_('Quickmark %s is not defined!') % key, 5000)
+            return
+        self.open_url(url, in_current_tab=in_current_tab)

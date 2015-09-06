@@ -9,7 +9,8 @@ from base64 import standard_b64decode, standard_b64encode
 from collections import defaultdict
 
 from PyQt5.Qt import (
-    QWebEngineProfile, QApplication, QWebEngineScript, QFile, QIODevice
+    QWebEngineProfile, QApplication, QWebEngineScript, QFile, QIODevice,
+    QKeySequence
 )
 
 from .constants import config_dir, appname, cache_dir, str_version
@@ -182,3 +183,24 @@ def profile():
 def delete_profile():
     global _profile
     _profile = None
+
+_quickmarks = None
+
+
+def quickmarks():
+    global _quickmarks
+    if _quickmarks is None:
+        from .utils import parse_url
+        _quickmarks = {}
+        try:
+            with open(os.path.join(config_dir, 'quickmarks'), 'rb') as f:
+                for line in f.read().decode('utf-8').splitlines():
+                    line = line.strip()
+                    if line and not line.startswith('#'):
+                        key, url = line.partition(' ')[::2]
+                        key = QKeySequence.fromString(key)[0]
+                        url = parse_url(url)
+                        _quickmarks[key] = url
+        except FileNotFoundError:
+            pass
+    return _quickmarks

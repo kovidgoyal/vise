@@ -39,6 +39,16 @@ def passthrough(window, *args, **kwargs):
         return True
 
 
+def quickmark(window, *args, **kwargs):
+    window.quickmark_pending = 'sametab'
+    return True
+
+
+def quickmark_newtab(window, *args, **kwargs):
+    window.quickmark_pending = 'newtab'
+    return True
+
+
 def search_forward(window, *args, **kwargs):
     pass
 

@@ -41,7 +41,11 @@ D                           close_tab
 N                           next_match
 Shift+N                     prev_match
 Ctrl+Z                      passthrough
+G                           quickmark
+Shift+G                     quickmark_newtab
 ''')
+
+
 read_key_map(input_key_map, '''\
 Escape                     exit_text_input
 Ctrl+I                     edit_text
@@ -57,6 +61,9 @@ class KeyFilter(QObject):
             window, fw = app.activeWindow(), app.focusWidget()
             if isinstance(window, QMainWindow) and (fw is None or isinstance(fw, QOpenGLWidget)):
                 key = key_from_event(event)
+                if window.quickmark_pending:
+                    window.quickmark(key)
+                    return True
                 if window.current_tab is not None:
                     if window.current_tab.force_passthrough:
                         return False
