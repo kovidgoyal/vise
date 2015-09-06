@@ -7,11 +7,12 @@ from functools import partial
 from gettext import gettext as _
 
 from PyQt5.Qt import (
-    QMainWindow, Qt, QSplitter, QApplication, QStackedWidget, QUrl, QLabel
+    QMainWindow, Qt, QSplitter, QApplication, QStackedWidget, QUrl, QLabel,
+    QToolButton, QFrame
 )
 
 from .constants import appname
-from .resources import get_data_as_file
+from .resources import get_data_as_file, get_icon
 from .settings import gprefs, profile, create_profile
 from .tab_tree import TabTree
 from .view import WebView
@@ -34,7 +35,6 @@ class ModeLabel(QLabel):
     def __init__(self, main_window):
         QLabel.__init__(self, '')
         self.main_window = main_window
-        self.setStyleSheet('QLabel { border-left: 1px solid black }')
 
     def update_mode(self):
         tab = self.main_window.current_tab
@@ -45,6 +45,28 @@ class ModeLabel(QLabel):
             elif tab.text_input_focused:
                 text = '-- %s --' % _('INSERT')
         self.setText(text)
+
+
+class PassthroughButton(QToolButton):
+
+    def __init__(self, main_window):
+        QToolButton.__init__(self, main_window)
+        self.main_window = main_window
+        self.setCheckable(True), self.setChecked(False)
+        self.setIcon(get_icon('images/passthrough.png'))
+        self.toggled.connect(self.change_passthrough)
+
+    def update_state(self):
+        self.blockSignals(True)
+        tab = self.main_window.current_tab
+        self.setChecked(getattr(tab, 'force_passthrough', False))
+        self.blockSignals(False)
+
+    def change_passthrough(self):
+        tab = self.main_window.current_tab
+        if tab is not None:
+            tab.force_passthrough = self.isChecked()
+
 
 _window_id = 0
 
@@ -61,7 +83,16 @@ class MainWindow(QMainWindow):
         self.status_msg = Status(self)
         self.statusBar().addWidget(self.status_msg)
         self.mode_label = ml = ModeLabel(self)
+        self.passthrough_button = b = PassthroughButton(self)
+
+        def addsep():
+            f = QFrame(self)
+            f.setFrameShape(f.VLine)
+            self.statusBar().addPermanentWidget(f)
+        addsep()
         self.statusBar().addPermanentWidget(ml)
+        addsep()
+        self.statusBar().addPermanentWidget(b)
 
         self.main_splitter = w = QSplitter(self)
         self.setCentralWidget(w)
@@ -115,6 +146,8 @@ class MainWindow(QMainWindow):
         ans.link_hovered.connect(partial(self.link_hovered, ans))
         ans.window_close_requested.connect(self.close_tab)
         ans.focus_changed.connect(self.mode_label.update_mode)
+        ans.passthrough_changed.connect(self.mode_label.update_mode)
+        ans.passthrough_changed.connect(self.passthrough_button.update_state)
         return ans
 
     def raise_tab(self, tab):
@@ -176,6 +209,7 @@ class MainWindow(QMainWindow):
         self.update_window_title()
         self.current_tab = self.stack.currentWidget()
         self.tab_tree.current_changed(self.current_tab)
+        self.passthrough_button.update_state()
 
     def show_tab(self, tab):
         if tab is not None:

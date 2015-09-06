@@ -157,6 +157,7 @@ class WebView(QWebEngineView):
     window_close_requested = pyqtSignal(object)
     resized = pyqtSignal()
     moved = pyqtSignal()
+    passthrough_changed = pyqtSignal(object, object)
 
     def __init__(self, profile, main_window):
         global view_id
@@ -179,7 +180,16 @@ class WebView(QWebEngineView):
         self._page.featurePermissionRequestCanceled.connect(self.feature_permission_request_canceled)
         self.feature_permission_map = {}
         self.text_input_focused = False
-        self.force_passthrough = False
+        self._force_passthrough = False
+
+    @property
+    def force_passthrough(self):
+        return self._force_passthrough
+
+    @force_passthrough.setter
+    def force_passthrough(self, val):
+        self._force_passthrough = bool(val)
+        self.passthrough_changed.emit(self._force_passthrough, self)
 
     def on_focus_change(self, is_text_input):
         self.text_input_focused = is_text_input
@@ -213,7 +223,7 @@ class WebView(QWebEngineView):
     def break_cycles(self):
         self._page.break_cycles()
         for s in ('resized moved icon_changed open_in_new_tab loading_status_changed link_hovered'
-                  ' loadStarted loadFinished window_close_requested focus_changed').split():
+                  ' loadStarted loadFinished window_close_requested focus_changed passthrough_changed').split():
             safe_disconnect(getattr(self, s))
 
     def create_page(self, profile):

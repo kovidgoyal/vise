@@ -33,6 +33,12 @@ def edit_text(window, *args, **kwargs):
         return True
 
 
+def passthrough(window, *args, **kwargs):
+    if window.current_tab is not None:
+        window.current_tab.force_passthrough = True
+        return True
+
+
 def search_forward(window, *args, **kwargs):
     pass
 

@@ -35,11 +35,12 @@ def read_key_map(which, raw):
 read_key_map(normal_key_map, '''\
 Alt+Right                   forward
 Alt+Left                    back
-d                           close_tab
+D                           close_tab
 /                           search_forward
 ?                           search_back
-n                           next_match
-Shift+n                     prev_match
+N                           next_match
+Shift+N                     prev_match
+Ctrl+Z                      passthrough
 ''')
 read_key_map(input_key_map, '''\
 Escape                     exit_text_input
