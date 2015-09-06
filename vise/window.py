@@ -16,14 +16,31 @@ from .tab_tree import TabTree
 from .view import WebView
 
 
+class Status(QStackedWidget):
+
+    def __init__(self, parent):
+        QStackedWidget.__init__(self, parent)
+        self.msg = QLabel('')
+        self.msg.setFocusPolicy(Qt.NoFocus)
+        self.addWidget(self.msg)
+
+    def __call__(self, text=''):
+        self.msg.setText('<b>' + text)
+
+_window_id = 0
+
+
 class MainWindow(QMainWindow):
 
     def __init__(self, is_private=False):
+        global _window_id
         QMainWindow.__init__(self)
+        _window_id += 1
+        self.window_id = _window_id
         self.is_private = is_private
         self.setAttribute(Qt.WA_DeleteOnClose, True)
-        self.url_label = QLabel('')
-        self.statusBar().addWidget(self.url_label)
+        self.status_msg = Status(self)
+        self.statusBar().addWidget(self.status_msg)
 
         self.main_splitter = w = QSplitter(self)
         self.setCentralWidget(w)
@@ -95,9 +112,9 @@ class MainWindow(QMainWindow):
 
     def url_changed(self):
         if self.current_tab is None:
-            self.url_label.setText('')
+            self.status_msg('')
         else:
-            self.url_label.setText('<b>' + self.current_tab.url().toDisplayString())
+            self.status_msg(self.current_tab.url().toDisplayString())
 
     def link_hovered(self, tab, href):
         if tab is self.current_tab:

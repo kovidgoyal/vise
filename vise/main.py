@@ -18,6 +18,7 @@ from PyQt5.Qt import (
 )
 
 from .constants import appname, str_version, cache_dir, iswindows
+from .keys import KeyFilter
 from .message_box import error_dialog
 from .settings import delete_profile
 from .window import MainWindow
@@ -57,6 +58,8 @@ class Application(QApplication):
         c.setCacheDirectory(os.path.join(cache_dir, 'favicons'))
         c.setMaximumCacheSize(10 * 1024 * 1024)
         nam.setCache(c)
+        self.key_filter = KeyFilter(self)
+        self.installEventFilter(self.key_filter)
 
     def run_local_server(self, args):
         prefix = r'\\.\pipe' if iswindows else tempfile.gettempdir().rstrip('/')
