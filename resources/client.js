@@ -3,6 +3,31 @@
     var _$rapyd$_iterator_symbol = (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") ? Symbol.iterator : "iterator-Symbol-5d0927e5554349048cf0e3762a228256";
     var _$rapyd$_kwargs_symbol = (typeof Symbol === "function") ? Symbol("kwargs-object") : "kwargs-object-Symbol-5d0927e5554349048cf0e3762a228256";
     var _$rapyd$_cond_temp;
+    var _$rapyd$_in = (function _$rapyd$_in() {
+            if (typeof Map === "function" && typeof Set === "function") {
+                return function(val, arr) {
+                    if (Array.isArray(arr) || typeof arr === "string") {
+                        return arr.indexOf(val) !== -1;
+                    }
+                    if (typeof arr.__contains__ === "function") {
+                        return arr.__contains__(val);
+                    }
+                    if ((arr instanceof Map || arr instanceof Set)) {
+                        return arr.has(val);
+                    }
+                    return arr.hasOwnProperty(val);
+                };
+            }
+            return function(val, arr) {
+                if (Array.isArray(arr) || typeof arr === "string") {
+                    return arr.indexOf(val) !== -1;
+                }
+                if (typeof arr.__contains__ === "function") {
+                    return arr.__contains__(val);
+                }
+                return arr.hasOwnProperty(val);
+            };
+        })();
     var Exception = Error;
 function AttributeError() {
     AttributeError.prototype.__init__.apply(this, arguments);
@@ -1900,34 +1925,10 @@ var str = _$rapyd$_str;
             }
             return ret;
         }
-    var _$rapyd$_in = (function _$rapyd$_in() {
-            if (typeof Map === "function" && typeof Set === "function") {
-                return function(val, arr) {
-                    if (Array.isArray(arr) || typeof arr === "string") {
-                        return arr.indexOf(val) !== -1;
-                    }
-                    if (typeof arr.__contains__ === "function") {
-                        return arr.__contains__(val);
-                    }
-                    if ((arr instanceof Map || arr instanceof Set)) {
-                        return arr.has(val);
-                    }
-                    return arr.hasOwnProperty(val);
-                };
-            }
-            return function(val, arr) {
-                if (Array.isArray(arr) || typeof arr === "string") {
-                    return arr.indexOf(val) !== -1;
-                }
-                if (typeof arr.__contains__ === "function") {
-                    return arr.__contains__(val);
-                }
-                return arr.hasOwnProperty(val);
-            };
-        })();
     var _$rapyd$_modules = {};
     _$rapyd$_modules["qt"] = {};
     _$rapyd$_modules["middle_click"] = {};
+    _$rapyd$_modules["focus"] = {};
 
     (function(){
         var __name__ = "qt";
@@ -2005,6 +2006,122 @@ var str = _$rapyd$_str;
     })();
 
     (function(){
+        var __name__ = "focus";
+        var edit_counter;
+        var qt_bridge = _$rapyd$_modules["qt"].qt_bridge;
+        
+        function text_editing_allowed(node) {
+            return !node.hasAttribute("readonly") && !node.hasAttribute("disabled");
+        }
+        function is_text_input_node(node) {
+            var name, itype;
+            if (node && node.nodeType === Node.ELEMENT_NODE) {
+                name = node.nodeName.toUpperCase();
+                if (name === "TEXTAREA") {
+                    return text_editing_allowed(node);
+                }
+                if (name === "INPUT") {
+                    itype = (node.getAttribute("type") || "").toLowerCase();
+                    if (!(_$rapyd$_in(itype, (function(){
+                        var s = _$rapyd$_set();
+                        s.jsset.add("hidden");
+                        s.jsset.add("image");
+                        s.jsset.add("button");
+                        s.jsset.add("reset");
+                        s.jsset.add("file");
+                        s.jsset.add("reset");
+                        s.jsset.add("radio");
+                        s.jsset.add("submit");
+                        return s;
+                    })()))) {
+                        return text_editing_allowed(node);
+                    }
+                }
+            }
+            return false;
+        }
+        function get_bridge() {
+            var msg = (arguments[0] === undefined || ( 0 === arguments.length-1 && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [_$rapyd$_kwargs_symbol] === true)) ? ("ignoring focus event") : arguments[0];
+            var _$rapyd$_kwargs_obj = arguments[arguments.length-1];
+            if (typeof _$rapyd$_kwargs_obj !== "object" || _$rapyd$_kwargs_obj [_$rapyd$_kwargs_symbol] !== true) _$rapyd$_kwargs_obj = {};
+            if (Object.prototype.hasOwnProperty.call(_$rapyd$_kwargs_obj, "msg")){
+                msg = _$rapyd$_kwargs_obj.msg;
+            }
+            var bridge;
+            bridge = qt_bridge();
+            if (!bridge) {
+                console.error("The JS-to-python bridge is not initialized, " + msg);
+            }
+            return bridge;
+        }
+        function handle_focus_in(ev) {
+            var bridge;
+            bridge = get_bridge();
+            if (bridge) {
+                bridge.element_focused(is_text_input_node(document.activeElement));
+            }
+            return true;
+        }
+        function handle_focus_out(ev) {
+            var bridge;
+            bridge = get_bridge();
+            if (bridge) {
+                bridge.element_focused(false);
+            }
+            return true;
+        }
+        edit_counter = 0;
+        function get_editable_text() {
+            var bridge, elem, text;
+            bridge = get_bridge("ignoring get_editable_text()");
+            if (!bridge) {
+                return;
+            }
+            elem = document.activeElement;
+            if (text_editing_allowed(elem)) {
+                text = elem.value;
+                edit_counter += 1;
+                elem.setAttribute("data-vise-edit-text", edit_counter + "");
+                bridge.edit_text(text || "", edit_counter + "");
+            }
+        }
+        function set_editable_text(text, eid) {
+            var elem;
+            elem = document.querySelector("[data-vise-edit-text=\"" + eid + "\"]");
+            if (elem) {
+                elem.value = text;
+            }
+        }
+        function onload() {
+            document.addEventListener("focusin", handle_focus_in, true);
+            document.addEventListener("focusout", handle_focus_out, true);
+            Object.defineProperty(window, "vise_get_editable_text", {
+                "value": get_editable_text
+            });
+            Object.defineProperty(window, "vise_set_editable_text", {
+                "value": set_editable_text
+            });
+        }
+        _$rapyd$_modules["focus"]["edit_counter"] = edit_counter;
+
+        _$rapyd$_modules["focus"]["text_editing_allowed"] = text_editing_allowed;
+
+        _$rapyd$_modules["focus"]["is_text_input_node"] = is_text_input_node;
+
+        _$rapyd$_modules["focus"]["get_bridge"] = get_bridge;
+
+        _$rapyd$_modules["focus"]["handle_focus_in"] = handle_focus_in;
+
+        _$rapyd$_modules["focus"]["handle_focus_out"] = handle_focus_out;
+
+        _$rapyd$_modules["focus"]["get_editable_text"] = get_editable_text;
+
+        _$rapyd$_modules["focus"]["set_editable_text"] = set_editable_text;
+
+        _$rapyd$_modules["focus"]["onload"] = onload;
+    })();
+
+    (function(){
 
         var __name__ = "__main__";
 
@@ -2013,9 +2130,12 @@ var str = _$rapyd$_str;
         
         var mc_onload = _$rapyd$_modules["middle_click"].onload;
         
+        var focus_onload = _$rapyd$_modules["focus"].onload;
+        
         function on_document_loaded() {
             connect_bridge();
             mc_onload();
+            focus_onload();
         }
         document.addEventListener("DOMContentLoaded", on_document_loaded);
     })();

@@ -1,0 +1,61 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+
+from qt import qt_bridge
+
+def text_editing_allowed(node):
+    return not node.hasAttribute('readonly') and not node.hasAttribute('disabled')
+
+def is_text_input_node(node):
+    if node and node.nodeType == Node.ELEMENT_NODE:
+        name = node.nodeName.toUpperCase()
+        if name == 'TEXTAREA':
+            return text_editing_allowed(node)
+        if name == 'INPUT':
+            itype = (node.getAttribute('type') or '').toLowerCase()
+            if itype not in {'hidden', 'image', 'button', 'reset', 'file', 'reset', 'radio', 'submit'}:
+                return text_editing_allowed(node)
+    return False
+
+def get_bridge(msg='ignoring focus event'):
+    bridge = qt_bridge()
+    if not bridge:
+        console.error('The JS-to-python bridge is not initialized, ' + msg)
+    return bridge
+
+def handle_focus_in(ev):
+    bridge = get_bridge()
+    if bridge:
+        bridge.element_focused(is_text_input_node(document.activeElement))
+    return True
+
+def handle_focus_out(ev):
+    bridge = get_bridge()
+    if bridge:
+        bridge.element_focused(False)
+    return True
+
+edit_counter = 0
+
+def get_editable_text():
+    nonlocal edit_counter
+    bridge = get_bridge('ignoring get_editable_text()')
+    if not bridge:
+        return
+    elem = document.activeElement
+    if text_editing_allowed(elem):
+        text = elem.value
+        edit_counter += 1
+        elem.setAttribute('data-vise-edit-text', edit_counter + '')
+        bridge.edit_text(text or '', edit_counter + '')
+
+def set_editable_text(text, eid):
+    elem = document.querySelector('[data-vise-edit-text="' + eid + '"]')
+    if elem:
+        elem.value = text
+
+def onload():
+    document.addEventListener('focusin', handle_focus_in, True)
+    document.addEventListener('focusout', handle_focus_out, True)
+    Object.defineProperty(window, 'vise_get_editable_text', {'value':get_editable_text})
+    Object.defineProperty(window, 'vise_set_editable_text', {'value':set_editable_text})

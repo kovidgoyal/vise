@@ -2,7 +2,14 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
+import os
+import json
+import weakref
+import subprocess
+import shlex
 from contextlib import closing
+from tempfile import NamedTemporaryFile
+from threading import Thread
 from gettext import gettext as _
 
 from PyQt5.Qt import (
@@ -49,14 +56,46 @@ class Alert(Dialog):  # {{{
 # }}}
 
 
+def edit_text(pageref, text, eid):  # {{{
+    editor = shlex.split(os.environ.get('EDITOR', 'gvim -f'))
+    with NamedTemporaryFile(suffix='.txt') as f:
+        f.write(text.encode('utf-8'))
+        f.flush()
+        ret = subprocess.Popen(editor + [f.name]).wait()
+        if ret == 0:
+            page = pageref()
+            if page is not None:
+                f.seek(0)
+                text = f.read().decode('utf-8')
+                page.runJavaScript('vise_set_editable_text(%s, %s)' % (
+                    json.dumps(text), json.dumps(eid)))
+# }}}
+
+
 class Bridge(QObject):
 
     middle_clicked = pyqtSignal(object)
+    focus_changed = pyqtSignal(object)
 
     @pyqtSlot(str)
     def middle_clicked_link(self, href):
         if href:
             self.middle_clicked.emit(href)
+
+    @pyqtSlot(bool)
+    def element_focused(self, is_text_input):
+        self.focus_changed.emit(bool(is_text_input))
+
+    @pyqtSlot(str, str)
+    def edit_text(self, text, eid):
+        pageref = weakref.ref(self.parent())
+        t = Thread(name='EditText', target=edit_text, args=(pageref, text, eid))
+        t.daemon = True
+        t.start()
+
+    def break_cycles(self):
+        for s in 'middle_clicked focus_changed'.split():
+            safe_disconnect(getattr(self, s))
 
 
 class WebPage(QWebEnginePage):
@@ -102,6 +141,7 @@ class WebPage(QWebEnginePage):
         Alert(self.title(), qurl, msg, self.parent()).exec_()
 
     def break_cycles(self):
+        self.bridge.break_cycles()
         for s in ('authenticationRequired proxyAuthenticationRequired linkHovered featurePermissionRequested'
                   ' featurePermissionRequestCanceled windowCloseRequested').split():
             safe_disconnect(getattr(self, s))
@@ -112,6 +152,7 @@ class WebView(QWebEngineView):
     icon_changed = pyqtSignal(object)
     open_in_new_tab = pyqtSignal(object)
     loading_status_changed = pyqtSignal(object)
+    focus_changed = pyqtSignal(object, object)
     link_hovered = pyqtSignal(object)
     window_close_requested = pyqtSignal(object)
     resized = pyqtSignal()
@@ -128,6 +169,7 @@ class WebView(QWebEngineView):
         self._icon_reply = None
         self.icon = QIcon()
         self._page.bridge.middle_clicked.connect(self.open_in_new_tab.emit)
+        self._page.bridge.focus_changed.connect(self.on_focus_change)
         self.loadStarted.connect(lambda: self.loading_status_changed.emit(True))
         self.loadFinished.connect(lambda: self.loading_status_changed.emit(False))
         self._page.linkHovered.connect(self.link_hovered.emit)
@@ -136,6 +178,12 @@ class WebView(QWebEngineView):
         self._page.featurePermissionRequested.connect(self.feature_permission_requested)
         self._page.featurePermissionRequestCanceled.connect(self.feature_permission_request_canceled)
         self.feature_permission_map = {}
+        self.text_input_focused = False
+        self.force_passthrough = False
+
+    def on_focus_change(self, is_text_input):
+        self.text_input_focused = is_text_input
+        self.focus_changed.emit(is_text_input, self)
 
     def feature_permission_requested(self, qurl, feature):
         key = (qurl.toString(), feature)
@@ -164,7 +212,8 @@ class WebView(QWebEngineView):
 
     def break_cycles(self):
         self._page.break_cycles()
-        for s in 'resized moved icon_changed open_in_new_tab loading_status_changed link_hovered loadStarted loadFinished window_close_requested'.split():
+        for s in ('resized moved icon_changed open_in_new_tab loading_status_changed link_hovered'
+                  ' loadStarted loadFinished window_close_requested focus_changed').split():
             safe_disconnect(getattr(self, s))
 
     def create_page(self, profile):

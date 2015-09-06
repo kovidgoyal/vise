@@ -3,10 +3,12 @@
 
 from qt import connect_bridge
 from middle_click import onload as mc_onload
+from focus import onload as focus_onload
 
 
 def on_document_loaded():
     connect_bridge()
     mc_onload()
+    focus_onload()
 
 document.addEventListener("DOMContentLoaded", on_document_loaded)

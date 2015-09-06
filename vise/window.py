@@ -4,6 +4,7 @@
 
 import os
 from functools import partial
+from gettext import gettext as _
 
 from PyQt5.Qt import (
     QMainWindow, Qt, QSplitter, QApplication, QStackedWidget, QUrl, QLabel
@@ -27,6 +28,24 @@ class Status(QStackedWidget):
     def __call__(self, text=''):
         self.msg.setText('<b>' + text)
 
+
+class ModeLabel(QLabel):
+
+    def __init__(self, main_window):
+        QLabel.__init__(self, '')
+        self.main_window = main_window
+        self.setStyleSheet('QLabel { border-left: 1px solid black }')
+
+    def update_mode(self):
+        tab = self.main_window.current_tab
+        text = ''
+        if tab is not None:
+            if tab.force_passthrough:
+                text = '-- %s --' % _('PASSTHROUGH')
+            elif tab.text_input_focused:
+                text = '-- %s --' % _('INSERT')
+        self.setText(text)
+
 _window_id = 0
 
 
@@ -41,6 +60,8 @@ class MainWindow(QMainWindow):
         self.setAttribute(Qt.WA_DeleteOnClose, True)
         self.status_msg = Status(self)
         self.statusBar().addWidget(self.status_msg)
+        self.mode_label = ml = ModeLabel(self)
+        self.statusBar().addPermanentWidget(ml)
 
         self.main_splitter = w = QSplitter(self)
         self.setCentralWidget(w)
@@ -93,6 +114,7 @@ class MainWindow(QMainWindow):
         ans.urlChanged.connect(self.url_changed)
         ans.link_hovered.connect(partial(self.link_hovered, ans))
         ans.window_close_requested.connect(self.close_tab)
+        ans.focus_changed.connect(self.mode_label.update_mode)
         return ans
 
     def raise_tab(self, tab):

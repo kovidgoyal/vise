@@ -21,6 +21,18 @@ def close_tab(window, *args, **kwargs):
         return True
 
 
+def exit_text_input(window, *args, **kwargs):
+    if window.current_tab is not None:
+        window.current_tab.page().runJavaScript('document.activeElement.blur()')
+        return True
+
+
+def edit_text(window, *args, **kwargs):
+    if window.current_tab is not None:
+        window.current_tab.page().runJavaScript('window.vise_get_editable_text()')
+        return True
+
+
 def search_forward(window, *args, **kwargs):
     pass
 

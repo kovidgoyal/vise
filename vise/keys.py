@@ -19,8 +19,20 @@ def key_from_event(ev):
 def key_to_string(key):
     return QKeySequence(key).toString().encode('utf-8', 'ignore').decode('utf-8')
 
-key_map = {}
-for line in '''\
+normal_key_map, input_key_map = {}, {}
+
+
+def read_key_map(which, raw):
+    for line in raw.splitlines():
+        line = line.strip()
+        if line:
+            key, action = (x.strip() for x in line.partition(' ')[::2])
+            key = QKeySequence.fromString(key)[0]
+            action = getattr(actions, action)
+            which[key] = action
+
+
+read_key_map(normal_key_map, '''\
 Alt+Right                   forward
 Alt+Left                    back
 d                           close_tab
@@ -28,13 +40,11 @@ d                           close_tab
 ?                           search_back
 n                           next_match
 Shift+n                     prev_match
-'''.splitlines():
-    line = line.strip()
-    if line:
-        key, action = (x.strip() for x in line.partition(' ')[::2])
-        key = QKeySequence.fromString(key)[0]
-        action = getattr(actions, action)
-        key_map[key] = action
+''')
+read_key_map(input_key_map, '''\
+Escape                     exit_text_input
+Ctrl+I                     edit_text
+''')
 
 
 class KeyFilter(QObject):
@@ -46,7 +56,17 @@ class KeyFilter(QObject):
             window, fw = app.activeWindow(), app.focusWidget()
             if isinstance(window, QMainWindow) and (fw is None or isinstance(fw, QOpenGLWidget)):
                 key = key_from_event(event)
-                action = key_map.get(key)
+                if window.current_tab is not None:
+                    if window.current_tab.force_passthrough:
+                        return False
+                    if window.current_tab.text_input_focused:
+                        action = input_key_map.get(key)
+                        if action is not None:
+                            swallow = action(window)
+                            if swallow is True:
+                                return True
+                        return False
+                action = normal_key_map.get(key)
                 if action is not None:
                     swallow = action(window)
                     if swallow is True:
