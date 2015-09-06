@@ -8,12 +8,18 @@ from PyQt5.Qt import (
 
 from . import actions
 
-modifiers_mask = Qt.ShiftModifier | Qt.ControlModifier | Qt.AltModifier | Qt.MetaModifier
+modifiers_mask = int(Qt.ShiftModifier | Qt.ControlModifier | Qt.AltModifier | Qt.MetaModifier)
+
+all_keys = {int(v): k for k, v in vars(Qt).items() if k.startswith('Key_') and k not in {'Key_Alt', 'Key_Meta', 'Key_Control', 'Key_Shift'}}
+
+
+def only_modifiers(key):
+    return (key & ~modifiers_mask) not in all_keys
 
 
 def key_from_event(ev):
-    modifiers = ev.modifiers() & modifiers_mask
-    return ev.key() | int(modifiers)
+    modifiers = int(ev.modifiers()) & modifiers_mask
+    return ev.key() | modifiers
 
 
 def key_to_string(key):
@@ -61,12 +67,18 @@ class KeyFilter(QObject):
             window, fw = app.activeWindow(), app.focusWidget()
             if isinstance(window, QMainWindow) and (fw is None or isinstance(fw, QOpenGLWidget)):
                 key = key_from_event(event)
+
                 if window.quickmark_pending:
+                    if only_modifiers(key):
+                        return True
                     window.quickmark(key)
                     return True
+
                 if window.current_tab is not None:
+
                     if window.current_tab.force_passthrough:
                         return False
+
                     if window.current_tab.text_input_focused:
                         action = input_key_map.get(key)
                         if action is not None:
@@ -74,6 +86,7 @@ class KeyFilter(QObject):
                             if swallow is True:
                                 return True
                         return False
+
                 action = normal_key_map.get(key)
                 if action is not None:
                     swallow = action(window)
