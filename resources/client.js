@@ -2095,12 +2095,14 @@ var str = _$rapyd$_str;
         function onload() {
             document.addEventListener("focusin", handle_focus_in, true);
             document.addEventListener("focusout", handle_focus_out, true);
-            Object.defineProperty(window, "vise_get_editable_text", {
-                "value": get_editable_text
-            });
-            Object.defineProperty(window, "vise_set_editable_text", {
-                "value": set_editable_text
-            });
+            if (window.vise_get_editable_text === undefined) {
+                Object.defineProperty(window, "vise_get_editable_text", {
+                    "value": get_editable_text
+                });
+                Object.defineProperty(window, "vise_set_editable_text", {
+                    "value": set_editable_text
+                });
+            }
         }
         _$rapyd$_modules["focus"]["edit_counter"] = edit_counter;
 
