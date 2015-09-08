@@ -28,6 +28,7 @@ class Popup(QWidget):
         bb.accepted.connect(lambda: self.finish(True))
         bb.rejected.connect(lambda: self.finish(False))
         self.question_id = 0
+        self.shutting_down = False
 
     def parent_resized(self):
         self.resize(self.parent().width(), self.sizeHint().height())
@@ -68,11 +69,15 @@ class Popup(QWidget):
         QWidget.show(self)
         self.raise_()
 
+    def break_cycles(self):
+        while self.questions:
+            self.finish(False)
+
     def finish(self, accepted):
         if self.questions:
             q = self.questions.pop(0)
             if q.callback is not None:
-                q.callback(accepted)
+                q.callback(accepted, self.shutting_down)
         if self.questions:
             self.show_question()
         else:

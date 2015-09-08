@@ -202,7 +202,7 @@ class WebView(QWebEngineView):
                 }[feature]
         self.feature_permission_map[key] = self.popup(
             _('Grant this site access to your <b>%s</b>?') % what,
-            lambda ok: self._page.setFeaturePermission(qurl, feature, (
+            lambda ok, during_shutdown: self.page().setFeaturePermission(qurl, feature, (
                 QWebEnginePage.PermissionGrantedByUser if ok else QWebEnginePage.PermissionDeniedByUser))
         )
 
@@ -221,6 +221,7 @@ class WebView(QWebEngineView):
         return QWebEngineView.moveEvent(self, ev)
 
     def break_cycles(self):
+        self.popup.break_cycles()
         self._page.break_cycles()
         for s in ('resized moved icon_changed open_in_new_tab loading_status_changed link_hovered'
                   ' loadStarted loadFinished window_close_requested focus_changed passthrough_changed').split():
