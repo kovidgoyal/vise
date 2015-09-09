@@ -29,6 +29,9 @@ class Popup(QWidget):
         bb.rejected.connect(lambda: self.finish(False))
         self.question_id = 0
         self.shutting_down = False
+        self.setFocusPolicy(Qt.NoFocus)
+        bb.setFocusPolicy(Qt.NoFocus)
+        self.msg.setFocusPolicy(Qt.NoFocus)
 
     def parent_resized(self):
         self.resize(self.parent().width(), self.sizeHint().height())

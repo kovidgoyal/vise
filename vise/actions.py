@@ -50,16 +50,16 @@ def quickmark_newtab(window, *args, **kwargs):
 
 
 def search_forward(window, *args, **kwargs):
-    pass
+    window.start_search(forward=True)
 
 
 def search_back(window, *args, **kwargs):
-    pass
+    window.start_search(forward=False)
 
 
 def next_match(window, *args, **kwargs):
-    pass
+    window.do_search()
 
 
 def prev_match(window, *args, **kwargs):
-    pass
+    window.do_search(forward=False)

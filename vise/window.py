@@ -8,7 +8,8 @@ from gettext import gettext as _
 
 from PyQt5.Qt import (
     QMainWindow, Qt, QSplitter, QApplication, QStackedWidget, QUrl, QLabel,
-    QToolButton, QFrame, QKeySequence
+    QToolButton, QFrame, QKeySequence, QLineEdit, pyqtSignal, QWidget,
+    QHBoxLayout, QWebEnginePage,
 )
 
 from .constants import appname
@@ -18,18 +19,88 @@ from .tab_tree import TabTree
 from .view import WebView
 
 
+class Search(QLineEdit):
+
+    do_search = pyqtSignal(object, object)
+    abort_search = pyqtSignal()
+
+    def __init__(self, parent=None):
+        QLineEdit.__init__(self, parent)
+        self.search_forward = True
+
+    def keyPressEvent(self, ev):
+        k = ev.key()
+        if k == Qt.Key_Escape:
+            self.abort_search.emit()
+            ev.accept()
+            return
+        if k in (Qt.Key_Enter, Qt.Key_Return):
+            text = self.text()
+            if text:
+                self.do_search.emit(text, self.search_forward)
+            else:
+                self.abort_search.emit()
+            return
+        return QLineEdit.keyPressEvent(self, ev)
+
+
+class SearchPanel(QWidget):
+
+    def __init__(self, parent=None):
+        QWidget.__init__(self, parent)
+        self.l = l = QHBoxLayout(self)
+        l.setContentsMargins(0, 0, 0, 0)
+        self.la = la = QLabel(self)
+        l.addWidget(la)
+        self.edit = Search(self)
+        la.setBuddy(self.edit)
+        l.addWidget(self.edit)
+
+    def sizeHint(self):
+        ans = QWidget.sizeHint(self)
+        ans.setWidth(100000)
+        return ans
+
+    def show_search(self, forward=True):
+        self.edit.clear()
+        self.edit.setFocus(Qt.OtherFocusReason)
+        self.edit.search_forward = forward
+        self.la.setText(_('&Search forward:') if forward else _('&Search backward:'))
+
+    def hide_search(self):
+        pass
+
+
 class Status(QStackedWidget):
 
     def __init__(self, parent):
         QStackedWidget.__init__(self, parent)
+        self.main_window = parent
         self.msg = QLabel('')
         self.msg.setFocusPolicy(Qt.NoFocus)
         self.addWidget(self.msg)
         self.setFocusPolicy(Qt.NoFocus)
         self.msg.setFocusPolicy(Qt.NoFocus)
+        self.search = SearchPanel(self)
+        self.search.edit.abort_search.connect(self.hide_search)
+        self.search.edit.do_search.connect(self.hide_search)
+        self.addWidget(self.search)
 
     def __call__(self, text=''):
         self.msg.setText('<b>' + text)
+
+    def show_search(self, forward=True):
+        self.setCurrentIndex(1)
+        self.search.show_search(forward)
+
+    def hide_search(self):
+        self.setCurrentIndex(0)
+        self.search.hide_search()
+        self.main_window.refocus()
+
+    @property
+    def current_search_text(self):
+        return self.search.edit.text()
 
 
 class ModeLabel(QLabel):
@@ -91,6 +162,8 @@ class MainWindow(QMainWindow):
         self.is_private = is_private
         self.setAttribute(Qt.WA_DeleteOnClose, True)
         self.status_msg = Status(self)
+        self.start_search = self.status_msg.show_search
+        self.status_msg.search.edit.do_search.connect(self.do_search)
         self.statusBar().addWidget(self.status_msg)
         self.mode_label = ml = ModeLabel(self)
         self.passthrough_button = b = PassthroughButton(self)
@@ -120,6 +193,12 @@ class MainWindow(QMainWindow):
 
         self.restore_state()
         self.current_tab_changed()
+
+    def refocus(self):
+        if self.current_tab is not None:
+            self.current_tab.setFocus(Qt.OtherFocusReason)
+        else:
+            self.stack.setFocus(Qt.OtherFocusReason)
 
     def sizeHint(self):
         rect = QApplication.desktop().screenGeometry(self)
@@ -241,3 +320,15 @@ class MainWindow(QMainWindow):
             self.statusBar().showMessage(_('Quickmark %s is not defined!') % key, 5000)
             return
         self.open_url(url, in_current_tab=in_current_tab)
+
+    def do_search(self, text=None, forward=True):
+        if self.current_tab is not None:
+            if text is None:
+                text = self.status_msg.current_search_text
+            # For the moment we cannot use a callback to get the result of the
+            # search because of a bug in PyQt
+            self.current_tab.findText(
+                text, QWebEnginePage.FindFlags(0) if forward else QWebEnginePage.FindBackward)
+
+    def clear_search_highlighting(self):
+        self.current_tab.findText('', QWebEnginePage.FindFlags(0))

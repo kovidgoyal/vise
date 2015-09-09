@@ -44,6 +44,7 @@ Alt+Left                    back
 D                           close_tab
 /                           search_forward
 ?                           search_back
+Shift+?                     search_back
 N                           next_match
 Shift+N                     prev_match
 Ctrl+Z                      passthrough
