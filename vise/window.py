@@ -62,7 +62,7 @@ class SearchPanel(QWidget):
         return ans
 
     def show_search(self, forward=True):
-        self.edit.clear()
+        self.edit.selectAll()
         self.edit.setFocus(Qt.OtherFocusReason)
         self.edit.search_forward = forward
         self.la.setText(_('&Search forward:') if forward else _('&Search backward:'))
