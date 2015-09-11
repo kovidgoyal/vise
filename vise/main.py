@@ -32,6 +32,8 @@ def option_parser():
     parser = argparse.ArgumentParser(description='Run the {} browser'.format(appname))
     parser.add_argument('--shell', action='store_true', default=False, help=_(
         'Start an interactive shell'))
+    parser.add_argument('-c', '--cmd', default=None, help=_(
+        'Run python code in the vise context'))
     parser.add_argument('urls', metavar='URL', nargs='*', help='urls to open')
     return parser
 
@@ -166,7 +168,10 @@ def main():
     global app
     parser = option_parser()
     args = parser.parse_args()
-    if args.shell:
+    if args.cmd:
+        exec(args.cmd)
+        raise SystemExit(0)
+    elif args.shell:
         from .utils import ipython
         ipython()
         raise SystemExit(0)
