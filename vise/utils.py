@@ -10,7 +10,7 @@ from functools import lru_cache
 
 from PyQt5.Qt import (
     QUrl, QFontMetrics, QApplication, QConicalGradient, QPen, QBrush, QPainter,
-    QRect, Qt, QDialog, QDialogButtonBox)
+    QRect, Qt, QDialog, QDialogButtonBox, QIcon)
 
 from .constants import cache_dir, str_version
 from .settings import gprefs
@@ -157,3 +157,47 @@ def ipython(user_ns=None):
     c.PrefilterManager.multi_line_specials = True
 
     IPython.embed(config=c, user_ns=user_ns)
+
+_filename_sanitize = frozenset('\\|?*<":>+/' + ''.join(map(chr, range(32))))
+
+
+def sanitize_file_name(name, substitute='_'):
+    '''
+    Sanitize the filename `name`. All invalid characters are replaced by `substitute`.
+    The set of invalid characters is the union of the invalid characters in Windows,
+    OS X and Linux. Also removes leading and trailing whitespace.
+    **WARNING:** This function also replaces path separators, so only pass file names
+    and not full paths to it.
+    '''
+    chars = (substitute if c in _filename_sanitize else c for c in name)
+    one = ''.join(chars)
+    one = re.sub(r'\s', ' ', one).strip()
+    bname, ext = os.path.splitext(one)
+    one = re.sub(r'^\.+$', '_', bname)
+    one = one.replace('..', substitute)
+    one += ext
+    # Windows doesn't like path components that end with a period or space
+    if one and one[-1] in ('.', ' '):
+        one = one[:-1] + '_'
+    # Names starting with a period are hidden on Unix
+    if one.startswith('.'):
+        one = '_' + one[1:]
+    return one
+
+
+@lru_cache()
+def get_content_type_icon(mime_type, size=64):
+    try:
+        from gi.repository import Gtk, Gio
+    except ImportError:
+        return QIcon()
+    icon_theme = Gtk.IconTheme.get_default()
+    if icon_theme:
+        icon = Gio.content_type_get_icon(mime_type)
+        if icon:
+            icon_info = icon_theme.choose_icon(icon.get_names(), size, 0)
+            if icon_info:
+                fname = icon_info.get_filename()
+                if fname:
+                    return QIcon(fname)
+    return QIcon()
