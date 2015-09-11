@@ -298,6 +298,7 @@ class MainWindow(QMainWindow):
         self.current_tab = self.stack.currentWidget()
         self.tab_tree.current_changed(self.current_tab)
         self.passthrough_button.update_state()
+        self.url_changed()
 
     def show_tab(self, tab):
         if tab is not None:
