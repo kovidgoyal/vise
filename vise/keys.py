@@ -65,7 +65,19 @@ Ctrl+I                     edit_text
 
 class KeyFilter(QObject):
 
+    def __init__(self, parent=None):
+        QObject.__init__(self, parent)
+        self.disabled = False
+
+    def __enter__(self):
+        self.disabled = True
+
+    def __exit__(self, *args):
+        self.disabled = False
+
     def eventFilter(self, watched, event):
+        if self.disabled:
+            return False
         etype = event.type()
         if etype == QEvent.KeyPress:
             app = QApplication.instance()
@@ -87,14 +99,14 @@ class KeyFilter(QObject):
                     if window.current_tab.text_input_focused:
                         action = input_key_map.get(key)
                         if action is not None:
-                            swallow = action(window, fw)
+                            swallow = action(window, fw, self)
                             if swallow is True:
                                 return True
                         return False
 
                 action = normal_key_map.get(key)
                 if action is not None:
-                    swallow = action(window, fw)
+                    swallow = action(window, fw, self)
                     if swallow is True:
                         return True
         return False
