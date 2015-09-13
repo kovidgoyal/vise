@@ -93,5 +93,4 @@ class KeyFilter(QObject):
                     swallow = action(window)
                     if swallow is True:
                         return True
-                return True
         return False
