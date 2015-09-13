@@ -79,8 +79,7 @@ class AskAboutDownload(Dialog):  # {{{
                 fname = 'file%d' % AskAboutDownload.fcounter
         self.fname = download_item.fname = sanitize_file_name(fname)
         self.mime_type = download_item.mime_type = mimetypes.guess_type(self.download_item.url().toString())[0]
-        download_item.final_path = os.path.join(download_dir, fname)
-        download_item.setPath(download_item.final_path)
+        download_item.setPath(os.path.join(download_dir, fname))
         Dialog.__init__(self, 'Allow download?', 'allow-download-question', parent)
         del self.download_item
 
@@ -175,6 +174,8 @@ class Downloads(QObject):
 
     def on_download_finish(self, item):
         item.rates = [0]
+        if item.open_after and item.state() == QWebEngineDownloadItem.DownloadCompleted:
+            open_local_file(item.path())
 
     def break_cycles(self):
         for item in self.items:
@@ -223,7 +224,7 @@ class Downloads(QObject):
                 if cmd == 'cancel':
                     item.cancel()
                 elif cmd == 'open':
-                    open_local_file(item.final_path)
+                    open_local_file(item.path())
                 break
 
 
@@ -234,7 +235,7 @@ def load(tab):
     tab.register_callback('downloads', app.downloads.callback)
 
 
-def develop():
+def develop():  # {{{
     from .main import run_app
 
     class FakeDownloadItem(QObject):
@@ -309,3 +310,4 @@ def develop():
 
     Downloads.for_develop = create_downloads
     run_app(['about:downloads'])
+# }}}
