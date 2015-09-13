@@ -47,7 +47,7 @@ D                           close_tab
 Shift+?                     search_back
 N                           next_match
 Shift+N                     prev_match
-Ctrl+Z                      passthrough
+Ctrl+Z                      set_passthrough
 G                           quickmark
 Shift+G                     quickmark_newtab
 J                           scroll_line_down

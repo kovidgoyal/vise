@@ -39,7 +39,7 @@ def edit_text(window, *args, **kwargs):
         return True
 
 
-def passthrough(window, *args, **kwargs):
+def set_passthrough(window, *args, **kwargs):
     if window.current_tab is not None:
         window.current_tab.force_passthrough = True
         return True
@@ -87,3 +87,7 @@ scroll_line_down = partial(scroll_line, Qt.Key_Down)
 scroll_line_up = partial(scroll_line, Qt.Key_Up)
 scroll_line_left = partial(scroll_line, Qt.Key_Left)
 scroll_line_right = partial(scroll_line, Qt.Key_Right)
+
+
+def passthrough(*args, **kwargs):
+    pass
