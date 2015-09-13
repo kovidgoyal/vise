@@ -50,6 +50,10 @@ Shift+N                     prev_match
 Ctrl+Z                      passthrough
 G                           quickmark
 Shift+G                     quickmark_newtab
+J                           scroll_line_down
+K                           scroll_line_up
+H                           scroll_line_left
+L                           scroll_line_right
 ''')
 
 
@@ -83,14 +87,14 @@ class KeyFilter(QObject):
                     if window.current_tab.text_input_focused:
                         action = input_key_map.get(key)
                         if action is not None:
-                            swallow = action(window)
+                            swallow = action(window, fw)
                             if swallow is True:
                                 return True
                         return False
 
                 action = normal_key_map.get(key)
                 if action is not None:
-                    swallow = action(window)
+                    swallow = action(window, fw)
                     if swallow is True:
                         return True
         return False

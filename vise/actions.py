@@ -2,6 +2,12 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
+from functools import partial
+
+from PyQt5.Qt import (
+    QApplication, QKeyEvent, QEvent, Qt
+)
+
 
 def forward(window, *args, **kwargs):
     if window.current_tab is not None:
@@ -70,3 +76,13 @@ def show_downloads(window, *args, **kwargs):
     from .downloads import load
     load(tab)
     window.show_tab(tab)
+
+
+def scroll_line(key, window, focus_widget, *args, **kwargs):
+    QApplication.sendEvent(focus_widget, QKeyEvent(QEvent.KeyPress, key, Qt.KeyboardModifiers(0)))
+    return True
+
+scroll_line_down = partial(scroll_line, Qt.Key_Down)
+scroll_line_up = partial(scroll_line, Qt.Key_Up)
+scroll_line_left = partial(scroll_line, Qt.Key_Left)
+scroll_line_right = partial(scroll_line, Qt.Key_Right)
