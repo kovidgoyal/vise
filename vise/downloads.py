@@ -112,7 +112,7 @@ class AskAboutDownload(Dialog):  # {{{
 # }}}
 
 
-class Indicator(QWidget):
+class Indicator(QWidget):  # {{{
 
     downloads_tooltip = _(
         'Click to see ongoing downloads')
@@ -174,6 +174,7 @@ class Indicator(QWidget):
             w = app.activeWindow()
             if hasattr(w, 'get_tab_for_load'):
                 show_downloads(w)
+# }}}
 
 
 def download_requested(download_item):
