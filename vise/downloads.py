@@ -15,15 +15,15 @@ from urllib.parse import parse_qs
 
 from PyQt5.Qt import (
     QApplication, QVBoxLayout, QCheckBox, QLabel, QObject, QUrl,
-    QWebEngineDownloadItem, pyqtSignal, QTimer
+    QWebEngineDownloadItem, pyqtSignal, QTimer, Qt, QWidget, QPainter
 )
 
 from .constants import cache_dir
-from .resources import get_data
+from .resources import get_data, get_icon
 from .settings import DynamicPrefs
 from .utils import (
     Dialog, sanitize_file_name, safe_disconnect, get_content_type_icon,
-    atomic_write, open_local_file
+    atomic_write, open_local_file, draw_snake_spinner
 )
 
 if os.path.isdir('/t') and os.access('/t', os.R_OK | os.W_OK | os.X_OK):
@@ -112,6 +112,70 @@ class AskAboutDownload(Dialog):  # {{{
 # }}}
 
 
+class Indicator(QWidget):
+
+    downloads_tooltip = _(
+        'Click to see ongoing downloads')
+    no_downloads_tooltip = _(
+        'No active downloads\nClick to see downloads')
+
+    def __init__(self, parent=None):
+        QWidget.__init__(self, parent)
+        self.setCursor(Qt.PointingHandCursor)
+        self.setToolTip(self.no_downloads_tooltip)
+        self.timer = tt = QTimer(self)
+        tt.setInterval(10)
+        tt.timeout.connect(self.tick)
+        self.angle = 0
+        pal = (parent or QApplication.instance()).palette()
+        self.dark = pal.color(pal.Text)
+        self.light = pal.color(pal.Base)
+        self.errored_out = False
+        self.update()
+        self.setMinimumWidth(24)
+
+    def tick(self):
+        self.angle -= 4
+        self.update()
+
+    def start(self):
+        self.timer.start()
+        self.setToolTip(self.downloads_tooltip)
+        self.update()
+
+    def stop(self):
+        self.timer.stop()
+        self.setToolTip(self.no_downloads_tooltip)
+        self.update()
+
+    def paintEvent(self, ev):
+        if self.timer.isActive():
+            if not self.errored_out:
+                try:
+                    draw_snake_spinner(QPainter(self), self.rect(), self.angle, self.light, self.dark)
+                except Exception:
+                    import traceback
+                    traceback.print_exc()
+                    self.errored_out = True
+        else:
+            r = self.rect()
+            painter = QPainter(self)
+            painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
+            icon = get_icon('emblem-downloads.png')
+            pmap = icon.pixmap(r.width(), r.height())
+            x = (r.width() - self.minimumWidth()) // 2
+            y = (r.height() - self.minimumWidth()) // 2
+            painter.drawPixmap(x, y, pmap)
+
+    def mousePressEvent(self, ev):
+        if ev.button() == Qt.LeftButton:
+            from .actions import show_downloads
+            app = QApplication.instance()
+            w = app.activeWindow()
+            if hasattr(w, 'get_tab_for_load'):
+                show_downloads(w)
+
+
 def download_requested(download_item):
     app = QApplication.instance()
     parent = app.activeWindow()
@@ -131,6 +195,22 @@ class Downloads(QObject):
         QObject.__init__(self, parent)
         self.items = []
         self.tabrefs = []
+        self._has_active_downloads = False
+
+    @property
+    def has_active_downloads(self):
+        return self._has_active_downloads
+
+    @has_active_downloads.setter
+    def has_active_downloads(self, val):
+        val = bool(val)
+        changed = val != self._has_active_downloads
+        self._has_active_downloads = val
+        if changed:
+            app = QApplication.instance()
+            for w in app.windows:
+                di = w.downloads_indicator
+                (di.start if val else di.stop)()
 
     def itertabs(self):
         remove = []
@@ -159,6 +239,7 @@ class Downloads(QObject):
         download_item.rates = [-1]
         for tab in self.itertabs():
             self.create_item(tab, download_item)
+        self.has_active_downloads = True
 
     def on_state_change(self, idx):
         item = self.items[idx]
@@ -171,6 +252,11 @@ class Downloads(QObject):
             self.on_download_finish(item)
         for tab in self.itertabs():
             self.update_item(tab, item)
+        for item in self.items:
+            if not item.isFinished():
+                self.has_active_downloads = True
+                return
+        self.has_active_downloads = False
 
     def on_download_finish(self, item):
         item.rates = [0]
@@ -198,6 +284,7 @@ class Downloads(QObject):
         if self.for_develop:
             if newtab.url() == DOWNLOADS_URL:
                 self.for_develop()
+                self.for_develop = False
             else:
                 newtab.urlChanged.connect(self.for_develop)
 

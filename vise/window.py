@@ -13,7 +13,7 @@ from PyQt5.Qt import (
 )
 
 from .constants import appname
-from .downloads import DOWNLOADS_URL
+from .downloads import DOWNLOADS_URL, Indicator
 from .resources import get_data_as_file, get_icon
 from .settings import gprefs, profile, create_profile, quickmarks
 from .tab_tree import TabTree
@@ -173,7 +173,8 @@ class MainWindow(QMainWindow):
         self.status_msg.search.edit.do_search.connect(self.do_search)
         self.statusBar().addWidget(self.status_msg)
         self.mode_label = ml = ModeLabel(self)
-        self.passthrough_button = b = PassthroughButton(self)
+        self.passthrough_button = PassthroughButton(self)
+        self.downloads_indicator = Indicator(self)
 
         def addsep():
             f = QFrame(self)
@@ -182,7 +183,9 @@ class MainWindow(QMainWindow):
         addsep()
         self.statusBar().addPermanentWidget(ml)
         addsep()
-        self.statusBar().addPermanentWidget(b)
+        self.statusBar().addPermanentWidget(self.downloads_indicator)
+        addsep()
+        self.statusBar().addPermanentWidget(self.passthrough_button)
 
         self.main_splitter = w = QSplitter(self)
         self.setCentralWidget(w)
