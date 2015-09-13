@@ -2589,20 +2589,20 @@ var str = _$rapyd$_str;
             document.getElementById("init").style.display = "none";
             div = E.div(E.img(_$rapyd$_desugar_kwargs({src: icon_url, alt: fname, style: "width: 64px; height: 64px; margin-right: 1em; float:left; display:table-cell"})), E.div(E.p(E.b(fname, _$rapyd$_desugar_kwargs({id: "fname" + dl_id})), E.br(), E.span("...", _$rapyd$_desugar_kwargs({id: "status" + dl_id, style: "color:gray", data_hostname: hostname, data_created: Date.now() + ""}))), _$rapyd$_desugar_kwargs({style: "float:left; display:table-cell"})), E.div(E.br(), E.span("✖ ", _$rapyd$_desugar_kwargs({class_: "stop", style: "font-size: x-large; cursor:pointer", title: "Stop download"})), _$rapyd$_desugar_kwargs({id: "stop" + dl_id, style: "float:right;"})), _$rapyd$_desugar_kwargs({style: "padding: 3ex; display: table; width: 90%; border-bottom: solid 1px currentColor"}));
             document.body.insertBefore(div, document.body.firstChild);
-            update_download(dl_id, "running", -1, -1, 0);
+            update_download(dl_id, "running", -1, -1, 0, 0);
             stop = document.getElementById("stop" + dl_id);
             stop.addEventListener("click", function() {
                 cancel_download(dl_id);
             });
         }
-        function update_download(dl_id, state, received, total, rate) {
+        function update_download(dl_id, state, received, total, rate, avg_rate) {
             var status, h, left, fname, text, stop;
             status = document.getElementById("status" + dl_id);
             h = humanize_size;
             if (state === "running") {
                 if (received > -1 && total > -1) {
                     if (rate > 0) {
-                        left = relative_time(Date.now() + 1e3 * ((total - received) / rate));
+                        left = relative_time(Date.now() + 1e3 * ((total - received) / avg_rate));
                         status.innerText = str.format("{recv} of {total} at {rate}/s — Will finish {left}", _$rapyd$_desugar_kwargs({recv: h(received), total: h(total), rate: h(rate), left: left}));
                     } else {
                         left = (rate < 0) ? "Estimating time remaining" : "Stalled";

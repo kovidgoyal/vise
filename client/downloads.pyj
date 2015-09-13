@@ -32,18 +32,18 @@ def create_download(dl_id, fname, mime_type, icon_url, hostname):
             id='stop' + dl_id, style='float:right;')
     )
     document.body.insertBefore(div, document.body.firstChild)
-    update_download(dl_id, 'running', -1, -1, 0)
+    update_download(dl_id, 'running', -1, -1, 0, 0)
     stop = document.getElementById('stop' + dl_id)
     stop.addEventListener('click', def(): cancel_download(dl_id);)
 
 
-def update_download(dl_id, state, received, total, rate):
+def update_download(dl_id, state, received, total, rate, avg_rate):
     status = document.getElementById('status' + dl_id)
     h = humanize_size
     if state == 'running':
         if received > -1 and total > -1:
             if rate > 0:
-                left = relative_time(Date.now() + 1000 * ((total - received) / rate))
+                left = relative_time(Date.now() + 1000 * ((total - received) / avg_rate))
                 status.innerText = str.format('{recv} of {total} at {rate}/s — Will finish {left}',
                     recv=h(received), total=h(total), rate=h(rate), left=left)
             else:

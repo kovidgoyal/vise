@@ -210,8 +210,13 @@ class Downloads(QObject):
     def update_item(self, tab, download_item):
         state = {QWebEngineDownloadItem.DownloadCancelled: 'canceled', QWebEngineDownloadItem.DownloadCompleted: 'completed',
                  QWebEngineDownloadItem.DownloadInterrupted: 'interrupted'}.get(download_item.state(), 'running')
+        rates = download_item.rates
+        if len(rates) == 1:
+            rate = rates[0]
+        else:
+            rate = sum(rates[-100:])/100
         tab.js_func('window.update_download',
-                    download_item.id(), state, download_item.receivedBytes(), download_item.totalBytes(), download_item.rates[-1])
+                    download_item.id(), state, download_item.receivedBytes(), download_item.totalBytes(), rates[-1], rate)
 
     def callback(self, tab, data):
         cmd = data.get('cmd')
