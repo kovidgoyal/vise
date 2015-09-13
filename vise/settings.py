@@ -158,7 +158,9 @@ def create_profile(parent=None, private=False):
     if parent is None:
         parent = QApplication.instance()
     if private:
+        from .downloads import download_requested
         ans = QWebEngineProfile(parent)
+        ans.downloadRequested.connect(download_requested)
     else:
         ans = QWebEngineProfile(appname, parent)
         ans.setCachePath(os.path.join(cache_dir, appname, 'cache'))
@@ -176,12 +178,17 @@ _profile = None
 def profile():
     global _profile
     if _profile is None:
+        from .downloads import download_requested
         _profile = create_profile()
+        _profile.downloadRequested.connect(download_requested)
     return _profile
 
 
 def delete_profile():
+    from .utils import safe_disconnect
     global _profile
+    if _profile is not None:
+        safe_disconnect(_profile.downloadRequested)
     _profile = None
 
 _quickmarks = None

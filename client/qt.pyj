@@ -5,7 +5,7 @@
 
 bridge = None
 channel = None
-bridge_name = 'qt-js-bridge'
+bridge_name = 'ͻ-qt-js-bridge'
 
 def qt_bridge():
     nonlocal bridge
@@ -13,12 +13,21 @@ def qt_bridge():
         return window.top[bridge_name]
     return bridge
 
-def connect_bridge():
+def callback(name, data, console_err):
+    bridge = qt_bridge()
+    if bridge is None:
+        console.error(console_err or ('Aborting callback: ' + name + ' as Qt bridge not available'))
+    else:
+        bridge.callback(name, JSON.stringify(data))
+
+def connect_bridge(proceed):
     nonlocal channel
     if window.self != window.top:
+        proceed()
         return  # Do not connect in child frames
     channel = new QWebChannel(qt.webChannelTransport, def(channel):
         nonlocal bridge
         bridge = channel.objects.bridge
         Object.defineProperty(window, bridge_name, {'value':bridge})
+        proceed()
     )

@@ -1,0 +1,87 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+
+from elementmaker import E
+from humanize import humanize_size, relative_time
+from qt import callback
+
+def cancel_download(dl_id):
+    callback('downloads', {'id':int(dl_id), 'cmd':'cancel'})
+
+def open_download(dl_id):
+    callback('downloads', {'id':int(dl_id), 'cmd':'open'})
+
+def create_download(dl_id, fname, mime_type, icon_url, hostname):
+    document.getElementById('init').style.display= 'none'
+    div = E.div(
+        style="padding: 3ex; display: table; width: 90%; border-bottom: solid 1px currentColor",
+        E.img(src=icon_url, alt=fname, style='width: 64px; height: 64px; margin-right: 1em; float:left; display:table-cell'),
+        E.div(style='float:left; display:table-cell',
+            E.p(
+                E.b(fname, id='fname' + dl_id),
+                E.br(),
+                E.span('...', id='status' + dl_id, style="color:gray", data_hostname=hostname, data_created=Date.now() + '')
+            )
+        ),
+        E.div(
+            E.br(),
+            E.span(
+                '✖ ',
+            class_='stop', style='font-size: x-large; cursor:pointer', title='Stop download'
+            ),
+            id='stop' + dl_id, style='float:right;')
+    )
+    document.body.insertBefore(div, document.body.firstChild)
+    update_download(dl_id, 'running', -1, -1, 0)
+    stop = document.getElementById('stop' + dl_id)
+    stop.addEventListener('click', def(): cancel_download(dl_id);)
+
+
+def update_download(dl_id, state, received, total, rate):
+    status = document.getElementById('status' + dl_id)
+    h = humanize_size
+    if state == 'running':
+        if received > -1 and total > -1:
+            if rate > 0:
+                left = relative_time(Date.now() + 1000 * ((total - received) / rate))
+                status.innerText = str.format('{recv} of {total} at {rate}/s — Will finish {left}',
+                    recv=h(received), total=h(total), rate=h(rate), left=left)
+            else:
+                left = 'Estimating time remaining' if rate < 0 else 'Stalled'
+                status.innerText = str.format('{recv} of {total} — {left}',
+                    recv=h(received), total=h(total), left=left)
+        else:
+            status.innerText = 'Downloading, please wait...'
+    elif state == 'completed':
+        fname = document.getElementById('fname' + dl_id)
+        if fname:
+            if not fname.getAttribute('class'):
+                fname.addEventListener('click', def(): open_download(dl_id);)
+            fname.setAttribute('class', 'fname')
+            fname.setAttribute('title', 'Click to open')
+        text = ''
+        if total > -1:
+            text += h(total) + ' — '
+        text += status.getAttribute('data-hostname') + ' — '
+        text += 'Completed'
+        if total > -1:
+            rate = 1000 * total / (Date.now() - int(status.getAttribute('data-created')))
+            text += ' at ' + h(rate) + '/s'
+        status.innerText = text
+    else:
+        text = 'Canceled' if state == 'canceled' else 'Interrupted'
+        text += ' — ' + status.getAttribute('data-hostname')
+        status.innerText = text
+    stop = document.getElementById('stop' + dl_id)
+    stop.style.display = 'block' if state == 'running' else 'none'
+
+def main():
+    window.create_download = create_download
+    window.update_download = update_download
+    document.getElementsByTagName('style')[0].innerText = '''
+    body { color: black; background-color: #eee; }
+    .stop:hover { color: red }
+    .fname { cursor: pointer }
+    .fname:hover { color: red; font-style: italic }
+    '''
+    callback('downloads', {'cmd':'inited'})

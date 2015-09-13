@@ -1,0 +1,106 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+
+def normalize_precision(value, base):
+    value = Math.round(Math.abs(value))
+    return base if isNaN(value) else value
+
+def to_fixed(value, precision):
+    precision = precision or normalize_precision(precision, 0)
+    power = Math.pow(10, precision)
+    return (Math.round(value * power) / power).toFixed(precision)
+
+def humanize_number(number, precision, thousand, decimal):
+    precision = precision or 0
+    thousand = thousand or ','
+    decimal = decimal or '.'
+
+    def first_comma(number, position):
+        return number.substr(0, position) + thousand if position else ''
+
+    def commas(number, position):
+      return number.substr(position).replace(/(\d{3})(?=\d)/g, "$1" + thousand)
+
+    def decimals(number, use_precision):
+        return decimal + to_fixed(Math.abs(number), use_precision).split(".")[1] if use_precision else ''
+
+    use_precision = normalize_precision(precision)
+    negative = '-' if number < 0 else ''
+    base = parseInt(to_fixed(Math.abs(number or 0), use_precision), 10) + ""
+    mod = base.length % 3 if base.length > 3 else 0
+    return negative + first_comma(base, mod) + commas(base, mod) + decimals(number, use_precision)
+
+LABELS = [
+    ["P", Math.pow(2, 50)],
+    ["T", Math.pow(2, 40)],
+    ["G", 1 << 30],
+    ["M", 1 << 20],
+]
+
+def humanize_size(size):
+    for label, minnum in LABELS:
+        if size >= minnum:
+            return humanize_number(size / minnum, 2, "") + " " + label + "B"
+    if size >= 1024:
+      return humanize_number(size / 1024, 0) + " KB"
+    return humanize_number(size, 0) + ' B'
+
+def relative_time(timestamp):
+    timestamp = timestamp or Date.now()
+    current_time = Date.now() / 1000
+    time_diff = current_time - (timestamp / 1000)
+
+    # within 2 seconds
+    if time_diff < 2 and time_diff > -2:
+        return (time_diff >= 0 ? 'just ' : '') + 'now'
+
+    # within a minute
+    if time_diff < 60 and time_diff > -60:
+        return time_diff >= 0 ? Math.floor(time_diff) + ' seconds ago' : 'in ' + Math.floor(-time_diff) + ' seconds'
+
+    # within 2 minutes
+    if time_diff < 120 and time_diff > -120:
+        return time_diff >= 0 ? 'about a minute ago' : 'in about a minute'
+
+    # within an hour
+    if time_diff < 3600 and time_diff > -3600:
+        return time_diff >= 0 ? Math.floor(time_diff / 60) + ' minutes ago' : 'in ' + Math.floor(-time_diff / 60) + ' minutes'
+
+    # within 2 hours
+    if time_diff < 7200 and time_diff > -7200:
+        return time_diff >= 0 ? 'about an hour ago' : 'in about an hour'
+
+    # within 24 hours
+    if time_diff < 86400 and time_diff > -86400:
+        return time_diff >= 0 ? Math.floor(time_diff / 3600) + ' hours ago' : 'in ' + Math.floor(-time_diff / 3600) + ' hours'
+
+    # within 2 days
+    days2 = 2 * 86400
+    if time_diff < days2 and time_diff > -days2:
+        return time_diff >= 0 ? '1 day ago' : 'in 1 day'
+
+    # within 29 days
+    days29 = 29 * 86400
+    if time_diff < days29 and time_diff > -days29:
+        return time_diff >= 0 ? Math.floor(time_diff / 86400) + ' days ago' : 'in ' + Math.floor(-time_diff / 86400) + ' days'
+
+    # within 60 days
+    days60 = 60 * 86400
+    if time_diff < days60 and time_diff > -days60:
+        return time_diff >= 0 ? 'about a month ago' : 'in about a month'
+
+    cur_years = new Date(current_time * 1000).getFullYear()
+    ts_years = new Date(timestamp).getFullYear()
+    cur_months = new Date(current_time * 1000).getMonth() + 1 + 12 * cur_years
+    ts_months = new Date(timestamp).getMonth() + 1 + 12 * cur_years
+
+    # within a year
+    month_diff = cur_months - ts_months
+    if month_diff < 12 and month_diff > -12:
+        return (month_diff >= 0 ? month_diff + ' months ago' : 'in ' + (-month_diff) + ' months')
+
+    year_diff = cur_years - ts_years
+    if year_diff < 2 and year_diff > -2:
+        return (year_diff >= 0 ? 'a year ago' : 'in a year')
+
+    return year_diff >= 0 ? year_diff + ' years ago' : 'in ' + (-year_diff) + ' years'

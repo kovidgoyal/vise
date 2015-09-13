@@ -4,15 +4,17 @@
 
 import os
 import re
+import subprocess
+import shutil
 import sys
 import math
 from functools import lru_cache
 
 from PyQt5.Qt import (
     QUrl, QFontMetrics, QApplication, QConicalGradient, QPen, QBrush, QPainter,
-    QRect, Qt, QDialog, QDialogButtonBox, QIcon)
+    QRect, Qt, QDialog, QDialogButtonBox, QIcon, QByteArray, QBuffer)
 
-from .constants import cache_dir, str_version
+from .constants import cache_dir, str_version, isosx
 from .settings import gprefs
 
 
@@ -185,19 +187,81 @@ def sanitize_file_name(name, substitute='_'):
     return one
 
 
+def pixmap_to_data(pixmap, format='PNG', quality=90):
+    '''
+    Return the QPixmap pixmap as a string saved in the specified format.
+    '''
+    ba = QByteArray()
+    buf = QBuffer(ba)
+    buf.open(QBuffer.WriteOnly)
+    pixmap.save(buf, format, quality=quality)
+    return bytes(ba.data())
+
+
+def icon_to_data(icon, w=64, h=64):
+    if icon.isNull():
+        return b''
+    return pixmap_to_data(icon.pixmap(w, h))
+
+
 @lru_cache()
-def get_content_type_icon(mime_type, size=64):
+def get_content_type_icon(mime_type, size=64, as_data=False):
+    if mime_type:
+        try:
+            from gi.repository import Gtk, Gio
+        except ImportError:
+            return b'' if as_data else QIcon()
+        icon_theme = Gtk.IconTheme.get_default()
+        if icon_theme:
+            icon = Gio.content_type_get_icon(mime_type)
+            if icon:
+                icon_info = icon_theme.choose_icon(icon.get_names(), size, 0)
+                if icon_info:
+                    fname = icon_info.get_filename()
+                    if fname:
+                        ans = QIcon(fname)
+                        if as_data:
+                            ans = icon_to_data(ans, size, size)
+                        return ans
+    return b'' if as_data else QIcon()
+
+
+@lru_cache()
+def get_theme_icon(name, size=64, as_data=False):
     try:
-        from gi.repository import Gtk, Gio
+        from gi.repository import Gtk
     except ImportError:
-        return QIcon()
+        return b'' if as_data else QIcon()
     icon_theme = Gtk.IconTheme.get_default()
     if icon_theme:
-        icon = Gio.content_type_get_icon(mime_type)
-        if icon:
-            icon_info = icon_theme.choose_icon(icon.get_names(), size, 0)
-            if icon_info:
-                fname = icon_info.get_filename()
-                if fname:
-                    return QIcon(fname)
-    return QIcon()
+        icon_info = icon_theme.choose_icon([name], size, 0)
+        if icon_info:
+            fname = icon_info.get_filename()
+            if fname:
+                ans = QIcon(fname)
+                if as_data:
+                    ans = icon_to_data(ans, size, size)
+                return ans
+    return b'' if as_data else QIcon()
+
+
+def atomic_write(dest, data_or_file):
+    tdest = dest + '-atomic'
+    try:
+        with open(tdest, 'wb') as f:
+            if hasattr(data_or_file, 'read'):
+                shutil.copyfileobj(data_or_file, f)
+            else:
+                f.write(data_or_file)
+        os.replace(tdest, dest)
+    finally:
+        try:
+            os.remove(tdest)
+        except FileNotFoundError:
+            pass
+
+
+def open_local_file(path):
+    app = QApplication.instance()
+    p = subprocess.Popen([('open' if isosx else 'xdg-open'), path], env=app.original_env)
+    p.wait()

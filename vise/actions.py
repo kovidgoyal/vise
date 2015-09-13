@@ -63,3 +63,10 @@ def next_match(window, *args, **kwargs):
 
 def prev_match(window, *args, **kwargs):
     window.do_search(forward=False)
+
+
+def show_downloads(window, *args, **kwargs):
+    tab = window.get_tab_for_load(in_current_tab=False)
+    from .downloads import load
+    load(tab)
+    window.show_tab(tab)

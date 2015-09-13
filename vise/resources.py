@@ -18,6 +18,8 @@ _icon_cache = {}
 
 
 def get_icon(name):
+    if not name.startswith('images/'):
+        name = 'images/' + name
     try:
         return _icon_cache[name]
     except KeyError:

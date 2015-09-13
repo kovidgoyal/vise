@@ -23,6 +23,7 @@ from .certs import cert_exceptions
 from .message_box import question_dialog
 from .popup import Popup
 from .utils import Dialog, safe_disconnect
+from .resources import get_icon
 
 view_id = 0
 
@@ -76,6 +77,7 @@ class Bridge(QObject):
 
     middle_clicked = pyqtSignal(object)
     focus_changed = pyqtSignal(object)
+    called_back = pyqtSignal(object, object)
 
     @pyqtSlot(str)
     def middle_clicked_link(self, href):
@@ -93,8 +95,12 @@ class Bridge(QObject):
         t.daemon = True
         t.start()
 
+    @pyqtSlot(str, str)
+    def callback(self, name, json_encoded_data):
+        self.called_back.emit(name, json.loads(json_encoded_data))
+
     def break_cycles(self):
-        for s in 'middle_clicked focus_changed'.split():
+        for s in 'middle_clicked focus_changed called_back'.split():
             safe_disconnect(getattr(self, s))
 
 
@@ -108,6 +114,20 @@ class WebPage(QWebEnginePage):
         self.channel.registerObject('bridge', self.bridge)
         self.authenticationRequired.connect(self.authentication_required)
         self.proxyAuthenticationRequired.connect(self.proxy_authentication_required)
+        self.callbacks = {}
+        self.bridge.called_back.connect(self.called_back)
+
+    def register_callback(self, name, func, *args, **kw):
+        self.callbacks[name] = (func, args, kw)
+
+    def called_back(self, name, data):
+        try:
+            func, args, kw = self.callbacks[name]
+        except KeyError:
+            pass
+        else:
+            return func(self.view(), data, *args, **kw)
+        raise KeyError('No callback named %r is registered' % name)
 
     def javaScriptConsoleMessage(self, level, msg, linenumber, source_id):
         try:
@@ -142,6 +162,7 @@ class WebPage(QWebEnginePage):
 
     def break_cycles(self):
         self.bridge.break_cycles()
+        self.callbacks.clear()
         for s in ('authenticationRequired proxyAuthenticationRequired linkHovered featurePermissionRequested'
                   ' featurePermissionRequestCanceled windowCloseRequested').split():
             safe_disconnect(getattr(self, s))
@@ -181,6 +202,9 @@ class WebView(QWebEngineView):
         self.feature_permission_map = {}
         self.text_input_focused = False
         self._force_passthrough = False
+
+    def register_callback(self, name, func, *args, **kw):
+        self._page.register_callback(name, func, *args, **kw)
 
     @property
     def force_passthrough(self):
@@ -235,6 +259,11 @@ class WebView(QWebEngineView):
         return QSize(800, 600)
 
     def icon_url_changed(self, qurl):
+        from .downloads import DOWNLOADS_FAVICON_URL
+        if qurl == DOWNLOADS_FAVICON_URL:
+            self.icon = get_icon('emblem-downloads.png')
+            self.icon_changed.emit(self.icon)
+            return
         if qurl.isEmpty():
             self.icon_loaded()
             return
@@ -278,3 +307,13 @@ class WebView(QWebEngineView):
             if question_dialog(self, _('Allow new window?'), _(
                     'The site {0} wants to open a new tab, allow it?').format(site)):
                 return self.main_window.get_tab_for_load(in_current_tab=False)
+
+    def runjs(self, src, callback=None):
+        if callback is not None:
+            self._page.runJavaScript(src, callback)
+        else:
+            self._page.runJavaScript(src)
+
+    def js_func(self, name, *args, callback=None):
+        func = '%s(%s)' % (name, ','.join(map(lambda x: json.dumps(x, ensure_ascii=False), args)))
+        self.runjs(func, callback=callback)

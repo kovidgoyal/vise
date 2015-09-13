@@ -14,10 +14,12 @@ from gettext import gettext as _
 
 from PyQt5.Qt import (
     QApplication, QFontDatabase, QNetworkAccessManager, QNetworkDiskCache,
-    QLocalSocket, QLocalServer, QSslSocket, QTextStream, QAbstractSocket
+    QLocalSocket, QLocalServer, QSslSocket, QTextStream, QAbstractSocket,
+    QTimer
 )
 
 from .constants import appname, str_version, cache_dir, iswindows
+from .downloads import Downloads
 from .keys import KeyFilter
 from .message_box import error_dialog
 from .settings import delete_profile
@@ -55,6 +57,7 @@ class Application(QApplication):
                 f.setFamily('Ubuntu')
             self.setFont(f)
         self.network_access_manager = nam = QNetworkAccessManager(self)
+        self.downloads = Downloads(self)
         nam.sslErrors.connect(handle_qt_ssl_error)
         self.disk_cache = c = QNetworkDiskCache(nam)
         c.setCacheDirectory(os.path.join(cache_dir, 'favicons'))
@@ -158,10 +161,31 @@ class Application(QApplication):
         # Make sure the application object has no references in python and the
         # other global objects can also be garbage collected
         self.local_server.close()
+        self.downloads.break_cycles()
         for w in self.windows:
             w.break_cycles()
         del self.windows, self.network_access_manager, self.local_server
         sys.excepthook = sys.__excepthook__
+
+
+def run_app(urls=(), callback=None, callback_wait=0):
+    env = os.environ.copy()
+    app = Application([])
+    app.setOrganizationName('kovidgoyal')
+    app.setApplicationName(appname)
+    app.setApplicationVersion(str_version)
+    app.original_env = env
+    try:
+        app.open_urls(urls)
+        if callback is not None:
+            QTimer.singleShot(callback_wait, callback)
+        app.exec_()
+    finally:
+        # Without the following cleanup code, PyQt segfaults on exit
+        app.break_cycles()
+        delete_profile()
+        del app
+        gc.collect(), gc.collect(), gc.collect()
 
 
 def main():
@@ -175,16 +199,5 @@ def main():
         from .utils import ipython
         ipython()
         raise SystemExit(0)
-    app = Application(args)
-    app.setOrganizationName('kovidgoyal')
-    app.setApplicationName(appname)
-    app.setApplicationVersion(str_version)
-    try:
-        app.open_urls(args.urls)
-        app.exec_()
-    finally:
-        # Without the following cleanup code, PyQt segfaults on exit
-        app.break_cycles()
-        delete_profile()
-        del app
-        gc.collect(), gc.collect(), gc.collect()
+
+    run_app(args.urls)

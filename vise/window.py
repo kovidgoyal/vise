@@ -13,12 +13,14 @@ from PyQt5.Qt import (
 )
 
 from .constants import appname
+from .downloads import DOWNLOADS_URL
 from .resources import get_data_as_file, get_icon
 from .settings import gprefs, profile, create_profile, quickmarks
 from .tab_tree import TabTree
 from .view import WebView
 
 
+# Search {{{
 class Search(QLineEdit):
 
     do_search = pyqtSignal(object, object)
@@ -69,6 +71,10 @@ class SearchPanel(QWidget):
 
     def hide_search(self):
         pass
+
+# }}}
+
+# Status bar {{{
 
 
 class Status(QStackedWidget):
@@ -129,7 +135,7 @@ class PassthroughButton(QToolButton):
         self.setCursor(Qt.PointingHandCursor)
         self.main_window = main_window
         self.setCheckable(True)
-        self.setIcon(get_icon('images/passthrough.png'))
+        self.setIcon(get_icon('passthrough.png'))
         self.toggled.connect(self.change_passthrough)
         self.update_state()
 
@@ -146,6 +152,7 @@ class PassthroughButton(QToolButton):
         if tab is not None:
             tab.force_passthrough = self.isChecked()
 
+# }}}
 
 _window_id = 0
 
@@ -257,7 +264,11 @@ class MainWindow(QMainWindow):
         if self.current_tab is None:
             self.status_msg('')
         else:
-            self.status_msg(self.current_tab.url().toDisplayString())
+            qurl = self.current_tab.url()
+            if qurl == DOWNLOADS_URL:
+                qurl = QUrl('about:downloads')
+            val = qurl.toDisplayString()
+            self.status_msg(val)
 
     def link_hovered(self, tab, href):
         if tab is self.current_tab:
@@ -276,7 +287,11 @@ class MainWindow(QMainWindow):
 
     def open_url(self, qurl, in_current_tab=True):
         tab = self.get_tab_for_load(in_current_tab=in_current_tab)
-        tab.load(qurl)
+        if qurl.toString() == 'about:downloads':
+            from .downloads import load
+            load(tab)
+        else:
+            tab.load(qurl)
 
     def show_html(self, html, in_current_tab=True):
         if isinstance(html, bytes):

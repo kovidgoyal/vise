@@ -28,6 +28,48 @@
                 return arr.hasOwnProperty(val);
             };
         })();
+    function _$rapyd$_Iterable(iterable) {
+            var iterator, ans, result;
+            if (Array.isArray(iterable) || typeof iterable === "string") {
+                return iterable;
+            }
+            if (typeof iterable[_$rapyd$_iterator_symbol] === "function") {
+                iterator = (typeof Map === "function" && iterable instanceof Map) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]();
+                ans = _$rapyd$_list_decorate([]);
+                result = iterator.next();
+                while (!result.done) {
+                    ans.push(result.value);
+                    result = iterator.next();
+                }
+                return ans;
+            }
+            if (typeof HTMLCollection === "function" && (iterable instanceof HTMLCollection || iterable instanceof NodeList || iterable instanceof NamedNodeMap)) {
+                return iterable;
+            }
+            return Object.keys(iterable);
+        }
+    var _$rapyd$_desugar_kwargs = (function _$rapyd$_desugar_kwargs() {
+            if (typeof Object.assign === "function") {
+                return function() {
+                    var ans;
+                    ans = {};
+                    ans[_$rapyd$_kwargs_symbol] = true;
+                    return Object.assign.apply(ans, arguments);
+                };
+            }
+            return function() {
+                var ans, keys;
+                ans = {};
+                ans[_$rapyd$_kwargs_symbol] = true;
+                for (var i = 0; i < arguments.length; i++) {
+                    keys = Object.keys(arguments[i]);
+                    for (var j = 0; j < keys.length; j++) {
+                        ans[keys[j]] = arguments[i][keys[j]];
+                    }
+                }
+                return ans;
+            };
+        })();
     var Exception = Error;
 function AttributeError() {
     AttributeError.prototype.__init__.apply(this, arguments);
@@ -1929,21 +1971,34 @@ var str = _$rapyd$_str;
     _$rapyd$_modules["qt"] = {};
     _$rapyd$_modules["middle_click"] = {};
     _$rapyd$_modules["focus"] = {};
+    _$rapyd$_modules["elementmaker"] = {};
+    _$rapyd$_modules["humanize"] = {};
+    _$rapyd$_modules["downloads"] = {};
 
     (function(){
         var __name__ = "qt";
         var bridge, channel, bridge_name;
         bridge = null;
         channel = null;
-        bridge_name = "qt-js-bridge";
+        bridge_name = "ͻ-qt-js-bridge";
         function qt_bridge() {
             if (window.self !== window.top) {
                 return window.top[bridge_name];
             }
             return bridge;
         }
-        function connect_bridge() {
+        function callback(name, data, console_err) {
+            var bridge;
+            bridge = qt_bridge();
+            if (bridge === null) {
+                console.error(console_err || "Aborting callback: " + name + " as Qt bridge not available");
+            } else {
+                bridge.callback(name, JSON.stringify(data));
+            }
+        }
+        function connect_bridge(proceed) {
             if (window.self !== window.top) {
+                proceed();
                 return;
             }
             channel = new QWebChannel(qt.webChannelTransport, function(channel) {
@@ -1951,6 +2006,7 @@ var str = _$rapyd$_str;
                 Object.defineProperty(window, bridge_name, {
                     "value": bridge
                 });
+                proceed();
             });
         }
         _$rapyd$_modules["qt"]["bridge"] = bridge;
@@ -1960,6 +2016,8 @@ var str = _$rapyd$_str;
         _$rapyd$_modules["qt"]["bridge_name"] = bridge_name;
 
         _$rapyd$_modules["qt"]["qt_bridge"] = qt_bridge;
+
+        _$rapyd$_modules["qt"]["callback"] = callback;
 
         _$rapyd$_modules["qt"]["connect_bridge"] = connect_bridge;
     })();
@@ -2124,6 +2182,485 @@ var str = _$rapyd$_str;
     })();
 
     (function(){
+        var __name__ = "elementmaker";
+        var html_elements, mathml_elements, svg_elements, html5_tags, create_element, create_text_node, tag;
+        html_elements = (function(){
+            var s = _$rapyd$_set();
+            s.jsset.add("a");
+            s.jsset.add("abbr");
+            s.jsset.add("acronym");
+            s.jsset.add("address");
+            s.jsset.add("area");
+            s.jsset.add("article");
+            s.jsset.add("aside");
+            s.jsset.add("audio");
+            s.jsset.add("b");
+            s.jsset.add("big");
+            s.jsset.add("blockquote");
+            s.jsset.add("br");
+            s.jsset.add("button");
+            s.jsset.add("canvas");
+            s.jsset.add("caption");
+            s.jsset.add("center");
+            s.jsset.add("cite");
+            s.jsset.add("code");
+            s.jsset.add("col");
+            s.jsset.add("colgroup");
+            s.jsset.add("command");
+            s.jsset.add("datagrid");
+            s.jsset.add("datalist");
+            s.jsset.add("dd");
+            s.jsset.add("del");
+            s.jsset.add("details");
+            s.jsset.add("dfn");
+            s.jsset.add("dialog");
+            s.jsset.add("dir");
+            s.jsset.add("div");
+            s.jsset.add("dl");
+            s.jsset.add("dt");
+            s.jsset.add("em");
+            s.jsset.add("event-source");
+            s.jsset.add("fieldset");
+            s.jsset.add("figcaption");
+            s.jsset.add("figure");
+            s.jsset.add("footer");
+            s.jsset.add("font");
+            s.jsset.add("form");
+            s.jsset.add("header");
+            s.jsset.add("h1");
+            s.jsset.add("h2");
+            s.jsset.add("h3");
+            s.jsset.add("h4");
+            s.jsset.add("h5");
+            s.jsset.add("h6");
+            s.jsset.add("hr");
+            s.jsset.add("i");
+            s.jsset.add("img");
+            s.jsset.add("input");
+            s.jsset.add("ins");
+            s.jsset.add("keygen");
+            s.jsset.add("kbd");
+            s.jsset.add("label");
+            s.jsset.add("legend");
+            s.jsset.add("li");
+            s.jsset.add("m");
+            s.jsset.add("map");
+            s.jsset.add("menu");
+            s.jsset.add("meter");
+            s.jsset.add("multicol");
+            s.jsset.add("nav");
+            s.jsset.add("nextid");
+            s.jsset.add("ol");
+            s.jsset.add("output");
+            s.jsset.add("optgroup");
+            s.jsset.add("option");
+            s.jsset.add("p");
+            s.jsset.add("pre");
+            s.jsset.add("progress");
+            s.jsset.add("q");
+            s.jsset.add("s");
+            s.jsset.add("samp");
+            s.jsset.add("script");
+            s.jsset.add("section");
+            s.jsset.add("select");
+            s.jsset.add("small");
+            s.jsset.add("sound");
+            s.jsset.add("source");
+            s.jsset.add("spacer");
+            s.jsset.add("span");
+            s.jsset.add("strike");
+            s.jsset.add("strong");
+            s.jsset.add("style");
+            s.jsset.add("sub");
+            s.jsset.add("sup");
+            s.jsset.add("table");
+            s.jsset.add("tbody");
+            s.jsset.add("td");
+            s.jsset.add("textarea");
+            s.jsset.add("time");
+            s.jsset.add("tfoot");
+            s.jsset.add("th");
+            s.jsset.add("thead");
+            s.jsset.add("tr");
+            s.jsset.add("tt");
+            s.jsset.add("u");
+            s.jsset.add("ul");
+            s.jsset.add("var");
+            s.jsset.add("video");
+            return s;
+        })();
+        mathml_elements = (function(){
+            var s = _$rapyd$_set();
+            s.jsset.add("maction");
+            s.jsset.add("math");
+            s.jsset.add("merror");
+            s.jsset.add("mfrac");
+            s.jsset.add("mi");
+            s.jsset.add("mmultiscripts");
+            s.jsset.add("mn");
+            s.jsset.add("mo");
+            s.jsset.add("mover");
+            s.jsset.add("mpadded");
+            s.jsset.add("mphantom");
+            s.jsset.add("mprescripts");
+            s.jsset.add("mroot");
+            s.jsset.add("mrow");
+            s.jsset.add("mspace");
+            s.jsset.add("msqrt");
+            s.jsset.add("mstyle");
+            s.jsset.add("msub");
+            s.jsset.add("msubsup");
+            s.jsset.add("msup");
+            s.jsset.add("mtable");
+            s.jsset.add("mtd");
+            s.jsset.add("mtext");
+            s.jsset.add("mtr");
+            s.jsset.add("munder");
+            s.jsset.add("munderover");
+            s.jsset.add("none");
+            return s;
+        })();
+        svg_elements = (function(){
+            var s = _$rapyd$_set();
+            s.jsset.add("a");
+            s.jsset.add("animate");
+            s.jsset.add("animateColor");
+            s.jsset.add("animateMotion");
+            s.jsset.add("animateTransform");
+            s.jsset.add("clipPath");
+            s.jsset.add("circle");
+            s.jsset.add("defs");
+            s.jsset.add("desc");
+            s.jsset.add("ellipse");
+            s.jsset.add("font-face");
+            s.jsset.add("font-face-name");
+            s.jsset.add("font-face-src");
+            s.jsset.add("g");
+            s.jsset.add("glyph");
+            s.jsset.add("hkern");
+            s.jsset.add("linearGradient");
+            s.jsset.add("line");
+            s.jsset.add("marker");
+            s.jsset.add("metadata");
+            s.jsset.add("missing-glyph");
+            s.jsset.add("mpath");
+            s.jsset.add("path");
+            s.jsset.add("polygon");
+            s.jsset.add("polyline");
+            s.jsset.add("radialGradient");
+            s.jsset.add("rect");
+            s.jsset.add("set");
+            s.jsset.add("stop");
+            s.jsset.add("svg");
+            s.jsset.add("switch");
+            s.jsset.add("text");
+            s.jsset.add("title");
+            s.jsset.add("tspan");
+            s.jsset.add("use");
+            return s;
+        })();
+        html5_tags = html_elements.union(mathml_elements).union(svg_elements);
+        function _dummy_create_element(name) {
+            return {
+                "name": name,
+                "children": _$rapyd$_list_decorate([]),
+                "attributes": {},
+                "setAttribute": function(name, val) {
+                    this.attributes[name] = val;
+                },
+                "appendChild": function(child) {
+                    this.children.push(child);
+                }
+            };
+        }
+        function _dummy_create_text(value) {
+            return value;
+        }
+        if (typeof document === "undefined") {
+            create_element = _dummy_create_element;
+            create_text_node = _dummy_create_text;
+        } else {
+            create_element = function(name) {
+                return document.createElement(name);
+            };
+            create_text_node = function(val) {
+                return document.createTextNode(val);
+            };
+        }
+        function E() {
+            var tag = ( 0 === arguments.length-1 && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [_$rapyd$_kwargs_symbol] === true) ? undefined : arguments[0];
+            var kwargs = arguments[arguments.length-1];
+            if (typeof kwargs !== "object" || kwargs [_$rapyd$_kwargs_symbol] !== true) kwargs = {};
+            var args = Array.prototype.slice.call(arguments, 1 );
+            if (typeof kwargs === "object" && kwargs [_$rapyd$_kwargs_symbol] === true) args .pop();
+            var ans, vattr, attr, arg;
+            ans = create_element(tag);
+            var _$rapyd$_Iter0 = _$rapyd$_Iterable(kwargs);
+            for (var _$rapyd$_Index0 = 0; _$rapyd$_Index0 < _$rapyd$_Iter0.length; _$rapyd$_Index0++) {
+                attr = _$rapyd$_Iter0[_$rapyd$_Index0];
+                vattr = str.replace(str.rstrip(attr, "_"), "_", "-");
+                ans.setAttribute(vattr, kwargs[attr]);
+            }
+            var _$rapyd$_Iter1 = _$rapyd$_Iterable(args);
+            for (var _$rapyd$_Index1 = 0; _$rapyd$_Index1 < _$rapyd$_Iter1.length; _$rapyd$_Index1++) {
+                arg = _$rapyd$_Iter1[_$rapyd$_Index1];
+                if (typeof arg === "string") {
+                    ans.appendChild(create_text_node(arg));
+                } else {
+                    ans.appendChild(arg);
+                }
+            }
+            return ans;
+        }
+        function bind_e(tag) {
+            return function() {
+                var kwargs = arguments[arguments.length-1];
+                if (typeof kwargs !== "object" || kwargs [_$rapyd$_kwargs_symbol] !== true) kwargs = {};
+                var args = Array.prototype.slice.call(arguments, 0 );
+                if (typeof kwargs === "object" && kwargs [_$rapyd$_kwargs_symbol] === true) args .pop();
+                return E.apply(this, [tag].concat(args).concat([_$rapyd$_desugar_kwargs(kwargs)]));
+            };
+        }
+        var _$rapyd$_Iter2 = _$rapyd$_Iterable(html5_tags);
+        for (var _$rapyd$_Index2 = 0; _$rapyd$_Index2 < _$rapyd$_Iter2.length; _$rapyd$_Index2++) {
+            tag = _$rapyd$_Iter2[_$rapyd$_Index2];
+            Object.defineProperty(E, tag, {
+                "value": bind_e(tag)
+            });
+        }
+        _$rapyd$_modules["elementmaker"]["html_elements"] = html_elements;
+
+        _$rapyd$_modules["elementmaker"]["mathml_elements"] = mathml_elements;
+
+        _$rapyd$_modules["elementmaker"]["svg_elements"] = svg_elements;
+
+        _$rapyd$_modules["elementmaker"]["html5_tags"] = html5_tags;
+
+        _$rapyd$_modules["elementmaker"]["create_element"] = create_element;
+
+        _$rapyd$_modules["elementmaker"]["create_text_node"] = create_text_node;
+
+        _$rapyd$_modules["elementmaker"]["tag"] = tag;
+
+        _$rapyd$_modules["elementmaker"]["_dummy_create_element"] = _dummy_create_element;
+
+        _$rapyd$_modules["elementmaker"]["_dummy_create_text"] = _dummy_create_text;
+
+        _$rapyd$_modules["elementmaker"]["E"] = E;
+
+        _$rapyd$_modules["elementmaker"]["bind_e"] = bind_e;
+    })();
+
+    (function(){
+        var __name__ = "humanize";
+        var LABELS;
+        function normalize_precision(value, base) {
+            value = Math.round(Math.abs(value));
+            return (isNaN(value)) ? base : value;
+        }
+        function to_fixed(value, precision) {
+            var power;
+            precision = precision || normalize_precision(precision, 0);
+            power = Math.pow(10, precision);
+            return (Math.round(value * power) / power).toFixed(precision);
+        }
+        function humanize_number(number, precision, thousand, decimal) {
+            var use_precision, negative, base, mod;
+            precision = precision || 0;
+            thousand = thousand || ",";
+            decimal = decimal || ".";
+            function first_comma(number, position) {
+                return (position) ? number.substr(0, position) + thousand : "";
+            }
+            function commas(number, position) {
+                return number.substr(position).replace(/(\d{3})(?=\d)/g, "$1" + thousand);
+            }
+            function decimals(number, use_precision) {
+                return (use_precision) ? decimal + to_fixed(Math.abs(number), use_precision).split(".")[1] : "";
+            }
+            use_precision = normalize_precision(precision);
+            negative = (number < 0) ? "-" : "";
+            base = parseInt(to_fixed(Math.abs(number || 0), use_precision), 10) + "";
+            mod = (base.length > 3) ? base.length % 3 : 0;
+            return negative + first_comma(base, mod) + commas(base, mod) + decimals(number, use_precision);
+        }
+        LABELS = _$rapyd$_list_decorate([ _$rapyd$_list_decorate([ "P", Math.pow(2, 50) ]), _$rapyd$_list_decorate([ "T", Math.pow(2, 40) ]), _$rapyd$_list_decorate([ "G", 1 << 30 ]), _$rapyd$_list_decorate([ "M", 1 << 20 ]) ]);
+        function humanize_size(size) {
+            var _$rapyd$_Unpack, label, minnum;
+            var _$rapyd$_Iter0 = _$rapyd$_Iterable(LABELS);
+            for (var _$rapyd$_Index0 = 0; _$rapyd$_Index0 < _$rapyd$_Iter0.length; _$rapyd$_Index0++) {
+                _$rapyd$_Unpack = _$rapyd$_Iter0[_$rapyd$_Index0];
+                label = _$rapyd$_Unpack[0];
+                minnum = _$rapyd$_Unpack[1];
+                if (size >= minnum) {
+                    return humanize_number(size / minnum, 2, "") + " " + label + "B";
+                }
+            }
+            if (size >= 1024) {
+                return humanize_number(size / 1024, 0) + " KB";
+            }
+            return humanize_number(size, 0) + " B";
+        }
+        function relative_time(timestamp) {
+            var current_time, time_diff, days2, days29, days60, cur_years, ts_years, cur_months, ts_months, month_diff, year_diff;
+            timestamp = timestamp || Date.now();
+            current_time = Date.now() / 1e3;
+            time_diff = current_time - timestamp / 1e3;
+            if (time_diff < 2 && time_diff > -2) {
+                return ((time_diff >= 0) ? "just " : "") + "now";
+            }
+            if (time_diff < 60 && time_diff > -60) {
+                return (time_diff >= 0) ? Math.floor(time_diff) + " seconds ago" : "in " + Math.floor(-time_diff) + " seconds";
+            }
+            if (time_diff < 120 && time_diff > -120) {
+                return (time_diff >= 0) ? "about a minute ago" : "in about a minute";
+            }
+            if (time_diff < 3600 && time_diff > -3600) {
+                return (time_diff >= 0) ? Math.floor(time_diff / 60) + " minutes ago" : "in " + Math.floor(-time_diff / 60) + " minutes";
+            }
+            if (time_diff < 7200 && time_diff > -7200) {
+                return (time_diff >= 0) ? "about an hour ago" : "in about an hour";
+            }
+            if (time_diff < 86400 && time_diff > -86400) {
+                return (time_diff >= 0) ? Math.floor(time_diff / 3600) + " hours ago" : "in " + Math.floor(-time_diff / 3600) + " hours";
+            }
+            days2 = 2 * 86400;
+            if (time_diff < days2 && time_diff > -days2) {
+                return (time_diff >= 0) ? "1 day ago" : "in 1 day";
+            }
+            days29 = 29 * 86400;
+            if (time_diff < days29 && time_diff > -days29) {
+                return (time_diff >= 0) ? Math.floor(time_diff / 86400) + " days ago" : "in " + Math.floor(-time_diff / 86400) + " days";
+            }
+            days60 = 60 * 86400;
+            if (time_diff < days60 && time_diff > -days60) {
+                return (time_diff >= 0) ? "about a month ago" : "in about a month";
+            }
+            cur_years = new Date(current_time * 1e3).getFullYear();
+            ts_years = new Date(timestamp).getFullYear();
+            cur_months = new Date(current_time * 1e3).getMonth() + 1 + 12 * cur_years;
+            ts_months = new Date(timestamp).getMonth() + 1 + 12 * cur_years;
+            month_diff = cur_months - ts_months;
+            if (month_diff < 12 && month_diff > -12) {
+                return (month_diff >= 0) ? month_diff + " months ago" : "in " + -month_diff + " months";
+            }
+            year_diff = cur_years - ts_years;
+            if (year_diff < 2 && year_diff > -2) {
+                return (year_diff >= 0) ? "a year ago" : "in a year";
+            }
+            return (year_diff >= 0) ? year_diff + " years ago" : "in " + -year_diff + " years";
+        }
+        _$rapyd$_modules["humanize"]["LABELS"] = LABELS;
+
+        _$rapyd$_modules["humanize"]["normalize_precision"] = normalize_precision;
+
+        _$rapyd$_modules["humanize"]["to_fixed"] = to_fixed;
+
+        _$rapyd$_modules["humanize"]["humanize_number"] = humanize_number;
+
+        _$rapyd$_modules["humanize"]["humanize_size"] = humanize_size;
+
+        _$rapyd$_modules["humanize"]["relative_time"] = relative_time;
+    })();
+
+    (function(){
+        var __name__ = "downloads";
+        var E = _$rapyd$_modules["elementmaker"].E;
+        
+        var humanize_size = _$rapyd$_modules["humanize"].humanize_size;
+        var relative_time = _$rapyd$_modules["humanize"].relative_time;
+        
+        var callback = _$rapyd$_modules["qt"].callback;
+        
+        function cancel_download(dl_id) {
+            callback("downloads", {
+                "id": int(dl_id),
+                "cmd": "cancel"
+            });
+        }
+        function open_download(dl_id) {
+            callback("downloads", {
+                "id": int(dl_id),
+                "cmd": "open"
+            });
+        }
+        function create_download(dl_id, fname, mime_type, icon_url, hostname) {
+            var div, stop;
+            document.getElementById("init").style.display = "none";
+            div = E.div(E.img(_$rapyd$_desugar_kwargs({src: icon_url, alt: fname, style: "width: 64px; height: 64px; margin-right: 1em; float:left; display:table-cell"})), E.div(E.p(E.b(fname, _$rapyd$_desugar_kwargs({id: "fname" + dl_id})), E.br(), E.span("...", _$rapyd$_desugar_kwargs({id: "status" + dl_id, style: "color:gray", data_hostname: hostname, data_created: Date.now() + ""}))), _$rapyd$_desugar_kwargs({style: "float:left; display:table-cell"})), E.div(E.br(), E.span("✖ ", _$rapyd$_desugar_kwargs({class_: "stop", style: "font-size: x-large; cursor:pointer", title: "Stop download"})), _$rapyd$_desugar_kwargs({id: "stop" + dl_id, style: "float:right;"})), _$rapyd$_desugar_kwargs({style: "padding: 3ex; display: table; width: 90%; border-bottom: solid 1px currentColor"}));
+            document.body.insertBefore(div, document.body.firstChild);
+            update_download(dl_id, "running", -1, -1, 0);
+            stop = document.getElementById("stop" + dl_id);
+            stop.addEventListener("click", function() {
+                cancel_download(dl_id);
+            });
+        }
+        function update_download(dl_id, state, received, total, rate) {
+            var status, h, left, fname, text, stop;
+            status = document.getElementById("status" + dl_id);
+            h = humanize_size;
+            if (state === "running") {
+                if (received > -1 && total > -1) {
+                    if (rate > 0) {
+                        left = relative_time(Date.now() + 1e3 * ((total - received) / rate));
+                        status.innerText = str.format("{recv} of {total} at {rate}/s — Will finish {left}", _$rapyd$_desugar_kwargs({recv: h(received), total: h(total), rate: h(rate), left: left}));
+                    } else {
+                        left = (rate < 0) ? "Estimating time remaining" : "Stalled";
+                        status.innerText = str.format("{recv} of {total} — {left}", _$rapyd$_desugar_kwargs({recv: h(received), total: h(total), left: left}));
+                    }
+                } else {
+                    status.innerText = "Downloading, please wait...";
+                }
+            } else if (state === "completed") {
+                fname = document.getElementById("fname" + dl_id);
+                if (fname) {
+                    if (!fname.getAttribute("class")) {
+                        fname.addEventListener("click", function() {
+                            open_download(dl_id);
+                        });
+                    }
+                    fname.setAttribute("class", "fname");
+                    fname.setAttribute("title", "Click to open");
+                }
+                text = "";
+                if (total > -1) {
+                    text += h(total) + " — ";
+                }
+                text += status.getAttribute("data-hostname") + " — ";
+                text += "Completed";
+                if (total > -1) {
+                    rate = 1e3 * total / (Date.now() - int(status.getAttribute("data-created")));
+                    text += " at " + h(rate) + "/s";
+                }
+                status.innerText = text;
+            } else {
+                text = (state === "canceled") ? "Canceled" : "Interrupted";
+                text += " — " + status.getAttribute("data-hostname");
+                status.innerText = text;
+            }
+            stop = document.getElementById("stop" + dl_id);
+            stop.style.display = (state === "running") ? "block" : "none";
+        }
+        function main() {
+            window.create_download = create_download;
+            window.update_download = update_download;
+            document.getElementsByTagName("style")[0].innerText = "\n    body { color: black; background-color: #eee; }\n    .stop:hover { color: red }\n    .fname { cursor: pointer }\n    .fname:hover { color: red; font-style: italic }\n    ";
+            callback("downloads", {
+                "cmd": "inited"
+            });
+        }
+        _$rapyd$_modules["downloads"]["cancel_download"] = cancel_download;
+
+        _$rapyd$_modules["downloads"]["open_download"] = open_download;
+
+        _$rapyd$_modules["downloads"]["create_download"] = create_download;
+
+        _$rapyd$_modules["downloads"]["update_download"] = update_download;
+
+        _$rapyd$_modules["downloads"]["main"] = main;
+    })();
+
+    (function(){
 
         var __name__ = "__main__";
 
@@ -2134,11 +2671,23 @@ var str = _$rapyd$_str;
         
         var focus_onload = _$rapyd$_modules["focus"].onload;
         
+        var downloads = _$rapyd$_modules["downloads"].main;
+        
         function on_document_loaded() {
-            connect_bridge();
-            mc_onload();
-            focus_onload();
+            connect_bridge(function() {
+                mc_onload();
+                focus_onload();
+                if (typeof window["ͻ-vise-entry-point"] === "function") {
+                    window["ͻ-vise-entry-point"](vise_entry_point);
+                }
+            });
         }
+        function vise_entry_point(name) {
+            if (name === "downloads") {
+                downloads();
+            }
+        }
+        document.removeEventListener("DOMContentLoaded", on_document_loaded);
         document.addEventListener("DOMContentLoaded", on_document_loaded);
     })();
 })();
