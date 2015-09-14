@@ -15,7 +15,7 @@ from gettext import gettext as _
 from PyQt5.Qt import (
     QApplication, QFontDatabase, QNetworkAccessManager, QNetworkDiskCache,
     QLocalSocket, QLocalServer, QSslSocket, QTextStream, QAbstractSocket,
-    QTimer
+    QTimer, QDialog
 )
 
 from .constants import appname, str_version, cache_dir, iswindows
@@ -145,7 +145,7 @@ class Application(QApplication):
             pass
 
     def on_unhandled_error(self, etype, value, tb):
-        if type == KeyboardInterrupt:
+        if etype == KeyboardInterrupt:
             return
         sys.__excepthook__(etype, value, tb)
         try:
@@ -153,9 +153,13 @@ class Application(QApplication):
         except Exception:
             msg = repr(value)
         msg = '<p>' + msg + '<br>' + _('Click "Show details" for more information')
-        det_msg = '%s: %s\n%s' % (appname, str_version, ''.join(traceback.format_exception(type, value, tb)))
+        det_msg = '%s: %s\n%s' % (appname, str_version, ''.join(traceback.format_exception(etype, value, tb)))
         parent = self.activeWindow()
-        error_dialog(parent, _('Unhandled exception'), msg, det_msg=det_msg)
+        d = error_dialog(parent, _('Unhandled exception'), msg, det_msg=det_msg, show=False)
+        d.shutdown_button = d.bb.addButton(_('Shutdown'), d.bb.RejectRole)
+        ret = d.exec_()
+        if ret == QDialog.Rejected:
+            QApplication.instance().exit(1)
 
     def break_cycles(self):
         # Make sure the application object has no references in python and the
