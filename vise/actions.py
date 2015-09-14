@@ -79,8 +79,9 @@ def show_downloads(window, *args, **kwargs):
 
 
 def scroll_line(key, window, focus_widget, key_filter, *args, **kwargs):
-    with key_filter.disable_filtering:
-        QApplication.sendEvent(focus_widget, QKeyEvent(QEvent.KeyPress, key, Qt.KeyboardModifiers(0)))
+    if focus_widget is not None:
+        with key_filter.disable_filtering:
+            QApplication.sendEvent(focus_widget, QKeyEvent(QEvent.KeyPress, key, Qt.KeyboardModifiers(0)))
     return True
 
 scroll_line_down = partial(scroll_line, Qt.Key_Down)
