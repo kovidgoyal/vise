@@ -47,7 +47,7 @@ D                           close_tab
 Shift+?                     search_back
 N                           next_match
 Shift+N                     prev_match
-Ctrl+Z                      set_passthrough
+Ctrl+Z                      set_passthrough_mode
 G                           quickmark
 Shift+G                     quickmark_newtab
 J                           scroll_line_down
@@ -68,6 +68,10 @@ class KeyFilter(QObject):
     def __init__(self, parent=None):
         QObject.__init__(self, parent)
         self.disabled = False
+
+    @property
+    def disable_filtering(self):
+        return self
 
     def __enter__(self):
         self.disabled = True

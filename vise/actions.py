@@ -39,7 +39,7 @@ def edit_text(window, *args, **kwargs):
         return True
 
 
-def set_passthrough(window, *args, **kwargs):
+def set_passthrough_mode(window, *args, **kwargs):
     if window.current_tab is not None:
         window.current_tab.force_passthrough = True
         return True
@@ -79,7 +79,7 @@ def show_downloads(window, *args, **kwargs):
 
 
 def scroll_line(key, window, focus_widget, key_filter, *args, **kwargs):
-    with key_filter:
+    with key_filter.disable_filtering:
         QApplication.sendEvent(focus_widget, QKeyEvent(QEvent.KeyPress, key, Qt.KeyboardModifiers(0)))
     return True
 
