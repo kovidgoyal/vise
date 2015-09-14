@@ -9,7 +9,7 @@ from functools import partial
 from PyQt5.Qt import (
     QTreeWidget, QTreeWidgetItem, Qt, pyqtSignal, QSize, QFont, QPen, QRect,
     QApplication, QPainter, QPixmap, QIcon, QTimer, QStyledItemDelegate,
-    QModelIndex, QStyle, QEvent
+    QModelIndex, QStyle, QEvent, QColor
 )
 
 from .utils import elided_text, draw_snake_spinner
@@ -17,6 +17,7 @@ from .utils import elided_text, draw_snake_spinner
 LOADING_ROLE = Qt.UserRole
 ANGLE_ROLE = LOADING_ROLE + 1
 HOVER_ROLE = ANGLE_ROLE + 1
+CLOSE_HOVER_ROLE = HOVER_ROLE + 1
 ICON_SIZE = 24
 
 
@@ -75,6 +76,11 @@ class TabDelegate(QStyledItemDelegate):
         painter.drawText(text_rect, text_flags, text)
         if hovering:
             hrect = QRect(text_rect.right(), text_rect.top(), text_rect.height(), text_rect.height())
+            close_hover = index.data(CLOSE_HOVER_ROLE) is True
+            if close_hover:
+                pen = painter.pen()
+                pen.setColor(QColor('red'))
+                painter.setPen(pen)
             painter.drawText(hrect, Qt.AlignCenter, '✖ ')
         if index.data(LOADING_ROLE):
             if not self.errored_out:
@@ -183,22 +189,29 @@ class TabTree(QTreeWidget):
             etype = event.type()
             item = last_item = self._last_item()
             if etype == QEvent.MouseMove:
-                item = self.itemAt(event.pos())
+                pos = event.pos()
+                item = self.itemAt(pos)
+                if item is not None:
+                    item.set_data(CLOSE_HOVER_ROLE, self.over_close(item, pos))
             elif etype == QEvent.Leave:
                 item = None
             if item is not last_item:
                 if last_item is not None:
                     last_item.set_data(HOVER_ROLE, False)
+                    last_item.set_data(CLOSE_HOVER_ROLE, False)
                 self._last_item = (lambda: None) if item is None else weakref.ref(item)
         return QTreeWidget.eventFilter(self, widget, event)
+
+    def over_close(self, item, pos):
+        rect = self.visualItemRect(item)
+        rect.setLeft(rect.right() - rect.height())
+        return rect.contains(pos)
 
     def mouseReleaseEvent(self, ev):
         if ev.button() == Qt.LeftButton:
             item = self.itemAt(ev.pos())
             if item is not None:
-                rect = self.visualItemRect(item)
-                rect.setLeft(rect.right() - rect.height())
-                if rect.contains(ev.pos()):
+                if self.over_close(item, ev.pos()):
                     tab = item.tabref()
                     if tab is not None:
                         self.tab_close_requested.emit(tab)
