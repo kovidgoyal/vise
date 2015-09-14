@@ -193,6 +193,7 @@ class MainWindow(QMainWindow):
         self.tabs = []
         self.tab_tree = tt = TabTree(self)
         tt.tab_activated.connect(self.show_tab)
+        tt.tab_close_requested.connect(self.close_tab)
         w.addWidget(tt)
         self.stack = s = QStackedWidget(self)
         s.currentChanged.connect(self.current_tab_changed)

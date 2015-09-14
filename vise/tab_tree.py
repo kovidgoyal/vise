@@ -9,13 +9,14 @@ from functools import partial
 from PyQt5.Qt import (
     QTreeWidget, QTreeWidgetItem, Qt, pyqtSignal, QSize, QFont, QPen, QRect,
     QApplication, QPainter, QPixmap, QIcon, QTimer, QStyledItemDelegate,
-    QModelIndex, QStyle
+    QModelIndex, QStyle, QEvent
 )
 
 from .utils import elided_text, draw_snake_spinner
 
 LOADING_ROLE = Qt.UserRole
 ANGLE_ROLE = LOADING_ROLE + 1
+HOVER_ROLE = ANGLE_ROLE + 1
 ICON_SIZE = 24
 
 
@@ -55,11 +56,14 @@ class TabDelegate(QStyledItemDelegate):
 
     def paint(self, painter, option, index):
         QStyledItemDelegate.paint(self, painter, option, QModelIndex())
+        hovering = index.data(HOVER_ROLE) is True
         painter.save()
         rect = option.rect
         icon_rect = QRect(rect.left() + self.MARGIN, rect.top() + self.MARGIN, ICON_SIZE, ICON_SIZE)
         left = icon_rect.right() + 2 * self.MARGIN
-        text_rect = QRect(left, icon_rect.top(), rect.width() - left, icon_rect.height())
+        text_rect = QRect(left, icon_rect.top(), rect.width() - left + rect.left(), icon_rect.height())
+        if hovering:
+            text_rect.adjust(0, 0, -text_rect.height(), 0)
         text = index.data(Qt.DisplayRole) or ''
         font = index.data(Qt.FontRole)
         if font:
@@ -69,6 +73,9 @@ class TabDelegate(QStyledItemDelegate):
         if option.state & QStyle.State_Selected:
             painter.setPen(QPen(self.highlighted_text))
         painter.drawText(text_rect, text_flags, text)
+        if hovering:
+            hrect = QRect(text_rect.right(), text_rect.top(), text_rect.height(), text_rect.height())
+            painter.drawText(hrect, Qt.AlignCenter, '✖ ')
         if index.data(LOADING_ROLE):
             if not self.errored_out:
                 angle = index.data(ANGLE_ROLE)
@@ -99,6 +106,7 @@ class TabItem(QTreeWidgetItem):
         self.set_data(Qt.DisplayRole, tab.title() or _('Loading...'))
         self.set_data(Qt.DecorationRole, missing_icon())
         self.set_data(ANGLE_ROLE, 0)
+        self.set_data(HOVER_ROLE, False)
         self.tabref = weakref.ref(tab)
         tab.titleChanged.connect(partial(self.set_data, Qt.DisplayRole))
         tab.icon_changed.connect(self.icon_changed)
@@ -134,6 +142,7 @@ class TabItem(QTreeWidgetItem):
 class TabTree(QTreeWidget):
 
     tab_activated = pyqtSignal(object)
+    tab_close_requested = pyqtSignal(object)
 
     def __init__(self, parent):
         QTreeWidget.__init__(self, parent)
@@ -163,6 +172,39 @@ class TabTree(QTreeWidget):
         self.loading_items = set()
         self.delegate = TabDelegate(self)
         self.setItemDelegate(self.delegate)
+        self.setMouseTracking(True)
+        self._last_item = lambda: None
+        self.itemEntered.connect(lambda item, col: item.set_data(HOVER_ROLE, True))
+        self.setCursor(Qt.PointingHandCursor)
+        self.viewport().installEventFilter(self)
+
+    def eventFilter(self, widget, event):
+        if widget is self.viewport():
+            etype = event.type()
+            item = last_item = self._last_item()
+            if etype == QEvent.MouseMove:
+                item = self.itemAt(event.pos())
+            elif etype == QEvent.Leave:
+                item = None
+            if item is not last_item:
+                if last_item is not None:
+                    last_item.set_data(HOVER_ROLE, False)
+                self._last_item = (lambda: None) if item is None else weakref.ref(item)
+        return QTreeWidget.eventFilter(self, widget, event)
+
+    def mouseReleaseEvent(self, ev):
+        if ev.button() == Qt.LeftButton:
+            item = self.itemAt(ev.pos())
+            if item is not None:
+                rect = self.visualItemRect(item)
+                rect.setLeft(rect.right() - rect.height())
+                if rect.contains(ev.pos()):
+                    tab = item.tabref()
+                    if tab is not None:
+                        self.tab_close_requested.emit(tab)
+                        ev.accept()
+                        return
+        return QTreeWidget.mouseReleaseEvent(self, ev)
 
     def __iter__(self):
         for i in range(self.topLevelItemCount()):
