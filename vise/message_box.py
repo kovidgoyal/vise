@@ -13,6 +13,7 @@ from PyQt5.Qt import (
 from .constants import appname, str_version
 from .resources import get_icon
 from .settings import gprefs
+from .utils import safe_disconnect
 
 
 class MessageBox(QDialog):  # {{{
@@ -120,6 +121,17 @@ class MessageBox(QDialog):  # {{{
         self.resize_needed.connect(self.do_resize, type=Qt.QueuedConnection)
         self.do_resize()
 
+    def break_cycles(self):
+        safe_disconnect(self.resize_needed)
+        safe_disconnect(self.det_msg_toggle.clicked)
+        safe_disconnect(self.copy_action.triggered)
+        safe_disconnect(self.bb.accepted)
+        safe_disconnect(self.bb.rejected)
+        if hasattr(self, 'ctc_button'):
+            safe_disconnect(self.ctc_button.clicked)
+        self.setParent(None)
+        self.deleteLater()
+
     def sizeHint(self):
         ans = QDialog.sizeHint(self)
         ans.setWidth(max(min(ans.width(), 500), self.bb.sizeHint().width() + 100))
@@ -164,6 +176,11 @@ class MessageBox(QDialog):  # {{{
         self.det_msg_toggle.setVisible(bool(msg))
         self.det_msg.setVisible(False)
         self.resize_needed.emit()
+
+    def exec_(self):
+        ret = QDialog.exec_(self)
+        self.break_cycles()
+        return ret
 # }}}
 
 
