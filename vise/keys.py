@@ -54,6 +54,7 @@ J                           scroll_line_down
 K                           scroll_line_up
 H                           scroll_line_left
 L                           scroll_line_right
+Y                           copy_url
 ''')
 
 

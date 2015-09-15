@@ -3,6 +3,7 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 from functools import partial
+from gettext import gettext as _
 
 from PyQt5.Qt import (
     QApplication, QKeyEvent, QEvent, Qt
@@ -76,6 +77,15 @@ def show_downloads(window, *args, **kwargs):
     from .downloads import load
     load(tab)
     window.show_tab(tab)
+
+
+def copy_url(window, *args, **kwargs):
+    if window.current_tab is not None:
+        qurl = window.current_tab.url()
+        if not qurl.isEmpty():
+            QApplication.clipboard().setText(qurl.toString())
+            window.statusBar().showMessage(_('Copied: ') + qurl.toString(), 2000)
+        window.statusBar()
 
 
 def scroll_line(key, window, focus_widget, key_filter, *args, **kwargs):
