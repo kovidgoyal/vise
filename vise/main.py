@@ -26,6 +26,7 @@ from .settings import delete_profile
 from .window import MainWindow
 from .utils import parse_url
 from .certs import handle_qt_ssl_error
+from .places import places
 
 app = ADDRESS = None
 
@@ -188,6 +189,7 @@ def run_app(urls=(), callback=None, callback_wait=0):
         # Without the following cleanup code, PyQt segfaults on exit
         app.break_cycles()
         delete_profile()
+        places.close()
         del app
         gc.collect(), gc.collect(), gc.collect()
 

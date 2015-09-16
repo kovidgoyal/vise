@@ -1,0 +1,53 @@
+CREATE TABLE places (
+	id INTEGER PRIMARY KEY,
+	url TEXT NOT NULL,
+	title TEXT DEFAULT "_" NOT NULL,
+	visit_count INTEGER DEFAULT 0,
+	typed INTEGER DEFAULT 0 NOT NULL,
+	last_visit_date INTEGER DEFAULT 0 NOT NULL,
+	frecency INTEGER DEFAULT -1 NOT NULL,
+	UNIQUE(url)
+);
+CREATE INDEX places_last_visit_date ON places (last_visit_date);
+CREATE INDEX places_frecency ON places (frecency);
+
+CREATE TABLE visits (
+	id INTEGER PRIMARY KEY,
+	place_id INTEGER NOT NULL,
+	visit_date INTEGER NOT NULL,
+	type INTEGER NOT NULL,
+	FOREIGN KEY(place_id) REFERENCES places(id) ON DELETE CASCADE
+);
+CREATE INDEX visits_place_id ON visits (place_id);
+CREATE INDEX visits_date ON visits (visit_date);
+
+CREATE TABLE chars_link (
+	id INTEGER PRIMARY KEY,
+	char INTEGER NOT NULL,
+	place_id INTEGER NOT NULL,
+	UNIQUE(char,place_id),
+	FOREIGN KEY(place_id) REFERENCES places(id) ON DELETE CASCADE
+);
+CREATE INDEX chars_link_place_id ON chars_link (place_id);
+CREATE INDEX chars_link_char ON chars_link (char);
+
+CREATE TABLE favicons(
+	id INTEGER PRIMARY KEY,
+	url TEXT NOT NULL,
+	last_visit_date INTEGER DEFAULT 0 NOT NULL,
+	UNIQUE(url)
+);
+CREATE INDEX favicons_last_visit_date ON favicons (last_visit_date);
+
+CREATE TABLE favicons_link(
+	id INTEGER PRIMARY KEY,
+	favicon_id INTEGER NOT NULL,
+	place_id INTEGER NOT NULL,
+	UNIQUE(favicon_id,place_id),
+	UNIQUE(place_id),
+	FOREIGN KEY(place_id) REFERENCES places(id) ON DELETE CASCADE,
+	FOREIGN KEY(favicon_id) REFERENCES favicons(id) ON DELETE CASCADE
+);
+
+PRAGMA user_version=1;
+

@@ -21,6 +21,7 @@ from PyQt5.Qt import (
 from .auth import get_http_auth_credentials, get_proxy_auth_credentials
 from .certs import cert_exceptions
 from .message_box import question_dialog
+from .places import places
 from .popup import Popup
 from .utils import Dialog, safe_disconnect
 from .resources import get_icon
@@ -167,6 +168,14 @@ class WebPage(QWebEnginePage):
                   ' featurePermissionRequestCanceled windowCloseRequested').split():
             safe_disconnect(getattr(self, s))
 
+    def acceptNavigationRequest(self, qurl, navtype, is_main_frame):
+        try:
+            places.on_visit(qurl, navtype, is_main_frame)
+        except Exception:
+            import traceback
+            traceback.print_exc()
+        return True
+
 
 class WebView(QWebEngineView):
 
@@ -202,6 +211,14 @@ class WebView(QWebEngineView):
         self.feature_permission_map = {}
         self.text_input_focused = False
         self._force_passthrough = False
+        self.titleChanged.connect(self.title_changed)
+
+    def title_changed(self, title):
+        try:
+            places.on_title_change(self.url(), title)
+        except Exception:
+            import traceback
+            traceback.print_exc()
 
     def register_callback(self, name, func, *args, **kw):
         self._page.register_callback(name, func, *args, **kw)
@@ -267,6 +284,11 @@ class WebView(QWebEngineView):
         if qurl.isEmpty():
             self.icon_loaded()
             return
+        try:
+            places.on_favicon_change(self.url(), qurl)
+        except Exception:
+            import traceback
+            traceback.print_exc()
         self.icon = QIcon()
         f = QApplication.instance().disk_cache.data(qurl)
         if f is not None:
