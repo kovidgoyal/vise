@@ -6,7 +6,7 @@ from functools import partial
 from gettext import gettext as _
 
 from PyQt5.Qt import (
-    QApplication, QKeyEvent, QEvent, Qt
+    QApplication, QKeyEvent, QEvent, Qt, QUrl
 )
 
 
@@ -86,6 +86,27 @@ def copy_url(window, *args, **kwargs):
             QApplication.clipboard().setText(qurl.toString())
             window.statusBar().showMessage(_('Copied: ') + qurl.toString(), 2000)
         window.statusBar()
+
+
+def _paste_and_go(window, in_current_tab=True):
+    c = QApplication.clipboard()
+    for mode in c.Clipboard, c.Selection:
+        text = c.text(mode).strip()
+        if text:
+            if text.partition(':')[0].lower() in {'file', 'http', 'https', 'about'}:
+                qurl = QUrl.fromUserInput(text)
+                if qurl.isValid() and not qurl.isEmpty():
+                    window.open_url(qurl, in_current_tab=in_current_tab)
+                    return
+    window.statusBar().showMessage(_('No URL in clipboard'))
+
+
+def paste_and_go(window, *args, **kwargs):
+    _paste_and_go(window)
+
+
+def paste_and_go_newtab(window, *args, **kwargs):
+    _paste_and_go(window, in_current_tab=False)
 
 
 def scroll_line(key, window, focus_widget, key_filter, *args, **kwargs):
