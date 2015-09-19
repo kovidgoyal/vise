@@ -41,6 +41,13 @@ def option_parser():
     return parser
 
 
+def create_favicon_cache():
+    c = QNetworkDiskCache()
+    c.setCacheDirectory(os.path.join(cache_dir, 'favicons'))
+    c.setMaximumCacheSize(10 * 1024 * 1024)
+    return c
+
+
 class Application(QApplication):
 
     def __init__(self, args):
@@ -60,9 +67,7 @@ class Application(QApplication):
         self.network_access_manager = nam = QNetworkAccessManager(self)
         self.downloads = Downloads(self)
         nam.sslErrors.connect(handle_qt_ssl_error)
-        self.disk_cache = c = QNetworkDiskCache(nam)
-        c.setCacheDirectory(os.path.join(cache_dir, 'favicons'))
-        c.setMaximumCacheSize(10 * 1024 * 1024)
+        self.disk_cache = c = create_favicon_cache()
         nam.setCache(c)
         self.key_filter = KeyFilter(self)
         self.installEventFilter(self.key_filter)

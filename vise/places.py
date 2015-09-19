@@ -189,10 +189,10 @@ class Places:
         like_expr = re.sub(r'([|%_])', r'|\1', subsequence.lower())
         like_expr = '%' + '%'.join(like_expr) + '%'
 
-        for url, title in c.execute(
-                'SELECT url, title FROM places WHERE url_lower LIKE ? ESCAPE "|" OR title_lower LIKE ? ESCAPE "|" ORDER BY frecency DESC LIMIT ?',
+        for place_id, url, title in c.execute(
+                'SELECT id, url, title FROM places WHERE url_lower LIKE ? ESCAPE "|" OR title_lower LIKE ? ESCAPE "|" ORDER BY frecency DESC LIMIT ?',
                 (like_expr, like_expr, limit)):
-            yield url, title
+            yield place_id, url, title
 
     def substring_matches(self, substrings=None, limit=50):
         c = self.conn.cursor()
@@ -204,10 +204,17 @@ class Places:
         like_expressions = tuple('%' + re.sub(r'([|%_])', r'|\1', x.lower()) + '%' for x in substrings)
         where_clause = ' AND '.join(repeat('(url_lower LIKE ? OR title_lower LIKE ?)', len(like_expressions)))
 
-        for url, title in c.execute(
-                'SELECT url, title FROM places WHERE %s ORDER BY frecency DESC LIMIT %d' % (where_clause, limit),
+        for place_id, url, title in c.execute(
+                'SELECT id, url, title FROM places WHERE %s ORDER BY frecency DESC LIMIT %d' % (where_clause, limit),
                 (x for x in like_expressions for y in (0, 1))):
-            yield url, title
+            yield place_id, url, title
+
+    def favicon_url(self, place_id):
+        try:
+            return next(self.conn.cursor().execute(
+                'SELECT url FROM favicons WHERE id IN (SELECT favicon_id FROM favicons_link WHERE place_id=? LIMIT 1) LIMIT 1', (place_id,)))[0]
+        except StopIteration:
+            pass
 
 
 places = Places()
@@ -220,14 +227,16 @@ def import_from_firefox():
     os.remove(places.path)
     places = Places()
     conn = apsw.Connection(glob(os.path.expanduser('~/.mozilla/firefox/*/places.sqlite'))[0])
-    place_id_map = {}
+    place_id_map, favicon_id_map, favicon_links = {}, {}, {}
     with places.conn:
         print('Importing places table')
-        for place_id, url, title, visit_count, typed, frecency, last_visit_date in conn.cursor().execute(
-                'SELECT id,url,title,visit_count,typed,frecency,last_visit_date FROM moz_places'):
+        for place_id, url, title, visit_count, typed, frecency, last_visit_date, favicon_id in conn.cursor().execute(
+                'SELECT id,url,title,visit_count,typed,frecency,last_visit_date,favicon_id FROM moz_places'):
             if last_visit_date and visit_count and frecency > 0 and url:
                 place_id_map[place_id] = places.insert(
                     'places', url=url, title=title or '_', visit_count=visit_count, typed=typed, frecency=frecency, last_visit_date=last_visit_date)
+                if favicon_id is not None and favicon_id > 0:
+                    favicon_links[place_id_map[place_id]] = favicon_id
         print('Importing visits table')
         items = []
         for place_id, visit_date, visit_type in conn.cursor().execute(
@@ -237,4 +246,13 @@ def import_from_firefox():
                 items.append((place_id, visit_date, {1: VisitType.link_clicked, 2: VisitType.typed}[visit_type].value))
         places.conn.cursor().executemany(
             'INSERT INTO visits (place_id, visit_date, type) VALUES (?, ?, ?)', items)
+        print('Importing favicons table')
+        ts = now()
+        for favicon_id, url in conn.cursor().execute('SELECT id,url FROM moz_favicons'):
+            favicon_id_map[favicon_id] = places.insert('favicons', url=url, last_visit_date=ts)
+        links = ((place_id, favicon_id_map[favicon_id]) for place_id, favicon_id in favicon_links.items())
+        places.conn.cursor().executemany('INSERT INTO favicons_link(place_id,favicon_id) VALUES (?,?)', links)
+
+    print("Vacuuming...")
+    conn.cursor().execute('VACUUM')
     conn.close()

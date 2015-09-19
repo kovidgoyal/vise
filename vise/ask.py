@@ -7,11 +7,10 @@ from gettext import gettext as _
 from PyQt5.Qt import (
     QWidget, QVBoxLayout, QLineEdit, QListView, QAbstractListModel,
     QModelIndex, Qt, QStyledItemDelegate, QStringListModel, QApplication,
-    QPoint, QColor
+    QPoint, QColor, QSize
 )
 
 from .cmd import all_commands
-from .resources import get_icon
 from .utils import make_highlighted_text
 
 command_map = {}
@@ -54,17 +53,13 @@ class Completions(QAbstractListModel):
 
 class Delegate(QStyledItemDelegate):
 
-    MARGIN = 6
-
     def __init__(self, parent=None):
         QStyledItemDelegate.__init__(self, parent)
-        self._m = m = QStringListModel(['sdfgkjsg sopgjs gsgs slgjslg sdklgsgl', ''])
-        m.setData(m.index(0), get_icon('blank.png'), Qt.DecorationRole)
-        m.setData(m.index(1), get_icon('blank.png'), Qt.DecorationRole)
+        self._m = QStringListModel(['sdfgkjsg sopgjs gsgs slgjslg sdklgsgl', ''])
 
     def sizeHint(self, option, index):
         ans = QStyledItemDelegate.sizeHint(self, option, self._m.index(0))
-        ans.setHeight(ans.height() + self.MARGIN)
+        index.data(Qt.UserRole).adjust_size_hint(option, ans)
         return ans
 
     def paint(self, painter, option, index):
@@ -73,9 +68,7 @@ class Delegate(QStyledItemDelegate):
         parent = self.parent() or QApplication.instance()
         style = parent.style()
         try:
-            icon_rect = style.subElementRect(style.SE_ItemViewItemDecoration, option, self.parent())
-            text_rect = style.subElementRect(style.SE_ItemViewItemText, option, self.parent())
-            index.data(Qt.UserRole).draw_item(painter, icon_rect, text_rect, self.MARGIN // 4)
+            index.data(Qt.UserRole).draw_item(painter, style, option)
         finally:
             painter.restore()
 
@@ -89,8 +82,14 @@ class Candidate:
     def __repr__(self):
         return self.value
 
-    def draw_item(self, painter, icon_rect, text_rect, margin):
-        painter.drawStaticText(QPoint(text_rect.x(), text_rect.y() + margin), self.text)
+    def draw_item(self, painter, style, option):
+        text_rect = style.subElementRect(style.SE_ItemViewItemText, option)
+        y = text_rect.y()
+        y += (text_rect.height() - self.text.size().height()) // 2
+        painter.drawStaticText(QPoint(text_rect.x(), y), self.text)
+
+    def adjust_size_hint(self, option, sz):
+        pass
 
 
 class Ask(QWidget):
@@ -104,6 +103,8 @@ class Ask(QWidget):
         e.textEdited.connect(self.update_completions)
         e.setPlaceholderText(_('Enter command'))
         self.candidates = c = QListView(self)
+        c.setIconSize(QSize(16, 16))
+        c.setSpacing(2)
         c.currentChanged = self.current_changed
         c.setFocusPolicy(Qt.NoFocus)
         pal = c.palette()
@@ -185,7 +186,9 @@ class Ask(QWidget):
 
 
 def develop():
+    from .main import create_favicon_cache
     app = QApplication([])
+    app.disk_cache = create_favicon_cache()
     w = Ask()
     w()
     w.show()
