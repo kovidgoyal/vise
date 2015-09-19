@@ -12,6 +12,8 @@ from PyQt5.Qt import (
     QHBoxLayout, QWebEnginePage,
 )
 
+from .ask import Ask
+from .cmd import run_command
 from .constants import appname
 from .downloads import DOWNLOADS_URL, Indicator
 from .resources import get_data_as_file, get_icon
@@ -157,6 +159,15 @@ class PassthroughButton(QToolButton):
 _window_id = 0
 
 
+class StackedWidget(QStackedWidget):
+
+    resized = pyqtSignal()
+
+    def resizeEvent(self, ev):
+        self.resized.emit()
+        return QStackedWidget.resizeEvent(self, ev)
+
+
 class MainWindow(QMainWindow):
 
     def __init__(self, is_private=False):
@@ -195,15 +206,23 @@ class MainWindow(QMainWindow):
         tt.tab_activated.connect(self.show_tab)
         tt.tab_close_requested.connect(self.close_tab)
         w.addWidget(tt)
-        self.stack = s = QStackedWidget(self)
+        self.stack = s = StackedWidget(self)
         s.currentChanged.connect(self.current_tab_changed)
         w.addWidget(s), w.setCollapsible(1, False)
+        self.ask = a = Ask(s)
+        a.setVisible(False), a.run_command.connect(self.run_command)
         self.profile = create_profile(private=True) if is_private else profile()
 
         self.show_html(get_data_as_file('welcome.html').read())
 
         self.restore_state()
         self.current_tab_changed()
+
+    def ask(self, prefix):
+        self.ask(prefix)
+
+    def run_command(self, text):
+        run_command(self, text)
 
     def refocus(self):
         if self.current_tab is not None:

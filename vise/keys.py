@@ -3,10 +3,11 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 from PyQt5.Qt import (
-    Qt, QObject, QEvent, QApplication, QMainWindow, QKeySequence, QOpenGLWidget
+    Qt, QObject, QEvent, QApplication, QMainWindow, QKeySequence, QOpenGLWidget, QLineEdit
 )
 
 from . import actions
+from .ask import Ask
 
 modifiers_mask = int(Qt.ShiftModifier | Qt.ControlModifier | Qt.AltModifier | Qt.MetaModifier)
 
@@ -57,6 +58,10 @@ L                           scroll_line_right
 Y                           copy_url
 P                           paste_and_go
 Shift+P                     paste_and_go_newtab
+;                           ask
+:                           ask
+Shift+;                     ask
+Shift+:                     ask
 ''')
 
 
@@ -89,6 +94,14 @@ class KeyFilter(QObject):
         if etype == QEvent.KeyPress:
             app = QApplication.instance()
             window, fw = app.activeWindow(), app.focusWidget()
+
+            if isinstance(fw, QLineEdit) and isinstance(fw.parent(), Ask):
+                # Prevent tabbing out of line edit
+                key = key_from_event(event)
+                if key in (Qt.Key_Tab, Qt.Key_Backtab):
+                    fw.parent().keyPressEvent(event)
+                    return True
+
             if isinstance(window, QMainWindow) and (fw is None or isinstance(fw, QOpenGLWidget)):
                 key = key_from_event(event)
 

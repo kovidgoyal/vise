@@ -123,3 +123,8 @@ scroll_line_right = partial(scroll_line, Qt.Key_Right)
 
 def passthrough(*args, **kwargs):
     pass
+
+
+def ask(window, *args, **kwargs):
+    window.ask()
+    return True

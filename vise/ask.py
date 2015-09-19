@@ -7,7 +7,7 @@ from gettext import gettext as _
 from PyQt5.Qt import (
     QWidget, QVBoxLayout, QLineEdit, QListView, QAbstractListModel,
     QModelIndex, Qt, QStyledItemDelegate, QStringListModel, QApplication,
-    QPoint, QColor, QSize
+    QPoint, QColor, QSize, pyqtSignal
 )
 
 from .cmd import all_commands
@@ -94,10 +94,10 @@ class Candidate:
 
 class Ask(QWidget):
 
+    run_command = pyqtSignal(object)
+
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
-        if hasattr(parent, 'resized'):
-            parent.resized.connect(self.re_layout)
         self.l = l = QVBoxLayout(self)
         self.edit = e = QLineEdit(self)
         e.textEdited.connect(self.update_completions)
@@ -117,6 +117,9 @@ class Ask(QWidget):
         c.setModel(m)
         l.addWidget(e), l.addWidget(c)
         self.complete_pos = 0
+        if hasattr(parent, 'resized'):
+            parent.resized.connect(self.re_layout)
+            self.re_layout()
 
     def re_layout(self):
         w = self.parent().width()
@@ -125,6 +128,7 @@ class Ask(QWidget):
         self.move(0, h)
 
     def __call__(self, prefix=''):
+        self.setVisible(True), self.raise_()
         self.edit.blockSignals(True)
         self.edit.setText(prefix)
         self.edit.blockSignals(False)
@@ -167,6 +171,9 @@ class Ask(QWidget):
             self.next_completion(forward=False)
             ev.accept()
             return
+        if k in (Qt.Key_Enter, Qt.Key_Return):
+            self.close() if self.parent() is None else self.hide()
+            self.run_command.emit(self.edit.text())
         return QWidget.keyPressEvent(self, ev)
 
     def next_completion(self, forward=True):

@@ -3,6 +3,7 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 from contextlib import closing
+from gettext import gettext as _
 
 from PyQt5.Qt import QPoint, QApplication, QIcon, QPixmap, QUrl, Qt
 
@@ -102,3 +103,12 @@ class SwitchToTab(Command):
     names = {'tab'}
 
 all_commands = {x() for x in locals().values() if x is not Command and type(x) is type and issubclass(x, Command)}
+
+
+def run_command(window, text):
+    cmd, rest = text.partition(' ')[::2]
+    obj = all_commands.get(cmd)
+    if obj is None:
+        window.statusBar().showMessage(_('Unknown command: ') + cmd, 5000)
+        return
+    obj(cmd, rest, window)
