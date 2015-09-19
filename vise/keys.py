@@ -66,6 +66,8 @@ Shift+;                     ask
 Shift+:                     ask
 O                           ask_open
 Shift+O                     ask_tabopen
+R                           reload
+Shift+R                     hard_reload
 ''')
 
 

@@ -148,3 +148,15 @@ def next_tab(window, *args, **kwargs):
 def prev_tab(window, *args, **kwargs):
     window.tab_tree.next_tab(forward=False)
     return True
+
+
+def reload(window, *args, **kwargs):
+    if window.current_tab is not None:
+        p = window.current_tab.page()
+        p.triggerAction(p.Reload)
+
+
+def hard_reload(window, *args, **kwargs):
+    if window.current_tab is not None:
+        p = window.current_tab.page()
+        p.triggerAction(p.ReloadAndBypassCache)
