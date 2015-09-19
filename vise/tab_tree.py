@@ -272,6 +272,25 @@ class TabTree(QTreeWidget):
                 self.tab_activated.emit(item.tab)
                 return True
 
+    def next_tab(self, forward=True):
+        tabs = self if forward else reversed(tuple(self))
+        found = self.current_item is None
+        item = None
+        for item in tabs:
+            tab = item.tab
+            if found and tab is not None:
+                self.tab_activated.emit(tab)
+                return True
+            if self.current_item == item:
+                found = True
+        tabs = self if forward else reversed(tuple(self))
+        for item in tabs:
+            tab = item.tab
+            if tab is not None:
+                self.tab_activated.emit(tab)
+                return True
+        return False
+
     def current_changed(self, tab):
         if self.current_item is not None:
             self.current_item.set_data(Qt.FontRole, None)

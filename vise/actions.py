@@ -138,3 +138,13 @@ def ask_open(window, *args, **kwargs):
 def ask_tabopen(window, *args, **kwargs):
     window.ask('tabopen ')
     return True
+
+
+def next_tab(window, *args, **kwargs):
+    window.tab_tree.next_tab()
+    return True
+
+
+def prev_tab(window, *args, **kwargs):
+    window.tab_tree.next_tab(forward=False)
+    return True
