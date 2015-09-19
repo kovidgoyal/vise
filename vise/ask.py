@@ -10,18 +10,8 @@ from PyQt5.Qt import (
     QPoint, QColor, QSize, pyqtSignal
 )
 
-from .cmd import all_commands
+from .cmd import command_map, all_command_names
 from .utils import make_highlighted_text
-
-command_map = {}
-all_command_names = set()
-for cmd in all_commands:
-    all_command_names |= cmd.names
-    for name in cmd.names:
-        if name in command_map:
-            raise ValueError('The command name %r is used twice' % name)
-        command_map[name] = cmd
-del cmd, name
 
 
 class Completions(QAbstractListModel):
