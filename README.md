@@ -13,9 +13,7 @@ Features
 
 Here is a list of features that I intend this browser to have
 
- * Easy navigation through history by sub-sequence matching using the keyboard
-   (similar to how you can select files in vim using Command-T or Ctrl-P or
-   completion entries using YouCompleteMe).
+ * Easy navigation through history by substring matching using the keyboard
 
  * A tabbed tree browser with drag and drop to group as well as quick access
    via keystrokes to individual tabs
