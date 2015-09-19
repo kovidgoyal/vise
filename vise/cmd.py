@@ -7,6 +7,7 @@ from gettext import gettext as _
 
 from .commands import Command
 from .commands.open import Open  # noqa
+from .commands.tab import SwitchToTab  # noqa
 
 
 class Close(Command):
@@ -19,10 +20,6 @@ class Close(Command):
         else:
             window.close()
 
-
-class SwitchToTab(Command):
-
-    names = {'tab'}
 
 all_commands = {x() for x in locals().values() if x is not Command and type(x) is type and issubclass(x, Command)}
 command_map = {}

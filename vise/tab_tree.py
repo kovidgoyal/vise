@@ -264,6 +264,14 @@ class TabTree(QTreeWidget):
             if tab is not None:
                 self.tab_activated.emit(item.tab)
 
+    def activate_tab(self, text):
+        text = text.strip()
+        for item in self:
+            tab = item.tab
+            if tab is not None and item.text(0).strip() == text:
+                self.tab_activated.emit(item.tab)
+                return True
+
     def current_changed(self, tab):
         if self.current_item is not None:
             self.current_item.set_data(Qt.FontRole, None)
