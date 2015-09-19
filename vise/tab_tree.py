@@ -269,6 +269,7 @@ class TabTree(QTreeWidget):
         for item in self:
             tab = item.tab
             if tab is not None and item.text(0).strip() == text:
+                self.scrollToItem(item)
                 self.tab_activated.emit(item.tab)
                 return True
 
@@ -279,6 +280,7 @@ class TabTree(QTreeWidget):
         for item in tabs:
             tab = item.tab
             if found and tab is not None:
+                self.scrollToItem(item)
                 self.tab_activated.emit(tab)
                 return True
             if self.current_item == item:
@@ -287,6 +289,7 @@ class TabTree(QTreeWidget):
         for item in tabs:
             tab = item.tab
             if tab is not None:
+                self.scrollToItem(item)
                 self.tab_activated.emit(tab)
                 return True
         return False
