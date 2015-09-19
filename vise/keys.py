@@ -62,6 +62,8 @@ Shift+P                     paste_and_go_newtab
 :                           ask
 Shift+;                     ask
 Shift+:                     ask
+O                           ask_open
+Shift+O                     ask_tabopen
 ''')
 
 

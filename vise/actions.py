@@ -122,9 +122,19 @@ scroll_line_right = partial(scroll_line, Qt.Key_Right)
 
 
 def passthrough(*args, **kwargs):
-    pass
+    return False
 
 
 def ask(window, *args, **kwargs):
     window.ask()
+    return True
+
+
+def ask_open(window, *args, **kwargs):
+    window.ask('open ')
+    return True
+
+
+def ask_tabopen(window, *args, **kwargs):
+    window.ask('tabopen ')
     return True

@@ -4,14 +4,22 @@
 
 from contextlib import closing
 
-from PyQt5.Qt import QPoint, QApplication, QIcon, QPixmap, QUrl, Qt
+from PyQt5.Qt import QPoint, QApplication, QIcon, QPixmap, QUrl, Qt, QUrlQuery
 
 from . import Command
 from ..places import places
-from ..utils import make_highlighted_text
+from ..utils import make_highlighted_text, parse_url
 
 
-class Candidate:
+def search_engine(q):
+    ans = QUrl('https://google.com/search')
+    qq = QUrlQuery()
+    qq.addQueryItem('q', q)
+    ans.setQuery(qq)
+    return ans
+
+
+class CompletionCandidate:
 
     def __init__(self, place_id, url, title, substrings):
         self.value = url
@@ -76,5 +84,14 @@ class Open(Command):
 
     def completions(self, cmd, prefix):
         substrings = prefix.split(' ')
-        items = [Candidate(place_id, url, title, substrings) for place_id, url, title in places.substring_matches(substrings)]
+        items = [CompletionCandidate(place_id, url, title, substrings) for place_id, url, title in places.substring_matches(substrings)]
         return items
+
+    def __call__(self, cmd, rest, window):
+        is_search = ' ' in rest or '.' not in rest.strip('.')
+        url = search_engine(rest) if is_search else parse_url(rest)
+        if cmd in {'open', 'topen', 'tabopen'}:
+            window.open_url(url, in_current_tab=cmd == 'open')
+        else:
+            window = QApplication.instance().new_window(is_private=cmd.startswith('p'))
+            window.open_url(url, in_current_tab=True)
