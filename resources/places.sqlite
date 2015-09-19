@@ -1,7 +1,9 @@
 CREATE TABLE places (
 	id INTEGER PRIMARY KEY,
 	url TEXT NOT NULL,
+	url_lower TEXT DEFAULT "_" NOT NULL,
 	title TEXT DEFAULT "_" NOT NULL,
+    title_lower TEXT DEFAULT "_" NOT NULL,
 	visit_count INTEGER DEFAULT 0,
 	typed INTEGER DEFAULT 0 NOT NULL,
 	last_visit_date INTEGER DEFAULT 0 NOT NULL,
@@ -10,6 +12,9 @@ CREATE TABLE places (
 );
 CREATE INDEX places_last_visit_date ON places (last_visit_date);
 CREATE INDEX places_frecency ON places (frecency);
+CREATE INDEX places_title ON places (title);
+CREATE INDEX places_title_lower ON places (title_lower);
+CREATE INDEX places_url_lower ON places (url_lower);
 
 CREATE TABLE visits (
 	id INTEGER PRIMARY KEY,
@@ -20,16 +25,6 @@ CREATE TABLE visits (
 );
 CREATE INDEX visits_place_id ON visits (place_id);
 CREATE INDEX visits_date ON visits (visit_date);
-
-CREATE TABLE chars_link (
-	id INTEGER PRIMARY KEY,
-	char INTEGER NOT NULL,
-	place_id INTEGER NOT NULL,
-	UNIQUE(char,place_id),
-	FOREIGN KEY(place_id) REFERENCES places(id) ON DELETE CASCADE
-);
-CREATE INDEX chars_link_place_id ON chars_link (place_id);
-CREATE INDEX chars_link_char ON chars_link (char);
 
 CREATE TABLE favicons(
 	id INTEGER PRIMARY KEY,
@@ -49,5 +44,26 @@ CREATE TABLE favicons_link(
 	FOREIGN KEY(favicon_id) REFERENCES favicons(id) ON DELETE CASCADE
 );
 
-PRAGMA user_version=1;
+CREATE TRIGGER url_insert_trg
+        AFTER INSERT ON places
+        BEGIN
+          UPDATE places SET url_lower=lower_case(NEW.url) WHERE id=NEW.id;
+        END;
+CREATE TRIGGER url_update_trg
+        AFTER UPDATE ON places
+        BEGIN
+          UPDATE places SET url_lower=lower_case(NEW.url) WHERE id=NEW.id;
+        END;
+CREATE TRIGGER title_insert_trg
+        AFTER INSERT ON places
+        BEGIN
+          UPDATE places SET title_lower=lower_case(NEW.title) WHERE id=NEW.id;
+        END;
+CREATE TRIGGER title_update_trg
+        AFTER UPDATE ON places
+        BEGIN
+          UPDATE places SET title_lower=lower_case(NEW.title) WHERE id=NEW.id;
+        END;
 
+
+PRAGMA user_version=1;

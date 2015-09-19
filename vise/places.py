@@ -8,6 +8,7 @@ import math
 import time
 import unicodedata
 from collections import OrderedDict
+from itertools import repeat
 from enum import Enum, unique
 
 import apsw
@@ -19,6 +20,10 @@ from .resources import get_data
 
 def now():
     return int(time.time() * 1e6)
+
+
+def normalize(x):
+    return unicodedata.normalize('NFC', x)
 
 DAY = int(24 * 60 * 60 * 1e6)
 
@@ -47,11 +52,6 @@ qt_visit_types = {
 del from_qt
 
 
-def chars_from_string(string):
-    return frozenset(map(ord, unicodedata.normalize('NFC', string).lower()))
-common_chars = chars_from_string(':/')
-
-
 class Places:
 
     path = os.path.join(config_dir, 'places.sqlite')
@@ -65,6 +65,7 @@ class Places:
     def conn(self):
         if self._conn is None:
             self._conn = apsw.Connection(self.path)
+            self._conn.createscalarfunction('lower_case', lambda x: x.lower(), 1)
             c = self._conn.cursor()
             c.execute('PRAGMA foreign_keys = ON')
             uv = next(c.execute('PRAGMA user_version'))[0]
@@ -86,25 +87,22 @@ class Places:
         visit_type = qt_visit_types[visit_type]
         if not VISIT_TYPE_WEIGHTS.get(visit_type.value, 0):
             return
-        url = qurl.toString()
+        url = normalize(qurl.toString())
         timestamp = now()
         with self.conn:
             c = self.conn.cursor()
             try:
-                place_id, visit_count, typed, title = next(c.execute('SELECT id, visit_count, typed, title FROM places WHERE url=?', (url,)))
-                typed, created = bool(typed), False
+                place_id, visit_count, typed = next(c.execute('SELECT id, visit_count, typed FROM places WHERE url=?', (url,)))
+                typed = bool(typed)
             except StopIteration:
                 typed = visit_type is VisitType.typed
                 place_id = self.insert('places', cursor=c, url=url, typed=int(typed))
-                visit_count, created, title = 0, True, '_'
+                visit_count = 0
             typed = typed or visit_type is VisitType.typed
             self.insert('visits', cursor=c, place_id=place_id, visit_date=timestamp, type=visit_type.value)
             frecency = self.calculate_frecency(place_id, visit_count, cursor=c)
             c.execute('UPDATE places SET visit_count = ?, last_visit_date = ?, typed = ?, frecency = ? WHERE id=?', (
                 visit_count + 1, timestamp, typed, frecency, place_id))
-
-            if created:
-                self.update_subsequence_index(place_id, cursor=c, title=title, url=url)
 
     def calculate_frecency(self, place_id, visit_count, cursor=None):
         ' Algorithm taken from: https://developer.mozilla.org/en-US/docs/Mozilla/Tech/Places/Frecency_algorithm '
@@ -133,10 +131,10 @@ class Places:
         return frecency
 
     def on_title_change(self, qurl, title):
-        title = title.strip()
+        title = normalize(title.strip())
         if qurl.isEmpty() or not title:
             return
-        url = qurl.toString()
+        url = normalize(qurl.toString())
         with self.conn:
             c = self.conn.cursor()
             try:
@@ -146,22 +144,6 @@ class Places:
             if old_title == title:
                 return
             c.execute('UPDATE places SET title=? WHERE id=?', (title, place_id))
-            self.update_subsequence_index(place_id, cursor=c, url=url, title=title)
-
-    def update_subsequence_index(self, place_id, cursor=None, title='', url=''):
-        cursor = cursor or self.conn.cursor()
-        old_url, old_title = next(cursor.execute('SELECT url, title FROM places WHERE id=?', (place_id,)))
-        chars = chars_from_string(title) | chars_from_string(url)
-        old_chars = chars_from_string(old_title) | chars_from_string(old_url)
-        if chars == old_chars:
-            return
-        remove, add = (old_chars - chars), (chars - old_chars)
-        add -= common_chars
-        if remove:
-            cursor.executemany('DELETE from chars_link WHERE char=?', tuple((c,) for c in remove))
-        if add:
-            cursor.executemany('INSERT OR IGNORE INTO chars_link (char, place_id) VALUES (?, ?)',
-                               tuple((c, place_id) for c in add))
 
     def on_favicon_change(self, qurl, favicon_qurl):
         if qurl.isEmpty():
@@ -196,4 +178,63 @@ class Places:
             self._conn.close()
             self._conn = None
 
+    def subsequence_matches(self, subsequence=None, limit=50):
+        c = self.conn.cursor()
+        if not subsequence:
+            for url, title in c.execute('SELECT url, title FROM PLACES ORDER BY frecency DESC LIMIT ?', (limit,)):
+                yield url, title
+            return
+
+        subsequence = normalize((subsequence or ''))[:20]
+        like_expr = re.sub(r'([|%_])', r'|\1', subsequence.lower())
+        like_expr = '%' + '%'.join(like_expr) + '%'
+
+        for url, title in c.execute(
+                'SELECT url, title FROM places WHERE url_lower LIKE ? ESCAPE "|" OR title_lower LIKE ? ESCAPE "|" ORDER BY frecency DESC LIMIT ?',
+                (like_expr, like_expr, limit)):
+            yield url, title
+
+    def substring_matches(self, substrings=None, limit=50):
+        c = self.conn.cursor()
+        if not substrings:
+            for url, title in c.execute('SELECT url, title FROM PLACES ORDER BY frecency DESC LIMIT ?', (limit,)):
+                yield url, title
+            return
+        substrings = map(normalize, substrings)
+        like_expressions = tuple('%' + re.sub(r'([|%_])', r'|\1', x.lower()) + '%' for x in substrings)
+        where_clause = ' AND '.join(repeat('(url_lower LIKE ? OR title_lower LIKE ?)', len(like_expressions)))
+
+        for url, title in c.execute(
+                'SELECT url, title FROM places WHERE %s ORDER BY frecency DESC LIMIT %d' % (where_clause, limit),
+                (x for x in like_expressions for y in (0, 1))):
+            yield url, title
+
+
 places = Places()
+
+
+def import_from_firefox():
+    global places
+    from glob import glob
+    places.close()
+    os.remove(places.path)
+    places = Places()
+    conn = apsw.Connection(glob(os.path.expanduser('~/.mozilla/firefox/*/places.sqlite'))[0])
+    place_id_map = {}
+    with places.conn:
+        print('Importing places table')
+        for place_id, url, title, visit_count, typed, frecency, last_visit_date in conn.cursor().execute(
+                'SELECT id,url,title,visit_count,typed,frecency,last_visit_date FROM moz_places'):
+            if last_visit_date and visit_count and frecency > 0 and url:
+                place_id_map[place_id] = places.insert(
+                    'places', url=url, title=title or '_', visit_count=visit_count, typed=typed, frecency=frecency, last_visit_date=last_visit_date)
+        print('Importing visits table')
+        items = []
+        for place_id, visit_date, visit_type in conn.cursor().execute(
+                'SELECT place_id,visit_date,visit_type FROM moz_historyvisits'):
+            place_id = place_id_map.get(place_id)
+            if place_id is not None and visit_date and visit_type in (1, 2):
+                items.append((place_id, visit_date, {1: VisitType.link_clicked, 2: VisitType.typed}[visit_type].value))
+        places.conn.cursor().executemany(
+            'INSERT INTO visits (place_id, visit_date, type) VALUES (?, ?, ?)', items)
+    conn.close()

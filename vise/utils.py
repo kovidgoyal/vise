@@ -9,10 +9,11 @@ import shutil
 import sys
 import math
 from functools import lru_cache
+from xml.sax.saxutils import escape
 
 from PyQt5.Qt import (
     QUrl, QFontMetrics, QApplication, QConicalGradient, QPen, QBrush, QPainter,
-    QRect, Qt, QDialog, QDialogButtonBox, QIcon, QByteArray, QBuffer)
+    QRect, Qt, QDialog, QDialogButtonBox, QIcon, QByteArray, QBuffer, QStaticText)
 
 from .constants import cache_dir, str_version, isosx
 from .settings import gprefs
@@ -265,3 +266,82 @@ def open_local_file(path):
     app = QApplication.instance()
     p = subprocess.Popen([('open' if isosx else 'xdg-open'), path], env=app.original_env)
     p.wait()
+
+
+def _calc_score_for_char(max_score_per_char, prev, current, distance, level1, level2, level3):
+    factor = 1.0
+    ans = max_score_per_char
+
+    if prev in level1:
+        factor = 0.9
+    elif prev in level2 or (prev.lower() == prev and current.upper() == current):
+        factor = 0.8
+    elif prev in level3:
+        factor = 0.7
+    else:
+        factor = (1.0 / distance) * 0.75
+
+    return ans * factor
+
+
+def subsequence_score(haystack, needle, level1='/ .', level2='-_0123456789', level3=':;'):
+    ' Return a score for the best occurrence of the subsequence needle in haystack '
+    # non-recursive implementation using a stack
+    stack = [(0, 0, 0, 0, [-1] * len(needle))]
+    final_score, final_positions = stack[0][-2:]
+    push, pop, memory = stack.append, stack.pop, {}
+    max_score_per_char = (1.0 / len(haystack) + 1.0 / len(needle)) / 2.0
+    needle = [re.compile(re.escape(x), re.IGNORECASE | re.UNICODE) for x in needle]
+
+    while stack:
+        hidx, nidx, last_idx, score, positions = pop()
+        key = (hidx, nidx, last_idx)
+        mem = memory.get(key, None)
+        if mem is None:
+            for i in range(nidx, len(needle)):
+                n = needle[i]
+                if (len(haystack) - hidx < len(needle) - i):
+                    score = 0
+                    break
+                m = n.search(haystack[hidx:])
+                if m is None:
+                    score = 0
+                    break
+                pos = hidx + m.start()
+
+                distance = pos - last_idx
+                score_for_char = max_score_per_char if distance <= 1 else _calc_score_for_char(
+                    max_score_per_char, haystack[pos - 1], haystack[pos], distance, level1, level2, level3)
+                hidx = pos + 1
+                push((hidx, i, last_idx, score, list(positions)))
+                last_idx = positions[i] = pos
+                score += score_for_char
+            memory[key] = (score, positions)
+        else:
+            score, positions = mem
+        if score > final_score:
+            final_score = score
+            final_positions = positions
+    return final_score, final_positions
+
+
+def make_highlighted_text(text, positions, emph='color:magenta', wrapper=None):
+    positions = sorted(set(positions) - {-1})
+    if positions:
+        parts = []
+        pos = 0
+        for p in positions:
+            ch = text[p]
+            parts.append(escape(text[pos:p]))
+            parts.append('<span style="%s">%s</span>' % (emph, escape(ch)))
+            pos = p + len(ch)
+        parts.append(escape(text[pos:]))
+        text = ''.join(parts)
+    if wrapper:
+        text = '<span style="%s">%s</span>' % (wrapper, text)
+    ans = QStaticText(text)
+    to = ans.textOption()
+    to.setWrapMode(to.NoWrap)
+    ans.setTextOption(to)
+    ans.setTextFormat(Qt.RichText)
+    return ans

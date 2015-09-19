@@ -2,17 +2,17 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-from xml.sax.saxutils import escape
 from gettext import gettext as _
 
 from PyQt5.Qt import (
-    QWidget, QVBoxLayout, QLineEdit, QListView, QStaticText,
-    QAbstractListModel, QModelIndex, Qt, QStyledItemDelegate,
-    QStringListModel, QApplication, QPoint, QStyle, QPen, QPalette, QColor
+    QWidget, QVBoxLayout, QLineEdit, QListView, QAbstractListModel,
+    QModelIndex, Qt, QStyledItemDelegate, QStringListModel, QApplication,
+    QPoint, QColor
 )
 
 from .cmd import all_commands
 from .resources import get_icon
+from .utils import make_highlighted_text
 
 command_map = {}
 all_command_names = set()
@@ -72,43 +72,25 @@ class Delegate(QStyledItemDelegate):
         painter.save()
         parent = self.parent() or QApplication.instance()
         style = parent.style()
-        if option.state & QStyle.State_Selected:
-            painter.setPen(QPen(parent.palette().color(QPalette.HighlightedText)))
         try:
-            # icon_rect = style.subElementRect(style.SE_ItemViewItemDecoration, option, self.parent())
+            icon_rect = style.subElementRect(style.SE_ItemViewItemDecoration, option, self.parent())
             text_rect = style.subElementRect(style.SE_ItemViewItemText, option, self.parent())
-            painter.drawStaticText(QPoint(text_rect.x(), text_rect.y() + self.MARGIN // 4), index.data(Qt.UserRole))
+            index.data(Qt.UserRole).draw_item(painter, icon_rect, text_rect, self.MARGIN // 4)
         finally:
             painter.restore()
 
 
-def make_highlighted_text(emph, text, positions):
-    positions = sorted(set(positions) - {-1})
-    if positions:
-        parts = []
-        pos = 0
-        for p in positions:
-            ch = text[p]
-            parts.append(escape(text[pos:p]))
-            parts.append('<span style="%s">%s</span>' % (emph, escape(ch)))
-            pos = p + len(ch)
-        parts.append(escape(text[pos:]))
-        return ''.join(parts)
-    return text
-
-
-class Candidate(QStaticText):
+class Candidate:
 
     def __init__(self, text, positions):
         self.value = text + ' '
-        text = make_highlighted_text('color:magenta', text, positions)
-        QStaticText.__init__(self, '<span>' + text + "</span>")
-
-    def icon(self):
-        return None
+        self.text = make_highlighted_text(text, positions)
 
     def __repr__(self):
-        return self.original_text
+        return self.value
+
+    def draw_item(self, painter, icon_rect, text_rect, margin):
+        painter.drawStaticText(QPoint(text_rect.x(), text_rect.y() + margin), self.text)
 
 
 class Ask(QWidget):
@@ -155,6 +137,12 @@ class Ask(QWidget):
         self.complete_pos = 0
         if len(parts) == 1:
             completions = self.command_completions(parts[0])
+        else:
+            idx = self.complete_pos = text.find(parts[0]) + len(parts[0]) + 1
+            cmd, rest = parts[0], text[idx:]
+            obj = command_map.get(cmd)
+            if obj is not None:
+                completions = obj.completions(cmd, rest)
         self.model.set_items(completions)
         self.candidates.setCurrentIndex(QModelIndex())
 
