@@ -174,7 +174,7 @@ class MainWindow(QMainWindow):
         global _window_id
         QMainWindow.__init__(self)
         self.current_tab = None
-        self.quickmark_pending = None
+        self.quickmark_pending = self.choose_tab_pending = None
         _window_id += 1
         self.window_id = _window_id
         self.is_private = is_private
@@ -357,10 +357,19 @@ class MainWindow(QMainWindow):
         self.quickmark_pending = None
         url = quickmarks().get(key)
         if url is None:
-            key = QKeySequence(key).toString()
-            self.statusBar().showMessage(_('Quickmark %s is not defined!') % key, 5000)
+            if not key & Qt.Key_Escape:
+                key = QKeySequence(key).toString()
+                self.statusBar().showMessage(_('Quickmark %s is not defined!') % key, 5000)
             return
         self.open_url(url, in_current_tab=in_current_tab)
+
+    def choose_tab(self, key):
+        self.choose_tab_pending = None
+        if not self.tab_tree.activate_marked_tab(key):
+            if not key & Qt.Key_Escape:
+                key = QKeySequence(key).toString()
+                self.statusBar().showMessage(_('No tab with mark: %s') % key, 5000)
+        self.tab_tree.mark_tabs(unmark=True)
 
     def do_search(self, text=None, forward=True):
         if self.current_tab is not None:

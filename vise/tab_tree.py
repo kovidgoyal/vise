@@ -3,8 +3,10 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 import weakref
+import string
 from gettext import gettext as _
 from functools import partial
+from collections import OrderedDict
 
 from PyQt5.Qt import (
     QTreeWidget, QTreeWidgetItem, Qt, pyqtSignal, QSize, QFont, QPen, QRect,
@@ -18,10 +20,18 @@ LOADING_ROLE = Qt.UserRole
 ANGLE_ROLE = LOADING_ROLE + 1
 HOVER_ROLE = ANGLE_ROLE + 1
 CLOSE_HOVER_ROLE = HOVER_ROLE + 1
+MARK_ROLE = CLOSE_HOVER_ROLE + 1
 ICON_SIZE = 24
 
 
 _missing_icon = None
+
+mark_map = OrderedDict()
+for x in string.digits + string.ascii_uppercase:
+    mark_map[x] = getattr(Qt, 'Key_' + x)
+for x in string.ascii_uppercase:
+    mark_map[x] = getattr(Qt, 'Key_' + x) | Qt.ShiftModifier
+mark_rmap = {int(v): k for k, v in mark_map.items()}
 
 
 def missing_icon():
@@ -63,7 +73,8 @@ class TabDelegate(QStyledItemDelegate):
         icon_rect = QRect(rect.left() + self.MARGIN, rect.top() + self.MARGIN, ICON_SIZE, ICON_SIZE)
         left = icon_rect.right() + 2 * self.MARGIN
         text_rect = QRect(left, icon_rect.top(), rect.width() - left + rect.left(), icon_rect.height())
-        if hovering:
+        mark = index.data(MARK_ROLE)
+        if hovering or mark:
             text_rect.adjust(0, 0, -text_rect.height(), 0)
         text = index.data(Qt.DisplayRole) or ''
         font = index.data(Qt.FontRole)
@@ -74,7 +85,11 @@ class TabDelegate(QStyledItemDelegate):
         if option.state & QStyle.State_Selected:
             painter.setPen(QPen(self.highlighted_text))
         painter.drawText(text_rect, text_flags, text)
-        if hovering:
+        if mark:
+            hrect = QRect(text_rect.right(), text_rect.top(), text_rect.height(), text_rect.height())
+            painter.fillRect(hrect, QColor('#ffffaa'))
+            painter.drawText(hrect, Qt.AlignCenter, mark)
+        elif hovering:
             hrect = QRect(text_rect.right(), text_rect.top(), text_rect.height(), text_rect.height())
             close_hover = index.data(CLOSE_HOVER_ROLE) is True
             if close_hover:
@@ -264,13 +279,18 @@ class TabTree(QTreeWidget):
             if tab is not None:
                 self.tab_activated.emit(item.tab)
 
+    def _activate_item(self, item, tab, expand=True):
+        self.scrollToItem(item)
+        self.tab_activated.emit(item.tab)
+        if expand and not item.isExpanded():
+            item.setExpanded(True)
+
     def activate_tab(self, text):
         text = text.strip()
         for item in self:
             tab = item.tab
             if tab is not None and item.text(0).strip() == text:
-                self.scrollToItem(item)
-                self.tab_activated.emit(item.tab)
+                self._activate_item(item, tab)
                 return True
 
     def next_tab(self, forward=True):
@@ -280,8 +300,7 @@ class TabTree(QTreeWidget):
         for item in tabs:
             tab = item.tab
             if found and tab is not None:
-                self.scrollToItem(item)
-                self.tab_activated.emit(tab)
+                self._activate_item(item, tab)
                 return True
             if self.current_item == item:
                 found = True
@@ -289,8 +308,7 @@ class TabTree(QTreeWidget):
         for item in tabs:
             tab = item.tab
             if tab is not None:
-                self.scrollToItem(item)
-                self.tab_activated.emit(tab)
+                self._activate_item(item, tab)
                 return True
         return False
 
@@ -302,3 +320,25 @@ class TabTree(QTreeWidget):
         if item is not None:
             self.current_item = item
             item.set_data(Qt.FontRole, self.emphasis_font)
+
+    def mark_tabs(self, unmark=False):
+        for item in self:
+            item.set_data(MARK_ROLE, None)
+        if not unmark:
+            names = iter(mark_map)
+            item = self.topLevelItem(0)
+            while item is not None:
+                item.set_data(MARK_ROLE, next(names))
+                item = self.itemBelow(item)
+
+    def activate_marked_tab(self, key):
+        m = mark_rmap.get(key)
+        if m is None:
+            return False
+        for item in self:
+            if item.data(0, MARK_ROLE) == m:
+                tab = item.tab
+                if tab is not None:
+                    self._activate_item(item, tab)
+                    return True
+        return False

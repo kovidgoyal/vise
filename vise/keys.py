@@ -68,6 +68,7 @@ O                           ask_open
 Shift+O                     ask_tabopen
 R                           reload
 Shift+R                     hard_reload
+T                           choose_tab
 ''')
 
 
@@ -115,6 +116,12 @@ class KeyFilter(QObject):
                     if only_modifiers(key):
                         return True
                     window.quickmark(key)
+                    return True
+
+                if window.choose_tab_pending:
+                    if only_modifiers(key):
+                        return True
+                    window.choose_tab(key)
                     return True
 
                 if window.current_tab is not None:

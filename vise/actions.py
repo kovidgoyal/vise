@@ -154,9 +154,17 @@ def reload(window, *args, **kwargs):
     if window.current_tab is not None:
         p = window.current_tab.page()
         p.triggerAction(p.Reload)
+        return True
 
 
 def hard_reload(window, *args, **kwargs):
     if window.current_tab is not None:
         p = window.current_tab.page()
         p.triggerAction(p.ReloadAndBypassCache)
+        return True
+
+
+def choose_tab(window, *args, **kwargs):
+    window.choose_tab_pending = True
+    window.tab_tree.mark_tabs()
+    return True
