@@ -13,6 +13,12 @@ class Close(Command):
 
     names = {'close', 'wclose', 'winclose'}
 
+    def __call__(self, cmd, rest, window):
+        if cmd == 'close':
+            window.close_tab()
+        else:
+            window.close()
+
 
 class SwitchToTab(Command):
 
@@ -34,6 +40,10 @@ def run_command(window, text):
     cmd, rest = text.partition(' ')[::2]
     obj = command_map.get(cmd)
     if obj is None:
-        window.statusBar().showMessage(_('Unknown command: ') + cmd, 5000)
-        return
+        common = [name for name in command_map if name.startswith(cmd)]
+        if len(common) == 1:
+            obj = command_map[common[0]]
+        else:
+            window.statusBar().showMessage(_('Unknown command: ') + cmd, 5000)
+            return
     obj(cmd, rest, window)

@@ -271,11 +271,13 @@ class MainWindow(QMainWindow):
     def raise_tab(self, tab):
         self.stack.setCurrentWidget(tab)
 
-    def close_tab(self, tab):
-        self.tab_tree.remove_tab(tab)
-        tab.break_cycles()
-        self.tabs.remove(tab)
-        self.stack.removeWidget(tab)
+    def close_tab(self, tab=None):
+        tab = tab or self.current_tab
+        if tab is not None:
+            self.tab_tree.remove_tab(tab)
+            tab.break_cycles()
+            self.tabs.remove(tab)
+            self.stack.removeWidget(tab)
 
     def break_cycles(self):
         for tab in self.tabs:
