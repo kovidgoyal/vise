@@ -3,7 +3,6 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
-import re
 import tempfile
 import mimetypes
 import weakref
@@ -11,7 +10,6 @@ import uuid
 from time import monotonic
 from functools import partial, lru_cache
 from gettext import gettext as _
-from urllib.parse import parse_qs
 
 from PyQt5.Qt import (
     QApplication, QVBoxLayout, QCheckBox, QLabel, QObject, QUrl,
@@ -55,28 +53,10 @@ class AskAboutDownload(Dialog):  # {{{
 
     def __init__(self, download_item, parent=None):
         self.download_item = download_item
-        url = download_item.url()
-        fname = url.fileName().strip()
+        fname = os.path.basename(download_item.path())
         if not fname:
-            fname = url.path().rstrip('/').rpartition('/')[-1]
-        if url.hasQuery():
-            q = parse_qs(url.query())
-            if 'response-content-disposition' in q:
-                cd = q['response-content-disposition']
-                if cd:
-                    pat = re.compile(r'filename\s*=\s*"?(.+)"?', flags=re.IGNORECASE)
-                    for val in cd:
-                        m = pat.search(val)
-                        if m is not None:
-                            q = m.group(1)
-                            if q.strip():
-                                fname = q.strip()
-        if not fname:
-            if url.hasQuery():
-                fname = url.query()
-            else:
-                AskAboutDownload.fcounter += 1
-                fname = 'file%d' % AskAboutDownload.fcounter
+            AskAboutDownload.fcounter += 1
+            fname = 'file%d' % AskAboutDownload.fcounter
         self.fname = download_item.fname = sanitize_file_name(fname)
         self.mime_type = download_item.mime_type = mimetypes.guess_type(self.download_item.url().toString())[0]
         download_item.setPath(os.path.join(download_dir, fname))
