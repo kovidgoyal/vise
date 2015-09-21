@@ -189,6 +189,7 @@ def delete_profile():
     global _profile
     if _profile is not None:
         safe_disconnect(_profile.downloadRequested)
+        _profile.deleteLater()
     _profile = None
 
 _quickmarks = None

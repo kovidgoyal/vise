@@ -174,6 +174,7 @@ class Application(QApplication):
         self.downloads.break_cycles()
         for w in self.windows:
             w.break_cycles()
+            w.deleteLater()
         del self.windows, self.network_access_manager, self.local_server
         sys.excepthook = sys.__excepthook__
 
@@ -195,6 +196,7 @@ def run_app(urls=(), callback=None, callback_wait=0):
         app.break_cycles()
         delete_profile()
         places.close()
+        app.sendPostedEvents()
         del app
         gc.collect(), gc.collect(), gc.collect()
 

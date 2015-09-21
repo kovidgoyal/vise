@@ -283,6 +283,7 @@ class MainWindow(QMainWindow):
         for tab in self.tabs:
             self.stack.removeWidget(tab)
             tab.break_cycles()
+            tab.deleteLater()
         self.tabs = []
 
     def url_changed(self):
