@@ -11,7 +11,7 @@ from collections import OrderedDict
 from PyQt5.Qt import (
     QTreeWidget, QTreeWidgetItem, Qt, pyqtSignal, QSize, QFont, QPen, QRect,
     QApplication, QPainter, QPixmap, QIcon, QTimer, QStyledItemDelegate,
-    QModelIndex, QStyle, QEvent, QColor
+    QStyle, QEvent, QColor
 )
 
 from .utils import elided_text, draw_snake_spinner
@@ -21,6 +21,8 @@ ANGLE_ROLE = LOADING_ROLE + 1
 HOVER_ROLE = ANGLE_ROLE + 1
 CLOSE_HOVER_ROLE = HOVER_ROLE + 1
 MARK_ROLE = CLOSE_HOVER_ROLE + 1
+DISPLAY_ROLE = MARK_ROLE + 1
+DECORATION_ROLE = DISPLAY_ROLE + 1
 ICON_SIZE = 24
 
 
@@ -66,7 +68,7 @@ class TabDelegate(QStyledItemDelegate):
         return QSize(300, ICON_SIZE + 2 * self.MARGIN)
 
     def paint(self, painter, option, index):
-        QStyledItemDelegate.paint(self, painter, option, QModelIndex())
+        QStyledItemDelegate.paint(self, painter, option, index)
         hovering = index.data(HOVER_ROLE) is True
         painter.save()
         rect = option.rect
@@ -76,7 +78,7 @@ class TabDelegate(QStyledItemDelegate):
         mark = index.data(MARK_ROLE)
         if hovering or mark:
             text_rect.adjust(0, 0, -text_rect.height(), 0)
-        text = index.data(Qt.DisplayRole) or ''
+        text = index.data(DISPLAY_ROLE) or ''
         font = index.data(Qt.FontRole)
         if font:
             painter.setFont(font)
@@ -107,7 +109,7 @@ class TabDelegate(QStyledItemDelegate):
                     traceback.print_exc()
                     self.errored_out = True
         else:
-            icon = index.data(Qt.DecorationRole)
+            icon = index.data(DECORATION_ROLE)
             icon.paint(painter, icon_rect)
         painter.restore()
 
@@ -124,12 +126,12 @@ class TabItem(QTreeWidgetItem):
         self.loading_status_changed = loading_status_changed
         self.setFlags(self.flags() | Qt.ItemIsDragEnabled | Qt.ItemIsDropEnabled)
         self.set_data(LOADING_ROLE, False)
-        self.set_data(Qt.DisplayRole, tab.title() or _('Loading...'))
-        self.set_data(Qt.DecorationRole, missing_icon())
+        self.set_data(DISPLAY_ROLE, tab.title() or _('Loading...'))
+        self.set_data(DECORATION_ROLE, missing_icon())
         self.set_data(ANGLE_ROLE, 0)
         self.set_data(HOVER_ROLE, False)
         self.tabref = weakref.ref(tab)
-        tab.titleChanged.connect(partial(self.set_data, Qt.DisplayRole))
+        tab.titleChanged.connect(partial(self.set_data, DISPLAY_ROLE))
         tab.icon_changed.connect(self.icon_changed)
         tab.loading_status_changed.connect(self._loading_status_changed)
 
@@ -141,7 +143,7 @@ class TabItem(QTreeWidgetItem):
     def icon_changed(self, new_icon):
         if new_icon.isNull():
             new_icon = missing_icon()
-        self.set_data(Qt.DecorationRole, new_icon)
+        self.set_data(DECORATION_ROLE, new_icon)
 
     @property
     def tab(self):
