@@ -10,9 +10,14 @@ def all_frames(doc):
         win = document.defaultView
         yield win
         for i in range(win.frames.length):
-            frame = win.frames[i]
-            if frame.document is not document:
-                stack.push(frame.document)
+            try:
+                frame = win.frames[i]
+                if frame.document is not document:
+                    stack.push(frame.document)
+            except DOMException as e:  # noqa:unused-local
+                # Happens if security policy does not allow access to a child frame
+                # console.error(e.message)
+                pass
 
 def is_visible(elem):
     # Return True iff the element is visible on screen (does not handle

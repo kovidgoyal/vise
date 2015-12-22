@@ -3310,7 +3310,7 @@ var str = _$rapyd$_str;;
         function all_frames() {
             var marked0$0 = [js_generator].map(_$rapyd$_regenerator.regeneratorRuntime.mark);
             function js_generator(doc) {
-                var stack, document, win, frame, i;
+                var stack, document, win, frame, i, e;
             
                 return _$rapyd$_regenerator.regeneratorRuntime.wrap(function js_generator$(context$1$0) {
                     while (1) switch (context$1$0.prev = context$1$0.next) {
@@ -3318,7 +3318,7 @@ var str = _$rapyd$_str;;
                         stack = [doc || window.document];
                     case 1:
                         if (!(stack.length > 0)) {
-                            context$1$0.next = 9;
+                            context$1$0.next = 25;
                             break;
                         }
             
@@ -3327,19 +3327,46 @@ var str = _$rapyd$_str;;
                         context$1$0.next = 6;
                         return win;
                     case 6:
-                        for (i = 0; i < win.frames.length; i++) {
-                            frame = win.frames[i];
-                            if (frame.document !== document) {
-                                stack.push(frame.document);
-                            }
+                        i = 0;
+                    case 7:
+                        if (!(i < win.frames.length)) {
+                            context$1$0.next = 23;
+                            break;
                         }
+            
+                        context$1$0.prev = 8;
+                        frame = win.frames[i];
+                        if (frame.document !== document) {
+                            stack.push(frame.document);
+                        }
+                        context$1$0.next = 20;
+                        break;
+                    case 13:
+                        context$1$0.prev = 13;
+                        context$1$0.t0 = context$1$0["catch"](8);
+            
+                        if (!(context$1$0.t0 instanceof DOMException)) {
+                            context$1$0.next = 19;
+                            break;
+                        }
+            
+                        e = context$1$0.t0;
+                        context$1$0.next = 20;
+                        break;
+                    case 19:
+                        throw context$1$0.t0;
+                    case 20:
+                        i++;
+                        context$1$0.next = 7;
+                        break;
+                    case 23:
                         context$1$0.next = 1;
                         break;
-                    case 9:
+                    case 25:
                     case "end":
                         return context$1$0.stop();
                     }
-                }, marked0$0[0], this);
+                }, marked0$0[0], this, [[8, 13]]);
             }
             var result = js_generator.apply(this, arguments);
             result.send = result.next;
