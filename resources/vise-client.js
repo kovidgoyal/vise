@@ -2606,10 +2606,11 @@ var str = _$rapyd$_str;;
 
     (function(){
         var __name__ = "qt";
-        var bridge, channel, bridge_name;
+        var bridge, channel, bridge_name, secret_key;
         bridge = null;
         channel = null;
         bridge_name = "ͻ-qt-js-bridge";
+        secret_key = "__SECRET_KEY__";
         function qt_bridge() {
             if (window.self !== window.top) {
                 return window.top[bridge_name];
@@ -2640,6 +2641,9 @@ var str = _$rapyd$_str;;
             }
         }
         function connect_bridge(proceed) {
+            if (_$rapyd$_in("_", secret_key)) {
+                throw new Exception("secret key was not generated");
+            }
             if (window.self !== window.top) {
                 proceed();
                 return;
@@ -2657,6 +2661,8 @@ var str = _$rapyd$_str;;
         _$rapyd$_modules["qt"]["channel"] = channel;
 
         _$rapyd$_modules["qt"]["bridge_name"] = bridge_name;
+
+        _$rapyd$_modules["qt"]["secret_key"] = secret_key;
 
         _$rapyd$_modules["qt"]["qt_bridge"] = qt_bridge;
 
