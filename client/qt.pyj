@@ -15,10 +15,21 @@ def qt_bridge():
 
 def callback(name, data, console_err):
     bridge = qt_bridge()
-    if bridge is None:
+    if not bridge:
         console.error(console_err or ('Aborting callback: ' + name + ' as Qt bridge not available'))
     else:
         bridge.callback(name, JSON.stringify(data))
+
+def connect_signal(name, func):
+    bridge = qt_bridge()
+    if not bridge:
+        console.error('Failed to connect signal: ' + name + ' as Qt bridge not available')
+    else:
+        signal = bridge[name]
+        if not signal:
+            console.error('Failed to connect signal: ' + name + ' as no signal by that name exists')
+        else:
+            signal.connect(func)
 
 def connect_bridge(proceed):
     nonlocal channel

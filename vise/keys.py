@@ -69,6 +69,8 @@ Shift+O                     ask_tabopen
 R                           reload
 Shift+R                     hard_reload
 T                           choose_tab
+]                           follow_next
+[                           follow_previous
 ''')
 
 

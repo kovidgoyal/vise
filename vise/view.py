@@ -79,6 +79,7 @@ class Bridge(QObject):
     middle_clicked = pyqtSignal(object)
     focus_changed = pyqtSignal(object)
     called_back = pyqtSignal(object, object)
+    follow_next = pyqtSignal(bool)
 
     @pyqtSlot(str)
     def middle_clicked_link(self, href):
@@ -101,7 +102,7 @@ class Bridge(QObject):
         self.called_back.emit(name, json.loads(json_encoded_data))
 
     def break_cycles(self):
-        for s in 'middle_clicked focus_changed called_back'.split():
+        for s in 'middle_clicked focus_changed called_back follow_next'.split():
             safe_disconnect(getattr(self, s))
 
 
@@ -339,3 +340,6 @@ class WebView(QWebEngineView):
     def js_func(self, name, *args, callback=None):
         func = '%s(%s)' % (name, ','.join(map(lambda x: json.dumps(x, ensure_ascii=False), args)))
         self.runjs(func, callback=callback)
+
+    def follow_next(self, forward=True):
+        self._page.bridge.follow_next.emit(bool(forward))

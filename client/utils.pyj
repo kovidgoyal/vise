@@ -1,0 +1,55 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+
+def all_frames(doc):
+    # Iterate over all frames in document, starting with window corresponding
+    # to the document itself. Yields the window objects corresponding to each frame.
+    stack = v'[doc || window.document]'
+    while stack.length > 0:
+        document = stack.pop()
+        win = document.defaultView
+        yield win
+        for i in range(win.frames.length):
+            frame = win.frames[i]
+            if frame.document is not document:
+                stack.push(frame.document)
+
+def is_visible(elem):
+    # Return True iff the element is visible on screen (does not handle
+    # elements covered by other elements, i.e. z-index)
+    if not elem or not elem.ownerDocument:
+        return False
+    win = elem.ownerDocument.defaultView
+    if win.frameElement and not is_visible(win.frameElement):
+        return False
+    rect = elem.getBoundingClientRect()
+
+    if not rect or rect.bottom < 0 or rect.top > win.innerHeight or rect.left > win.innerWidth or rect.right < 0:
+        return False  # Not in viewport
+
+    if not rect.width or not rect.height:
+        for child in elem.childNodes:
+            if child.nodeType == child.ELEMENT_NODE and win.getComputedStyle(child).float != 'none' and is_visible(child):
+                return True  # Has visible floating child
+        return False  # is zero width or zero height
+
+    s = win.getComputedStyle(elem)
+    if not s or s.visibility != "visible" or s.display == "none":
+        return False
+    return True
+
+def follow_link(elem, mouse_button=0):
+    elem.focus()
+    rect = elem.getBoundingClientRect()
+    left = top = 0
+    if rect:
+        left, top = rect.left, rect.top
+    ev = MouseEvent('click', {
+        'view':elem.ownerDocument.defaultView or window,
+        'button': mouse_button,
+        'screenX': left,
+        'screenY': top,
+        'bubbles': True,
+        'cancelable': True,
+    })
+    elem.dispatchEvent(ev)

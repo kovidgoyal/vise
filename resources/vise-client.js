@@ -1,5 +1,5 @@
 (function(){
-    "use strict;";
+    "use strict";
     var _$rapyd$_iterator_symbol = (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") ? Symbol.iterator : "iterator-Symbol-5d0927e5554349048cf0e3762a228256";
     var _$rapyd$_kwargs_symbol = (typeof Symbol === "function") ? Symbol("kwargs-object") : "kwargs-object-Symbol-5d0927e5554349048cf0e3762a228256";
     var _$rapyd$_cond_temp;
@@ -15,7 +15,7 @@
                     if ((arr instanceof Map || arr instanceof Set)) {
                         return arr.has(val);
                     }
-                    return arr.hasOwnProperty(val);
+                    return Object.prototype.hasOwnProperty.call(arr, val);
                 };
             }
             return function(val, arr) {
@@ -25,12 +25,12 @@
                 if (typeof arr.__contains__ === "function") {
                     return arr.__contains__(val);
                 }
-                return arr.hasOwnProperty(val);
+                return Object.prototype.hasOwnProperty.call(arr, val);
             };
         })();
     function _$rapyd$_Iterable(iterable) {
             var iterator, ans, result;
-            if (Array.isArray(iterable) || typeof iterable === "string") {
+            if (_$rapyd$_arraylike(iterable)) {
                 return iterable;
             }
             if (typeof iterable[_$rapyd$_iterator_symbol] === "function") {
@@ -43,18 +43,18 @@
                 }
                 return ans;
             }
-            if (typeof HTMLCollection === "function" && (iterable instanceof HTMLCollection || iterable instanceof NodeList || iterable instanceof NamedNodeMap)) {
-                return iterable;
-            }
             return Object.keys(iterable);
-        }
+        };
     var _$rapyd$_desugar_kwargs = (function _$rapyd$_desugar_kwargs() {
             if (typeof Object.assign === "function") {
                 return function() {
                     var ans;
                     ans = {};
                     ans[_$rapyd$_kwargs_symbol] = true;
-                    return Object.assign.apply(ans, arguments);
+                    for (var i = 0; i < arguments.length; i++) {
+                        Object.assign(ans, arguments[i]);
+                    }
+                    return ans;
                 };
             }
             return function() {
@@ -70,6 +70,582 @@
                 return ans;
             };
         })();
+    function range(start, stop, step) {
+            var length;
+            if (arguments.length <= 1) {
+                stop = start || 0;
+                start = 0;
+            }
+            step = arguments[2] || 1;
+            length = Math.max(Math.ceil((stop - start) / step), 0);
+            return (function(){
+                var _$rapyd$_d = {};
+                _$rapyd$_d[_$rapyd$_iterator_symbol] = function() {
+                    return this;
+                };
+                _$rapyd$_d["_i"] = start - step;
+                _$rapyd$_d["_idx"] = -1;
+                _$rapyd$_d["next"] = function() {
+                    this._i += step;
+                    this._idx += 1;
+                    if (this._idx >= length) {
+                        return {
+                            "done": true
+                        };
+                    }
+                    return {
+                        "done": false,
+                        "value": this._i
+                    };
+                };
+                return _$rapyd$_d;
+            })();
+        };
+    var _$rapyd$_regenerator = {};
+    !(function(global) {
+      "use strict";
+    
+      var hasOwn = Object.prototype.hasOwnProperty;
+      var undefined; 
+    
+      var iteratorSymbol =
+        typeof Symbol === "function" && Symbol.iterator || "@@iterator";
+    
+      var inModule = typeof module === "object";
+      var runtime = global.regeneratorRuntime;
+      if (runtime) {
+        if (inModule) {
+    
+          module.exports = runtime;
+        }
+    
+        return;
+      }
+    
+      runtime = global.regeneratorRuntime = inModule ? module.exports : {};
+    
+      function wrap(innerFn, outerFn, self, tryLocsList) {
+    
+        var generator = Object.create((outerFn || Generator).prototype);
+    
+        generator._invoke = makeInvokeMethod(
+          innerFn, self || null,
+          new Context(tryLocsList || [])
+        );
+    
+        return generator;
+      }
+      runtime.wrap = wrap;
+    
+      function tryCatch(fn, obj, arg) {
+        try {
+          return { type: "normal", arg: fn.call(obj, arg) };
+        } catch (err) {
+          return { type: "throw", arg: err };
+        }
+      }
+    
+      var GenStateSuspendedStart = "suspendedStart";
+      var GenStateSuspendedYield = "suspendedYield";
+      var GenStateExecuting = "executing";
+      var GenStateCompleted = "completed";
+    
+      var ContinueSentinel = {};
+    
+      function Generator() {}
+      function GeneratorFunction() {}
+      function GeneratorFunctionPrototype() {}
+    
+      var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype;
+      GeneratorFunction.prototype = Gp.constructor = GeneratorFunctionPrototype;
+      GeneratorFunctionPrototype.constructor = GeneratorFunction;
+      GeneratorFunction.displayName = "GeneratorFunction";
+    
+      function defineIteratorMethods(prototype) {
+        ["next", "throw", "return"].forEach(function(method) {
+          prototype[method] = function(arg) {
+            return this._invoke(method, arg);
+          };
+        });
+      }
+    
+      runtime.isGeneratorFunction = function(genFun) {
+        var ctor = typeof genFun === "function" && genFun.constructor;
+        return ctor
+          ? ctor === GeneratorFunction ||
+    
+            (ctor.displayName || ctor.name) === "GeneratorFunction"
+          : false;
+      };
+    
+      runtime.mark = function(genFun) {
+        genFun.__proto__ = GeneratorFunctionPrototype;
+        genFun.prototype = Object.create(Gp);
+        return genFun;
+      };
+    
+      runtime.awrap = function(arg) {
+        return new AwaitArgument(arg);
+      };
+    
+      function AwaitArgument(arg) {
+        this.arg = arg;
+      }
+    
+      function AsyncIterator(generator) {
+    
+        function invoke(method, arg) {
+          var result = generator[method](arg);
+          var value = result.value;
+          return value instanceof AwaitArgument
+            ? Promise.resolve(value.arg).then(invokeNext, invokeThrow)
+            : Promise.resolve(value).then(function(unwrapped) {
+    
+                result.value = unwrapped;
+                return result;
+              });
+        }
+    
+        if (typeof process === "object" && process.domain) {
+          invoke = process.domain.bind(invoke);
+        }
+    
+        var invokeNext = invoke.bind(generator, "next");
+        var invokeThrow = invoke.bind(generator, "throw");
+        var invokeReturn = invoke.bind(generator, "return");
+        var previousPromise;
+    
+        function enqueue(method, arg) {
+          var enqueueResult =
+    
+            previousPromise ? previousPromise.then(function() {
+              return invoke(method, arg);
+            }) : new Promise(function(resolve) {
+              resolve(invoke(method, arg));
+            });
+    
+          previousPromise = enqueueResult["catch"](function(ignored){});
+    
+          return enqueueResult;
+        }
+    
+        this._invoke = enqueue;
+      }
+    
+      defineIteratorMethods(AsyncIterator.prototype);
+    
+      runtime.async = function(innerFn, outerFn, self, tryLocsList) {
+        var iter = new AsyncIterator(
+          wrap(innerFn, outerFn, self, tryLocsList)
+        );
+    
+        return runtime.isGeneratorFunction(outerFn)
+          ? iter 
+    
+          : iter.next().then(function(result) {
+              return result.done ? result.value : iter.next();
+            });
+      };
+    
+      function makeInvokeMethod(innerFn, self, context) {
+        var state = GenStateSuspendedStart;
+    
+        return function invoke(method, arg) {
+          if (state === GenStateExecuting) {
+            throw new Error("Generator is already running");
+          }
+    
+          if (state === GenStateCompleted) {
+            if (method === "throw") {
+              throw arg;
+            }
+    
+            return doneResult();
+          }
+    
+          while (true) {
+            var delegate = context.delegate;
+            if (delegate) {
+              if (method === "return" ||
+                  (method === "throw" && delegate.iterator[method] === undefined)) {
+    
+                context.delegate = null;
+    
+                var returnMethod = delegate.iterator["return"];
+                if (returnMethod) {
+                  var record = tryCatch(returnMethod, delegate.iterator, arg);
+                  if (record.type === "throw") {
+    
+                    method = "throw";
+                    arg = record.arg;
+                    continue;
+                  }
+                }
+    
+                if (method === "return") {
+    
+                  continue;
+                }
+              }
+    
+              var record = tryCatch(
+                delegate.iterator[method],
+                delegate.iterator,
+                arg
+              );
+    
+              if (record.type === "throw") {
+                context.delegate = null;
+    
+                method = "throw";
+                arg = record.arg;
+                continue;
+              }
+    
+              method = "next";
+              arg = undefined;
+    
+              var info = record.arg;
+              if (info.done) {
+                context[delegate.resultName] = info.value;
+                context.next = delegate.nextLoc;
+              } else {
+                state = GenStateSuspendedYield;
+                return info;
+              }
+    
+              context.delegate = null;
+            }
+    
+            if (method === "next") {
+              if (state === GenStateSuspendedYield) {
+                context.sent = arg;
+              } else {
+                context.sent = undefined;
+              }
+    
+            } else if (method === "throw") {
+              if (state === GenStateSuspendedStart) {
+                state = GenStateCompleted;
+                throw arg;
+              }
+    
+              if (context.dispatchException(arg)) {
+    
+                method = "next";
+                arg = undefined;
+              }
+    
+            } else if (method === "return") {
+              context.abrupt("return", arg);
+            }
+    
+            state = GenStateExecuting;
+    
+            var record = tryCatch(innerFn, self, context);
+            if (record.type === "normal") {
+    
+              state = context.done
+                ? GenStateCompleted
+                : GenStateSuspendedYield;
+    
+              var info = {
+                value: record.arg,
+                done: context.done
+              };
+    
+              if (record.arg === ContinueSentinel) {
+                if (context.delegate && method === "next") {
+    
+                  arg = undefined;
+                }
+              } else {
+                return info;
+              }
+    
+            } else if (record.type === "throw") {
+              state = GenStateCompleted;
+    
+              method = "throw";
+              arg = record.arg;
+            }
+          }
+        };
+      }
+    
+      defineIteratorMethods(Gp);
+    
+      Gp[iteratorSymbol] = function() {
+        return this;
+      };
+    
+      Gp.toString = function() {
+        return "[object Generator]";
+      };
+    
+      function pushTryEntry(locs) {
+        var entry = { tryLoc: locs[0] };
+    
+        if (1 in locs) {
+          entry.catchLoc = locs[1];
+        }
+    
+        if (2 in locs) {
+          entry.finallyLoc = locs[2];
+          entry.afterLoc = locs[3];
+        }
+    
+        this.tryEntries.push(entry);
+      }
+    
+      function resetTryEntry(entry) {
+        var record = entry.completion || {};
+        record.type = "normal";
+        delete record.arg;
+        entry.completion = record;
+      }
+    
+      function Context(tryLocsList) {
+    
+        this.tryEntries = [{ tryLoc: "root" }];
+        tryLocsList.forEach(pushTryEntry, this);
+        this.reset(true);
+      }
+    
+      runtime.keys = function(object) {
+        var keys = [];
+        for (var key in object) {
+          keys.push(key);
+        }
+        keys.reverse();
+    
+        return function next() {
+          while (keys.length) {
+            var key = keys.pop();
+            if (key in object) {
+              next.value = key;
+              next.done = false;
+              return next;
+            }
+          }
+    
+          next.done = true;
+          return next;
+        };
+      };
+    
+      function values(iterable) {
+        if (iterable) {
+          var iteratorMethod = iterable[iteratorSymbol];
+          if (iteratorMethod) {
+            return iteratorMethod.call(iterable);
+          }
+    
+          if (typeof iterable.next === "function") {
+            return iterable;
+          }
+    
+          if (!isNaN(iterable.length)) {
+            var i = -1, next = function next() {
+              while (++i < iterable.length) {
+                if (hasOwn.call(iterable, i)) {
+                  next.value = iterable[i];
+                  next.done = false;
+                  return next;
+                }
+              }
+    
+              next.value = undefined;
+              next.done = true;
+    
+              return next;
+            };
+    
+            return next.next = next;
+          }
+        }
+    
+        return { next: doneResult };
+      }
+      runtime.values = values;
+    
+      function doneResult() {
+        return { value: undefined, done: true };
+      }
+    
+      Context.prototype = {
+        constructor: Context,
+    
+        reset: function(skipTempReset) {
+          this.prev = 0;
+          this.next = 0;
+          this.sent = undefined;
+          this.done = false;
+          this.delegate = null;
+    
+          this.tryEntries.forEach(resetTryEntry);
+    
+          if (!skipTempReset) {
+            for (var name in this) {
+    
+              if (name.charAt(0) === "t" &&
+                  hasOwn.call(this, name) &&
+                  !isNaN(+name.slice(1))) {
+                this[name] = undefined;
+              }
+            }
+          }
+        },
+    
+        stop: function() {
+          this.done = true;
+    
+          var rootEntry = this.tryEntries[0];
+          var rootRecord = rootEntry.completion;
+          if (rootRecord.type === "throw") {
+            throw rootRecord.arg;
+          }
+    
+          return this.rval;
+        },
+    
+        dispatchException: function(exception) {
+          if (this.done) {
+            throw exception;
+          }
+    
+          var context = this;
+          function handle(loc, caught) {
+            record.type = "throw";
+            record.arg = exception;
+            context.next = loc;
+            return !!caught;
+          }
+    
+          for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+            var entry = this.tryEntries[i];
+            var record = entry.completion;
+    
+            if (entry.tryLoc === "root") {
+    
+              return handle("end");
+            }
+    
+            if (entry.tryLoc <= this.prev) {
+              var hasCatch = hasOwn.call(entry, "catchLoc");
+              var hasFinally = hasOwn.call(entry, "finallyLoc");
+    
+              if (hasCatch && hasFinally) {
+                if (this.prev < entry.catchLoc) {
+                  return handle(entry.catchLoc, true);
+                } else if (this.prev < entry.finallyLoc) {
+                  return handle(entry.finallyLoc);
+                }
+    
+              } else if (hasCatch) {
+                if (this.prev < entry.catchLoc) {
+                  return handle(entry.catchLoc, true);
+                }
+    
+              } else if (hasFinally) {
+                if (this.prev < entry.finallyLoc) {
+                  return handle(entry.finallyLoc);
+                }
+    
+              } else {
+                throw new Error("try statement without catch or finally");
+              }
+            }
+          }
+        },
+    
+        abrupt: function(type, arg) {
+          for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+            var entry = this.tryEntries[i];
+            if (entry.tryLoc <= this.prev &&
+                hasOwn.call(entry, "finallyLoc") &&
+                this.prev < entry.finallyLoc) {
+              var finallyEntry = entry;
+              break;
+            }
+          }
+    
+          if (finallyEntry &&
+              (type === "break" ||
+               type === "continue") &&
+              finallyEntry.tryLoc <= arg &&
+              arg <= finallyEntry.finallyLoc) {
+    
+            finallyEntry = null;
+          }
+    
+          var record = finallyEntry ? finallyEntry.completion : {};
+          record.type = type;
+          record.arg = arg;
+    
+          if (finallyEntry) {
+            this.next = finallyEntry.finallyLoc;
+          } else {
+            this.complete(record);
+          }
+    
+          return ContinueSentinel;
+        },
+    
+        complete: function(record, afterLoc) {
+          if (record.type === "throw") {
+            throw record.arg;
+          }
+    
+          if (record.type === "break" ||
+              record.type === "continue") {
+            this.next = record.arg;
+          } else if (record.type === "return") {
+            this.rval = record.arg;
+            this.next = "end";
+          } else if (record.type === "normal" && afterLoc) {
+            this.next = afterLoc;
+          }
+        },
+    
+        finish: function(finallyLoc) {
+          for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+            var entry = this.tryEntries[i];
+            if (entry.finallyLoc === finallyLoc) {
+              this.complete(entry.completion, entry.afterLoc);
+              resetTryEntry(entry);
+              return ContinueSentinel;
+            }
+          }
+        },
+    
+        "catch": function(tryLoc) {
+          for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+            var entry = this.tryEntries[i];
+            if (entry.tryLoc === tryLoc) {
+              var record = entry.completion;
+              if (record.type === "throw") {
+                var thrown = record.arg;
+                resetTryEntry(entry);
+              }
+              return thrown;
+            }
+          }
+    
+          throw new Error("illegal catch attempt");
+        },
+    
+        delegateYield: function(iterable, resultName, nextLoc) {
+          this.delegate = {
+            iterator: values(iterable),
+            resultName: resultName,
+            nextLoc: nextLoc
+          };
+    
+          return ContinueSentinel;
+        }
+      };
+    })(_$rapyd$_regenerator);
     var Exception = Error;
 function AttributeError() {
     AttributeError.prototype.__init__.apply(this, arguments);
@@ -114,8 +690,9 @@ ValueError.prototype.__init__ = function __init__(msg) {
     self.stack = new Error().stack;
 };
 ValueError.prototype.name = "ValueError";
-
-    function _$rapyd$_equals(a, b) {
+;
+    var _$rapyd$_chain_assign_temp;
+function _$rapyd$_equals(a, b) {
     try {
         return a.__eq__(b);
     } catch (_$rapyd$_Exception) {
@@ -126,7 +703,7 @@ ValueError.prototype.name = "ValueError";
         }
     }
 }
-"var equals = _$rapyd$_equals";
+var equals = _$rapyd$_equals;;
 function _$rapyd$_list_extend(iterable) {
     var start, iterator, result;
     if (Array.isArray(iterable) || typeof iterable === "string") {
@@ -238,10 +815,10 @@ function _$rapyd$_list_sort_cmp(a, b) {
     return 0;
 }
 function _$rapyd$_list_sort() {
-    var key = (arguments[0] === undefined || ( 0 === arguments.length-1 && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [_$rapyd$_kwargs_symbol] === true)) ? (null) : arguments[0];
-    var reverse = (arguments[1] === undefined || ( 1 === arguments.length-1 && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [_$rapyd$_kwargs_symbol] === true)) ? (false) : arguments[1];
+    var key = (arguments[0] === undefined || ( 0 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [_$rapyd$_kwargs_symbol] === true)) ? (null) : arguments[0];
+    var reverse = (arguments[1] === undefined || ( 1 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [_$rapyd$_kwargs_symbol] === true)) ? (false) : arguments[1];
     var _$rapyd$_kwargs_obj = arguments[arguments.length-1];
-    if (typeof _$rapyd$_kwargs_obj !== "object" || _$rapyd$_kwargs_obj [_$rapyd$_kwargs_symbol] !== true) _$rapyd$_kwargs_obj = {};
+    if (_$rapyd$_kwargs_obj === null || typeof _$rapyd$_kwargs_obj !== "object" || _$rapyd$_kwargs_obj [_$rapyd$_kwargs_symbol] !== true) _$rapyd$_kwargs_obj = {};
     if (Object.prototype.hasOwnProperty.call(_$rapyd$_kwargs_obj, "key")){
         key = _$rapyd$_kwargs_obj.key;
     }
@@ -344,7 +921,7 @@ function _$rapyd$_list_constructor(iterable) {
     var ans, iterator, result;
     if (iterable === undefined) {
         ans = [];
-    } else if (Array.isArray(iterable) || typeof iterable === "string") {
+    } else if (_$rapyd$_arraylike(iterable)) {
         ans = new Array(iterable.length);
         for (var i = 0; i < iterable.length; i++) {
             ans[i] = iterable[i];
@@ -373,12 +950,12 @@ function _$rapyd$_set_keyfor(x) {
     if (t === "string" || t === "number" || t === "boolean") {
         return "_" + t[0] + x;
     }
-    if (x == null) {
+    if (x === null) {
         return "__!@#$0";
     }
     ans = x._$rapyd$_hash_key_prop;
     if (ans === undefined) {
-        ans = "_!@#$" + ++_$rapyd$_global_object_id;
+        ans = "_!@#$" + (++_$rapyd$_global_object_id);
         Object.defineProperty(x, "_$rapyd$_hash_key_prop", {
             "value": ans
         });
@@ -456,7 +1033,7 @@ function _$rapyd$_set(iterable) {
             return ans;
         }
         s = ans.jsset;
-        if (Array.isArray(iterable) || typeof iterable === "string") {
+        if (_$rapyd$_arraylike(iterable)) {
             for (var i = 0; i < iterable.length; i++) {
                 s.add(iterable[i]);
             }
@@ -494,9 +1071,12 @@ Object.defineProperties(_$rapyd$_set.prototype, {
 _$rapyd$_set.prototype.__len__ = function() {
     return this.jsset.size;
 };
-_$rapyd$_set.prototype.has = _$rapyd$_set.prototype.__contains__ = function(x) {
+_$rapyd$_chain_assign_temp = function(x) {
     return this.jsset.has(x);
 };
+_$rapyd$_set.prototype.has = _$rapyd$_chain_assign_temp;
+_$rapyd$_set.prototype.__contains__ = _$rapyd$_chain_assign_temp;
+;
 _$rapyd$_set.prototype.add = function(x) {
     this.jsset.add(x);
 };
@@ -678,9 +1258,12 @@ _$rapyd$_set.prototype.update = function() {
         }
     }
 };
-_$rapyd$_set.prototype.toString = _$rapyd$_set.prototype.inspect = function() {
+_$rapyd$_chain_assign_temp = function() {
     return "{" + list(this).join(", ") + "}";
 };
+_$rapyd$_set.prototype.toString = _$rapyd$_chain_assign_temp;
+_$rapyd$_set.prototype.inspect = _$rapyd$_chain_assign_temp;
+;
 _$rapyd$_set.prototype.__eq__ = function(other) {
     var iterator, r;
     if (!(other instanceof this.constructor)) {
@@ -864,12 +1447,18 @@ Object.defineProperties(_$rapyd$_dict.prototype, {
 _$rapyd$_dict.prototype.__len__ = function() {
     return this.jsmap.size;
 };
-_$rapyd$_dict.prototype.has = _$rapyd$_dict.prototype.__contains__ = function(x) {
+_$rapyd$_chain_assign_temp = function(x) {
     return this.jsmap.has(x);
 };
-_$rapyd$_dict.prototype.set = _$rapyd$_dict.prototype.__setitem__ = function(key, value) {
+_$rapyd$_dict.prototype.has = _$rapyd$_chain_assign_temp;
+_$rapyd$_dict.prototype.__contains__ = _$rapyd$_chain_assign_temp;
+;
+_$rapyd$_chain_assign_temp = function(key, value) {
     this.jsmap.set(key, value);
 };
+_$rapyd$_dict.prototype.set = _$rapyd$_chain_assign_temp;
+_$rapyd$_dict.prototype.__setitem__ = _$rapyd$_chain_assign_temp;
+;
 _$rapyd$_dict.prototype.clear = function() {
     this.jsmap.clear();
 };
@@ -882,9 +1471,12 @@ _$rapyd$_dict.prototype.keys = function() {
 _$rapyd$_dict.prototype.values = function() {
     return this.jsmap.values();
 };
-_$rapyd$_dict.prototype.items = _$rapyd$_dict.prototype.entries = function() {
+_$rapyd$_chain_assign_temp = function() {
     return this.jsmap.entries();
 };
+_$rapyd$_dict.prototype.items = _$rapyd$_chain_assign_temp;
+_$rapyd$_dict.prototype.entries = _$rapyd$_chain_assign_temp;
+;
 _$rapyd$_dict.prototype[_$rapyd$_iterator_symbol] = function() {
     return this.jsmap.keys();
 };
@@ -913,11 +1505,11 @@ _$rapyd$_dict.prototype.set_default = function(key, defval) {
     }
     return j.get(key);
 };
-_$rapyd$_dict.fromkeys = _$rapyd$_dict.prototype.fromkeys = function() {
-    var iterable = ( 0 === arguments.length-1 && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [_$rapyd$_kwargs_symbol] === true) ? undefined : arguments[0];
-    var value = (arguments[1] === undefined || ( 1 === arguments.length-1 && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [_$rapyd$_kwargs_symbol] === true)) ? (null) : arguments[1];
+_$rapyd$_chain_assign_temp = function() {
+    var iterable = ( 0 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [_$rapyd$_kwargs_symbol] === true) ? undefined : arguments[0];
+    var value = (arguments[1] === undefined || ( 1 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [_$rapyd$_kwargs_symbol] === true)) ? (null) : arguments[1];
     var _$rapyd$_kwargs_obj = arguments[arguments.length-1];
-    if (typeof _$rapyd$_kwargs_obj !== "object" || _$rapyd$_kwargs_obj [_$rapyd$_kwargs_symbol] !== true) _$rapyd$_kwargs_obj = {};
+    if (_$rapyd$_kwargs_obj === null || typeof _$rapyd$_kwargs_obj !== "object" || _$rapyd$_kwargs_obj [_$rapyd$_kwargs_symbol] !== true) _$rapyd$_kwargs_obj = {};
     if (Object.prototype.hasOwnProperty.call(_$rapyd$_kwargs_obj, "value")){
         value = _$rapyd$_kwargs_obj.value;
     }
@@ -931,6 +1523,9 @@ _$rapyd$_dict.fromkeys = _$rapyd$_dict.prototype.fromkeys = function() {
     }
     return ans;
 };
+_$rapyd$_dict.fromkeys = _$rapyd$_chain_assign_temp;
+_$rapyd$_dict.prototype.fromkeys = _$rapyd$_chain_assign_temp;
+;
 _$rapyd$_dict.prototype.pop = function(key, defval) {
     var ans;
     ans = this.jsmap.get(key);
@@ -996,7 +1591,7 @@ _$rapyd$_dict.prototype.update = function() {
         _$rapyd$_dict.prototype.update.call(this, arguments[1]);
     }
 };
-_$rapyd$_dict.prototype.toString = _$rapyd$_dict.prototype.inspect = function() {
+_$rapyd$_chain_assign_temp = function() {
     var entries, iterator, r;
     entries = [];
     iterator = this.jsmap.entries();
@@ -1007,6 +1602,9 @@ _$rapyd$_dict.prototype.toString = _$rapyd$_dict.prototype.inspect = function() 
     }
     return "{" + entries.join(", ") + "}";
 };
+_$rapyd$_dict.prototype.toString = _$rapyd$_chain_assign_temp;
+_$rapyd$_dict.prototype.inspect = _$rapyd$_chain_assign_temp;
+;
 _$rapyd$_dict.prototype.__eq__ = function(other) {
     var iterator, r, x;
     if (!(other instanceof this.constructor)) {
@@ -1046,7 +1644,7 @@ function _$rapyd$_dict_wrap(x) {
     ans.jsmap = x;
     return ans;
 }
-var dict = _$rapyd$_dict, dict_wrap = _$rapyd$_dict_wrap;
+var dict = _$rapyd$_dict, dict_wrap = _$rapyd$_dict_wrap;;
     function _$rapyd$_bool(val) {
     return !!val;
 }
@@ -1117,7 +1715,7 @@ function _$rapyd$_print() {
     var parts, part;
     if (typeof console === "object") {
         parts = [];
-        for (i = 0; i < arguments.length; i++) {
+        for (var i = 0; i < arguments.length; i++) {
             part = arguments[i];
             if (typeof part === "string") {
                 parts.push(part);
@@ -1152,6 +1750,24 @@ function _$rapyd$_float() {
     }
     return ans;
 }
+function _$rapyd$_arraylike_creator() {
+    var names;
+    if (typeof HTMLCollection === "function") {
+        names = ["[object HTMLCollection]", "[object NodeList]", "[object NamedNodeMap]"];
+        return function(x) {
+            if (Array.isArray(x) || typeof x === "string" || names.indexOf(Object.prototype.toString.call(x)) > -1) {
+                return true;
+            }
+            return false;
+        };
+    }
+    return function(x) {
+        if (Array.isArray(x) || typeof x === "string") {
+            return true;
+        }
+        return false;
+    };
+}
 function options_object(f) {
     return function() {
         if (typeof arguments[arguments.length - 1] === "object") {
@@ -1161,16 +1777,16 @@ function options_object(f) {
     };
 }
 var bool = _$rapyd$_bool, bind = _$rapyd$_bind, rebind_all = _$rapyd$_rebind_all;
-var float = _$rapyd$_float, int = _$rapyd$_int, rebind_all = _$rapyd$_rebind_all;
-var mixin = _$rapyd$_mixin, print = _$rapyd$_print, eslice = _$rapyd$_eslice;
+var float = _$rapyd$_float, int = _$rapyd$_int, arraylike = _$rapyd$_arraylike_creator(), _$rapyd$_arraylike = arraylike;
+var mixin = _$rapyd$_mixin, print = _$rapyd$_print, eslice = _$rapyd$_eslice;;
     function _$rapyd$_str() {
     return arguments[0] + "";
 }
 _$rapyd$_str.format = function() {
-    var template, args, kwargs, explicit, implicit, idx, ans, pos, in_brace, markup, ch;
+    var template, args, kwargs, explicit, implicit, _$rapyd$_chain_assign_temp, idx, ans, pos, in_brace, markup, ch;
     template = arguments[0];
     if (template === undefined) {
-        throw TypeError("Template is required");
+        throw new TypeError("Template is required");
     }
     args = Array.prototype.slice.call(arguments, 1);
     kwargs = {};
@@ -1178,19 +1794,22 @@ _$rapyd$_str.format = function() {
         kwargs = args[args.length-1];
         args = args.slice(0, -1);
     }
-    explicit = implicit = false;
+    _$rapyd$_chain_assign_temp = false;
+    explicit = _$rapyd$_chain_assign_temp;
+    implicit = _$rapyd$_chain_assign_temp;
+;
     idx = 0;
     if (_$rapyd$_str.format._template_resolve_pat === undefined) {
         _$rapyd$_str.format._template_resolve_pat = /[.\[]/;
     }
     function resolve(arg, object) {
-        var _$rapyd$_Unpack, first, key, rest, ans;
+        var _$rapyd$_unpack, first, key, rest, ans;
         if (!arg) {
             return object;
         }
-        _$rapyd$_Unpack = [arg[0], arg.slice(1)];
-        first = _$rapyd$_Unpack[0];
-        arg = _$rapyd$_Unpack[1];
+        _$rapyd$_unpack = [arg[0], arg.slice(1)];
+        first = _$rapyd$_unpack[0];
+        arg = _$rapyd$_unpack[1];
         key = arg.split(_$rapyd$_str.format._template_resolve_pat, 1)[0];
         rest = arg.slice(key.length);
         ans = (first === "[") ? object[key.slice(0, -1)] : getattr(object, key);
@@ -1211,7 +1830,7 @@ _$rapyd$_str.format = function() {
         });
     }
     function apply_formatting(value, format_spec) {
-        var _$rapyd$_Unpack, fill, align, sign, fhash, zeropad, width, comma, precision, ftype, is_numeric, is_int, lftype, code, exp, nval, is_positive, left, right;
+        var _$rapyd$_unpack, fill, align, sign, fhash, zeropad, width, comma, precision, ftype, is_numeric, is_int, lftype, code, exp, nval, is_positive, left, right;
         if (format_spec.indexOf("{") !== -1) {
             format_spec = resolve_format_spec(format_spec);
         }
@@ -1219,16 +1838,16 @@ _$rapyd$_str.format = function() {
             _$rapyd$_str.format._template_format_pat = /([^{}](?=[<>=^]))?([<>=^])?([-+\x20])?(\#)?(0)?(\d+)?(,)?(?:\.(\d+))?([bcdeEfFgGnosxX%])?/;
         }
         try {
-            _$rapyd$_Unpack = format_spec.match(_$rapyd$_str.format._template_format_pat).slice(1);
-            fill = _$rapyd$_Unpack[0];
-            align = _$rapyd$_Unpack[1];
-            sign = _$rapyd$_Unpack[2];
-            fhash = _$rapyd$_Unpack[3];
-            zeropad = _$rapyd$_Unpack[4];
-            width = _$rapyd$_Unpack[5];
-            comma = _$rapyd$_Unpack[6];
-            precision = _$rapyd$_Unpack[7];
-            ftype = _$rapyd$_Unpack[8];
+            _$rapyd$_unpack = format_spec.match(_$rapyd$_str.format._template_format_pat).slice(1);
+            fill = _$rapyd$_unpack[0];
+            align = _$rapyd$_unpack[1];
+            sign = _$rapyd$_unpack[2];
+            fhash = _$rapyd$_unpack[3];
+            zeropad = _$rapyd$_unpack[4];
+            width = _$rapyd$_unpack[5];
+            comma = _$rapyd$_unpack[6];
+            precision = _$rapyd$_unpack[7];
+            ftype = _$rapyd$_unpack[8];
         } catch (_$rapyd$_Exception) {
             if (_$rapyd$_Exception instanceof TypeError) {
                 return value;
@@ -1331,20 +1950,20 @@ _$rapyd$_str.format = function() {
         }
         value += "";
         if (is_numeric && sign) {
-            nval = new Number(value);
+            nval = Number(value);
             is_positive = !isNaN(nval) && nval >= 0;
             if (is_positive && (sign === " " || sign === "+")) {
                 value = sign + value;
             }
         }
         function repeat(char, num) {
-            return Array(num+1).join(char);
+            return (new Array(num+1)).join(char);
         }
         if (is_numeric && width && width[0] === "0") {
             width = width.slice(1);
-            _$rapyd$_Unpack = ["0", "="];
-            fill = _$rapyd$_Unpack[0];
-            align = _$rapyd$_Unpack[1];
+            _$rapyd$_unpack = ["0", "="];
+            fill = _$rapyd$_unpack[0];
+            align = _$rapyd$_unpack[1];
         }
         width = parseInt(width || "-1", 10);
         if (isNaN(width)) {
@@ -1372,8 +1991,12 @@ _$rapyd$_str.format = function() {
         return value;
     }
     function parse_markup(markup) {
-        var key, transformer, pos, state, ch, format_spec;
-        key = transformer = format_spec = "";
+        var key, transformer, format_spec, _$rapyd$_chain_assign_temp, pos, state, ch;
+        _$rapyd$_chain_assign_temp = "";
+        key = _$rapyd$_chain_assign_temp;
+        transformer = _$rapyd$_chain_assign_temp;
+        format_spec = _$rapyd$_chain_assign_temp;
+;
         pos = 0;
         state = 0;
         while (pos < markup.length) {
@@ -1400,11 +2023,11 @@ _$rapyd$_str.format = function() {
         return [key, transformer, format_spec];
     }
     function render_markup(markup) {
-        var _$rapyd$_Unpack, key, transformer, format_spec, lkey, nvalue, object, ans;
-        _$rapyd$_Unpack = parse_markup(markup);
-        key = _$rapyd$_Unpack[0];
-        transformer = _$rapyd$_Unpack[1];
-        format_spec = _$rapyd$_Unpack[2];
+        var _$rapyd$_unpack, key, transformer, format_spec, lkey, nvalue, object, ans;
+        _$rapyd$_unpack = parse_markup(markup);
+        key = _$rapyd$_unpack[0];
+        transformer = _$rapyd$_unpack[1];
+        format_spec = _$rapyd$_unpack[2];
         if (transformer && ['a', 'r', 's'].indexOf(transformer) === -1) {
             throw new ValueError("Unknown conversion specifier: " + transformer);
         }
@@ -1494,17 +2117,17 @@ _$rapyd$_str.center = function(string, width, fill) {
     left = Math.floor((width - string.length) / 2);
     right = width - left - string.length;
     fill = fill || " ";
-    return Array(left+1).join(fill) + string + Array(right+1).join(fill);
+    return new Array(left+1).join(fill) + string + new Array(right+1).join(fill);
 };
 _$rapyd$_str.count = function(string, needle, start, end) {
-    var _$rapyd$_Unpack, pos, step, ans;
+    var _$rapyd$_unpack, pos, step, ans;
     start = start || 0;
     end = end || string.length;
     if (start < 0 || end < 0) {
         string = string.slice(start, end);
-        _$rapyd$_Unpack = [0, string.length];
-        start = _$rapyd$_Unpack[0];
-        end = _$rapyd$_Unpack[1];
+        _$rapyd$_unpack = [0, string.length];
+        start = _$rapyd$_unpack[0];
+        end = _$rapyd$_unpack[1];
     }
     pos = start;
     step = needle.length;
@@ -1626,14 +2249,14 @@ _$rapyd$_str.join = function(string, iterable) {
 _$rapyd$_str.ljust = function(string, width, fill) {
     if (width > string.length) {
         fill = fill || " ";
-        string += Array(width - string.length + 1).join(fill);
+        string += new Array(width - string.length + 1).join(fill);
     }
     return string;
 };
 _$rapyd$_str.rjust = function(string, width, fill) {
     if (width > string.length) {
         fill = fill || " ";
-        string = Array(width - string.length + 1).join(fill) + string;
+        string = new Array(width - string.length + 1).join(fill) + string;
     }
     return string;
 };
@@ -1743,7 +2366,7 @@ _$rapyd$_str.split = function(string, sep, maxsplit) {
     return _$rapyd$_list_decorate(ans);
 };
 _$rapyd$_str.rsplit = function(string, sep, maxsplit) {
-    var ans, is_space, pos, current, spc, ch, end, idx;
+    var ans, is_space, pos, current, spc, ch, end, _$rapyd$_chain_assign_temp, idx;
     if (!maxsplit) {
         return _$rapyd$_str.split.call(null, string, sep, maxsplit);
     }
@@ -1781,7 +2404,10 @@ _$rapyd$_str.rsplit = function(string, sep, maxsplit) {
             throw new ValueError("empty separator");
         }
         ans = [];
-        pos = end = string.length;
+        _$rapyd$_chain_assign_temp = string.length;
+        pos = _$rapyd$_chain_assign_temp;
+        end = _$rapyd$_chain_assign_temp;
+;
         while (pos > -1 && maxsplit > 0) {
             maxsplit -= 1;
             idx = string.lastIndexOf(sep, pos);
@@ -1816,7 +2442,7 @@ _$rapyd$_str.splitlines = function(string, keepends) {
 };
 _$rapyd$_str.swapcase = function(string) {
     var ans, a, b;
-    ans = Array(string.length);
+    ans = new Array(string.length);
     for (var i = 0; i < ans.length; i++) {
         a = string[i];
         b = a.toLowerCase();
@@ -1829,7 +2455,7 @@ _$rapyd$_str.swapcase = function(string) {
 };
 _$rapyd$_str.zfill = function(string, width) {
     if (width > string.length) {
-        string = Array(width - string.length + 1).join("0") + string;
+        string = new Array(width - string.length + 1).join("0") + string;
     }
     return string;
 };
@@ -1906,11 +2532,11 @@ _$rapyd$_str.digits = "0123456789";
 _$rapyd$_str.punctuation = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~";
 _$rapyd$_str.printable = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~ \t\n\r\u000b\f";
 _$rapyd$_str.whitespace = " \t\n\r\u000b\f";
-var str = _$rapyd$_str;
+var str = _$rapyd$_str;;
     function _$rapyd$_extends(child, parent) {
             child.prototype = Object.create(parent.prototype);
             child.prototype.constructor = child;
-        }
+        };
     var min = (function min() {
             return Math.min;
         })();
@@ -1922,7 +2548,7 @@ var str = _$rapyd$_str;
             if (typeof iterable[_$rapyd$_iterator_symbol] === "function") {
                 return (typeof Map === "function" && iterable instanceof Map) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]();
             }
-            if (Array.isArray(iterable) || typeof iterable === "string") {
+            if (_$rapyd$_arraylike(iterable)) {
                 ans = {
                     "_i": -1,
                     "next": function() {
@@ -1944,7 +2570,7 @@ var str = _$rapyd$_str;
                 return ans;
             }
             return iter(Object.keys(iterable));
-        }
+        };
     function getattr(obj, name, defval) {
             var ret;
             try {
@@ -1966,7 +2592,7 @@ var str = _$rapyd$_str;
                 ret = defval;
             }
             return ret;
-        }
+        };
     var _$rapyd$_modules = {};
     _$rapyd$_modules["qt"] = {};
     _$rapyd$_modules["middle_click"] = {};
@@ -1974,6 +2600,9 @@ var str = _$rapyd$_str;
     _$rapyd$_modules["elementmaker"] = {};
     _$rapyd$_modules["humanize"] = {};
     _$rapyd$_modules["downloads"] = {};
+    _$rapyd$_modules["utils"] = {};
+    _$rapyd$_modules["links"] = {};
+    _$rapyd$_modules["follow_next"] = {};
 
     (function(){
         var __name__ = "qt";
@@ -1990,10 +2619,24 @@ var str = _$rapyd$_str;
         function callback(name, data, console_err) {
             var bridge;
             bridge = qt_bridge();
-            if (bridge === null) {
+            if (!bridge) {
                 console.error(console_err || "Aborting callback: " + name + " as Qt bridge not available");
             } else {
                 bridge.callback(name, JSON.stringify(data));
+            }
+        }
+        function connect_signal(name, func) {
+            var bridge, signal;
+            bridge = qt_bridge();
+            if (!bridge) {
+                console.error("Failed to connect signal: " + name + " as Qt bridge not available");
+            } else {
+                signal = bridge[name];
+                if (!signal) {
+                    console.error("Failed to connect signal: " + name + " as no signal by that name exists");
+                } else {
+                    signal.connect(func);
+                }
             }
         }
         function connect_bridge(proceed) {
@@ -2018,6 +2661,8 @@ var str = _$rapyd$_str;
         _$rapyd$_modules["qt"]["qt_bridge"] = qt_bridge;
 
         _$rapyd$_modules["qt"]["callback"] = callback;
+
+        _$rapyd$_modules["qt"]["connect_signal"] = connect_signal;
 
         _$rapyd$_modules["qt"]["connect_bridge"] = connect_bridge;
     })();
@@ -2099,9 +2744,9 @@ var str = _$rapyd$_str;
             return false;
         }
         function get_bridge() {
-            var msg = (arguments[0] === undefined || ( 0 === arguments.length-1 && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [_$rapyd$_kwargs_symbol] === true)) ? ("ignoring focus event") : arguments[0];
+            var msg = (arguments[0] === undefined || ( 0 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [_$rapyd$_kwargs_symbol] === true)) ? ("ignoring focus event") : arguments[0];
             var _$rapyd$_kwargs_obj = arguments[arguments.length-1];
-            if (typeof _$rapyd$_kwargs_obj !== "object" || _$rapyd$_kwargs_obj [_$rapyd$_kwargs_symbol] !== true) _$rapyd$_kwargs_obj = {};
+            if (_$rapyd$_kwargs_obj === null || typeof _$rapyd$_kwargs_obj !== "object" || _$rapyd$_kwargs_obj [_$rapyd$_kwargs_symbol] !== true) _$rapyd$_kwargs_obj = {};
             if (Object.prototype.hasOwnProperty.call(_$rapyd$_kwargs_obj, "msg")){
                 msg = _$rapyd$_kwargs_obj.msg;
             }
@@ -2388,11 +3033,11 @@ var str = _$rapyd$_str;
             };
         }
         function E() {
-            var tag = ( 0 === arguments.length-1 && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [_$rapyd$_kwargs_symbol] === true) ? undefined : arguments[0];
+            var tag = ( 0 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [_$rapyd$_kwargs_symbol] === true) ? undefined : arguments[0];
             var kwargs = arguments[arguments.length-1];
-            if (typeof kwargs !== "object" || kwargs [_$rapyd$_kwargs_symbol] !== true) kwargs = {};
+            if (kwargs === null || typeof kwargs !== "object" || kwargs [_$rapyd$_kwargs_symbol] !== true) kwargs = {};
             var args = Array.prototype.slice.call(arguments, 1 );
-            if (typeof kwargs === "object" && kwargs [_$rapyd$_kwargs_symbol] === true) args .pop();
+            if (kwargs !== null && typeof kwargs === "object" && kwargs [_$rapyd$_kwargs_symbol] === true) args .pop();
             var ans, vattr, attr, arg;
             ans = create_element(tag);
             var _$rapyd$_Iter0 = _$rapyd$_Iterable(kwargs);
@@ -2415,9 +3060,9 @@ var str = _$rapyd$_str;
         function bind_e(tag) {
             return function() {
                 var kwargs = arguments[arguments.length-1];
-                if (typeof kwargs !== "object" || kwargs [_$rapyd$_kwargs_symbol] !== true) kwargs = {};
+                if (kwargs === null || typeof kwargs !== "object" || kwargs [_$rapyd$_kwargs_symbol] !== true) kwargs = {};
                 var args = Array.prototype.slice.call(arguments, 0 );
-                if (typeof kwargs === "object" && kwargs [_$rapyd$_kwargs_symbol] === true) args .pop();
+                if (kwargs !== null && typeof kwargs === "object" && kwargs [_$rapyd$_kwargs_symbol] === true) args .pop();
                 return E.apply(this, [tag].concat(args).concat([_$rapyd$_desugar_kwargs(kwargs)]));
             };
         }
@@ -2486,12 +3131,12 @@ var str = _$rapyd$_str;
         }
         LABELS = _$rapyd$_list_decorate([ _$rapyd$_list_decorate([ "P", Math.pow(2, 50) ]), _$rapyd$_list_decorate([ "T", Math.pow(2, 40) ]), _$rapyd$_list_decorate([ "G", 1 << 30 ]), _$rapyd$_list_decorate([ "M", 1 << 20 ]) ]);
         function humanize_size(size) {
-            var _$rapyd$_Unpack, label, minnum;
+            var _$rapyd$_unpack, label, minnum;
             var _$rapyd$_Iter0 = _$rapyd$_Iterable(LABELS);
             for (var _$rapyd$_Index0 = 0; _$rapyd$_Index0 < _$rapyd$_Iter0.length; _$rapyd$_Index0++) {
-                _$rapyd$_Unpack = _$rapyd$_Iter0[_$rapyd$_Index0];
-                label = _$rapyd$_Unpack[0];
-                minnum = _$rapyd$_Unpack[1];
+                _$rapyd$_unpack = _$rapyd$_Iter0[_$rapyd$_Index0];
+                label = _$rapyd$_unpack[0];
+                minnum = _$rapyd$_unpack[1];
                 if (size >= minnum) {
                     return humanize_number(size / minnum, 2, "") + " " + label + "B";
                 }
@@ -2661,6 +3306,382 @@ var str = _$rapyd$_str;
     })();
 
     (function(){
+        var __name__ = "utils";
+        function all_frames() {
+            var marked0$0 = [js_generator].map(_$rapyd$_regenerator.regeneratorRuntime.mark);
+            function js_generator(doc) {
+                var stack, document, win, frame, i;
+            
+                return _$rapyd$_regenerator.regeneratorRuntime.wrap(function js_generator$(context$1$0) {
+                    while (1) switch (context$1$0.prev = context$1$0.next) {
+                    case 0:
+                        stack = [doc || window.document];
+                    case 1:
+                        if (!(stack.length > 0)) {
+                            context$1$0.next = 9;
+                            break;
+                        }
+            
+                        document = stack.pop();
+                        win = document.defaultView;
+                        context$1$0.next = 6;
+                        return win;
+                    case 6:
+                        for (i = 0; i < win.frames.length; i++) {
+                            frame = win.frames[i];
+                            if (frame.document !== document) {
+                                stack.push(frame.document);
+                            }
+                        }
+                        context$1$0.next = 1;
+                        break;
+                    case 9:
+                    case "end":
+                        return context$1$0.stop();
+                    }
+                }, marked0$0[0], this);
+            }
+            var result = js_generator.apply(this, arguments);
+            result.send = result.next;
+            return result;
+        }
+        function is_visible(elem) {
+            var win, rect, child, s;
+            if (!elem || !elem.ownerDocument) {
+                return false;
+            }
+            win = elem.ownerDocument.defaultView;
+            if (win.frameElement && !is_visible(win.frameElement)) {
+                return false;
+            }
+            rect = elem.getBoundingClientRect();
+            if (!rect || rect.bottom < 0 || rect.top > win.innerHeight || rect.left > win.innerWidth || rect.right < 0) {
+                return false;
+            }
+            if (!rect.width || !rect.height) {
+                var _$rapyd$_Iter0 = _$rapyd$_Iterable(elem.childNodes);
+                for (var _$rapyd$_Index0 = 0; _$rapyd$_Index0 < _$rapyd$_Iter0.length; _$rapyd$_Index0++) {
+                    child = _$rapyd$_Iter0[_$rapyd$_Index0];
+                    if (child.nodeType === child.ELEMENT_NODE && win.getComputedStyle(child).float !== "none" && is_visible(child)) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+            s = win.getComputedStyle(elem);
+            if (!s || s.visibility !== "visible" || s.display === "none") {
+                return false;
+            }
+            return true;
+        }
+        function follow_link() {
+            var elem = ( 0 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [_$rapyd$_kwargs_symbol] === true) ? undefined : arguments[0];
+            var mouse_button = (arguments[1] === undefined || ( 1 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [_$rapyd$_kwargs_symbol] === true)) ? (0) : arguments[1];
+            var _$rapyd$_kwargs_obj = arguments[arguments.length-1];
+            if (_$rapyd$_kwargs_obj === null || typeof _$rapyd$_kwargs_obj !== "object" || _$rapyd$_kwargs_obj [_$rapyd$_kwargs_symbol] !== true) _$rapyd$_kwargs_obj = {};
+            if (Object.prototype.hasOwnProperty.call(_$rapyd$_kwargs_obj, "mouse_button")){
+                mouse_button = _$rapyd$_kwargs_obj.mouse_button;
+            }
+            var rect, left, top, _$rapyd$_chain_assign_temp, _$rapyd$_unpack, ev;
+            elem.focus();
+            rect = elem.getBoundingClientRect();
+            _$rapyd$_chain_assign_temp = 0;
+            left = _$rapyd$_chain_assign_temp;
+            top = _$rapyd$_chain_assign_temp;
+;
+            if (rect) {
+                _$rapyd$_unpack = [rect.left, rect.top];
+                left = _$rapyd$_unpack[0];
+                top = _$rapyd$_unpack[1];
+            }
+            ev = new MouseEvent("click", {
+                "view": elem.ownerDocument.defaultView || window,
+                "button": mouse_button,
+                "screenX": left,
+                "screenY": top,
+                "bubbles": true,
+                "cancelable": true
+            });
+            elem.dispatchEvent(ev);
+        }
+        _$rapyd$_modules["utils"]["all_frames"] = all_frames;
+
+        _$rapyd$_modules["utils"]["is_visible"] = is_visible;
+
+        _$rapyd$_modules["utils"]["follow_link"] = follow_link;
+    })();
+
+    (function(){
+        var __name__ = "links";
+        var all_frames = _$rapyd$_modules["utils"].all_frames;
+        var is_visible = _$rapyd$_modules["utils"].is_visible;
+        
+        function iter_links() {
+            var marked0$0 = [js_generator].map(_$rapyd$_regenerator.regeneratorRuntime.mark);
+            function js_generator() {
+                var regexps, rel, selector, filter_func, _$rapyd$_kwargs_obj, matches, child, regexp, elem, win, _$rapyd$_Iter0, _$rapyd$_Index0, _$rapyd$_Iter1, _$rapyd$_Index1, _$rapyd$_Iter2, _$rapyd$_Index2, _$rapyd$_Iter3, _$rapyd$_Index3, _$rapyd$_Iter4, _$rapyd$_Index4, args$1$0 = arguments;
+            
+                return _$rapyd$_regenerator.regeneratorRuntime.wrap(function js_generator$(context$1$0) {
+                    while (1) switch (context$1$0.prev = context$1$0.next) {
+                    case 0:
+                        regexps = (args$1$0[0] === undefined || ( 0 === args$1$0.length-1 && args$1$0[args$1$0.length-1] !== null && typeof args$1$0[args$1$0.length-1] === "object" && args$1$0[args$1$0.length-1] [_$rapyd$_kwargs_symbol] === true)) ? (null) : args$1$0[0];
+                        rel = (args$1$0[1] === undefined || ( 1 === args$1$0.length-1 && args$1$0[args$1$0.length-1] !== null && typeof args$1$0[args$1$0.length-1] === "object" && args$1$0[args$1$0.length-1] [_$rapyd$_kwargs_symbol] === true)) ? (null) : args$1$0[1];
+                        selector = (args$1$0[2] === undefined || ( 2 === args$1$0.length-1 && args$1$0[args$1$0.length-1] !== null && typeof args$1$0[args$1$0.length-1] === "object" && args$1$0[args$1$0.length-1] [_$rapyd$_kwargs_symbol] === true)) ? (null) : args$1$0[2];
+                        filter_func = (args$1$0[3] === undefined || ( 3 === args$1$0.length-1 && args$1$0[args$1$0.length-1] !== null && typeof args$1$0[args$1$0.length-1] === "object" && args$1$0[args$1$0.length-1] [_$rapyd$_kwargs_symbol] === true)) ? (null) : args$1$0[3];
+                        _$rapyd$_kwargs_obj = args$1$0[args$1$0.length-1];
+                        if (_$rapyd$_kwargs_obj === null || typeof _$rapyd$_kwargs_obj !== "object" || _$rapyd$_kwargs_obj [_$rapyd$_kwargs_symbol] !== true) _$rapyd$_kwargs_obj = {};
+                        if (Object.prototype.hasOwnProperty.call(_$rapyd$_kwargs_obj, "regexps")){
+                            regexps = _$rapyd$_kwargs_obj.regexps;
+                        }
+                        if (Object.prototype.hasOwnProperty.call(_$rapyd$_kwargs_obj, "rel")){
+                            rel = _$rapyd$_kwargs_obj.rel;
+                        }
+                        if (Object.prototype.hasOwnProperty.call(_$rapyd$_kwargs_obj, "selector")){
+                            selector = _$rapyd$_kwargs_obj.selector;
+                        }
+                        if (Object.prototype.hasOwnProperty.call(_$rapyd$_kwargs_obj, "filter_func")){
+                            filter_func = _$rapyd$_kwargs_obj.filter_func;
+                        }
+                        selector = selector || ":-webkit-any-link, area, button, iframe, input:not([type=hidden]):not([disabled]), label[for], select, textarea, [onclick], [onmouseover], [onmousedown], [onmouseup], [oncommand], [tabindex], [role=link], [role=button], [contenteditable=true]";
+                        if (regexps !== null) {
+                            regexps = (function() {
+                                var _$rapyd$_Iter = _$rapyd$_Iterable(regexps), _$rapyd$_Result = [], pat;
+                                for (var _$rapyd$_Index = 0; _$rapyd$_Index < _$rapyd$_Iter.length; _$rapyd$_Index++) {
+                                    pat = _$rapyd$_Iter[_$rapyd$_Index];
+                                    _$rapyd$_Result.push((typeof pat === "string") ? new RegExp(pat, "i") : pat);
+                                }
+                                _$rapyd$_Result = _$rapyd$_list_constructor(_$rapyd$_Result);
+                                return _$rapyd$_Result;
+                            })();
+                        }
+                        _$rapyd$_Iter0 = _$rapyd$_Iterable(all_frames());
+                        _$rapyd$_Index0 = 0;
+                    case 14:
+                        if (!(_$rapyd$_Index0 < _$rapyd$_Iter0.length)) {
+                            context$1$0.next = 73;
+                            break;
+                        }
+            
+                        win = _$rapyd$_Iter0[_$rapyd$_Index0];
+                        _$rapyd$_Iter1 = _$rapyd$_Iterable(win.document.querySelectorAll(selector));
+                        _$rapyd$_Index1 = 0;
+                    case 18:
+                        if (!(_$rapyd$_Index1 < _$rapyd$_Iter1.length)) {
+                            context$1$0.next = 70;
+                            break;
+                        }
+            
+                        elem = _$rapyd$_Iter1[_$rapyd$_Index1];
+            
+                        if (!(filter_func !== null && !filter_func(elem))) {
+                            context$1$0.next = 22;
+                            break;
+                        }
+            
+                        return context$1$0.abrupt("continue", 67);
+                    case 22:
+                        matches = false;
+            
+                        if (!(rel !== null && elem.getAttribute("rel") === rel)) {
+                            context$1$0.next = 27;
+                            break;
+                        }
+            
+                        matches = true;
+                        context$1$0.next = 64;
+                        break;
+                    case 27:
+                        if (!(regexps === null)) {
+                            context$1$0.next = 31;
+                            break;
+                        }
+            
+                        matches = true;
+                        context$1$0.next = 64;
+                        break;
+                    case 31:
+                        _$rapyd$_Iter2 = _$rapyd$_Iterable(regexps);
+                        _$rapyd$_Index2 = 0;
+                    case 33:
+                        if (!(_$rapyd$_Index2 < _$rapyd$_Iter2.length)) {
+                            context$1$0.next = 53;
+                            break;
+                        }
+            
+                        regexp = _$rapyd$_Iter2[_$rapyd$_Index2];
+            
+                        if (!regexp.test(elem.textContent)) {
+                            context$1$0.next = 38;
+                            break;
+                        }
+            
+                        matches = true;
+                        return context$1$0.abrupt("break", 53);
+                    case 38:
+                        _$rapyd$_Iter3 = _$rapyd$_Iterable(elem.childNodes);
+                        _$rapyd$_Index3 = 0;
+                    case 40:
+                        if (!(_$rapyd$_Index3 < _$rapyd$_Iter3.length)) {
+                            context$1$0.next = 48;
+                            break;
+                        }
+            
+                        child = _$rapyd$_Iter3[_$rapyd$_Index3];
+            
+                        if (!regexp.test(child.alt)) {
+                            context$1$0.next = 45;
+                            break;
+                        }
+            
+                        matches = true;
+                        return context$1$0.abrupt("break", 48);
+                    case 45:
+                        _$rapyd$_Index3++;
+                        context$1$0.next = 40;
+                        break;
+                    case 48:
+                        if (!matches) {
+                            context$1$0.next = 50;
+                            break;
+                        }
+            
+                        return context$1$0.abrupt("break", 53);
+                    case 50:
+                        _$rapyd$_Index2++;
+                        context$1$0.next = 33;
+                        break;
+                    case 53:
+                        if (matches) {
+                            context$1$0.next = 64;
+                            break;
+                        }
+            
+                        _$rapyd$_Iter4 = _$rapyd$_Iterable(regexps);
+                        _$rapyd$_Index4 = 0;
+                    case 56:
+                        if (!(_$rapyd$_Index4 < _$rapyd$_Iter4.length)) {
+                            context$1$0.next = 64;
+                            break;
+                        }
+            
+                        regexp = _$rapyd$_Iter4[_$rapyd$_Index4];
+            
+                        if (!regexp.test(elem.title)) {
+                            context$1$0.next = 61;
+                            break;
+                        }
+            
+                        matches = true;
+                        return context$1$0.abrupt("break", 64);
+                    case 61:
+                        _$rapyd$_Index4++;
+                        context$1$0.next = 56;
+                        break;
+                    case 64:
+                        if (!matches) {
+                            context$1$0.next = 67;
+                            break;
+                        }
+            
+                        context$1$0.next = 67;
+                        return elem;
+                    case 67:
+                        _$rapyd$_Index1++;
+                        context$1$0.next = 18;
+                        break;
+                    case 70:
+                        _$rapyd$_Index0++;
+                        context$1$0.next = 14;
+                        break;
+                    case 73:
+                    case "end":
+                        return context$1$0.stop();
+                    }
+                }, marked0$0[0], this);
+            }
+            var result = js_generator.apply(this, arguments);
+            result.send = result.next;
+            return result;
+        }
+        function iter_visible_links() {
+            var marked0$0 = [js_generator].map(_$rapyd$_regenerator.regeneratorRuntime.mark);
+            function js_generator() {
+                var regexps, rel, selector, _$rapyd$_kwargs_obj, args$1$0 = arguments;
+            
+                return _$rapyd$_regenerator.regeneratorRuntime.wrap(function js_generator$(context$1$0) {
+                    while (1) switch (context$1$0.prev = context$1$0.next) {
+                    case 0:
+                        regexps = (args$1$0[0] === undefined || ( 0 === args$1$0.length-1 && args$1$0[args$1$0.length-1] !== null && typeof args$1$0[args$1$0.length-1] === "object" && args$1$0[args$1$0.length-1] [_$rapyd$_kwargs_symbol] === true)) ? (null) : args$1$0[0];
+                        rel = (args$1$0[1] === undefined || ( 1 === args$1$0.length-1 && args$1$0[args$1$0.length-1] !== null && typeof args$1$0[args$1$0.length-1] === "object" && args$1$0[args$1$0.length-1] [_$rapyd$_kwargs_symbol] === true)) ? (null) : args$1$0[1];
+                        selector = (args$1$0[2] === undefined || ( 2 === args$1$0.length-1 && args$1$0[args$1$0.length-1] !== null && typeof args$1$0[args$1$0.length-1] === "object" && args$1$0[args$1$0.length-1] [_$rapyd$_kwargs_symbol] === true)) ? (null) : args$1$0[2];
+                        _$rapyd$_kwargs_obj = args$1$0[args$1$0.length-1];
+                        if (_$rapyd$_kwargs_obj === null || typeof _$rapyd$_kwargs_obj !== "object" || _$rapyd$_kwargs_obj [_$rapyd$_kwargs_symbol] !== true) _$rapyd$_kwargs_obj = {};
+                        if (Object.prototype.hasOwnProperty.call(_$rapyd$_kwargs_obj, "regexps")){
+                            regexps = _$rapyd$_kwargs_obj.regexps;
+                        }
+                        if (Object.prototype.hasOwnProperty.call(_$rapyd$_kwargs_obj, "rel")){
+                            rel = _$rapyd$_kwargs_obj.rel;
+                        }
+                        if (Object.prototype.hasOwnProperty.call(_$rapyd$_kwargs_obj, "selector")){
+                            selector = _$rapyd$_kwargs_obj.selector;
+                        }
+            
+                        return context$1$0.delegateYield(
+                            iter_links(_$rapyd$_desugar_kwargs({regexps: regexps, selector: selector, rel: rel, filter_func: is_visible})),
+                            "t0",
+                            9
+                        );
+                    case 9:
+                    case "end":
+                        return context$1$0.stop();
+                    }
+                }, marked0$0[0], this);
+            }
+            var result = js_generator.apply(this, arguments);
+            result.send = result.next;
+            return result;
+        }
+        _$rapyd$_modules["links"]["iter_links"] = iter_links;
+
+        _$rapyd$_modules["links"]["iter_visible_links"] = iter_visible_links;
+    })();
+
+    (function(){
+        var __name__ = "follow_next";
+        var next_regexps, prev_regexps;
+        var connect_signal = _$rapyd$_modules["qt"].connect_signal;
+        
+        var iter_visible_links = _$rapyd$_modules["links"].iter_visible_links;
+        
+        var follow_link = _$rapyd$_modules["utils"].follow_link;
+        
+        next_regexps = _$rapyd$_list_decorate([ /^\s*Next Page\s*$/i, /^\s*Next [>»]/i, /\bNext\b/i, /^>$/, /^(>>|»)$/, /^(>|»)/, /(>|»)$/, /\bMore\b/i ]);
+        prev_regexps = _$rapyd$_list_decorate([ /^\s*Prev(ious)? Page\s*$/i, /[<«] Prev\s*$/i, /\bprev(ious)?\b/i, /^<$/, /^(<<|«)$/, /^(<|«)/, /(<|«)$/ ]);
+        function follow_next(forward) {
+            var regexps, rel, elem;
+            regexps = (forward) ? next_regexps : prev_regexps;
+            rel = (forward) ? "next" : "prev";
+            var _$rapyd$_Iter0 = _$rapyd$_Iterable(iter_visible_links(regexps, rel));
+            for (var _$rapyd$_Index0 = 0; _$rapyd$_Index0 < _$rapyd$_Iter0.length; _$rapyd$_Index0++) {
+                elem = _$rapyd$_Iter0[_$rapyd$_Index0];
+                follow_link(elem);
+            }
+        }
+        function onload() {
+            if (window.self === window.top) {
+                connect_signal("follow_next", follow_next);
+            }
+        }
+        _$rapyd$_modules["follow_next"]["next_regexps"] = next_regexps;
+
+        _$rapyd$_modules["follow_next"]["prev_regexps"] = prev_regexps;
+
+        _$rapyd$_modules["follow_next"]["follow_next"] = follow_next;
+
+        _$rapyd$_modules["follow_next"]["onload"] = onload;
+    })();
+
+    (function(){
 
         var __name__ = "__main__";
 
@@ -2673,10 +3694,13 @@ var str = _$rapyd$_str;
         
         var downloads = _$rapyd$_modules["downloads"].main;
         
+        var fn_onload = _$rapyd$_modules["follow_next"].onload;
+        
         function on_document_loaded() {
             connect_bridge(function() {
                 mc_onload();
                 focus_onload();
+                fn_onload();
                 if (typeof window["ͻ-vise-entry-point"] === "function") {
                     window["ͻ-vise-entry-point"](vise_entry_point);
                 }

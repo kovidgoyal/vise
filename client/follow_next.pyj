@@ -1,0 +1,20 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+
+from qt import connect_signal
+from links import iter_visible_links
+from utils import follow_link
+
+next_regexps = [/^\s*Next Page\s*$/i, /^\s*Next [>»]/i, /\bNext\b/i, /^>$/, /^(>>|»)$/, /^(>|»)/, /(>|»)$/, /\bMore\b/i]
+prev_regexps = [/^\s*Prev(ious)? Page\s*$/i, /[<«] Prev\s*$/i, /\bprev(ious)?\b/i, /^<$/, /^(<<|«)$/, /^(<|«)/, /(<|«)$/]
+
+def follow_next(forward):
+    regexps = next_regexps if forward else prev_regexps
+    rel = 'next' if forward else 'prev'
+    for elem in iter_visible_links(regexps, rel):
+        follow_link(elem)
+
+def onload():
+    if window.self == window.top:
+        connect_signal('follow_next', follow_next)
+

@@ -383,3 +383,7 @@ class MainWindow(QMainWindow):
 
     def clear_search_highlighting(self):
         self.current_tab.findText('', QWebEnginePage.FindFlags(0))
+
+    def follow_next(self, forward=True):
+        if self.current_tab is not None:
+            self.current_tab.follow_next(forward)

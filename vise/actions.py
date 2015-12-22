@@ -168,3 +168,13 @@ def choose_tab(window, *args, **kwargs):
     window.choose_tab_pending = True
     window.tab_tree.mark_tabs()
     return True
+
+
+def follow_next(window, *args, **kw):
+    window.follow_next()
+    return True
+
+
+def follow_previous(window, *args, **kw):
+    window.follow_next(forward=False)
+    return True

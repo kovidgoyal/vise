@@ -5,11 +5,13 @@ from qt import connect_bridge
 from middle_click import onload as mc_onload
 from focus import onload as focus_onload
 from downloads import main as downloads
+from follow_next import onload as fn_onload
 
 def on_document_loaded():
     connect_bridge(def ():
         mc_onload()
         focus_onload()
+        fn_onload()
         if type(window['ͻ-vise-entry-point']) == 'function':
             window['ͻ-vise-entry-point'](vise_entry_point)
     )

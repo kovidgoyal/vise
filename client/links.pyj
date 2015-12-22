@@ -1,0 +1,42 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+
+from utils import all_frames, is_visible
+
+def iter_links(regexps=None, rel=None, selector=None, filter_func=None):
+    selector = selector or ':-webkit-any-link, area, button, iframe, input:not([type=hidden]):not([disabled]), label[for], select, textarea, [onclick], [onmouseover], [onmousedown], [onmouseup], [oncommand], [tabindex], [role=link], [role=button], [contenteditable=true]'
+
+    if regexps is not None:
+        regexps = [RegExp(pat, 'i') if type(pat) == 'string' else pat for pat in regexps]
+
+    for win in all_frames():
+        for elem in win.document.querySelectorAll(selector):
+            if filter_func is not None and not filter_func(elem):
+                continue
+            matches = False
+            if rel is not None and elem.getAttribute('rel') == rel:
+                matches = True
+            else:
+                if regexps is None:
+                    matches = True
+                else:
+                    for regexp in regexps:
+                        if regexp.test(elem.textContent):
+                            matches = True
+                            break
+                        for child in elem.childNodes:
+                            if regexp.test(child.alt):
+                                matches = True
+                                break
+                        if matches:
+                            break
+                    if not matches:
+                        for regexp in regexps:
+                            if regexp.test(elem.title):
+                                matches = True
+                                break
+            if matches:
+                yield elem
+
+def iter_visible_links(regexps=None, rel=None, selector=None):
+    yield from iter_links(regexps=regexps, selector=selector, rel=rel, filter_func=is_visible)
