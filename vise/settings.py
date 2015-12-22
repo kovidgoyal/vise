@@ -139,8 +139,9 @@ def create_script(name, src, world=QWebEngineScript.MainWorld, injection_point=Q
 
 def client_script():
     # Has to be in main world for the webChannelTransport to work
-    src = get_data('client.js').decode('utf-8')
-    return create_script('%s-client.js' % appname, src)
+    name = '%s-client.js' % appname
+    src = get_data(name).decode('utf-8')
+    return create_script(name, src)
 
 
 def qwebchannel_script():
