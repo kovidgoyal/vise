@@ -73,7 +73,7 @@ class Candidate:
         return self.value
 
     def draw_item(self, painter, style, option):
-        text_rect = style.subElementRect(style.SE_ItemViewItemText, option)
+        text_rect = style.subElementRect(style.SE_ItemViewItemText, option, None)
         y = text_rect.y()
         y += (text_rect.height() - self.text.size().height()) // 2
         painter.drawStaticText(QPoint(text_rect.x(), y), self.text)

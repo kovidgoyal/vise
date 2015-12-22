@@ -63,9 +63,9 @@ class CompletionCandidate:
     def draw_item(self, painter, style, option):
         option.features |= option.HasDecoration
         option.icon = self.icon
-        text_rect = style.subElementRect(style.SE_ItemViewItemText, option)
+        text_rect = style.subElementRect(style.SE_ItemViewItemText, option, None)
         if not option.icon.isNull():
-            icon_rect = style.subElementRect(style.SE_ItemViewItemDecoration, option)
+            icon_rect = style.subElementRect(style.SE_ItemViewItemDecoration, option, None)
             option.icon.paint(painter, icon_rect, alignment=Qt.AlignBottom | Qt.AlignHCenter)
         option.icon = QIcon()
         x, y = text_rect.x(), text_rect.y()
