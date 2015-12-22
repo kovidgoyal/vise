@@ -6,7 +6,11 @@ set wildignore+==tags
 set wildignore+=*.pyj-cached
 
 python <<endpython
-import sys, os
+import sys, os, vim
+items = {x.replace('=', r'\=') for x in os.listdir('.')}
+items.discard('resources'), items.discard('.git'), items.discard('__pycache__')
+items |= {'resources/' + x for x in os.listdir('resources') if x != 'vise-client.js'}
+vim.command('nnoremap <leader>k :silent !git difftool -d ' + ' '.join(items) + ' -d &<CR>')
 sys.path.insert(0, os.path.abspath('.'))
 import vise
 endpython
