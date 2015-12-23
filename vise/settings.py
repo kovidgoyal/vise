@@ -14,7 +14,7 @@ from PyQt5.Qt import (
 )
 
 from .constants import config_dir, appname, cache_dir, str_version
-from .resources import get_data
+from .resources import get_data_as_file
 
 
 def to_json(obj):
@@ -140,9 +140,10 @@ def create_script(name, src, world=QWebEngineScript.MainWorld, injection_point=Q
 def client_script():
     # Has to be in main world for the webChannelTransport to work
     name = '%s-client.js' % appname
-    src = get_data(name).decode('utf-8')
+    f = get_data_as_file(name)
+    src = f.read().decode('utf-8')
     src = src.replace('__SECRET_KEY__', (standard_b64encode(os.urandom(32))).decode('ascii'))
-    return create_script(name, src)
+    return create_script(f.name, src)
 
 
 def qwebchannel_script():
