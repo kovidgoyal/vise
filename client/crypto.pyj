@@ -12,6 +12,7 @@ def initialize(after):
     forge = window.forge
     if not forge:
         # Happens if Qt executes the forge script after the client script
+        # See https://bugreports.qt.io/browse/QTBUG-50150
         setTimeout(def(): initialize(after);, 0)
         return
     window.forge = undefined
