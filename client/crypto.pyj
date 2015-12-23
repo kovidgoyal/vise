@@ -1,0 +1,38 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+
+forge = None
+secret_key = '__SECRET_KEY__'  # This is replaced by a secret generated from os.urandom
+
+# We do not use the WebCrypto API because of
+# https://bugreports.qt.io/browse/QTBUG-50142
+
+def initialize(after):
+    nonlocal forge, secret_key
+    forge = window.forge
+    if not forge:
+        # Happens if Qt executes the forge script after the client script
+        setTimeout(def(): initialize(after);, 0)
+        return
+    window.forge = undefined
+    if '_' in secret_key:
+        raise Exception('secret key was not generated')
+    secret_key = window.atob(secret_key)
+    after()
+
+def encrypt(text):
+    cipher = forge.cipher.createCipher('AES-GCM', secret_key)
+    iv = forge.random.getBytesSync(16)
+    cipher.start({'iv':iv})
+    cipher.update(forge.util.createBuffer(text))
+    cipher.finish()
+    return iv, cipher.output.data, cipher.mode.tag.data
+
+def decrypt(iv, encrypted, tag):
+    decipher = forge.cipher.createDecipher('AES-GCM', secret_key)
+    decipher.start({'iv':iv, 'tag':forge.util.createBuffer(tag)})
+    decipher.update(forge.util.createBuffer(encrypted))
+    ok = decipher.finish()
+    if not ok:
+        raise ValueError('Failed to decrypt')
+    return decipher.output.data

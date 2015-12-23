@@ -28,6 +28,23 @@
                 return Object.prototype.hasOwnProperty.call(arr, val);
             };
         })();
+    function _$rapyd$_Iterable(iterable) {
+            var iterator, ans, result;
+            if (_$rapyd$_arraylike(iterable)) {
+                return iterable;
+            }
+            if (typeof iterable[_$rapyd$_iterator_symbol] === "function") {
+                iterator = (typeof Map === "function" && iterable instanceof Map) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]();
+                ans = _$rapyd$_list_decorate([]);
+                result = iterator.next();
+                while (!result.done) {
+                    ans.push(result.value);
+                    result = iterator.next();
+                }
+                return ans;
+            }
+            return Object.keys(iterable);
+        };
     function range(start, stop, step) {
             var length;
             if (arguments.length <= 1) {
@@ -58,23 +75,6 @@
                 };
                 return _$rapyd$_d;
             })();
-        };
-    function _$rapyd$_Iterable(iterable) {
-            var iterator, ans, result;
-            if (_$rapyd$_arraylike(iterable)) {
-                return iterable;
-            }
-            if (typeof iterable[_$rapyd$_iterator_symbol] === "function") {
-                iterator = (typeof Map === "function" && iterable instanceof Map) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]();
-                ans = _$rapyd$_list_decorate([]);
-                result = iterator.next();
-                while (!result.done) {
-                    ans.push(result.value);
-                    result = iterator.next();
-                }
-                return ans;
-            }
-            return Object.keys(iterable);
         };
     var _$rapyd$_desugar_kwargs = (function _$rapyd$_desugar_kwargs() {
             if (typeof Object.assign === "function") {
@@ -2594,6 +2594,7 @@ var str = _$rapyd$_str;;
             return ret;
         };
     var _$rapyd$_modules = {};
+    _$rapyd$_modules["crypto"] = {};
     _$rapyd$_modules["qt"] = {};
     _$rapyd$_modules["frames"] = {};
     _$rapyd$_modules["middle_click"] = {};
@@ -2604,6 +2605,62 @@ var str = _$rapyd$_str;;
     _$rapyd$_modules["utils"] = {};
     _$rapyd$_modules["links"] = {};
     _$rapyd$_modules["follow_next"] = {};
+
+    (function(){
+        var __name__ = "crypto";
+        var forge, secret_key;
+        forge = null;
+        secret_key = "__SECRET_KEY__";
+        function initialize(after) {
+            forge = window.forge;
+            if (!forge) {
+                setTimeout(function() {
+                    initialize(after);
+                }, 0);
+                return;
+            }
+            window.forge = undefined;
+            if (_$rapyd$_in("_", secret_key)) {
+                throw new Exception("secret key was not generated");
+            }
+            secret_key = window.atob(secret_key);
+            after();
+        }
+        function encrypt(text) {
+            var cipher, iv;
+            cipher = forge.cipher.createCipher("AES-GCM", secret_key);
+            iv = forge.random.getBytesSync(16);
+            cipher.start({
+                "iv": iv
+            });
+            cipher.update(forge.util.createBuffer(text));
+            cipher.finish();
+            return [iv, cipher.output.data, cipher.mode.tag.data];
+        }
+        function decrypt(iv, encrypted, tag) {
+            var decipher, ok;
+            decipher = forge.cipher.createDecipher("AES-GCM", secret_key);
+            decipher.start({
+                "iv": iv,
+                "tag": forge.util.createBuffer(tag)
+            });
+            decipher.update(forge.util.createBuffer(encrypted));
+            ok = decipher.finish();
+            if (!ok) {
+                throw new ValueError("Failed to decrypt");
+            }
+            return decipher.output.data;
+        }
+        _$rapyd$_modules["crypto"]["forge"] = forge;
+
+        _$rapyd$_modules["crypto"]["secret_key"] = secret_key;
+
+        _$rapyd$_modules["crypto"]["initialize"] = initialize;
+
+        _$rapyd$_modules["crypto"]["encrypt"] = encrypt;
+
+        _$rapyd$_modules["crypto"]["decrypt"] = decrypt;
+    })();
 
     (function(){
         var __name__ = "qt";
@@ -2667,58 +2724,28 @@ var str = _$rapyd$_str;;
 
     (function(){
         var __name__ = "frames";
-        var frame_count, frame_id, _$rapyd$_chain_assign_temp, registered, frame_map, secret_key, key_bytes, i, subtle, import_key, encrypt, decrypt, get_random_values, handlers;
+        var frame_count, frame_id, _$rapyd$_chain_assign_temp, registered, frame_map, handlers;
+        var encrypt = _$rapyd$_modules["crypto"].encrypt;
+        var decrypt = _$rapyd$_modules["crypto"].decrypt;
+        
         _$rapyd$_chain_assign_temp = 0;
         frame_count = _$rapyd$_chain_assign_temp;
         frame_id = _$rapyd$_chain_assign_temp;
 ;
         registered = false;
         frame_map = new WeakMap();
-        secret_key = "__SECRET_KEY__";
-        if (_$rapyd$_in("_", secret_key)) {
-            throw new Exception("secret key was not generated");
-        }
-        secret_key = window.atob(secret_key);
-        key_bytes = new Uint8Array(secret_key.length);
-        for (i = 0; i < secret_key.length; i++) {
-            key_bytes[i] = secret_key.charCodeAt(i);
-        }
-        secret_key = null;
-        subtle = window.crypto.subtle;
-        import_key = subtle.importKey.bind(subtle);
-        encrypt = subtle.encrypt.bind(subtle);
-        decrypt = subtle.decrypt.bind(subtle);
-        get_random_values = window.crypto.getRandomValues.bind(window.crypto);
-        import_key("raw", key_bytes.buffer, {
-            "name": "AES-GCM"
-        }, false, _$rapyd$_list_decorate([ "encrypt", "decrypt" ])).then(function(key) {
-            secret_key = key;
-            register_frames();
-        }).catch(function(err) {
-            console.error("Failed to create Crypto key for frames: " + err.message);
-        });
-        key_bytes = undefined;
         function prepare_message(payload, cont) {
-            var buf, i, iv;
+            var _$rapyd$_unpack, iv, data, tag;
             payload = JSON.stringify(payload);
-            buf = new Uint16Array(payload.length);
-            for (i = 0; i < payload.length; i++) {
-                buf[i] = payload.charCodeAt(i);
-            }
-            iv = get_random_values(new Uint8Array(16));
-            encrypt({
-                "name": "AES-GCM",
+            _$rapyd$_unpack = encrypt(payload);
+            iv = _$rapyd$_unpack[0];
+            data = _$rapyd$_unpack[1];
+            tag = _$rapyd$_unpack[2];
+            cont({
+                "type": "ͻvise_frame_message",
                 "iv": iv,
-                "tagLength": 128
-            }, secret_key, buf.buffer).then(function(array_buf) {
-                cont({
-                    "type": "ͻvise_frame_message",
-                    "iv": iv,
-                    "encrypted_payload": new Uint8Array(array_buf)
-                });
-            }).catch(function(err) {
-                console.error(err.stack);
-                console.error("Failed to encrypt and post frame message: " + err.message);
+                "encrypted_payload": data,
+                "encryption_tag": tag
             });
         }
         function post_message(win, payload) {
@@ -2759,23 +2786,24 @@ var str = _$rapyd$_str;;
             }
         }
         function decode_message(event) {
+            var raw, payload;
             if (!event.data || event.data.type !== "ͻvise_frame_message") {
                 return;
             }
-            decrypt({
-                "name": "AES-GCM",
-                "iv": event.data.iv,
-                "tagLength": 128
-            }, secret_key, event.data.encrypted_payload).then(function(buf) {
-                var payload;
-                buf = new Uint16Array(buf);
-                buf = String.fromCharCode.apply(null, new Uint16Array(buf, 0, buf.byteLength / 2));
-                payload = JSON.parse(buf);
-                handle_message_from_frame(event.source, payload);
-            }).catch(function(err) {
-                console.error(err.stack);
-                console.error("Failed to decrypt frame message: " + err.message);
-            });
+            try {
+                raw = decrypt(event.data.iv, event.data.encrypted_payload, event.data.encryption_tag);
+            } catch (_$rapyd$_Exception) {
+                if (_$rapyd$_Exception instanceof Exception) {
+                    var err = _$rapyd$_Exception;
+                    console.error(err.stack);
+                    console.error("Failed to decrypt frame message: " + err.message);
+                    return;
+                } else {
+                    throw _$rapyd$_Exception;
+                }
+            }
+            payload = JSON.parse(raw);
+            handle_message_from_frame(event.source, payload);
         }
         function frame_iter() {
             var marked0$0 = [js_generator].map(_$rapyd$_regenerator.regeneratorRuntime.mark);
@@ -2841,9 +2869,6 @@ var str = _$rapyd$_str;;
             }
         }
         function register_frames() {
-            if (!secret_key) {
-                return;
-            }
             window.removeEventListener("message", decode_message);
             window.addEventListener("message", decode_message, false);
             if (window.self !== window.top && !registered) {
@@ -2890,22 +2915,6 @@ var str = _$rapyd$_str;;
         _$rapyd$_modules["frames"]["registered"] = registered;
 
         _$rapyd$_modules["frames"]["frame_map"] = frame_map;
-
-        _$rapyd$_modules["frames"]["secret_key"] = secret_key;
-
-        _$rapyd$_modules["frames"]["key_bytes"] = key_bytes;
-
-        _$rapyd$_modules["frames"]["i"] = i;
-
-        _$rapyd$_modules["frames"]["subtle"] = subtle;
-
-        _$rapyd$_modules["frames"]["import_key"] = import_key;
-
-        _$rapyd$_modules["frames"]["encrypt"] = encrypt;
-
-        _$rapyd$_modules["frames"]["decrypt"] = decrypt;
-
-        _$rapyd$_modules["frames"]["get_random_values"] = get_random_values;
 
         _$rapyd$_modules["frames"]["handlers"] = handlers;
 
@@ -4033,6 +4042,8 @@ var str = _$rapyd$_str;;
         var __name__ = "__main__";
 
 
+        var init_crypto = _$rapyd$_modules["crypto"].initialize;
+        
         var connect_bridge = _$rapyd$_modules["qt"].connect_bridge;
         
         var register_frames = _$rapyd$_modules["frames"].register_frames;
@@ -4062,6 +4073,6 @@ var str = _$rapyd$_str;;
         }
         document.removeEventListener("DOMContentLoaded", on_document_loaded);
         document.addEventListener("DOMContentLoaded", on_document_loaded);
-        register_frames();
+        init_crypto(register_frames);
     })();
 })();

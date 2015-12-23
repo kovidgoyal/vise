@@ -7,6 +7,7 @@ import apsw
 import json
 from base64 import standard_b64decode, standard_b64encode
 from collections import defaultdict
+from functools import lru_cache
 
 from PyQt5.Qt import (
     QWebEngineProfile, QApplication, QWebEngineScript, QFile, QIODevice,
@@ -137,6 +138,7 @@ def create_script(name, src, world=QWebEngineScript.MainWorld, injection_point=Q
     return script
 
 
+@lru_cache()
 def client_script():
     # Has to be in main world for the webChannelTransport to work
     name = '%s-client.js' % appname
@@ -146,15 +148,24 @@ def client_script():
     return create_script(f.name, src)
 
 
+@lru_cache()
 def qwebchannel_script():
     # Has to be in main world for the webChannelTransport to work
     return create_script('qwebchannel.js', qwebchannel_js)
 
 
-def insert_script(profile, script):
-    for existing in profile.scripts().findScripts(script.name()):
-        profile.scripts().remove(existing)
-    profile.scripts().insert(script)
+@lru_cache()
+def forge_script():
+    f = get_data_as_file('forge.bundle.js')
+    src = f.read().decode('utf-8')
+    return create_script(f.name, src)
+
+
+def insert_scripts(profile, *scripts):
+    for script in scripts:
+        for existing in profile.scripts().findScripts(script.name()):
+            profile.scripts().remove(existing)
+    profile.scripts().insert(scripts)
 
 
 def create_profile(parent=None, private=False):
@@ -171,8 +182,7 @@ def create_profile(parent=None, private=False):
         ans.setPersistentStoragePath(os.path.join(cache_dir, appname, 'storage'))
         safe_makedirs(ans.persistentStoragePath())
     ans.setHttpUserAgent(ans.httpUserAgent().replace('QtWebEngine/', '%s/%s QtWebEngine/' % (appname, str_version)))
-    insert_script(ans, qwebchannel_script())
-    insert_script(ans, client_script())
+    insert_scripts(ans, qwebchannel_script(), forge_script(), client_script())
     return ans
 
 _profile = None
