@@ -76,6 +76,31 @@
             }
             return Object.keys(iterable);
         };
+    var _$rapyd$_desugar_kwargs = (function _$rapyd$_desugar_kwargs() {
+            if (typeof Object.assign === "function") {
+                return function() {
+                    var ans;
+                    ans = {};
+                    ans[_$rapyd$_kwargs_symbol] = true;
+                    for (var i = 0; i < arguments.length; i++) {
+                        Object.assign(ans, arguments[i]);
+                    }
+                    return ans;
+                };
+            }
+            return function() {
+                var ans, keys;
+                ans = {};
+                ans[_$rapyd$_kwargs_symbol] = true;
+                for (var i = 0; i < arguments.length; i++) {
+                    keys = Object.keys(arguments[i]);
+                    for (var j = 0; j < keys.length; j++) {
+                        ans[keys[j]] = arguments[i][keys[j]];
+                    }
+                }
+                return ans;
+            };
+        })();
     var _$rapyd$_regenerator = {};
     !(function(global) {
       "use strict";
@@ -621,31 +646,6 @@
         }
       };
     })(_$rapyd$_regenerator);
-    var _$rapyd$_desugar_kwargs = (function _$rapyd$_desugar_kwargs() {
-            if (typeof Object.assign === "function") {
-                return function() {
-                    var ans;
-                    ans = {};
-                    ans[_$rapyd$_kwargs_symbol] = true;
-                    for (var i = 0; i < arguments.length; i++) {
-                        Object.assign(ans, arguments[i]);
-                    }
-                    return ans;
-                };
-            }
-            return function() {
-                var ans, keys;
-                ans = {};
-                ans[_$rapyd$_kwargs_symbol] = true;
-                for (var i = 0; i < arguments.length; i++) {
-                    keys = Object.keys(arguments[i]);
-                    for (var j = 0; j < keys.length; j++) {
-                        ans[keys[j]] = arguments[i][keys[j]];
-                    }
-                }
-                return ans;
-            };
-        })();
     var Exception = Error;
 function AttributeError() {
     AttributeError.prototype.__init__.apply(this, arguments);
@@ -2667,7 +2667,7 @@ var str = _$rapyd$_str;;
 
     (function(){
         var __name__ = "frames";
-        var frame_count, frame_id, _$rapyd$_chain_assign_temp, registered, frame_map, secret_key, key_bytes, i;
+        var frame_count, frame_id, _$rapyd$_chain_assign_temp, registered, frame_map, secret_key, key_bytes, i, subtle, import_key, encrypt, decrypt, get_random_values, handlers;
         _$rapyd$_chain_assign_temp = 0;
         frame_count = _$rapyd$_chain_assign_temp;
         frame_id = _$rapyd$_chain_assign_temp;
@@ -2683,7 +2683,13 @@ var str = _$rapyd$_str;;
         for (i = 0; i < secret_key.length; i++) {
             key_bytes[i] = secret_key.charCodeAt(i);
         }
-        window.crypto.subtle.importKey("raw", key_bytes.buffer, {
+        secret_key = null;
+        subtle = window.crypto.subtle;
+        import_key = subtle.importKey.bind(subtle);
+        encrypt = subtle.encrypt.bind(subtle);
+        decrypt = subtle.decrypt.bind(subtle);
+        get_random_values = window.crypto.getRandomValues.bind(window.crypto);
+        import_key("raw", key_bytes.buffer, {
             "name": "AES-GCM"
         }, false, _$rapyd$_list_decorate([ "encrypt", "decrypt" ])).then(function(key) {
             secret_key = key;
@@ -2691,7 +2697,6 @@ var str = _$rapyd$_str;;
         }).catch(function(err) {
             console.error("Failed to create Crypto key for frames: " + err.message);
         });
-        secret_key = null;
         key_bytes = undefined;
         function prepare_message(payload, cont) {
             var buf, i, iv;
@@ -2700,8 +2705,8 @@ var str = _$rapyd$_str;;
             for (i = 0; i < payload.length; i++) {
                 buf[i] = payload.charCodeAt(i);
             }
-            iv = window.crypto.getRandomValues(new Uint8Array(16));
-            window.crypto.subtle.encrypt({
+            iv = get_random_values(new Uint8Array(16));
+            encrypt({
                 "name": "AES-GCM",
                 "iv": iv,
                 "tagLength": 128
@@ -2731,8 +2736,9 @@ var str = _$rapyd$_str;;
                 }
             });
         }
+        handlers = {};
         function handle_message_from_frame(source, data) {
-            var action;
+            var action, f, args, kw;
             action = data.action;
             if (action === "*register") {
                 frame_count += 1;
@@ -2743,14 +2749,20 @@ var str = _$rapyd$_str;;
                 });
             } else if (action === "*set_id") {
                 frame_id = data.value;
-                print(111111111);
+            } else {
+                f = handlers[action];
+                if (f) {
+                    args = data.args || _$rapyd$_list_decorate([]);
+                    kw = data.kwargs || {};
+                    f.apply(this, [frame_id, frame_map[source], source].concat(args).concat([_$rapyd$_desugar_kwargs(kw)]));
+                }
             }
         }
         function decode_message(event) {
             if (!event.data || event.data.type !== "ͻvise_frame_message") {
                 return;
             }
-            window.crypto.subtle.decrypt({
+            decrypt({
                 "name": "AES-GCM",
                 "iv": event.data.iv,
                 "tagLength": 128
@@ -2767,30 +2779,47 @@ var str = _$rapyd$_str;;
         }
         function frame_iter() {
             var marked0$0 = [js_generator].map(_$rapyd$_regenerator.regeneratorRuntime.mark);
-            function js_generator(win) {
-                var frame, i;
+            function js_generator() {
+                var win, filter_func, _$rapyd$_kwargs_obj, frame, i, args$1$0 = arguments;
             
                 return _$rapyd$_regenerator.regeneratorRuntime.wrap(function js_generator$(context$1$0) {
                     while (1) switch (context$1$0.prev = context$1$0.next) {
                     case 0:
+                        win = ( 0 === args$1$0.length-1 && args$1$0[args$1$0.length-1] !== null && typeof args$1$0[args$1$0.length-1] === "object" && args$1$0[args$1$0.length-1] [_$rapyd$_kwargs_symbol] === true) ? undefined : args$1$0[0];
+                        filter_func = (args$1$0[1] === undefined || ( 1 === args$1$0.length-1 && args$1$0[args$1$0.length-1] !== null && typeof args$1$0[args$1$0.length-1] === "object" && args$1$0[args$1$0.length-1] [_$rapyd$_kwargs_symbol] === true)) ? (null) : args$1$0[1];
+                        _$rapyd$_kwargs_obj = args$1$0[args$1$0.length-1];
+                        if (_$rapyd$_kwargs_obj === null || typeof _$rapyd$_kwargs_obj !== "object" || _$rapyd$_kwargs_obj [_$rapyd$_kwargs_symbol] !== true) _$rapyd$_kwargs_obj = {};
+                        if (Object.prototype.hasOwnProperty.call(_$rapyd$_kwargs_obj, "filter_func")){
+                            filter_func = _$rapyd$_kwargs_obj.filter_func;
+                        }
                         win = win || window.top;
                         i = 0;
-                    case 2:
+                    case 7:
                         if (!(i < win.frames.length)) {
-                            context$1$0.next = 10;
+                            context$1$0.next = 16;
                             break;
                         }
             
                         frame = win.frames[i];
-                        context$1$0.next = 6;
+            
+                        if (!(filter_func === null || filter_func(frame.frameElement))) {
+                            context$1$0.next = 12;
+                            break;
+                        }
+            
+                        context$1$0.next = 12;
                         return frame;
-                    case 6:
-                        return context$1$0.delegateYield(frame_iter(frame), "t0", 7);
-                    case 7:
+                    case 12:
+                        return context$1$0.delegateYield(
+                            frame_iter(frame, _$rapyd$_desugar_kwargs({filter_func: filter_func})),
+                            "t0",
+                            13
+                        );
+                    case 13:
                         i++;
-                        context$1$0.next = 2;
+                        context$1$0.next = 7;
                         break;
-                    case 10:
+                    case 16:
                     case "end":
                         return context$1$0.stop();
                     }
@@ -2824,6 +2853,34 @@ var str = _$rapyd$_str;;
                 registered = true;
             }
         }
+        function register_handler(name, func) {
+            handlers[name] = func;
+        }
+        function prepare_action(name, args, kwargs) {
+            return {
+                "action": name,
+                "args": args,
+                "kwargs": kwargs
+            };
+        }
+        function send_action() {
+            var win = ( 0 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [_$rapyd$_kwargs_symbol] === true) ? undefined : arguments[0];
+            var name = ( 1 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [_$rapyd$_kwargs_symbol] === true) ? undefined : arguments[1];
+            var kwargs = arguments[arguments.length-1];
+            if (kwargs === null || typeof kwargs !== "object" || kwargs [_$rapyd$_kwargs_symbol] !== true) kwargs = {};
+            var args = Array.prototype.slice.call(arguments, 2 );
+            if (kwargs !== null && typeof kwargs === "object" && kwargs [_$rapyd$_kwargs_symbol] === true) args .pop();
+            post_message(win, prepare_action(name, args, kwargs));
+        }
+        function broadcast_action() {
+            var windows = ( 0 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [_$rapyd$_kwargs_symbol] === true) ? undefined : arguments[0];
+            var name = ( 1 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [_$rapyd$_kwargs_symbol] === true) ? undefined : arguments[1];
+            var kwargs = arguments[arguments.length-1];
+            if (kwargs === null || typeof kwargs !== "object" || kwargs [_$rapyd$_kwargs_symbol] !== true) kwargs = {};
+            var args = Array.prototype.slice.call(arguments, 2 );
+            if (kwargs !== null && typeof kwargs === "object" && kwargs [_$rapyd$_kwargs_symbol] === true) args .pop();
+            broadcast_message(windows, prepare_action(name, args, kwargs));
+        }
         _$rapyd$_modules["frames"]["frame_count"] = frame_count;
 
         _$rapyd$_modules["frames"]["frame_id"] = frame_id;
@@ -2840,6 +2897,18 @@ var str = _$rapyd$_str;;
 
         _$rapyd$_modules["frames"]["i"] = i;
 
+        _$rapyd$_modules["frames"]["subtle"] = subtle;
+
+        _$rapyd$_modules["frames"]["import_key"] = import_key;
+
+        _$rapyd$_modules["frames"]["encrypt"] = encrypt;
+
+        _$rapyd$_modules["frames"]["decrypt"] = decrypt;
+
+        _$rapyd$_modules["frames"]["get_random_values"] = get_random_values;
+
+        _$rapyd$_modules["frames"]["handlers"] = handlers;
+
         _$rapyd$_modules["frames"]["prepare_message"] = prepare_message;
 
         _$rapyd$_modules["frames"]["post_message"] = post_message;
@@ -2855,6 +2924,14 @@ var str = _$rapyd$_str;;
         _$rapyd$_modules["frames"]["frame_for_id"] = frame_for_id;
 
         _$rapyd$_modules["frames"]["register_frames"] = register_frames;
+
+        _$rapyd$_modules["frames"]["register_handler"] = register_handler;
+
+        _$rapyd$_modules["frames"]["prepare_action"] = prepare_action;
+
+        _$rapyd$_modules["frames"]["send_action"] = send_action;
+
+        _$rapyd$_modules["frames"]["broadcast_action"] = broadcast_action;
     })();
 
     (function(){
@@ -3568,9 +3645,6 @@ var str = _$rapyd$_str;;
                 return false;
             }
             win = elem.ownerDocument.defaultView;
-            if (win.frameElement && !is_visible(win.frameElement)) {
-                return false;
-            }
             rect = elem.getBoundingClientRect();
             if (!rect || rect.bottom < 0 || rect.top > win.innerHeight || rect.left > win.innerWidth || rect.right < 0) {
                 return false;
@@ -3630,21 +3704,21 @@ var str = _$rapyd$_str;;
 
     (function(){
         var __name__ = "links";
-        var all_frames = _$rapyd$_modules["utils"].all_frames;
         var is_visible = _$rapyd$_modules["utils"].is_visible;
         
         function iter_links() {
             var marked0$0 = [js_generator].map(_$rapyd$_regenerator.regeneratorRuntime.mark);
             function js_generator() {
-                var regexps, rel, selector, filter_func, _$rapyd$_kwargs_obj, matches, child, regexp, elem, win, _$rapyd$_Iter0, _$rapyd$_Index0, _$rapyd$_Iter1, _$rapyd$_Index1, _$rapyd$_Iter2, _$rapyd$_Index2, _$rapyd$_Iter3, _$rapyd$_Index3, _$rapyd$_Iter4, _$rapyd$_Index4, args$1$0 = arguments;
+                var win, regexps, rel, selector, filter_func, _$rapyd$_kwargs_obj, matches, child, regexp, elem, _$rapyd$_Iter0, _$rapyd$_Index0, _$rapyd$_Iter1, _$rapyd$_Index1, _$rapyd$_Iter2, _$rapyd$_Index2, _$rapyd$_Iter3, _$rapyd$_Index3, args$1$0 = arguments;
             
                 return _$rapyd$_regenerator.regeneratorRuntime.wrap(function js_generator$(context$1$0) {
                     while (1) switch (context$1$0.prev = context$1$0.next) {
                     case 0:
-                        regexps = (args$1$0[0] === undefined || ( 0 === args$1$0.length-1 && args$1$0[args$1$0.length-1] !== null && typeof args$1$0[args$1$0.length-1] === "object" && args$1$0[args$1$0.length-1] [_$rapyd$_kwargs_symbol] === true)) ? (null) : args$1$0[0];
-                        rel = (args$1$0[1] === undefined || ( 1 === args$1$0.length-1 && args$1$0[args$1$0.length-1] !== null && typeof args$1$0[args$1$0.length-1] === "object" && args$1$0[args$1$0.length-1] [_$rapyd$_kwargs_symbol] === true)) ? (null) : args$1$0[1];
-                        selector = (args$1$0[2] === undefined || ( 2 === args$1$0.length-1 && args$1$0[args$1$0.length-1] !== null && typeof args$1$0[args$1$0.length-1] === "object" && args$1$0[args$1$0.length-1] [_$rapyd$_kwargs_symbol] === true)) ? (null) : args$1$0[2];
-                        filter_func = (args$1$0[3] === undefined || ( 3 === args$1$0.length-1 && args$1$0[args$1$0.length-1] !== null && typeof args$1$0[args$1$0.length-1] === "object" && args$1$0[args$1$0.length-1] [_$rapyd$_kwargs_symbol] === true)) ? (null) : args$1$0[3];
+                        win = ( 0 === args$1$0.length-1 && args$1$0[args$1$0.length-1] !== null && typeof args$1$0[args$1$0.length-1] === "object" && args$1$0[args$1$0.length-1] [_$rapyd$_kwargs_symbol] === true) ? undefined : args$1$0[0];
+                        regexps = (args$1$0[1] === undefined || ( 1 === args$1$0.length-1 && args$1$0[args$1$0.length-1] !== null && typeof args$1$0[args$1$0.length-1] === "object" && args$1$0[args$1$0.length-1] [_$rapyd$_kwargs_symbol] === true)) ? (null) : args$1$0[1];
+                        rel = (args$1$0[2] === undefined || ( 2 === args$1$0.length-1 && args$1$0[args$1$0.length-1] !== null && typeof args$1$0[args$1$0.length-1] === "object" && args$1$0[args$1$0.length-1] [_$rapyd$_kwargs_symbol] === true)) ? (null) : args$1$0[2];
+                        selector = (args$1$0[3] === undefined || ( 3 === args$1$0.length-1 && args$1$0[args$1$0.length-1] !== null && typeof args$1$0[args$1$0.length-1] === "object" && args$1$0[args$1$0.length-1] [_$rapyd$_kwargs_symbol] === true)) ? (null) : args$1$0[3];
+                        filter_func = (args$1$0[4] === undefined || ( 4 === args$1$0.length-1 && args$1$0[args$1$0.length-1] !== null && typeof args$1$0[args$1$0.length-1] === "object" && args$1$0[args$1$0.length-1] [_$rapyd$_kwargs_symbol] === true)) ? (null) : args$1$0[4];
                         _$rapyd$_kwargs_obj = args$1$0[args$1$0.length-1];
                         if (_$rapyd$_kwargs_obj === null || typeof _$rapyd$_kwargs_obj !== "object" || _$rapyd$_kwargs_obj [_$rapyd$_kwargs_symbol] !== true) _$rapyd$_kwargs_obj = {};
                         if (Object.prototype.hasOwnProperty.call(_$rapyd$_kwargs_obj, "regexps")){
@@ -3660,6 +3734,7 @@ var str = _$rapyd$_str;;
                             filter_func = _$rapyd$_kwargs_obj.filter_func;
                         }
                         selector = selector || ":-webkit-any-link, area, button, iframe, input:not([type=hidden]):not([disabled]), label[for], select, textarea, [onclick], [onmouseover], [onmousedown], [onmouseup], [oncommand], [tabindex], [role=link], [role=button], [contenteditable=true]";
+                        win = win || window;
                         if (regexps !== null) {
                             regexps = (function() {
                                 var _$rapyd$_Iter = _$rapyd$_Iterable(regexps), _$rapyd$_Result = [], pat;
@@ -3671,146 +3746,133 @@ var str = _$rapyd$_str;;
                                 return _$rapyd$_Result;
                             })();
                         }
-                        _$rapyd$_Iter0 = _$rapyd$_Iterable(all_frames());
+                        _$rapyd$_Iter0 = _$rapyd$_Iterable(win.document.querySelectorAll(selector));
                         _$rapyd$_Index0 = 0;
-                    case 14:
+                    case 16:
                         if (!(_$rapyd$_Index0 < _$rapyd$_Iter0.length)) {
-                            context$1$0.next = 73;
+                            context$1$0.next = 68;
                             break;
                         }
             
-                        win = _$rapyd$_Iter0[_$rapyd$_Index0];
-                        _$rapyd$_Iter1 = _$rapyd$_Iterable(win.document.querySelectorAll(selector));
-                        _$rapyd$_Index1 = 0;
-                    case 18:
-                        if (!(_$rapyd$_Index1 < _$rapyd$_Iter1.length)) {
-                            context$1$0.next = 70;
-                            break;
-                        }
-            
-                        elem = _$rapyd$_Iter1[_$rapyd$_Index1];
+                        elem = _$rapyd$_Iter0[_$rapyd$_Index0];
             
                         if (!(filter_func !== null && !filter_func(elem))) {
-                            context$1$0.next = 22;
+                            context$1$0.next = 20;
                             break;
                         }
             
-                        return context$1$0.abrupt("continue", 67);
-                    case 22:
+                        return context$1$0.abrupt("continue", 65);
+                    case 20:
                         matches = false;
             
                         if (!(rel !== null && elem.getAttribute("rel") === rel)) {
-                            context$1$0.next = 27;
+                            context$1$0.next = 25;
                             break;
                         }
             
                         matches = true;
-                        context$1$0.next = 64;
+                        context$1$0.next = 62;
                         break;
-                    case 27:
+                    case 25:
                         if (!(regexps === null)) {
-                            context$1$0.next = 31;
+                            context$1$0.next = 29;
                             break;
                         }
             
                         matches = true;
-                        context$1$0.next = 64;
+                        context$1$0.next = 62;
                         break;
+                    case 29:
+                        _$rapyd$_Iter1 = _$rapyd$_Iterable(regexps);
+                        _$rapyd$_Index1 = 0;
                     case 31:
-                        _$rapyd$_Iter2 = _$rapyd$_Iterable(regexps);
-                        _$rapyd$_Index2 = 0;
-                    case 33:
-                        if (!(_$rapyd$_Index2 < _$rapyd$_Iter2.length)) {
-                            context$1$0.next = 53;
+                        if (!(_$rapyd$_Index1 < _$rapyd$_Iter1.length)) {
+                            context$1$0.next = 51;
                             break;
                         }
             
-                        regexp = _$rapyd$_Iter2[_$rapyd$_Index2];
+                        regexp = _$rapyd$_Iter1[_$rapyd$_Index1];
             
                         if (!regexp.test(elem.textContent)) {
-                            context$1$0.next = 38;
+                            context$1$0.next = 36;
                             break;
                         }
             
                         matches = true;
-                        return context$1$0.abrupt("break", 53);
+                        return context$1$0.abrupt("break", 51);
+                    case 36:
+                        _$rapyd$_Iter2 = _$rapyd$_Iterable(elem.childNodes);
+                        _$rapyd$_Index2 = 0;
                     case 38:
-                        _$rapyd$_Iter3 = _$rapyd$_Iterable(elem.childNodes);
-                        _$rapyd$_Index3 = 0;
-                    case 40:
-                        if (!(_$rapyd$_Index3 < _$rapyd$_Iter3.length)) {
+                        if (!(_$rapyd$_Index2 < _$rapyd$_Iter2.length)) {
+                            context$1$0.next = 46;
+                            break;
+                        }
+            
+                        child = _$rapyd$_Iter2[_$rapyd$_Index2];
+            
+                        if (!regexp.test(child.alt)) {
+                            context$1$0.next = 43;
+                            break;
+                        }
+            
+                        matches = true;
+                        return context$1$0.abrupt("break", 46);
+                    case 43:
+                        _$rapyd$_Index2++;
+                        context$1$0.next = 38;
+                        break;
+                    case 46:
+                        if (!matches) {
                             context$1$0.next = 48;
                             break;
                         }
             
-                        child = _$rapyd$_Iter3[_$rapyd$_Index3];
-            
-                        if (!regexp.test(child.alt)) {
-                            context$1$0.next = 45;
-                            break;
-                        }
-            
-                        matches = true;
-                        return context$1$0.abrupt("break", 48);
-                    case 45:
-                        _$rapyd$_Index3++;
-                        context$1$0.next = 40;
-                        break;
+                        return context$1$0.abrupt("break", 51);
                     case 48:
-                        if (!matches) {
-                            context$1$0.next = 50;
-                            break;
-                        }
-            
-                        return context$1$0.abrupt("break", 53);
-                    case 50:
-                        _$rapyd$_Index2++;
-                        context$1$0.next = 33;
+                        _$rapyd$_Index1++;
+                        context$1$0.next = 31;
                         break;
-                    case 53:
+                    case 51:
                         if (matches) {
-                            context$1$0.next = 64;
+                            context$1$0.next = 62;
                             break;
                         }
             
-                        _$rapyd$_Iter4 = _$rapyd$_Iterable(regexps);
-                        _$rapyd$_Index4 = 0;
-                    case 56:
-                        if (!(_$rapyd$_Index4 < _$rapyd$_Iter4.length)) {
-                            context$1$0.next = 64;
+                        _$rapyd$_Iter3 = _$rapyd$_Iterable(regexps);
+                        _$rapyd$_Index3 = 0;
+                    case 54:
+                        if (!(_$rapyd$_Index3 < _$rapyd$_Iter3.length)) {
+                            context$1$0.next = 62;
                             break;
                         }
             
-                        regexp = _$rapyd$_Iter4[_$rapyd$_Index4];
+                        regexp = _$rapyd$_Iter3[_$rapyd$_Index3];
             
                         if (!regexp.test(elem.title)) {
-                            context$1$0.next = 61;
+                            context$1$0.next = 59;
                             break;
                         }
             
                         matches = true;
-                        return context$1$0.abrupt("break", 64);
-                    case 61:
-                        _$rapyd$_Index4++;
-                        context$1$0.next = 56;
+                        return context$1$0.abrupt("break", 62);
+                    case 59:
+                        _$rapyd$_Index3++;
+                        context$1$0.next = 54;
                         break;
-                    case 64:
+                    case 62:
                         if (!matches) {
-                            context$1$0.next = 67;
+                            context$1$0.next = 65;
                             break;
                         }
             
-                        context$1$0.next = 67;
+                        context$1$0.next = 65;
                         return elem;
-                    case 67:
-                        _$rapyd$_Index1++;
-                        context$1$0.next = 18;
-                        break;
-                    case 70:
+                    case 65:
                         _$rapyd$_Index0++;
-                        context$1$0.next = 14;
+                        context$1$0.next = 16;
                         break;
-                    case 73:
+                    case 68:
                     case "end":
                         return context$1$0.stop();
                     }
@@ -3823,14 +3885,15 @@ var str = _$rapyd$_str;;
         function iter_visible_links() {
             var marked0$0 = [js_generator].map(_$rapyd$_regenerator.regeneratorRuntime.mark);
             function js_generator() {
-                var regexps, rel, selector, _$rapyd$_kwargs_obj, args$1$0 = arguments;
+                var win, regexps, rel, selector, _$rapyd$_kwargs_obj, args$1$0 = arguments;
             
                 return _$rapyd$_regenerator.regeneratorRuntime.wrap(function js_generator$(context$1$0) {
                     while (1) switch (context$1$0.prev = context$1$0.next) {
                     case 0:
-                        regexps = (args$1$0[0] === undefined || ( 0 === args$1$0.length-1 && args$1$0[args$1$0.length-1] !== null && typeof args$1$0[args$1$0.length-1] === "object" && args$1$0[args$1$0.length-1] [_$rapyd$_kwargs_symbol] === true)) ? (null) : args$1$0[0];
-                        rel = (args$1$0[1] === undefined || ( 1 === args$1$0.length-1 && args$1$0[args$1$0.length-1] !== null && typeof args$1$0[args$1$0.length-1] === "object" && args$1$0[args$1$0.length-1] [_$rapyd$_kwargs_symbol] === true)) ? (null) : args$1$0[1];
-                        selector = (args$1$0[2] === undefined || ( 2 === args$1$0.length-1 && args$1$0[args$1$0.length-1] !== null && typeof args$1$0[args$1$0.length-1] === "object" && args$1$0[args$1$0.length-1] [_$rapyd$_kwargs_symbol] === true)) ? (null) : args$1$0[2];
+                        win = ( 0 === args$1$0.length-1 && args$1$0[args$1$0.length-1] !== null && typeof args$1$0[args$1$0.length-1] === "object" && args$1$0[args$1$0.length-1] [_$rapyd$_kwargs_symbol] === true) ? undefined : args$1$0[0];
+                        regexps = (args$1$0[1] === undefined || ( 1 === args$1$0.length-1 && args$1$0[args$1$0.length-1] !== null && typeof args$1$0[args$1$0.length-1] === "object" && args$1$0[args$1$0.length-1] [_$rapyd$_kwargs_symbol] === true)) ? (null) : args$1$0[1];
+                        rel = (args$1$0[2] === undefined || ( 2 === args$1$0.length-1 && args$1$0[args$1$0.length-1] !== null && typeof args$1$0[args$1$0.length-1] === "object" && args$1$0[args$1$0.length-1] [_$rapyd$_kwargs_symbol] === true)) ? (null) : args$1$0[2];
+                        selector = (args$1$0[3] === undefined || ( 3 === args$1$0.length-1 && args$1$0[args$1$0.length-1] !== null && typeof args$1$0[args$1$0.length-1] === "object" && args$1$0[args$1$0.length-1] [_$rapyd$_kwargs_symbol] === true)) ? (null) : args$1$0[3];
                         _$rapyd$_kwargs_obj = args$1$0[args$1$0.length-1];
                         if (_$rapyd$_kwargs_obj === null || typeof _$rapyd$_kwargs_obj !== "object" || _$rapyd$_kwargs_obj [_$rapyd$_kwargs_symbol] !== true) _$rapyd$_kwargs_obj = {};
                         if (Object.prototype.hasOwnProperty.call(_$rapyd$_kwargs_obj, "regexps")){
@@ -3844,11 +3907,11 @@ var str = _$rapyd$_str;;
                         }
             
                         return context$1$0.delegateYield(
-                            iter_links(_$rapyd$_desugar_kwargs({regexps: regexps, selector: selector, rel: rel, filter_func: is_visible})),
+                            iter_links(win, _$rapyd$_desugar_kwargs({regexps: regexps, selector: selector, rel: rel, filter_func: is_visible})),
                             "t0",
-                            9
+                            10
                         );
-                    case 9:
+                    case 10:
                     case "end":
                         return context$1$0.stop();
                     }
@@ -3865,35 +3928,102 @@ var str = _$rapyd$_str;;
 
     (function(){
         var __name__ = "follow_next";
-        var next_regexps, prev_regexps;
+        var next_regexps, prev_regexps, request_id, request_serviced, current_follow_next_candidate;
         var connect_signal = _$rapyd$_modules["qt"].connect_signal;
+        
+        var frame_iter = _$rapyd$_modules["frames"].frame_iter;
+        var broadcast_action = _$rapyd$_modules["frames"].broadcast_action;
+        var send_action = _$rapyd$_modules["frames"].send_action;
+        var register_handler = _$rapyd$_modules["frames"].register_handler;
         
         var iter_visible_links = _$rapyd$_modules["links"].iter_visible_links;
         
         var follow_link = _$rapyd$_modules["utils"].follow_link;
+        var is_visible = _$rapyd$_modules["utils"].is_visible;
         
         next_regexps = _$rapyd$_list_decorate([ /^\s*Next Page\s*$/i, /^\s*Next [>»]/i, /\bNext\b/i, /^>$/, /^(>>|»)$/, /^(>|»)/, /(>|»)$/, /\bMore\b/i ]);
         prev_regexps = _$rapyd$_list_decorate([ /^\s*Prev(ious)? Page\s*$/i, /[<«] Prev\s*$/i, /\bprev(ious)?\b/i, /^<$/, /^(<<|«)$/, /^(<|«)/, /(<|«)$/ ]);
-        function follow_next(forward) {
+        request_id = 0;
+        request_serviced = false;
+        function find_link_in_win(win, forward) {
             var regexps, rel, elem;
             regexps = (forward) ? next_regexps : prev_regexps;
             rel = (forward) ? "next" : "prev";
-            var _$rapyd$_Iter0 = _$rapyd$_Iterable(iter_visible_links(regexps, rel));
+            var _$rapyd$_Iter0 = _$rapyd$_Iterable(iter_visible_links(win, regexps, rel));
             for (var _$rapyd$_Index0 = 0; _$rapyd$_Index0 < _$rapyd$_Iter0.length; _$rapyd$_Index0++) {
                 elem = _$rapyd$_Iter0[_$rapyd$_Index0];
+                return elem;
+            }
+        }
+        function follow_next(forward) {
+            var elem;
+            elem = find_link_in_win(window.self, forward);
+            if (elem) {
+                follow_link(elem);
+            } else {
+                request_id += 1;
+                request_serviced = false;
+                broadcast_action(frame_iter(window.self, is_visible), "follow_next_search", request_id, forward);
+            }
+        }
+        function follow_next_found(current_frame_id, source_frame_id, source_frame, remote_request_id, was_found) {
+            var do_it;
+            if (!was_found) {
+                return;
+            }
+            do_it = remote_request_id === request_id && !request_serviced;
+            send_action(source_frame, "follow_next_execute", remote_request_id, do_it);
+            if (do_it) {
+                request_serviced = true;
+            }
+        }
+        current_follow_next_candidate = null;
+        function follow_next_search(current_frame_id, source_frame_id, source_frame, request_id, forward) {
+            var elem;
+            elem = find_link_in_win(window.self, forward);
+            if (elem) {
+                current_follow_next_candidate = [elem, request_id];
+            }
+            send_action(source_frame, "follow_next_found", request_id, bool(elem));
+        }
+        function follow_next_execute(current_frame_id, source_frame_id, source_frame, request_id, do_it) {
+            var _$rapyd$_unpack, elem, rid;
+            _$rapyd$_unpack = current_follow_next_candidate;
+            elem = _$rapyd$_unpack[0];
+            rid = _$rapyd$_unpack[1];
+            current_follow_next_candidate = null;
+            if (do_it && rid === request_id) {
                 follow_link(elem);
             }
         }
         function onload() {
             if (window.self === window.top) {
                 connect_signal("follow_next", follow_next);
+                register_handler("follow_next_found", follow_next_found);
+            } else {
+                register_handler("follow_next_search", follow_next_search);
+                register_handler("follow_next_execute", follow_next_execute);
             }
         }
         _$rapyd$_modules["follow_next"]["next_regexps"] = next_regexps;
 
         _$rapyd$_modules["follow_next"]["prev_regexps"] = prev_regexps;
 
+        _$rapyd$_modules["follow_next"]["request_id"] = request_id;
+
+        _$rapyd$_modules["follow_next"]["request_serviced"] = request_serviced;
+
+        _$rapyd$_modules["follow_next"]["current_follow_next_candidate"] = current_follow_next_candidate;
+
+        _$rapyd$_modules["follow_next"]["find_link_in_win"] = find_link_in_win;
+
         _$rapyd$_modules["follow_next"]["follow_next"] = follow_next;
+
+        _$rapyd$_modules["follow_next"]["follow_next_found"] = follow_next_found;
+
+        _$rapyd$_modules["follow_next"]["follow_next_search"] = follow_next_search;
+
+        _$rapyd$_modules["follow_next"]["follow_next_execute"] = follow_next_execute;
 
         _$rapyd$_modules["follow_next"]["onload"] = onload;
     })();

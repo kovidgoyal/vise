@@ -4,6 +4,7 @@
 def all_frames(doc):
     # Iterate over all frames in document, starting with window corresponding
     # to the document itself. Yields the window objects corresponding to each frame.
+    # Does not iterate over frames for which access is denied (cross origin frames)
     stack = v'[doc || window.document]'
     while stack.length > 0:
         document = stack.pop()
@@ -21,12 +22,12 @@ def all_frames(doc):
 
 def is_visible(elem):
     # Return True iff the element is visible on screen (does not handle
-    # elements covered by other elements, i.e. z-index)
+    # elements covered by other elements, i.e. z-index) Also does not check if
+    # the parent frame (if any is visible, as this is not allowed for cross origin
+    # frames.
     if not elem or not elem.ownerDocument:
         return False
     win = elem.ownerDocument.defaultView
-    if win.frameElement and not is_visible(win.frameElement):
-        return False
     rect = elem.getBoundingClientRect()
 
     if not rect or rect.bottom < 0 or rect.top > win.innerHeight or rect.left > win.innerWidth or rect.right < 0:

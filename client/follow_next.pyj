@@ -2,19 +2,65 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 from qt import connect_signal
+from frames import frame_iter, broadcast_action, send_action, register_handler
 from links import iter_visible_links
-from utils import follow_link
+from utils import follow_link, is_visible
 
 next_regexps = [/^\s*Next Page\s*$/i, /^\s*Next [>»]/i, /\bNext\b/i, /^>$/, /^(>>|»)$/, /^(>|»)/, /(>|»)$/, /\bMore\b/i]
 prev_regexps = [/^\s*Prev(ious)? Page\s*$/i, /[<«] Prev\s*$/i, /\bprev(ious)?\b/i, /^<$/, /^(<<|«)$/, /^(<|«)/, /(<|«)$/]
 
-def follow_next(forward):
+request_id = 0
+request_serviced = False
+
+def find_link_in_win(win, forward):
     regexps = next_regexps if forward else prev_regexps
     rel = 'next' if forward else 'prev'
-    for elem in iter_visible_links(regexps, rel):
+    for elem in iter_visible_links(win, regexps, rel):
+        return elem
+
+def follow_next(forward):
+    nonlocal request_id, request_serviced
+    elem = find_link_in_win(window.self, forward)
+    if elem:
         follow_link(elem)
+    else:
+        request_id += 1
+        request_serviced = False
+        broadcast_action(frame_iter(window.self, is_visible), 'follow_next_search', request_id, forward)
+
+def follow_next_found(current_frame_id, source_frame_id, source_frame, remote_request_id, was_found):
+    nonlocal request_serviced
+    if not was_found:
+        return
+    do_it = remote_request_id == request_id and not request_serviced
+    send_action(source_frame, 'follow_next_execute', remote_request_id, do_it)
+    if do_it:
+        request_serviced = True
+
+# Child frames {{{
+
+current_follow_next_candidate = None
+
+def follow_next_search(current_frame_id, source_frame_id, source_frame, request_id, forward):
+    nonlocal current_follow_next_candidate
+    elem = find_link_in_win(window.self, forward)
+    if elem:
+        current_follow_next_candidate = v'[elem, request_id]'
+    send_action(source_frame, 'follow_next_found', request_id, bool(elem))
+
+def follow_next_execute(current_frame_id, source_frame_id, source_frame, request_id, do_it):
+    nonlocal current_follow_next_candidate
+    elem, rid = current_follow_next_candidate
+    current_follow_next_candidate = None
+    if do_it and rid == request_id:
+        follow_link(elem)
+# }}}
 
 def onload():
     if window.self == window.top:
         connect_signal('follow_next', follow_next)
+        register_handler('follow_next_found', follow_next_found)
+    else:
+        register_handler('follow_next_search', follow_next_search)
+        register_handler('follow_next_execute', follow_next_execute)
 

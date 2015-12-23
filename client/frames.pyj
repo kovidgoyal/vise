@@ -54,6 +54,8 @@ def broadcast_message(windows, payload):
             win.postMessage(msg, '*')
     )
 
+handlers = {}
+
 def handle_message_from_frame(source, data):
     nonlocal frame_count, frame_id
     action = data.action
@@ -63,6 +65,12 @@ def handle_message_from_frame(source, data):
         post_message(source, {'action':'*set_id', 'value': frame_count})
     elif action == '*set_id':
         frame_id = data.value
+    else:
+        f = handlers[action]
+        if f:
+            args = data.args or []
+            kw = data.kwargs or {}
+            f(frame_id, frame_map[source], source, *args, **kw)
 
 def decode_message(event):
     if not event.data or event.data.type != 'ͻvise_frame_message':
@@ -78,12 +86,13 @@ def decode_message(event):
         console.error('Failed to decrypt frame message: ' + err.message)
     )
 
-def frame_iter(win):
+def frame_iter(win, filter_func=None):
     win = win or window.top
     for i in range(win.frames.length):
         frame = win.frames[i]
-        yield frame
-        yield from frame_iter(frame)
+        if filter_func is None or filter_func(frame.frameElement):
+            yield frame
+        yield from frame_iter(frame, filter_func=filter_func)
 
 def frame_for_id(frame_id):
     for frame in frame_iter():
@@ -100,3 +109,15 @@ def register_frames():
     if window.self != window.top and not registered:
         post_message(window.top, {'action':'*register'})
         registered = True
+
+def register_handler(name, func):
+    handlers[name] = func
+
+def prepare_action(name, args, kwargs):
+    return {'action':name, 'args':args, 'kwargs':kwargs}
+
+def send_action(win, name, *args, **kwargs):
+    post_message(win, prepare_action(name, args, kwargs))
+
+def broadcast_action(windows, name, *args, **kwargs):
+    broadcast_message(windows, prepare_action(name, args, kwargs))
