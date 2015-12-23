@@ -10,7 +10,7 @@ frame_map = WeakMap()
 def prepare_message(payload, cont):
     payload = JSON.stringify(payload)
     iv, data, tag = encrypt(payload)
-    cont({'type':'ͻvise_frame_message', 'iv':iv, 'encrypted_payload':data, 'encryption_tag':tag})
+    cont({'type':'ͻvise_frame_message', 'iv':iv, 'encrypted_payload':data, 'encryption_tag':tag, 'source_frame_id':frame_id})
 
 def post_message(win, payload):
     prepare_message(payload, def(msg):
@@ -25,7 +25,7 @@ def broadcast_message(windows, payload):
 
 handlers = {}
 
-def handle_message_from_frame(source, data):
+def handle_message_from_frame(source, source_id, data):
     nonlocal frame_count, frame_id
     action = data.action
     if action == '*register':
@@ -39,7 +39,7 @@ def handle_message_from_frame(source, data):
         if f:
             args = data.args or []
             kw = data.kwargs or {}
-            f(frame_id, frame_map[source], source, *args, **kw)
+            f(frame_id, source_id, source, *args, **kw)
 
 def decode_message(event):
     if not event.data or event.data.type != 'ͻvise_frame_message':
@@ -51,7 +51,7 @@ def decode_message(event):
         console.error('Failed to decrypt frame message: ' + err.message)
         return
     payload = JSON.parse(raw)
-    handle_message_from_frame(event.source, payload)
+    handle_message_from_frame(event.source, event.data.source_frame_id, payload)
 
 def frame_iter(win, filter_func=None):
     win = win or window.top
@@ -62,6 +62,8 @@ def frame_iter(win, filter_func=None):
         yield from frame_iter(frame, filter_func=filter_func)
 
 def frame_for_id(frame_id):
+    if frame_id == 0:
+        return window.top
     for frame in frame_iter():
         ans = frame_map.get(frame)
         if ans is not undefined:
