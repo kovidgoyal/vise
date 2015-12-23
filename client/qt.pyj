@@ -5,7 +5,6 @@
 
 bridge = None
 channel = None
-bridge_name = 'ͻ-qt-js-bridge'
 
 
 def qt_bridge():
@@ -37,6 +36,5 @@ def connect_bridge(proceed):
     channel = new QWebChannel(qt.webChannelTransport, def(channel):
         nonlocal bridge
         bridge = channel.objects.bridge
-        Object.defineProperty(window, bridge_name, {'value':bridge})
         proceed()
     )
