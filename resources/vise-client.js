@@ -2612,6 +2612,9 @@ var str = _$rapyd$_str;;
         forge = null;
         secret_key = "__SECRET_KEY__";
         function initialize(after) {
+            if (_$rapyd$_in("_", secret_key)) {
+                throw new Exception("secret key was not generated");
+            }
             forge = window.forge;
             if (!forge) {
                 setTimeout(function() {
@@ -2619,10 +2622,7 @@ var str = _$rapyd$_str;;
                 }, 0);
                 return;
             }
-            window.forge = undefined;
-            if (_$rapyd$_in("_", secret_key)) {
-                throw new Exception("secret key was not generated");
-            }
+            delete window.forge;
             secret_key = window.atob(secret_key);
             after();
         }
