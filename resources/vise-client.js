@@ -2949,6 +2949,9 @@ var str = _$rapyd$_str;;
         var __name__ = "middle_click";
         var qt_bridge = _$rapyd$_modules["qt"].qt_bridge;
         
+        var send_action = _$rapyd$_modules["frames"].send_action;
+        var register_handler = _$rapyd$_modules["frames"].register_handler;
+        
         function find_link(node) {
             if (node && node.nodeType === Node.ELEMENT_NODE) {
                 if (node.nodeName.toUpperCase() === "A" && node.getAttribute("href")) {
@@ -2957,8 +2960,11 @@ var str = _$rapyd$_str;;
                 return find_link(node.parentElement);
             }
         }
+        function middle_clicked(current_frame_id, source_frame_id, source_frame, href) {
+            qt_bridge().middle_clicked_link(href);
+        }
         function handle_middle_click(ev) {
-            var href, bridge;
+            var href;
             if (ev.button !== 1) {
                 return true;
             }
@@ -2966,20 +2972,18 @@ var str = _$rapyd$_str;;
             if (!href) {
                 return true;
             }
-            bridge = qt_bridge();
-            if (!bridge) {
-                console.error("The JS-to-python bridge is not initialized, ignoring middle click");
-                return true;
-            }
-            bridge.middle_clicked_link(href);
+            send_action(window.top, "middle_clicked", href);
             ev.preventDefault();
             ev.stopPropagation();
             return false;
         }
         function onload() {
+            register_handler("middle_clicked", middle_clicked);
             document.addEventListener("click", handle_middle_click);
         }
         _$rapyd$_modules["middle_click"]["find_link"] = find_link;
+
+        _$rapyd$_modules["middle_click"]["middle_clicked"] = middle_clicked;
 
         _$rapyd$_modules["middle_click"]["handle_middle_click"] = handle_middle_click;
 

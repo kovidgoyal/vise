@@ -2,6 +2,7 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 from qt import qt_bridge
+from frames import send_action, register_handler
 
 def find_link(node):
     if node and node.nodeType == Node.ELEMENT_NODE:
@@ -9,20 +10,20 @@ def find_link(node):
             return node.href  # absolute URL
         return find_link(node.parentElement)
 
+def middle_clicked(current_frame_id, source_frame_id, source_frame, href):
+    qt_bridge().middle_clicked_link(href)
+
 def handle_middle_click(ev):
     if ev.button != 1:
         return True
     href = find_link(ev.target)
     if not href:
         return True
-    bridge = qt_bridge()
-    if not bridge:
-        console.error('The JS-to-python bridge is not initialized, ignoring middle click')
-        return True
-    bridge.middle_clicked_link(href)
+    send_action(window.top, 'middle_clicked', href)
     ev.preventDefault()
     ev.stopPropagation()
     return False
 
 def onload():
+    register_handler('middle_clicked', middle_clicked)
     document.addEventListener('click', handle_middle_click)
