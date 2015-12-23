@@ -71,11 +71,17 @@ def frame_for_id(frame_id):
 
 def register_frames():
     nonlocal registered
-    window.removeEventListener('message', decode_message)
-    window.addEventListener('message', decode_message, False)
-    if window.self != window.top and not registered:
-        post_message(window.top, {'action':'*register'})
+    if window.self != window.top and window.location.href == 'about:blank':
+        # This is needed because of a bug in Blink or QtWebEngine. Without
+        # this, decode_message is called twice for every message in child
+        # frames. Basically, the context for the about:blank frame is not
+        # cleared, but merged.
+        return
+    if not registered:
         registered = True
+        window.addEventListener('message', decode_message, False)
+        if window.self != window.top:
+            post_message(window.top, {'action':'*register'})
 
 def register_handler(name, func):
     handlers[name] = func
