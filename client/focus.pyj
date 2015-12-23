@@ -2,6 +2,7 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 from qt import qt_bridge
+from frames import send_action, register_handler
 
 def text_editing_allowed(node):
     return not node.hasAttribute('readonly') and not node.hasAttribute('disabled')
@@ -17,6 +18,9 @@ def is_text_input_node(node):
                 return text_editing_allowed(node)
     return False
 
+def focus_event_received(current_frame_id, source_frame_id, source_frame, focussed):
+    qt_bridge().element_focused(focussed)
+
 def get_bridge(msg='ignoring focus event'):
     bridge = qt_bridge()
     if not bridge:
@@ -24,16 +28,10 @@ def get_bridge(msg='ignoring focus event'):
     return bridge
 
 def handle_focus_in(ev):
-    bridge = get_bridge()
-    if bridge:
-        bridge.element_focused(is_text_input_node(document.activeElement))
-    return True
+    send_action(window.top, 'focus_event_received', is_text_input_node(document.activeElement))
 
 def handle_focus_out(ev):
-    bridge = get_bridge()
-    if bridge:
-        bridge.element_focused(False)
-    return True
+    send_action(window.top, 'focus_event_received', False)
 
 edit_counter = 0
 
@@ -57,6 +55,8 @@ def set_editable_text(text, eid):
 def onload():
     document.addEventListener('focusin', handle_focus_in, True)
     document.addEventListener('focusout', handle_focus_out, True)
+    if window.self == window.top:
+        register_handler('focus_event_received', focus_event_received)
     if window.vise_get_editable_text is undefined:
         Object.defineProperty(window, 'vise_get_editable_text', {'value':get_editable_text})
         Object.defineProperty(window, 'vise_set_editable_text', {'value':set_editable_text})
