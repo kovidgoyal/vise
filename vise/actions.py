@@ -36,7 +36,7 @@ def exit_text_input(window, *args, **kwargs):
 
 def edit_text(window, *args, **kwargs):
     if window.current_tab is not None:
-        window.current_tab.page().runJavaScript('window.vise_get_editable_text()')
+        window.current_tab.page().bridge.get_editable_text.emit()
         return True
 
 

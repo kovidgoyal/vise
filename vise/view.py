@@ -15,7 +15,7 @@ from gettext import gettext as _
 from PyQt5.Qt import (
     QWebEngineView, QWebEnginePage, QSize, QNetworkRequest, QIcon,
     QApplication, QPixmap, pyqtSignal, QWebChannel, pyqtSlot, QObject,
-    QGridLayout, QCheckBox, QLabel
+    QGridLayout, QCheckBox, QLabel, Qt
 )
 
 from .auth import get_http_auth_credentials, get_proxy_auth_credentials
@@ -58,19 +58,20 @@ class Alert(Dialog):  # {{{
 # }}}
 
 
-def edit_text(pageref, text, eid):  # {{{
+def edit_text(bridgeref, text, frame_id, eid):  # {{{
     editor = shlex.split(os.environ.get('EDITOR', 'gvim -f'))
     with NamedTemporaryFile(suffix='.txt') as f:
         f.write(text.encode('utf-8'))
         f.flush()
         ret = subprocess.Popen(editor + [f.name]).wait()
         if ret == 0:
-            page = pageref()
-            if page is not None:
-                f.seek(0)
-                text = f.read().decode('utf-8')
-                page.runJavaScript('vise_set_editable_text(%s, %s)' % (
-                    json.dumps(text), json.dumps(eid)))
+            f.seek(0)
+            text = f.read().decode('utf-8')
+            # This signal can only be emitted in the GUI thread as it is
+            # connected to JavaScript code
+            bridge = bridgeref()
+            if bridge is not None:
+                bridge.set_editable_text_in_gui_thread.emit(text, frame_id, eid)
 # }}}
 
 
@@ -80,6 +81,13 @@ class Bridge(QObject):
     focus_changed = pyqtSignal(object)
     called_back = pyqtSignal(object, object)
     follow_next = pyqtSignal(bool)
+    get_editable_text = pyqtSignal()
+    set_editable_text_in_gui_thread = pyqtSignal(str, int, str)
+    set_editable_text = pyqtSignal(str, int, str)
+
+    def __init__(self, parent=None):
+        QObject.__init__(self, parent)
+        self.set_editable_text_in_gui_thread.connect(self.set_editable_text.emit, type=Qt.QueuedConnection)
 
     @pyqtSlot(str)
     def middle_clicked_link(self, href):
@@ -90,10 +98,10 @@ class Bridge(QObject):
     def element_focused(self, is_text_input):
         self.focus_changed.emit(bool(is_text_input))
 
-    @pyqtSlot(str, str)
-    def edit_text(self, text, eid):
-        pageref = weakref.ref(self.parent())
-        t = Thread(name='EditText', target=edit_text, args=(pageref, text, eid))
+    @pyqtSlot(str, int, str)
+    def edit_text(self, text, frame_id, eid):
+        bridgeref = weakref.ref(self)
+        t = Thread(name='EditText', target=edit_text, args=(bridgeref, text, frame_id, eid))
         t.daemon = True
         t.start()
 
@@ -102,7 +110,7 @@ class Bridge(QObject):
         self.called_back.emit(name, json.loads(json_encoded_data))
 
     def break_cycles(self):
-        for s in 'middle_clicked focus_changed called_back follow_next'.split():
+        for s in 'middle_clicked focus_changed called_back follow_next get_editable_text set_editable_text set_editable_text_in_gui_thread'.split():
             safe_disconnect(getattr(self, s))
 
 

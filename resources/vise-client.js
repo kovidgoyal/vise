@@ -2664,10 +2664,9 @@ var str = _$rapyd$_str;;
 
     (function(){
         var __name__ = "qt";
-        var bridge, channel, bridge_name;
+        var bridge, channel;
         bridge = null;
         channel = null;
-        bridge_name = "ͻ-qt-js-bridge";
         function qt_bridge() {
             return bridge;
         }
@@ -2701,17 +2700,12 @@ var str = _$rapyd$_str;;
             }
             channel = new QWebChannel(qt.webChannelTransport, function(channel) {
                 bridge = channel.objects.bridge;
-                Object.defineProperty(window, bridge_name, {
-                    "value": bridge
-                });
                 proceed();
             });
         }
         _$rapyd$_modules["qt"]["bridge"] = bridge;
 
         _$rapyd$_modules["qt"]["channel"] = channel;
-
-        _$rapyd$_modules["qt"]["bridge_name"] = bridge_name;
 
         _$rapyd$_modules["qt"]["qt_bridge"] = qt_bridge;
 
@@ -2745,7 +2739,8 @@ var str = _$rapyd$_str;;
                 "type": "ͻvise_frame_message",
                 "iv": iv,
                 "encrypted_payload": data,
-                "encryption_tag": tag
+                "encryption_tag": tag,
+                "source_frame_id": frame_id
             });
         }
         function post_message(win, payload) {
@@ -2764,12 +2759,12 @@ var str = _$rapyd$_str;;
             });
         }
         handlers = {};
-        function handle_message_from_frame(source, data) {
+        function handle_message_from_frame(source, source_id, data) {
             var action, f, args, kw;
             action = data.action;
             if (action === "*register") {
                 frame_count += 1;
-                frame_map[source] = frame_count;
+                frame_map.set(source, frame_count);
                 post_message(source, {
                     "action": "*set_id",
                     "value": frame_count
@@ -2781,7 +2776,7 @@ var str = _$rapyd$_str;;
                 if (f) {
                     args = data.args || _$rapyd$_list_decorate([]);
                     kw = data.kwargs || {};
-                    f.apply(this, [frame_id, frame_map[source], source].concat(args).concat([_$rapyd$_desugar_kwargs(kw)]));
+                    f.apply(this, [frame_id, source_id, source].concat(args).concat([_$rapyd$_desugar_kwargs(kw)]));
                 }
             }
         }
@@ -2803,7 +2798,7 @@ var str = _$rapyd$_str;;
                 }
             }
             payload = JSON.parse(raw);
-            handle_message_from_frame(event.source, payload);
+            handle_message_from_frame(event.source, event.data.source_frame_id, payload);
         }
         function frame_iter() {
             var marked0$0 = [js_generator].map(_$rapyd$_regenerator.regeneratorRuntime.mark);
@@ -2859,23 +2854,30 @@ var str = _$rapyd$_str;;
         }
         function frame_for_id(frame_id) {
             var ans, frame;
+            if (frame_id === 0) {
+                return window.top;
+            }
             var _$rapyd$_Iter1 = _$rapyd$_Iterable(frame_iter());
             for (var _$rapyd$_Index1 = 0; _$rapyd$_Index1 < _$rapyd$_Iter1.length; _$rapyd$_Index1++) {
                 frame = _$rapyd$_Iter1[_$rapyd$_Index1];
                 ans = frame_map.get(frame);
-                if (ans !== undefined) {
-                    return ans;
+                if (ans !== undefined && ans === frame_id) {
+                    return frame;
                 }
             }
         }
         function register_frames() {
-            window.removeEventListener("message", decode_message);
-            window.addEventListener("message", decode_message, false);
-            if (window.self !== window.top && !registered) {
-                post_message(window.top, {
-                    "action": "*register"
-                });
+            if (window.self !== window.top && window.location.href === "about:blank") {
+                return;
+            }
+            if (!registered) {
                 registered = true;
+                window.addEventListener("message", decode_message, false);
+                if (window.self !== window.top) {
+                    post_message(window.top, {
+                        "action": "*register"
+                    });
+                }
             }
         }
         function register_handler(name, func) {
@@ -2988,6 +2990,11 @@ var str = _$rapyd$_str;;
         var __name__ = "focus";
         var edit_counter;
         var qt_bridge = _$rapyd$_modules["qt"].qt_bridge;
+        var connect_signal = _$rapyd$_modules["qt"].connect_signal;
+        
+        var send_action = _$rapyd$_modules["frames"].send_action;
+        var register_handler = _$rapyd$_modules["frames"].register_handler;
+        var frame_for_id = _$rapyd$_modules["frames"].frame_for_id;
         
         function text_editing_allowed(node) {
             return !node.hasAttribute("readonly") && !node.hasAttribute("disabled");
@@ -3019,52 +3026,41 @@ var str = _$rapyd$_str;;
             }
             return false;
         }
-        function get_bridge() {
-            var msg = (arguments[0] === undefined || ( 0 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [_$rapyd$_kwargs_symbol] === true)) ? ("ignoring focus event") : arguments[0];
-            var _$rapyd$_kwargs_obj = arguments[arguments.length-1];
-            if (_$rapyd$_kwargs_obj === null || typeof _$rapyd$_kwargs_obj !== "object" || _$rapyd$_kwargs_obj [_$rapyd$_kwargs_symbol] !== true) _$rapyd$_kwargs_obj = {};
-            if (Object.prototype.hasOwnProperty.call(_$rapyd$_kwargs_obj, "msg")){
-                msg = _$rapyd$_kwargs_obj.msg;
-            }
-            var bridge;
-            bridge = qt_bridge();
-            if (!bridge) {
-                console.error("The JS-to-python bridge is not initialized, " + msg);
-            }
-            return bridge;
+        function focus_event_received(current_frame_id, source_frame_id, source_frame, focussed) {
+            qt_bridge().element_focused(focussed);
         }
         function handle_focus_in(ev) {
-            var bridge;
-            bridge = get_bridge();
-            if (bridge) {
-                bridge.element_focused(is_text_input_node(document.activeElement));
-            }
-            return true;
+            send_action(window.top, "focus_event_received", is_text_input_node(document.activeElement));
         }
         function handle_focus_out(ev) {
-            var bridge;
-            bridge = get_bridge();
-            if (bridge) {
-                bridge.element_focused(false);
-            }
-            return true;
+            send_action(window.top, "focus_event_received", false);
         }
         edit_counter = 0;
-        function get_editable_text() {
-            var bridge, elem, text;
-            bridge = get_bridge("ignoring get_editable_text()");
-            if (!bridge) {
-                return;
-            }
+        function export_edit_text_to_qt(current_frame_id, source_frame_id, source_frame, text, node_id) {
+            qt_bridge().edit_text(text, source_frame_id, node_id);
+        }
+        function find_editable_text(current_frame_id, source_frame_id, source_frame) {
+            var elem, text;
             elem = document.activeElement;
-            if (text_editing_allowed(elem)) {
+            if (elem.contentWindow) {
+                send_action(elem.contentWindow, "find_editable_text");
+            } else if (is_text_input_node(elem) && text_editing_allowed(elem)) {
                 text = elem.value;
                 edit_counter += 1;
                 elem.setAttribute("data-vise-edit-text", edit_counter + "");
-                bridge.edit_text(text || "", edit_counter + "");
+                send_action(window.top, "export_edit_text_to_qt", text || "", edit_counter + "");
             }
         }
-        function set_editable_text(text, eid) {
+        function set_editable_text(text, frame_id, eid) {
+            var win;
+            win = frame_for_id(frame_id);
+            if (!win) {
+                console.error("Cannot set editable text, frame with id: " + frame_id + " no longer exists");
+                return;
+            }
+            send_action(win, "set_edit_text", text, eid);
+        }
+        function set_edit_text(current_frame_id, source_frame_id, source_frame, text, eid) {
             var elem;
             elem = document.querySelector("[data-vise-edit-text=\"" + eid + "\"]");
             if (elem) {
@@ -3074,14 +3070,16 @@ var str = _$rapyd$_str;;
         function onload() {
             document.addEventListener("focusin", handle_focus_in, true);
             document.addEventListener("focusout", handle_focus_out, true);
-            if (window.vise_get_editable_text === undefined) {
-                Object.defineProperty(window, "vise_get_editable_text", {
-                    "value": get_editable_text
+            if (window.self === window.top) {
+                register_handler("focus_event_received", focus_event_received);
+                register_handler("export_edit_text_to_qt", export_edit_text_to_qt);
+                connect_signal("get_editable_text", function() {
+                    send_action(window.top, "find_editable_text");
                 });
-                Object.defineProperty(window, "vise_set_editable_text", {
-                    "value": set_editable_text
-                });
+                connect_signal("set_editable_text", set_editable_text);
             }
+            register_handler("find_editable_text", find_editable_text);
+            register_handler("set_edit_text", set_edit_text);
         }
         _$rapyd$_modules["focus"]["edit_counter"] = edit_counter;
 
@@ -3089,15 +3087,19 @@ var str = _$rapyd$_str;;
 
         _$rapyd$_modules["focus"]["is_text_input_node"] = is_text_input_node;
 
-        _$rapyd$_modules["focus"]["get_bridge"] = get_bridge;
+        _$rapyd$_modules["focus"]["focus_event_received"] = focus_event_received;
 
         _$rapyd$_modules["focus"]["handle_focus_in"] = handle_focus_in;
 
         _$rapyd$_modules["focus"]["handle_focus_out"] = handle_focus_out;
 
-        _$rapyd$_modules["focus"]["get_editable_text"] = get_editable_text;
+        _$rapyd$_modules["focus"]["export_edit_text_to_qt"] = export_edit_text_to_qt;
+
+        _$rapyd$_modules["focus"]["find_editable_text"] = find_editable_text;
 
         _$rapyd$_modules["focus"]["set_editable_text"] = set_editable_text;
+
+        _$rapyd$_modules["focus"]["set_edit_text"] = set_edit_text;
 
         _$rapyd$_modules["focus"]["onload"] = onload;
     })();
