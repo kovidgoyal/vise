@@ -3997,12 +3997,14 @@ var str = _$rapyd$_str;;
         }
         function follow_next_execute(current_frame_id, source_frame_id, source_frame, request_id, do_it) {
             var _$rapyd$_unpack, elem, rid;
-            _$rapyd$_unpack = current_follow_next_candidate;
-            elem = _$rapyd$_unpack[0];
-            rid = _$rapyd$_unpack[1];
-            current_follow_next_candidate = null;
-            if (do_it && rid === request_id) {
-                follow_link(elem);
+            if (current_follow_next_candidate) {
+                _$rapyd$_unpack = current_follow_next_candidate;
+                elem = _$rapyd$_unpack[0];
+                rid = _$rapyd$_unpack[1];
+                current_follow_next_candidate = null;
+                if (do_it && rid === request_id) {
+                    follow_link(elem);
+                }
             }
         }
         function onload() {

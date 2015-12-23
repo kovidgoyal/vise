@@ -50,10 +50,11 @@ def follow_next_search(current_frame_id, source_frame_id, source_frame, request_
 
 def follow_next_execute(current_frame_id, source_frame_id, source_frame, request_id, do_it):
     nonlocal current_follow_next_candidate
-    elem, rid = current_follow_next_candidate
-    current_follow_next_candidate = None
-    if do_it and rid == request_id:
-        follow_link(elem)
+    if current_follow_next_candidate:
+        elem, rid = current_follow_next_candidate
+        current_follow_next_candidate = None
+        if do_it and rid == request_id:
+            follow_link(elem)
 # }}}
 
 def onload():
