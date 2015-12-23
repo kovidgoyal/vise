@@ -28,48 +28,6 @@
                 return Object.prototype.hasOwnProperty.call(arr, val);
             };
         })();
-    function _$rapyd$_Iterable(iterable) {
-            var iterator, ans, result;
-            if (_$rapyd$_arraylike(iterable)) {
-                return iterable;
-            }
-            if (typeof iterable[_$rapyd$_iterator_symbol] === "function") {
-                iterator = (typeof Map === "function" && iterable instanceof Map) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]();
-                ans = _$rapyd$_list_decorate([]);
-                result = iterator.next();
-                while (!result.done) {
-                    ans.push(result.value);
-                    result = iterator.next();
-                }
-                return ans;
-            }
-            return Object.keys(iterable);
-        };
-    var _$rapyd$_desugar_kwargs = (function _$rapyd$_desugar_kwargs() {
-            if (typeof Object.assign === "function") {
-                return function() {
-                    var ans;
-                    ans = {};
-                    ans[_$rapyd$_kwargs_symbol] = true;
-                    for (var i = 0; i < arguments.length; i++) {
-                        Object.assign(ans, arguments[i]);
-                    }
-                    return ans;
-                };
-            }
-            return function() {
-                var ans, keys;
-                ans = {};
-                ans[_$rapyd$_kwargs_symbol] = true;
-                for (var i = 0; i < arguments.length; i++) {
-                    keys = Object.keys(arguments[i]);
-                    for (var j = 0; j < keys.length; j++) {
-                        ans[keys[j]] = arguments[i][keys[j]];
-                    }
-                }
-                return ans;
-            };
-        })();
     function range(start, stop, step) {
             var length;
             if (arguments.length <= 1) {
@@ -100,6 +58,23 @@
                 };
                 return _$rapyd$_d;
             })();
+        };
+    function _$rapyd$_Iterable(iterable) {
+            var iterator, ans, result;
+            if (_$rapyd$_arraylike(iterable)) {
+                return iterable;
+            }
+            if (typeof iterable[_$rapyd$_iterator_symbol] === "function") {
+                iterator = (typeof Map === "function" && iterable instanceof Map) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]();
+                ans = _$rapyd$_list_decorate([]);
+                result = iterator.next();
+                while (!result.done) {
+                    ans.push(result.value);
+                    result = iterator.next();
+                }
+                return ans;
+            }
+            return Object.keys(iterable);
         };
     var _$rapyd$_regenerator = {};
     !(function(global) {
@@ -646,6 +621,31 @@
         }
       };
     })(_$rapyd$_regenerator);
+    var _$rapyd$_desugar_kwargs = (function _$rapyd$_desugar_kwargs() {
+            if (typeof Object.assign === "function") {
+                return function() {
+                    var ans;
+                    ans = {};
+                    ans[_$rapyd$_kwargs_symbol] = true;
+                    for (var i = 0; i < arguments.length; i++) {
+                        Object.assign(ans, arguments[i]);
+                    }
+                    return ans;
+                };
+            }
+            return function() {
+                var ans, keys;
+                ans = {};
+                ans[_$rapyd$_kwargs_symbol] = true;
+                for (var i = 0; i < arguments.length; i++) {
+                    keys = Object.keys(arguments[i]);
+                    for (var j = 0; j < keys.length; j++) {
+                        ans[keys[j]] = arguments[i][keys[j]];
+                    }
+                }
+                return ans;
+            };
+        })();
     var Exception = Error;
 function AttributeError() {
     AttributeError.prototype.__init__.apply(this, arguments);
@@ -2595,6 +2595,7 @@ var str = _$rapyd$_str;;
         };
     var _$rapyd$_modules = {};
     _$rapyd$_modules["qt"] = {};
+    _$rapyd$_modules["frames"] = {};
     _$rapyd$_modules["middle_click"] = {};
     _$rapyd$_modules["focus"] = {};
     _$rapyd$_modules["elementmaker"] = {};
@@ -2606,15 +2607,11 @@ var str = _$rapyd$_str;;
 
     (function(){
         var __name__ = "qt";
-        var bridge, channel, bridge_name, secret_key;
+        var bridge, channel, bridge_name;
         bridge = null;
         channel = null;
         bridge_name = "ͻ-qt-js-bridge";
-        secret_key = "__SECRET_KEY__";
         function qt_bridge() {
-            if (window.self !== window.top) {
-                return window.top[bridge_name];
-            }
             return bridge;
         }
         function callback(name, data, console_err) {
@@ -2641,9 +2638,6 @@ var str = _$rapyd$_str;;
             }
         }
         function connect_bridge(proceed) {
-            if (_$rapyd$_in("_", secret_key)) {
-                throw new Exception("secret key was not generated");
-            }
             if (window.self !== window.top) {
                 proceed();
                 return;
@@ -2662,8 +2656,6 @@ var str = _$rapyd$_str;;
 
         _$rapyd$_modules["qt"]["bridge_name"] = bridge_name;
 
-        _$rapyd$_modules["qt"]["secret_key"] = secret_key;
-
         _$rapyd$_modules["qt"]["qt_bridge"] = qt_bridge;
 
         _$rapyd$_modules["qt"]["callback"] = callback;
@@ -2671,6 +2663,198 @@ var str = _$rapyd$_str;;
         _$rapyd$_modules["qt"]["connect_signal"] = connect_signal;
 
         _$rapyd$_modules["qt"]["connect_bridge"] = connect_bridge;
+    })();
+
+    (function(){
+        var __name__ = "frames";
+        var frame_count, frame_id, _$rapyd$_chain_assign_temp, registered, frame_map, secret_key, key_bytes, i;
+        _$rapyd$_chain_assign_temp = 0;
+        frame_count = _$rapyd$_chain_assign_temp;
+        frame_id = _$rapyd$_chain_assign_temp;
+;
+        registered = false;
+        frame_map = new WeakMap();
+        secret_key = "__SECRET_KEY__";
+        if (_$rapyd$_in("_", secret_key)) {
+            throw new Exception("secret key was not generated");
+        }
+        secret_key = window.atob(secret_key);
+        key_bytes = new Uint8Array(secret_key.length);
+        for (i = 0; i < secret_key.length; i++) {
+            key_bytes[i] = secret_key.charCodeAt(i);
+        }
+        window.crypto.subtle.importKey("raw", key_bytes.buffer, {
+            "name": "AES-GCM"
+        }, false, _$rapyd$_list_decorate([ "encrypt", "decrypt" ])).then(function(key) {
+            secret_key = key;
+            register_frames();
+        }).catch(function(err) {
+            console.error("Failed to create Crypto key for frames: " + err.message);
+        });
+        secret_key = null;
+        key_bytes = undefined;
+        function prepare_message(payload, cont) {
+            var buf, i, iv;
+            payload = JSON.stringify(payload);
+            buf = new Uint16Array(payload.length);
+            for (i = 0; i < payload.length; i++) {
+                buf[i] = payload.charCodeAt(i);
+            }
+            iv = window.crypto.getRandomValues(new Uint8Array(16));
+            window.crypto.subtle.encrypt({
+                "name": "AES-GCM",
+                "iv": iv,
+                "tagLength": 128
+            }, secret_key, buf.buffer).then(function(array_buf) {
+                cont({
+                    "type": "ͻvise_frame_message",
+                    "iv": iv,
+                    "encrypted_payload": new Uint8Array(array_buf)
+                });
+            }).catch(function(err) {
+                console.error(err.stack);
+                console.error("Failed to encrypt and post frame message: " + err.message);
+            });
+        }
+        function post_message(win, payload) {
+            prepare_message(payload, function(msg) {
+                win.postMessage(msg, "*");
+            });
+        }
+        function broadcast_message(windows, payload) {
+            prepare_message(payload, function(msg) {
+                var win;
+                var _$rapyd$_Iter0 = _$rapyd$_Iterable(windows);
+                for (var _$rapyd$_Index0 = 0; _$rapyd$_Index0 < _$rapyd$_Iter0.length; _$rapyd$_Index0++) {
+                    win = _$rapyd$_Iter0[_$rapyd$_Index0];
+                    win.postMessage(msg, "*");
+                }
+            });
+        }
+        function handle_message_from_frame(source, data) {
+            var action;
+            action = data.action;
+            if (action === "*register") {
+                frame_count += 1;
+                frame_map[source] = frame_count;
+                post_message(source, {
+                    "action": "*set_id",
+                    "value": frame_count
+                });
+            } else if (action === "*set_id") {
+                frame_id = data.value;
+                print(111111111);
+            }
+        }
+        function decode_message(event) {
+            if (!event.data || event.data.type !== "ͻvise_frame_message") {
+                return;
+            }
+            window.crypto.subtle.decrypt({
+                "name": "AES-GCM",
+                "iv": event.data.iv,
+                "tagLength": 128
+            }, secret_key, event.data.encrypted_payload).then(function(buf) {
+                var payload;
+                buf = new Uint16Array(buf);
+                buf = String.fromCharCode.apply(null, new Uint16Array(buf, 0, buf.byteLength / 2));
+                payload = JSON.parse(buf);
+                handle_message_from_frame(event.source, payload);
+            }).catch(function(err) {
+                console.error(err.stack);
+                console.error("Failed to decrypt frame message: " + err.message);
+            });
+        }
+        function frame_iter() {
+            var marked0$0 = [js_generator].map(_$rapyd$_regenerator.regeneratorRuntime.mark);
+            function js_generator(win) {
+                var frame, i;
+            
+                return _$rapyd$_regenerator.regeneratorRuntime.wrap(function js_generator$(context$1$0) {
+                    while (1) switch (context$1$0.prev = context$1$0.next) {
+                    case 0:
+                        win = win || window.top;
+                        i = 0;
+                    case 2:
+                        if (!(i < win.frames.length)) {
+                            context$1$0.next = 10;
+                            break;
+                        }
+            
+                        frame = win.frames[i];
+                        context$1$0.next = 6;
+                        return frame;
+                    case 6:
+                        return context$1$0.delegateYield(frame_iter(frame), "t0", 7);
+                    case 7:
+                        i++;
+                        context$1$0.next = 2;
+                        break;
+                    case 10:
+                    case "end":
+                        return context$1$0.stop();
+                    }
+                }, marked0$0[0], this);
+            }
+            var result = js_generator.apply(this, arguments);
+            result.send = result.next;
+            return result;
+        }
+        function frame_for_id(frame_id) {
+            var ans, frame;
+            var _$rapyd$_Iter1 = _$rapyd$_Iterable(frame_iter());
+            for (var _$rapyd$_Index1 = 0; _$rapyd$_Index1 < _$rapyd$_Iter1.length; _$rapyd$_Index1++) {
+                frame = _$rapyd$_Iter1[_$rapyd$_Index1];
+                ans = frame_map.get(frame);
+                if (ans !== undefined) {
+                    return ans;
+                }
+            }
+        }
+        function register_frames() {
+            if (!secret_key) {
+                return;
+            }
+            window.removeEventListener("message", decode_message);
+            window.addEventListener("message", decode_message, false);
+            if (window.self !== window.top && !registered) {
+                post_message(window.top, {
+                    "action": "*register"
+                });
+                registered = true;
+            }
+        }
+        _$rapyd$_modules["frames"]["frame_count"] = frame_count;
+
+        _$rapyd$_modules["frames"]["frame_id"] = frame_id;
+
+        _$rapyd$_modules["frames"]["_$rapyd$_chain_assign_temp"] = _$rapyd$_chain_assign_temp;
+
+        _$rapyd$_modules["frames"]["registered"] = registered;
+
+        _$rapyd$_modules["frames"]["frame_map"] = frame_map;
+
+        _$rapyd$_modules["frames"]["secret_key"] = secret_key;
+
+        _$rapyd$_modules["frames"]["key_bytes"] = key_bytes;
+
+        _$rapyd$_modules["frames"]["i"] = i;
+
+        _$rapyd$_modules["frames"]["prepare_message"] = prepare_message;
+
+        _$rapyd$_modules["frames"]["post_message"] = post_message;
+
+        _$rapyd$_modules["frames"]["broadcast_message"] = broadcast_message;
+
+        _$rapyd$_modules["frames"]["handle_message_from_frame"] = handle_message_from_frame;
+
+        _$rapyd$_modules["frames"]["decode_message"] = decode_message;
+
+        _$rapyd$_modules["frames"]["frame_iter"] = frame_iter;
+
+        _$rapyd$_modules["frames"]["frame_for_id"] = frame_for_id;
+
+        _$rapyd$_modules["frames"]["register_frames"] = register_frames;
     })();
 
     (function(){
@@ -3721,6 +3905,8 @@ var str = _$rapyd$_str;;
 
         var connect_bridge = _$rapyd$_modules["qt"].connect_bridge;
         
+        var register_frames = _$rapyd$_modules["frames"].register_frames;
+        
         var mc_onload = _$rapyd$_modules["middle_click"].onload;
         
         var focus_onload = _$rapyd$_modules["focus"].onload;
@@ -3746,5 +3932,6 @@ var str = _$rapyd$_str;;
         }
         document.removeEventListener("DOMContentLoaded", on_document_loaded);
         document.addEventListener("DOMContentLoaded", on_document_loaded);
+        register_frames();
     })();
 })();

@@ -1,0 +1,97 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+
+frame_count = frame_id = 0
+registered = False
+frame_map = WeakMap()
+
+secret_key = '__SECRET_KEY__'  # This is replaced by a secret generated from os.urandom
+if '_' in secret_key:
+    raise Exception('secret key was not generated')
+secret_key = window.atob(secret_key)
+key_bytes = new Uint8Array(secret_key.length)
+for i in range(secret_key.length):
+    key_bytes[i] = secret_key.charCodeAt(i)
+window.crypto.subtle.importKey('raw', key_bytes.buffer, {'name': 'AES-GCM'}, False, ['encrypt', 'decrypt']).then(
+    def (key):
+        nonlocal secret_key
+        secret_key = key
+        register_frames()
+).catch(
+    def (err):
+    console.error('Failed to create Crypto key for frames: ' + err.message)
+)
+secret_key = None
+key_bytes = undefined
+
+def prepare_message(payload, cont):
+    payload = JSON.stringify(payload)
+    buf = new Uint16Array(payload.length)
+    for i in range(payload.length):
+        buf[i] = payload.charCodeAt(i)
+    iv = window.crypto.getRandomValues(new Uint8Array(16))
+    window.crypto.subtle.encrypt({'name':'AES-GCM', 'iv':iv, 'tagLength':128}, secret_key, buf.buffer).then(
+        def (array_buf):
+            cont({'type':'ͻvise_frame_message', 'iv':iv, 'encrypted_payload':new Uint8Array(array_buf)})
+    ).catch(def (err):
+        console.error(err.stack)
+        console.error('Failed to encrypt and post frame message: ' + err.message)
+    )
+
+def post_message(win, payload):
+    prepare_message(payload, def(msg):
+        win.postMessage(msg, '*')
+    )
+
+def broadcast_message(windows, payload):
+    prepare_message(payload, def(msg):
+        for win in windows:
+            win.postMessage(msg, '*')
+    )
+
+def handle_message_from_frame(source, data):
+    nonlocal frame_count, frame_id
+    action = data.action
+    if action == '*register':
+        frame_count += 1
+        frame_map[source] = frame_count
+        post_message(source, {'action':'*set_id', 'value': frame_count})
+    elif action == '*set_id':
+        frame_id = data.value
+
+def decode_message(event):
+    if not event.data or event.data.type != 'ͻvise_frame_message':
+        return
+    window.crypto.subtle.decrypt({'name':'AES-GCM', 'iv':event.data.iv, 'tagLength':128}, secret_key, event.data.encrypted_payload).then(
+        def(buf):
+            buf = new Uint16Array(buf)
+            buf = String.fromCharCode.apply(None, new Uint16Array(buf, 0, buf.byteLength / 2))
+            payload = JSON.parse(buf)
+            handle_message_from_frame(event.source, payload)
+    ).catch(def (err):
+        console.error(err.stack)
+        console.error('Failed to decrypt frame message: ' + err.message)
+    )
+
+def frame_iter(win):
+    win = win or window.top
+    for i in range(win.frames.length):
+        frame = win.frames[i]
+        yield frame
+        yield from frame_iter(frame)
+
+def frame_for_id(frame_id):
+    for frame in frame_iter():
+        ans = frame_map.get(frame)
+        if ans is not undefined:
+            return ans
+
+def register_frames():
+    nonlocal registered
+    if not secret_key:
+        return
+    window.removeEventListener('message', decode_message)
+    window.addEventListener('message', decode_message, False)
+    if window.self != window.top and not registered:
+        post_message(window.top, {'action':'*register'})
+        registered = True

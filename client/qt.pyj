@@ -6,13 +6,9 @@
 bridge = None
 channel = None
 bridge_name = 'ͻ-qt-js-bridge'
-secret_key = '__SECRET_KEY__'  # This is replaced by a secret generated from os.urandom
 
 
 def qt_bridge():
-    nonlocal bridge
-    if window.self != window.top:
-        return window.top[bridge_name]
     return bridge
 
 def callback(name, data, console_err):
@@ -35,8 +31,6 @@ def connect_signal(name, func):
 
 def connect_bridge(proceed):
     nonlocal channel
-    if '_' in secret_key:
-        raise Exception('secret key was not generated')
     if window.self != window.top:
         proceed()
         return  # Do not connect in child frames

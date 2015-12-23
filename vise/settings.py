@@ -6,7 +6,6 @@ import os
 import apsw
 import json
 from base64 import standard_b64decode, standard_b64encode
-from binascii import hexlify
 from collections import defaultdict
 
 from PyQt5.Qt import (
@@ -142,7 +141,7 @@ def client_script():
     # Has to be in main world for the webChannelTransport to work
     name = '%s-client.js' % appname
     src = get_data(name).decode('utf-8')
-    src = src.replace('__SECRET_KEY__', hexlify(os.urandom(32)).decode('ascii'))
+    src = src.replace('__SECRET_KEY__', (standard_b64encode(os.urandom(32))).decode('ascii'))
     return create_script(name, src)
 
 
