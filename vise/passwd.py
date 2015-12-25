@@ -62,14 +62,22 @@ class PasswordStore:
         fname = self.generate_file_name(key)
         return self.read_data(fname)[1]
 
+    def __iter__(self):
+        for entry in os.scandir(self.root):
+            if not entry.is_symlink() and entry.is_file(follow_symlinks=False):
+                name = entry.name
+                if '.' not in name and '-' not in name:
+                    yield name
+
     def get_all_data(self):
         self.derive_worker.join()
         if self.key_error is not None:
             raise self.key_error
-        for name in os.listdir(self.root):
-            if '.' in name:
-                continue
-            key, data = self.read_data(name)
+        for name in self:
+            try:
+                key, data = self.read_data(name)
+            except Exception:
+                key = None
             if key is not None:
                 yield key, data
 
@@ -83,8 +91,7 @@ class PasswordStore:
         if isinstance(data, str):
             data = data.encode('utf-8')
         data, nonce = encrypt_v1(key + data, self.key)
-        with open(os.path.join(self.root, fname), 'wb') as f:
-            f.write(nonce), f.write(data)
+        atomic_write(os.path.join(self.root, fname), nonce + data)
 
     def read_data(self, fname):
         try:
