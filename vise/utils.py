@@ -254,6 +254,10 @@ def atomic_write(dest, data_or_file):
                 shutil.copyfileobj(data_or_file, f)
             else:
                 f.write(data_or_file)
+        try:
+            shutil.copystat(dest, tdest)
+        except FileNotFoundError:
+            pass
         os.replace(tdest, dest)
     finally:
         try:
