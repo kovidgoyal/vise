@@ -99,12 +99,21 @@ def random_bytes(num):
     return x.raw
 
 
+def generate_salt_v1():
+    return random_bytes(crypto_pwhash_scryptsalsa208sha256_saltbytes())
+
+
+def lock_python_bytes(data):
+    if sodium_mlock(cast(data, c_void_p), len(data)) != 0:
+        raise RuntimeError('Failed to lock the memory used by the derived key')
+
+
 def derive_key_v1(passwd, salt=None):
     key_len = crypto_secretbox_keybytes()
     if key_len != 32:
         raise RuntimeError('secretbox key length has changed')
     if salt is None:
-        salt = random_bytes(crypto_pwhash_scryptsalsa208sha256_saltbytes())
+        salt = generate_salt_v1()
     if not isinstance(passwd, bytes):
         passwd = passwd.encode('utf-8')
     out = create_string_buffer(key_len)
@@ -114,9 +123,12 @@ def derive_key_v1(passwd, salt=None):
             crypto_pwhash_scryptsalsa208sha256_opslimit_sensitive(), crypto_pwhash_scryptsalsa208sha256_memlimit_sensitive()) != 0:
         raise MemoryError('Out of memory deriving key from password')
     key = out.raw
-    if sodium_mlock(cast(key, c_void_p), len(key)) != 0:
-        raise RuntimeError('Failed to lock the memory used by the derived key')
+    lock_python_bytes(key)
     return key, salt
+
+
+def nonce_size_v1():
+    return crypto_secretbox_noncebytes()
 
 
 def encrypt_v1(data, key):
@@ -124,8 +136,8 @@ def encrypt_v1(data, key):
         raise RuntimeError('libsodium cryptobox primitive has changed')
     if not isinstance(data, bytes):
         data = data.encode('utf-8')
-    nonce = create_string_buffer(crypto_secretbox_noncebytes())
-    randombytes_buf(nonce, crypto_secretbox_noncebytes())
+    nonce = create_string_buffer(nonce_size_v1())
+    randombytes_buf(nonce, nonce_size_v1())
     ciphertext_len = len(data) + crypto_secretbox_macbytes()
     ciphertext = create_string_buffer(ciphertext_len)
     crypto_secretbox_easy(cast(ciphertext, c_ubyte_p), cast(data, c_ubyte_p), len(data), cast(nonce, c_ubyte_p), cast(key, c_ubyte_p))
