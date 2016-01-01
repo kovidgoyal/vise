@@ -11,9 +11,9 @@ from binascii import hexlify, unhexlify
 from threading import Thread
 from urllib.parse import urlparse
 
-from .constants import config_dir
-from .crypto import derive_key_v1, generate_salt_v1, nonce_size_v1, decrypt_v1, encrypt_v1, lock_python_bytes, MessageForged
-from .utils import atomic_write
+from ..constants import config_dir
+from ..crypto import derive_key_v1, generate_salt_v1, nonce_size_v1, decrypt_v1, encrypt_v1, lock_python_bytes, MessageForged
+from ..utils import atomic_write
 
 
 class PasswordWrong(ValueError):
@@ -123,16 +123,23 @@ class PasswordStore:  # {{{
             if key is not None:
                 yield key, data
 
-    def set_data(self, key, data):
+    def set_data(self, key, data=None):
         self.join()
         fname = self.generate_file_name(key)
         if isinstance(key, str):
             key = key.encode('utf-8')
         if isinstance(data, str):
             data = data.encode('utf-8')
-        keysize = struct.pack('!I', len(key))
-        data, nonce = encrypt_v1(keysize + key + data, self.key)
-        atomic_write(os.path.join(self.root, fname), struct.pack('!H', 1) + nonce + data)
+        fpath = os.path.join(self.root, fname)
+        if data is None:
+            try:
+                os.remove(fpath)
+            except FileNotFoundError:
+                pass
+        else:
+            keysize = struct.pack('!I', len(key))
+            data, nonce = encrypt_v1(keysize + key + data, self.key)
+            atomic_write(fpath, struct.pack('!H', 1) + nonce + data)
 
     def change_password(self, new_password):
         self.join()
@@ -192,7 +199,17 @@ class PasswordDB:
         return json.loads(data.decode('utf-8'))
 
     def __setitem__(self, key, val):
-        self.store.set_data(key, json.dumps(val))
+        if val is None:
+            self.store.set_data(key)
+        else:
+            self.store.set_data(key, json.dumps(val))
+
+    def __delitem__(self, key):
+        self[key] = None
+
+    def __iter__(self):
+        for key, data in self.store.get_all_data():
+            yield key
 
     def add_account(self, key, username, password, notes=None):
         data = self[key]
@@ -200,6 +217,15 @@ class PasswordDB:
         accounts.insert(0, {'username': username, 'password': password, 'notes': notes})
         data['accounts'] = accounts
         self[key] = data
+
+    def remove_account(self, key, username):
+        data = self[key]
+        accounts = [a for a in data['accounts'] if a['username'] != username]
+        if accounts:
+            data['accounts'] = accounts
+            self[key] = data
+        else:
+            del self[key]
 
 
 def import_lastpass_db(path, password_for_store):
