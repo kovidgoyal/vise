@@ -9,6 +9,7 @@ import struct
 import tempfile
 from binascii import hexlify, unhexlify
 from threading import Thread
+from urllib.parse import urlparse
 
 from .constants import config_dir
 from .crypto import derive_key_v1, generate_salt_v1, nonce_size_v1, decrypt_v1, encrypt_v1, lock_python_bytes, MessageForged
@@ -19,10 +20,10 @@ class PasswordWrong(ValueError):
     pass
 
 
-class PasswordStore:
+class PasswordStore:  # {{{
 
     def __init__(self, password, dirpath=None):
-        dirpath = dirpath or os.path.join(config_dir, 'passwd')
+        dirpath = os.path.realpath(dirpath or os.path.join(config_dir, 'passwd'))
         self.root = dirpath
         if isinstance(password, str):
             password = password.encode('utf-8')
@@ -34,7 +35,7 @@ class PasswordStore:
         self.metadata_path = os.path.join(self.root, 'metadata.json')
         try:
             with open(self.metadata_path, 'rb') as f:
-                self.metadata = json.load(f)
+                self.metadata = json.loads(f.read().decode('utf-8'))
         except FileNotFoundError:
             self.metadata = {
                 'version': 1,
@@ -80,13 +81,20 @@ class PasswordStore:
         if self.key_error is not None:
             raise self.key_error
 
-    def get_data(self, key):
-        self.join()
-        fname = self.generate_file_name(key)
+    def read_data(self, fname, key=None):
         try:
-            return self.read_data(fname)[1]
-        except MessageForged:
-            raise ValueError('The data for %s is corrupted' % key)
+            with open(os.path.join(self.root, fname), 'rb') as f:
+                version = f.read(2)
+                if struct.unpack('!H', version)[0] != 1:
+                    raise ValueError('Unsupported encryption version')
+                nonce = f.read(nonce_size_v1())
+                data = decrypt_v1(f.read(), nonce, key or self.key)
+                keysize, = struct.unpack_from('!I', data)
+                offset = struct.calcsize('!I')
+                key = data[offset:keysize + offset].decode('utf-8')
+                return key, data[keysize + offset:]
+        except FileNotFoundError:
+            return None, None
 
     def __iter__(self):
         for entry in os.scandir(self.root):
@@ -94,6 +102,16 @@ class PasswordStore:
                 name = entry.name
                 if '.' not in name and '-' not in name:
                     yield name
+
+    # External API {{{
+
+    def get_data(self, key):
+        self.join()
+        fname = self.generate_file_name(key)
+        try:
+            return self.read_data(fname)[1]
+        except MessageForged:
+            raise ValueError('The data for %s is corrupted' % key)
 
     def get_all_data(self):
         self.join()
@@ -133,21 +151,8 @@ class PasswordStore:
                 pass
             else:
                 self.set_data(key, data)
-
-    def read_data(self, fname, key=None):
-        try:
-            with open(os.path.join(self.root, fname), 'rb') as f:
-                version = f.read(2)
-                if struct.unpack('!H', version)[0] != 1:
-                    raise ValueError('Unsupported encryption version')
-                nonce = f.read(nonce_size_v1())
-                data = decrypt_v1(f.read(), nonce, key or self.key)
-                keysize, = struct.unpack_from('!I', data)
-                offset = struct.calcsize('!I')
-                key = data[offset:keysize + offset].decode('utf-8')
-                return key, data[keysize + offset:]
-        except FileNotFoundError:
-            return None, None
+    # }}}
+# }}}
 
 
 def test():
@@ -159,3 +164,45 @@ def test():
         assert tuple(p.get_all_data()) == (('a', b'one'),)
         p.change_password('pw2')
         assert tuple(p.get_all_data()) == (('a', b'one'),)
+
+
+def key_from_url(url):
+    u = urlparse(url)
+    key = 'netloc:' + u.netloc
+    if u.port is not None:
+        key += ':{}'.format(u.port)
+    return key
+
+
+class PasswordDB:
+
+    def __init__(self, password, path=None):
+        self.store = PasswordStore(password, path)
+
+    def __getitem__(self, key):
+        data = self.store.get_data(key)
+        if data is None:
+            return {'version': 1, 'accounts': []}
+        return json.loads(data.decode('utf-8'))
+
+    def __setitem__(self, key, val):
+        self.store.set_data(key, json.dumps(val))
+
+    def add_account(self, key, username, password, notes=None):
+        data = self[key]
+        accounts = [a for a in data['accounts'] if a['username'] != username]
+        accounts.insert(0, {'username': username, 'password': password, 'notes': notes})
+        data['accounts'] = accounts
+        self[key] = data
+
+
+def import_lastpass_db(path, password_for_store):
+    import csv
+    db = PasswordDB(password_for_store)
+    with open(path, 'r') as f:
+        for i, row in enumerate(csv.reader(f)):
+            if not row or i == 0:
+                continue
+            url, username, password, *_ = row
+            key = key_from_url(url)
+            db.add_account(key, username, password)
