@@ -109,11 +109,14 @@ class PasswordStore:
             data = data.encode('utf-8')
         keysize = struct.pack('!I', len(key))
         data, nonce = encrypt_v1(keysize + key + data, self.key)
-        atomic_write(os.path.join(self.root, fname), nonce + data)
+        atomic_write(os.path.join(self.root, fname), struct.pack('!H', 1) + nonce + data)
 
     def read_data(self, fname):
         try:
             with open(os.path.join(self.root, fname), 'rb') as f:
+                version = f.read(2)
+                if struct.unpack('!H', version)[0] != 1:
+                    raise ValueError('Unsupported encryption version')
                 nonce = f.read(nonce_size_v1())
                 data = decrypt_v1(f.read(), nonce, self.key)
                 keysize, = struct.unpack_from('!I', data)
