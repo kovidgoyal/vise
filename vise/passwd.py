@@ -10,6 +10,7 @@ import tempfile
 from binascii import hexlify, unhexlify
 from threading import Thread
 
+from .constants import config_dir
 from .crypto import derive_key_v1, generate_salt_v1, nonce_size_v1, decrypt_v1, encrypt_v1, lock_python_bytes, MessageForged
 from .utils import atomic_write
 
@@ -20,7 +21,8 @@ class PasswordWrong(ValueError):
 
 class PasswordStore:
 
-    def __init__(self, dirpath, password):
+    def __init__(self, password, dirpath=None):
+        dirpath = dirpath or os.path.join(config_dir, 'passwd')
         self.root = dirpath
         if isinstance(password, str):
             password = password.encode('utf-8')
@@ -38,8 +40,11 @@ class PasswordStore:
                 'version': 1,
                 'salt': hexlify(generate_salt_v1()).decode('ascii')
             }
-        self.key = self.key_error = None
         self.password = password
+        self.run_derive()
+
+    def run_derive(self):
+        self.key = self.key_error = None
         self.derive_worker = Thread(name='DeriveKey', target=self.derive_key)
         self.derive_worker.daemon = True
         self.derive_worker.start()
@@ -111,14 +116,32 @@ class PasswordStore:
         data, nonce = encrypt_v1(keysize + key + data, self.key)
         atomic_write(os.path.join(self.root, fname), struct.pack('!H', 1) + nonce + data)
 
-    def read_data(self, fname):
+    def change_password(self, new_password):
+        self.join()
+        old_key = self.key
+        self.password = new_password
+        self.metadata.pop('sentinel', None)
+        self.run_derive()
+        self.join()
+        if self.key_error is not None:
+            raise self.key_error
+
+        for name in self:
+            try:
+                key, data = self.read_data(name, key=old_key)
+            except Exception:
+                pass
+            else:
+                self.set_data(key, data)
+
+    def read_data(self, fname, key=None):
         try:
             with open(os.path.join(self.root, fname), 'rb') as f:
                 version = f.read(2)
                 if struct.unpack('!H', version)[0] != 1:
                     raise ValueError('Unsupported encryption version')
                 nonce = f.read(nonce_size_v1())
-                data = decrypt_v1(f.read(), nonce, self.key)
+                data = decrypt_v1(f.read(), nonce, key or self.key)
                 keysize, = struct.unpack_from('!I', data)
                 offset = struct.calcsize('!I')
                 key = data[offset:keysize + offset].decode('utf-8')
@@ -129,8 +152,10 @@ class PasswordStore:
 
 def test():
     with tempfile.TemporaryDirectory() as tdir:
-        p = PasswordStore(tdir, 'test')
+        p = PasswordStore('test', tdir)
         p.join()
         p.set_data('a', 'one')
         assert p.get_data('a') == b'one'
+        assert tuple(p.get_all_data()) == (('a', b'one'),)
+        p.change_password('pw2')
         assert tuple(p.get_all_data()) == (('a', b'one'),)
