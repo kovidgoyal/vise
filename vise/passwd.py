@@ -168,7 +168,13 @@ def test():
 
 def key_from_url(url):
     u = urlparse(url)
-    key = 'netloc:' + u.netloc
+    scheme = u.scheme.lower()
+    if scheme in ('', 'file'):
+        key = 'file:' + u.path
+    elif scheme in ('http', 'https'):
+        key = 'http:' + u.netloc
+    else:
+        key = scheme + ':' + u.netloc
     if u.port is not None:
         key += ':{}'.format(u.port)
     return key
