@@ -182,8 +182,6 @@ def key_from_url(url):
         key = 'http:' + u.netloc
     else:
         key = scheme + ':' + u.netloc
-    if u.port is not None:
-        key += ':{}'.format(u.port)
     return key
 
 
