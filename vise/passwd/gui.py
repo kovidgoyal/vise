@@ -6,7 +6,10 @@ from gettext import gettext as _
 
 import sip
 from PyQt5.Qt import (
-    QSize, QAbstractListModel, Qt, QSortFilterProxyModel, QListView, QVBoxLayout, QLineEdit
+    QSize, QAbstractListModel, Qt, QSortFilterProxyModel, QListView,
+    QVBoxLayout, QLineEdit, QFormLayout, QCheckBox, QPlainTextEdit,
+    QLabel, QWidget, QListWidget, QSplitter, QListWidgetItem, pyqtSignal,
+    QPushButton
 )
 
 from ..message_box import error_dialog, question_dialog
@@ -36,11 +39,119 @@ class KeysModel(QAbstractListModel):
         self.endResetModel()
 
 
+class EditAccount(QWidget):
+
+    changed = pyqtSignal()
+    delete_requested = pyqtSignal()
+
+    def __init__(self, parent=None):
+        QWidget.__init__(self, parent)
+        self.l = l = QFormLayout(self)
+        self.username = u = QLineEdit(self)
+        u.textChanged.connect(self.changed.emit)
+        l.addRow(_('&Username:'), u)
+        u.setPlaceholderText(_('Username for this account'))
+        self.password = p = QLineEdit(self)
+        l.addRow(_('&Password:'), p)
+        p.setPlaceholderText(_('Password for this account'))
+        p.textChanged.connect(self.changed.emit)
+        p.setEchoMode(p.Password)
+        self.show_password = sp = QCheckBox(_('&Show password'))
+        l.addWidget(sp)
+        sp.toggled.connect(lambda checked: p.setEchoMode(p.Normal if checked else p.Password))
+        self.la = la = QLabel(_('&Notes:'))
+        l.addWidget(la)
+        self.notes = n = QPlainTextEdit(self)
+        la.setBuddy(n)
+        n.textChanged.connect(self.changed.emit)
+        l.addWidget(n)
+        self.rb = b = QPushButton(_('&Delete this account'))
+        b.clicked.connect(self.delete_requested.emit)
+        l.addWidget(b)
+
+    @property
+    def data(self):
+        return {
+            'username': self.username.text(),
+            'password': self.password.text(),
+            'notes': self.notes.toPlainText().strip() or None
+        }
+
+    @data.setter
+    def data(self, val):
+        self.blockSignals(True)
+        self.username.setText(val.get('username') or '')
+        self.password.setText(val.get('password') or '')
+        self.notes.setPlainText(val.get('notes') or '')
+        self.blockSignals(False)
+
+
+class EditItem(Dialog):
+
+    def __init__(self, db, key, parent=None):
+        self.db, self.key = db, key
+        Dialog.__init__(self, _('Edit passwords'), 'password-edit', parent=parent)
+
+    def sizeHint(self):
+        return QSize(800, 600)
+
+    def setup_ui(self):
+        self.l = l = QVBoxLayout(self)
+        self.splitter = s = QSplitter(self)
+        l.addWidget(s)
+        self.ab = b = self.bb.addButton(_('Add new account'), self.bb.ActionRole)
+        b.clicked.connect(self.add_account)
+        l.addWidget(self.bb)
+        self.accounts = a = QListWidget(self)
+        a.setDragDropMode(a.InternalMove)
+        self.edit_account = e = EditAccount(self)
+        e.changed.connect(self.data_changed)
+        e.delete_requested.connect(self.delete_requested)
+        s.addWidget(a), s.addWidget(e)
+        for n, account in enumerate(self.db[self.key]['accounts']):
+            if n == 0:
+                e.data = account
+            i = QListWidgetItem(account['username'], a)
+            i.setData(Qt.UserRole, account)
+        if a.count() < 1:
+            na = {'username': '', 'password': '', 'notes': ''}
+            i = QListWidgetItem('', a)
+            i.setData(Qt.UserRole, na)
+        a.setCurrentRow(0)
+        a.currentItemChanged.connect(self.current_item_changed)
+
+    def current_item_changed(self, curr, prev):
+        self.edit_account.data = curr.data(Qt.UserRole) if curr else {}
+
+    def delete_requested(self):
+        item = self.accounts.currentItem()
+        if item is not None:
+            self.accounts.takeItem(self.accounts.row(item))
+
+    def add_account(self):
+        i = QListWidgetItem('', self.accounts)
+        i.setData(Qt.UserRole, {})
+        self.accounts.setCurrentItem(i)
+
+    def data_changed(self):
+        i = self.accounts.currentItem()
+        if i is not None:
+            data = self.edit_account.data
+            i.setText(data['username'])
+            i.setData(Qt.UserRole, data)
+
+    def accept(self):
+        accounts = [self.accounts.item(i).data(Qt.UserRole) for i in range(self.accounts.count())]
+        accounts = list(filter(lambda a: bool(a['username']), accounts))
+        self.db.set_accounts(self.key, accounts)
+        Dialog.accept(self)
+
+
 class PasswordManager(Dialog):
 
     def __init__(self, db, parent=None):
         self.db = db
-        Dialog.__init__(self, _('vise Password Manager'), 'password-manager', parent=parent)
+        Dialog.__init__(self, _('Password Manager'), 'password-manager', parent=parent)
 
     def sizeHint(self):
         return QSize(800, 600)
@@ -57,6 +168,7 @@ class PasswordManager(Dialog):
         v.setStyleSheet('QListView::item { padding: 5px }')
         v.setAlternatingRowColors(True)
         v.setModel(self.proxy_model)
+        v.activated.connect(self.item_activated)
         l.addWidget(v)
         le.textChanged.connect(pm.setFilterFixedString)
 
@@ -65,6 +177,10 @@ class PasswordManager(Dialog):
         self.bb.addButton(_('Add entry'), self.bb.ActionRole).clicked.connect(self.add_entry)
         self.bb.addButton(_('Remove selected'), self.bb.ActionRole).clicked.connect(self.remove_selected)
         self.bb.button(self.bb.Close).setDefault(True)
+
+    def item_activated(self, index):
+        if index.isValid():
+            EditItem(self.db, index.data(Qt.DisplayRole), parent=self).exec_()
 
     def add_entry(self):
         pass

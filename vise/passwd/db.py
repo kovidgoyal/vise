@@ -225,6 +225,12 @@ class PasswordDB:
         else:
             del self[key]
 
+    def set_accounts(self, key, accounts):
+        if accounts:
+            self[key] = {'version': 1, 'accounts': accounts}
+        else:
+            del self[key]
+
 
 def import_lastpass_db(path, password_for_store):
     import csv
