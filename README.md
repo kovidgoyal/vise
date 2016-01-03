@@ -21,7 +21,8 @@ Here is a list of features that I intend this browser to have
  * The UI is modal, like vim, which means all major UI functions can be quickly
    and easily accessed via single key strokes.
 
- * Integrated password management with simple pluggable backends for local
-   storage/networked storage or login information
+ * Integrated password management with a simple (encrypted) filesystem based storage for
+   passwords. That makes it easy to sync between computers using standard file
+   syncing tools.
 
  * Integrated ad-blocking
