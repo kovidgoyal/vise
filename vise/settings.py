@@ -138,12 +138,16 @@ def create_script(name, src, world=QWebEngineScript.MainWorld, injection_point=Q
     return script
 
 
+DOWNLOADS_URL = 'file:///' + standard_b64encode(os.urandom(32)).decode('ascii')
+
+
 @lru_cache()
 def client_script():
     # Has to be in main world for the webChannelTransport to work
     name = '%s-client.js' % appname
     f = get_data_as_file(name)
     src = f.read().decode('utf-8')
+    src = src.replace('__DOWNLOADS_URL__', DOWNLOADS_URL)
     src = src.replace('__SECRET_KEY__', (standard_b64encode(os.urandom(32))).decode('ascii'))
     return create_script(f.name, src)
 

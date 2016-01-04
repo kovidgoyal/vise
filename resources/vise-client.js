@@ -4069,17 +4069,11 @@ var str = _$rapyd$_str;;
                 mc_onload();
                 focus_onload();
                 fn_onload();
-                if (typeof window["ͻ-vise-entry-point"] === "function") {
-                    window["ͻ-vise-entry-point"](vise_entry_point);
+                if (document.location.href === "__DOWNLOADS_URL__") {
+                    downloads();
                 }
             });
         }
-        function vise_entry_point(name) {
-            if (name === "downloads") {
-                downloads();
-            }
-        }
-        document.removeEventListener("DOMContentLoaded", on_document_loaded);
         document.addEventListener("DOMContentLoaded", on_document_loaded);
         init_crypto(register_frames);
     })();

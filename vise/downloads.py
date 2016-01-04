@@ -6,7 +6,6 @@ import os
 import tempfile
 import mimetypes
 import weakref
-import uuid
 from time import monotonic
 from functools import partial, lru_cache
 from gettext import gettext as _
@@ -18,7 +17,7 @@ from PyQt5.Qt import (
 
 from .constants import cache_dir
 from .resources import get_data, get_icon
-from .settings import DynamicPrefs
+from .settings import DynamicPrefs, DOWNLOADS_URL as DU
 from .utils import (
     Dialog, sanitize_file_name, safe_disconnect, get_content_type_icon,
     atomic_write, open_local_file, draw_snake_spinner
@@ -30,8 +29,8 @@ else:
     download_dir = tempfile.gettempdir()
 
 open_after = DynamicPrefs('open-after')
-DOWNLOADS_URL = QUrl('file:///' + str(uuid.uuid4()))
-DOWNLOADS_FAVICON_URL = QUrl(DOWNLOADS_URL.toString() + '/favicon.png')
+DOWNLOADS_URL = QUrl(DU)
+DOWNLOADS_FAVICON_URL = QUrl(DU + '/favicon.png')
 
 
 @lru_cache(maxsize=None)
