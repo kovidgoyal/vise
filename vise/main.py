@@ -15,7 +15,7 @@ from gettext import gettext as _
 from PyQt5.Qt import (
     QApplication, QFontDatabase, QNetworkAccessManager, QNetworkDiskCache,
     QLocalSocket, QLocalServer, QSslSocket, QTextStream, QAbstractSocket,
-    QTimer, QDialog
+    QTimer, QDialog, Qt, pyqtSignal
 )
 
 from .constants import appname, str_version, cache_dir, iswindows
@@ -27,6 +27,7 @@ from .window import MainWindow
 from .utils import parse_url
 from .certs import handle_qt_ssl_error
 from .places import places
+from .passwd.db import load_password_db
 
 app = ADDRESS = None
 
@@ -37,6 +38,8 @@ def option_parser():
         'Start an interactive shell'))
     parser.add_argument('-c', '--cmd', default=None, help=_(
         'Run python code in the vise context'))
+    parser.add_argument('--pw-from-stdin', action='store_true', default=False, help=_(
+        'Read the master password for the password manager from stdin'))
     parser.add_argument('urls', metavar='URL', nargs='*', help='urls to open')
     return parser
 
@@ -50,10 +53,15 @@ def create_favicon_cache():
 
 class Application(QApplication):
 
-    def __init__(self, args):
+    password_loaded = pyqtSignal(object, object)
+
+    def __init__(self, args, master_password=None):
         QApplication.__init__(self, [])
         if not QSslSocket.supportsSsl():
             raise SystemExit('Qt has been compiled without SSL support!')
+        self.password_loaded.connect(self.on_password_load, type=Qt.QueuedConnection)
+        if master_password is not None:
+            load_password_db(master_password, self.password_loaded.emit)
 
         self.run_local_server(args)
         sys.excepthook = self.on_unhandled_error
@@ -71,6 +79,11 @@ class Application(QApplication):
         nam.setCache(c)
         self.key_filter = KeyFilter(self)
         self.installEventFilter(self.key_filter)
+
+    def on_password_load(self, error, tb):
+        if error:
+            error_dialog(self.windows[0] if self.windows else None, _('Failed to load password database'), _(
+                'There was an error processing the password database:') + '<br>' + str(error), det_msg=tb, show=True)
 
     def run_local_server(self, args):
         prefix = r'\\.\pipe' if iswindows else tempfile.gettempdir().rstrip('/')
@@ -179,9 +192,9 @@ class Application(QApplication):
         sys.excepthook = sys.__excepthook__
 
 
-def run_app(urls=(), callback=None, callback_wait=0):
+def run_app(urls=(), callback=None, callback_wait=0, master_password=None):
     env = os.environ.copy()
-    app = Application([])
+    app = Application([], master_password=master_password)
     app.setOrganizationName('kovidgoyal')
     app.setApplicationName(appname)
     app.setApplicationVersion(str_version)
@@ -213,4 +226,6 @@ def main():
         ipython()
         raise SystemExit(0)
 
-    run_app(args.urls)
+    pw = sys.stdin.read().rstrip() if args.pw_from_stdin else None
+
+    run_app(args.urls, master_password=pw)

@@ -231,6 +231,42 @@ class PasswordDB:
         else:
             del self[key]
 
+_db = None
+
+
+def has_password_db():
+    return _db is not None
+
+
+def password_db():
+    return _db
+
+
+class Loader(Thread):
+    daemon = True
+
+    def __init__(self, password, callback):
+        Thread.__init__(self, name='LoadPW')
+        self.password = password
+        self.callback = callback
+        self.error = (None, None)
+
+    def run(self):
+        pw, self.password = self.password, None
+        global _db
+        try:
+            _db = PasswordDB(pw)
+        except Exception as e:
+            import traceback
+            self.error = (e, traceback.format_exc())
+        self.callback(*self.error)
+
+
+def load_password_db(password, callback):
+    loader = Loader(password, callback)
+    loader.start()
+    return loader
+
 
 def import_lastpass_db(path, password_for_store):
     import csv
