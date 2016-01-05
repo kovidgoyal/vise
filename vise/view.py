@@ -71,32 +71,48 @@ def edit_text(bridgeref, text, frame_id, eid):  # {{{
             # connected to JavaScript code
             bridge = bridgeref()
             if bridge is not None:
-                bridge.set_editable_text_in_gui_thread.emit(text, frame_id, eid)
+                bridge.js_to_python.set_editable_text_in_gui_thread.emit(text, frame_id, eid)
 # }}}
 
 
-class Bridge(QObject):
+class JStoPython(QObject):
 
     middle_clicked = pyqtSignal(object)
     focus_changed = pyqtSignal(object)
     called_back = pyqtSignal(object, object)
+    login_form_found = pyqtSignal()
+    login_form_submitted = pyqtSignal(str, str, str)
+    set_editable_text_in_gui_thread = pyqtSignal(str, int, str)
+
+    def __init__(self, parent=None):
+        QObject.__init__(self, parent)
+
+    def break_cycles(self):
+        for name in dir(self):
+            val = getattr(self, name)
+            if isinstance(val, pyqtSignal) and '_' in name:
+                safe_disconnect(val)
+
+
+class Bridge(QObject):
+
     follow_next = pyqtSignal(bool)
     get_editable_text = pyqtSignal()
-    set_editable_text_in_gui_thread = pyqtSignal(str, int, str)
     set_editable_text = pyqtSignal(str, int, str)
 
     def __init__(self, parent=None):
         QObject.__init__(self, parent)
-        self.set_editable_text_in_gui_thread.connect(self.set_editable_text.emit, type=Qt.QueuedConnection)
+        self.js_to_python = JStoPython(self)
+        self.js_to_python.set_editable_text_in_gui_thread.connect(self.set_editable_text.emit, type=Qt.QueuedConnection)
 
     @pyqtSlot(str)
     def middle_clicked_link(self, href):
         if href:
-            self.middle_clicked.emit(href)
+            self.js_to_python.middle_clicked.emit(href)
 
     @pyqtSlot(bool)
     def element_focused(self, is_text_input):
-        self.focus_changed.emit(bool(is_text_input))
+        self.js_to_python.focus_changed.emit(bool(is_text_input))
 
     @pyqtSlot(str, int, str)
     def edit_text(self, text, frame_id, eid):
@@ -107,11 +123,20 @@ class Bridge(QObject):
 
     @pyqtSlot(str, str)
     def callback(self, name, json_encoded_data):
-        self.called_back.emit(name, json.loads(json_encoded_data))
+        self.js_to_python.called_back.emit(name, json.loads(json_encoded_data))
+
+    @pyqtSlot()
+    def login_form_found_in_page(self):
+        self.js_to_python.login_form_found.emit()
+
+    @pyqtSlot(str, str, str)
+    def login_form_submitted_in_page(self, url, username, password):
+        self.js_to_python.login_form_submitted.emit(url, username, password)
 
     def break_cycles(self):
-        for s in 'middle_clicked focus_changed called_back follow_next get_editable_text set_editable_text set_editable_text_in_gui_thread'.split():
+        for s in 'follow_next get_editable_text set_editable_text'.split():
             safe_disconnect(getattr(self, s))
+        self.js_to_python.break_cycles()
 
 
 class WebPage(QWebEnginePage):
@@ -125,7 +150,7 @@ class WebPage(QWebEnginePage):
         self.authenticationRequired.connect(self.authentication_required)
         self.proxyAuthenticationRequired.connect(self.proxy_authentication_required)
         self.callbacks = {}
-        self.bridge.called_back.connect(self.called_back)
+        self.bridge.js_to_python.called_back.connect(self.called_back)
 
     def register_callback(self, name, func, *args, **kw):
         self.callbacks[name] = (func, args, kw)
@@ -208,8 +233,8 @@ class WebView(QWebEngineView):
         self.iconUrlChanged.connect(self.icon_url_changed)
         self._icon_reply = None
         self.icon = QIcon()
-        self._page.bridge.middle_clicked.connect(self.open_in_new_tab.emit)
-        self._page.bridge.focus_changed.connect(self.on_focus_change)
+        self._page.bridge.js_to_python.middle_clicked.connect(self.open_in_new_tab.emit)
+        self._page.bridge.js_to_python.focus_changed.connect(self.on_focus_change)
         self.loadStarted.connect(lambda: self.loading_status_changed.emit(True))
         self.loadFinished.connect(lambda: self.loading_status_changed.emit(False))
         self._page.linkHovered.connect(self.link_hovered.emit)
