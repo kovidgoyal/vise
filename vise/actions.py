@@ -40,6 +40,12 @@ def edit_text(window, *args, **kwargs):
         return True
 
 
+def fill_login_form(window, *args, **kwargs):
+    if window.current_tab is not None:
+        window.current_tab.page().bridge.get_url_for_current_login_form.emit()
+        return True
+
+
 def set_passthrough_mode(window, *args, **kwargs):
     if window.current_tab is not None:
         window.current_tab.force_passthrough = True

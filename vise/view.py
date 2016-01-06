@@ -82,7 +82,7 @@ class JStoPython(QObject):
     middle_clicked = pyqtSignal(object)
     focus_changed = pyqtSignal(object)
     called_back = pyqtSignal(object, object)
-    login_form_found = pyqtSignal(str)
+    login_form_found = pyqtSignal(str, bool)
     login_form_submitted = pyqtSignal(str, str, str)
     set_editable_text_in_gui_thread = pyqtSignal(str, int, str)
 
@@ -101,7 +101,8 @@ class Bridge(QObject):
     follow_next = pyqtSignal(bool)
     get_editable_text = pyqtSignal()
     set_editable_text = pyqtSignal(str, int, str)
-    autofill_login_form = pyqtSignal(str, str, str, bool)
+    autofill_login_form = pyqtSignal(str, str, str, bool, bool)
+    get_url_for_current_login_form = pyqtSignal()
 
     def __init__(self, parent=None):
         QObject.__init__(self, parent)
@@ -130,7 +131,11 @@ class Bridge(QObject):
 
     @pyqtSlot(str)
     def login_form_found_in_page(self, url):
-        self.js_to_python.login_form_found.emit(url)
+        self.js_to_python.login_form_found.emit(url, False)
+
+    @pyqtSlot(str)
+    def url_for_current_login_form(self, url):
+        self.js_to_python.login_form_found.emit(url, True)
 
     @pyqtSlot(str, str, str)
     def login_form_submitted_in_page(self, url, username, password):
@@ -401,10 +406,10 @@ class WebView(QWebEngineView):
         else:
             QApplication.instance().store_password(url, username, password)
 
-    def on_login_form_found(self, url):
+    def on_login_form_found(self, url, is_current_form):
         if password_db.join():
             key = key_from_url(url)
             accounts = password_db.get_accounts(key)
             if accounts:
                 ac = accounts[0]
-                self._page.bridge.autofill_login_form.emit(url, ac['username'], ac['password'], ac['autologin'])
+                self._page.bridge.autofill_login_form.emit(url, ac['username'], ac['password'], ac['autologin'], is_current_form)

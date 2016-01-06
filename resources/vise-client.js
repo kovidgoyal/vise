@@ -4048,7 +4048,7 @@ var str = _$rapyd$_str;;
 
     (function(){
         var __name__ = "passwd";
-        var input_types, username_names;
+        var input_types, username_names, current_login_form_request_id;
         var send_action = _$rapyd$_modules["frames"].send_action;
         var register_handler = _$rapyd$_modules["frames"].register_handler;
         var broadcast_action = _$rapyd$_modules["frames"].broadcast_action;
@@ -4134,47 +4134,89 @@ var str = _$rapyd$_str;;
         function login_form_submitted(current_frame_id, source_frame_id, source_frame, url, username, password) {
             qt_bridge().login_form_submitted_in_page(url, username, password);
         }
-        function on_autofill_login_form(url, username, password, autosubmit) {
-            if (!do_autofill(url, username, password, autosubmit)) {
-                broadcast_action(frame_iter(window.self), "autofill_login_form", url, username, password, autosubmit);
+        function on_autofill_login_form(url, username, password, autosubmit, is_current_form) {
+            if (!do_autofill(url, username, password, autosubmit, is_current_form)) {
+                broadcast_action(frame_iter(window.self), "autofill_login_form", url, username, password, autosubmit, is_current_form);
             }
         }
-        function autofill_login_form(current_frame_id, source_frame_id, source_frame, url, username, password, autosubmit) {
-            do_autofill(url, username, password, autosubmit);
+        function autofill_login_form(current_frame_id, source_frame_id, source_frame, url, username, password, autosubmit, is_current_form) {
+            do_autofill(url, username, password, autosubmit, is_current_form);
         }
-        function do_autofill(url, username, password, autosubmit) {
-            var _$rapyd$_unpack, un, pw, form;
+        function do_autofill(url, username, password, autosubmit, is_current_form) {
+            var found_form, c, form, _$rapyd$_unpack, un, pw;
             if (url === document.location.href) {
-                var _$rapyd$_Iter1 = _$rapyd$_Iterable(document.querySelectorAll("form"));
-                for (var _$rapyd$_Index1 = 0; _$rapyd$_Index1 < _$rapyd$_Iter1.length; _$rapyd$_Index1++) {
-                    form = _$rapyd$_Iter1[_$rapyd$_Index1];
-                    if (is_login_form(form)) {
-                        _$rapyd$_unpack = get_login_inputs(form);
-                        un = _$rapyd$_unpack[0];
-                        pw = _$rapyd$_unpack[1];
-                        if (un !== null && username) {
-                            un.value = username;
+                found_form = null;
+                if (is_current_form) {
+                    c = document.activeElement;
+                    if (c && str.lower(c.tagName) === "input") {
+                        while (c.parentNode) {
+                            c = c.parentNode;
+                            if (str.lower(c.tagName) === "form") {
+                                found_form = c;
+                                break;
+                            }
                         }
-                        if (pw !== null && password) {
-                            pw.value = password;
-                        }
-                        if (autosubmit) {
-                            submit_form(form);
-                        }
-                        return true;
                     }
+                } else {
+                    var _$rapyd$_Iter1 = _$rapyd$_Iterable(document.querySelectorAll("form"));
+                    for (var _$rapyd$_Index1 = 0; _$rapyd$_Index1 < _$rapyd$_Iter1.length; _$rapyd$_Index1++) {
+                        form = _$rapyd$_Iter1[_$rapyd$_Index1];
+                        if (is_login_form(form)) {
+                            found_form = form;
+                            break;
+                        }
+                    }
+                }
+                if (found_form !== null) {
+                    _$rapyd$_unpack = get_login_inputs(found_form);
+                    un = _$rapyd$_unpack[0];
+                    pw = _$rapyd$_unpack[1];
+                    if (un !== null && username) {
+                        un.value = username;
+                    }
+                    if (pw !== null && password) {
+                        pw.value = password;
+                    }
+                    if (autosubmit) {
+                        submit_form(found_form);
+                    }
+                    return true;
                 }
             }
             return false;
+        }
+        current_login_form_request_id = 0;
+        function on_get_url_for_current_login_form() {
+            current_login_form_request_id += 1;
+            if (document.activeElement && str.lower(document.activeElement.tagName) === "input") {
+                send_action(window.top, "send_url_for_current_login_form", current_login_form_request_id, document.location.href);
+            } else {
+                broadcast_action(frame_iter(window.self), "get_url_for_current_login_form_in_subframe", current_login_form_request_id);
+            }
+        }
+        function get_url_for_current_login_form_in_subframe(current_frame_id, source_frame_id, source_frame, request_id) {
+            if (document.activeElement && str.lower(document.activeElement.tagName) === "input") {
+                send_action(window.top, "send_url_for_current_login_form", request_id, document.location.href);
+            }
+        }
+        function send_url_for_current_login_form(current_frame_id, source_frame_id, source_frame, request_id, url) {
+            if (request_id === current_login_form_request_id) {
+                current_login_form_request_id += 1;
+                qt_bridge().url_for_current_login_form(url);
+            }
         }
         function onload() {
             var login_forms_found, form;
             if (window === window.top) {
                 register_handler("login_form_found", login_form_found);
                 register_handler("login_form_submitted", login_form_submitted);
+                register_handler("send_url_for_current_login_form", send_url_for_current_login_form);
                 connect_signal("autofill_login_form", on_autofill_login_form);
+                connect_signal("get_url_for_current_login_form", on_get_url_for_current_login_form);
+            } else {
+                register_handler("autofill_login_form", autofill_login_form);
+                register_handler("get_url_for_current_login_form_in_subframe", get_url_for_current_login_form_in_subframe);
             }
-            register_handler("autofill_login_form", autofill_login_form);
             login_forms_found = false;
             var _$rapyd$_Iter2 = _$rapyd$_Iterable(document.querySelectorAll("form"));
             for (var _$rapyd$_Index2 = 0; _$rapyd$_Index2 < _$rapyd$_Iter2.length; _$rapyd$_Index2++) {
@@ -4191,6 +4233,8 @@ var str = _$rapyd$_str;;
         _$rapyd$_modules["passwd"]["input_types"] = input_types;
 
         _$rapyd$_modules["passwd"]["username_names"] = username_names;
+
+        _$rapyd$_modules["passwd"]["current_login_form_request_id"] = current_login_form_request_id;
 
         _$rapyd$_modules["passwd"]["form_submitted"] = form_submitted;
 
@@ -4209,6 +4253,12 @@ var str = _$rapyd$_str;;
         _$rapyd$_modules["passwd"]["autofill_login_form"] = autofill_login_form;
 
         _$rapyd$_modules["passwd"]["do_autofill"] = do_autofill;
+
+        _$rapyd$_modules["passwd"]["on_get_url_for_current_login_form"] = on_get_url_for_current_login_form;
+
+        _$rapyd$_modules["passwd"]["get_url_for_current_login_form_in_subframe"] = get_url_for_current_login_form_in_subframe;
+
+        _$rapyd$_modules["passwd"]["send_url_for_current_login_form"] = send_url_for_current_login_form;
 
         _$rapyd$_modules["passwd"]["onload"] = onload;
     })();

@@ -47,33 +47,71 @@ def login_form_found(current_frame_id, source_frame_id, source_frame, url):
 def login_form_submitted(current_frame_id, source_frame_id, source_frame, url, username, password):
     qt_bridge().login_form_submitted_in_page(url, username, password)
 
-def on_autofill_login_form(url, username, password, autosubmit):
-    if not do_autofill(url, username, password, autosubmit):
-        broadcast_action(frame_iter(window.self), 'autofill_login_form', url, username, password, autosubmit)
+def on_autofill_login_form(url, username, password, autosubmit, is_current_form):
+    if not do_autofill(url, username, password, autosubmit, is_current_form):
+        broadcast_action(frame_iter(window.self), 'autofill_login_form', url, username, password, autosubmit, is_current_form)
 
-def autofill_login_form(current_frame_id, source_frame_id, source_frame, url, username, password, autosubmit):
-    do_autofill(url, username, password, autosubmit)
+def autofill_login_form(current_frame_id, source_frame_id, source_frame, url, username, password, autosubmit, is_current_form):
+    do_autofill(url, username, password, autosubmit, is_current_form)
 
-def do_autofill(url, username, password, autosubmit):
+def do_autofill(url, username, password, autosubmit, is_current_form):
     if url == document.location.href:
-        for form in document.querySelectorAll('form'):
-            if is_login_form(form):
-                un, pw = get_login_inputs(form)
-                if un is not None and username:
-                    un.value = username
-                if pw is not None and password:
-                    pw.value = password
-                if autosubmit:
-                    submit_form(form)
-                return True
+        found_form = None
+        if is_current_form:
+            c = document.activeElement
+            if c and str.lower(c.tagName) == 'input':
+                while c.parentNode:
+                    c = c.parentNode
+                    if str.lower(c.tagName) == 'form':
+                        found_form = c
+                        break
+        else:
+            for form in document.querySelectorAll('form'):
+                if is_login_form(form):
+                    found_form = form
+                    break
+
+        if found_form is not None:
+            un, pw = get_login_inputs(found_form)
+            if un is not None and username:
+                un.value = username
+            if pw is not None and password:
+                pw.value = password
+            if autosubmit:
+                submit_form(found_form)
+            return True
     return False
+
+current_login_form_request_id = 0
+
+def on_get_url_for_current_login_form():
+    nonlocal current_login_form_request_id
+    current_login_form_request_id += 1
+    if document.activeElement and str.lower(document.activeElement.tagName) == 'input':
+        send_action(window.top, 'send_url_for_current_login_form', current_login_form_request_id, document.location.href)
+    else:
+        broadcast_action(frame_iter(window.self), 'get_url_for_current_login_form_in_subframe', current_login_form_request_id)
+
+def get_url_for_current_login_form_in_subframe(current_frame_id, source_frame_id, source_frame, request_id):
+    if document.activeElement and str.lower(document.activeElement.tagName) == 'input':
+        send_action(window.top, 'send_url_for_current_login_form', request_id, document.location.href)
+
+def send_url_for_current_login_form(current_frame_id, source_frame_id, source_frame, request_id, url):
+    nonlocal current_login_form_request_id
+    if request_id == current_login_form_request_id:
+        current_login_form_request_id += 1
+        qt_bridge().url_for_current_login_form(url)
 
 def onload():
     if window is window.top:
         register_handler('login_form_found', login_form_found)
         register_handler('login_form_submitted', login_form_submitted)
+        register_handler('send_url_for_current_login_form', send_url_for_current_login_form)
         connect_signal('autofill_login_form', on_autofill_login_form)
-    register_handler('autofill_login_form', autofill_login_form)
+        connect_signal('get_url_for_current_login_form', on_get_url_for_current_login_form)
+    else:
+        register_handler('autofill_login_form', autofill_login_form)
+        register_handler('get_url_for_current_login_form_in_subframe', get_url_for_current_login_form_in_subframe)
     login_forms_found = False
     for form in document.querySelectorAll('form'):
         if is_login_form(form):

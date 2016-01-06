@@ -77,6 +77,7 @@ T                           choose_tab
 read_key_map(input_key_map, '''\
 Escape                     exit_text_input
 Ctrl+I                     edit_text
+Ctrl+L                     fill_login_form
 ''')
 
 
