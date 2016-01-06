@@ -65,6 +65,7 @@ class EditAccount(QWidget):
         la.setBuddy(n)
         n.textChanged.connect(self.changed.emit)
         l.addWidget(n)
+        self.autosubmit = QCheckBox(_('&Auto login with these credentials'), self)
         self.rb = b = QPushButton(_('&Delete this account'))
         b.clicked.connect(self.delete_requested.emit)
         l.addWidget(b)
@@ -74,7 +75,8 @@ class EditAccount(QWidget):
         return {
             'username': self.username.text(),
             'password': self.password.text(),
-            'notes': self.notes.toPlainText().strip() or None
+            'notes': self.notes.toPlainText().strip() or None,
+            'autologin': self.autosubmit.isChecked(),
         }
 
     @data.setter
@@ -83,6 +85,7 @@ class EditAccount(QWidget):
         self.username.setText(val.get('username') or '')
         self.password.setText(val.get('password') or '')
         self.notes.setPlainText(val.get('notes') or '')
+        self.autosubmit.setChecked(val.get('autologin', False))
         self.blockSignals(False)
 
 
