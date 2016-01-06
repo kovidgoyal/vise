@@ -21,6 +21,20 @@ class Close(Command):
             window.close()
 
 
+class PasswordManager(Command):
+
+    names = {'password-manager'}
+
+    def __call__(self, cmd, rest, window):
+        from PyQt5.Qt import QApplication
+        from .passwd.db import password_db
+        from .passwd.gui import PasswordManager
+        app = QApplication.instance()
+        if app.ask_for_master_password(window):
+            d = PasswordManager(password_db, parent=window)
+            d.exec_()
+
+
 all_commands = {x() for x in locals().values() if x is not Command and type(x) is type and issubclass(x, Command)}
 command_map = {}
 all_command_names = set()

@@ -100,7 +100,7 @@ class Application(QApplication):
                     password_db.join()
                 if password_db.error[0] is None:
                     break
-                self.show_password_load_error(password_db.error[0], password_db.error[1], parent=self)
+                self.show_password_load_error(password_db.error[0], password_db.error[1], parent=parent)
         return password_db.is_loaded
 
     def store_password(self, url, username, password):
