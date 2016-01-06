@@ -315,9 +315,8 @@ class DelayLoadedPasswordDB(PasswordDB):
 password_db = DelayLoadedPasswordDB()
 
 
-def import_lastpass_db(path, password_for_store):
+def import_lastpass_db(path, db):
     import csv
-    db = PasswordDB(password_for_store)
     with open(path, 'r') as f:
         for i, row in enumerate(csv.reader(f)):
             if not row or i == 0:

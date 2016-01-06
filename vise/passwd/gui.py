@@ -13,8 +13,8 @@ from PyQt5.Qt import (
 )
 
 from ..message_box import error_dialog, question_dialog
-from ..utils import Dialog
-from .db import PasswordDB
+from ..utils import Dialog, choose_files
+from .db import PasswordDB, import_lastpass_db
 
 
 class KeysModel(QAbstractListModel):
@@ -179,6 +179,7 @@ class PasswordManager(Dialog):
         l.addWidget(self.bb)
         self.bb.addButton(_('Add entry'), self.bb.ActionRole).clicked.connect(self.add_entry)
         self.bb.addButton(_('Remove selected'), self.bb.ActionRole).clicked.connect(self.remove_selected)
+        self.bb.addButton(_('Import from LastPass'), self.bb.ActionRole).clicked.connect(self.import_from_lastpass)
         self.bb.button(self.bb.Close).setDefault(True)
 
     def item_activated(self, index):
@@ -207,6 +208,13 @@ class PasswordManager(Dialog):
                 del self.db[key]
                 changed = True
         if changed:
+            self.model.refresh(self.db)
+
+    def import_from_lastpass(self):
+        csv = choose_files('import-lastpass-csv', self, _('Choose file with exported passwords'),
+                           filters=[(_('CSV files'), 'csv')], select_only_single_file=True)
+        if csv:
+            import_lastpass_db(csv, self.db)
             self.model.refresh(self.db)
 
 
