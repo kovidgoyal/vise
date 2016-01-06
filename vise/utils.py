@@ -10,11 +10,12 @@ import sys
 import math
 from functools import lru_cache
 from xml.sax.saxutils import escape
+from gettext import gettext as _
 
 from PyQt5.Qt import (
     QUrl, QFontMetrics, QApplication, QConicalGradient, QPen, QBrush, QPainter,
     QRect, Qt, QDialog, QDialogButtonBox, QIcon, QByteArray, QBuffer,
-    QStaticText, QCursor)
+    QStaticText, QCursor, QFileDialog)
 
 from .constants import cache_dir, str_version, isosx
 from .settings import gprefs
@@ -359,3 +360,31 @@ class BusyCursor:
 
     def __exit__(self, *args):
         QApplication.restoreOverrideCursor()
+
+
+def choose_files(name, parent=None, title=None, filters=(), all_files=False, select_only_single_file=False, default_dir='~'):
+    '''
+    Ask user to choose a bunch of files.
+    :param name: Unique dialog name used to store the opened directory
+    :param title: Title to show in dialogs titlebar
+    :param filters: list of allowable extensions. Each element of the list
+                    must be a 2-tuple with first element a string describing
+                    the type of files to be filtered and second element a
+                    string of space separated file extensions.
+    :param all_files: If True add All files to filters.
+    :param select_only_single_file: If True only one file can be selected
+    :param default_dir: The initial directory to show
+    '''
+    initial_dir = os.path.abspath(gprefs.get('choose-files-initial-dir-' + name, os.path.expanduser(default_dir)))
+    func = QFileDialog.getOpenFileName if select_only_single_file else QFileDialog.getOpenFileNames
+    filters = ['{} ({})'.format(name, ' '.join('*.' + x for x in exts.split())) for name, exts in filters]
+    if all_files:
+        filters.append(_('All files') + ' (*)')
+    filters = ';;'.join(filters)
+    ans, chosen_filter = func(parent, title or _('Choose file'), initial_dir, filters)
+    if not ans:
+        return None if select_only_single_file else ()
+    gprefs.set('choose-files-initial-dir-' + name, os.path.dirname(ans if select_only_single_file else ans[0]))
+    if not select_only_single_file:
+        ans = tuple(ans)
+    return ans
