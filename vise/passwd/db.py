@@ -274,6 +274,9 @@ class PasswordDB:
         else:
             del self[key]
 
+    def change_password(self, new_password):
+        self.store.change_password(new_password)
+
 
 class DelayLoadedPasswordDB(PasswordDB):
 

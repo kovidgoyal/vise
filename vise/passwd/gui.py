@@ -13,7 +13,7 @@ from PyQt5.Qt import (
 )
 
 from ..message_box import error_dialog, question_dialog
-from ..utils import Dialog, choose_files
+from ..utils import Dialog, choose_files, BusyCursor
 from .db import PasswordDB, import_lastpass_db
 
 
@@ -177,9 +177,10 @@ class PasswordManager(Dialog):
 
         self.bb.setStandardButtons(self.bb.Close)
         l.addWidget(self.bb)
+        self.bb.addButton(_('Import from LastPass'), self.bb.ActionRole).clicked.connect(self.import_from_lastpass)
+        self.bb.addButton(_('Change password'), self.bb.ActionRole).clicked.connect(self.change_password)
         self.bb.addButton(_('Add entry'), self.bb.ActionRole).clicked.connect(self.add_entry)
         self.bb.addButton(_('Remove selected'), self.bb.ActionRole).clicked.connect(self.remove_selected)
-        self.bb.addButton(_('Import from LastPass'), self.bb.ActionRole).clicked.connect(self.import_from_lastpass)
         self.bb.button(self.bb.Close).setDefault(True)
 
     def item_activated(self, index):
@@ -216,6 +217,12 @@ class PasswordManager(Dialog):
         if csv:
             import_lastpass_db(csv, self.db)
             self.model.refresh(self.db)
+
+    def change_password(self):
+        d = AskForPassword(parent=self, create_password=True)
+        if d.exec_() == d.Accepted:
+            with BusyCursor():
+                self.db.change_password(d.password)
 
 
 class AskForPassword(Dialog):
