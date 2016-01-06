@@ -3,13 +3,14 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 from collections import namedtuple
+from functools import partial
 
 from PyQt5.Qt import (
     QWidget, Qt, QLabel, QDialogButtonBox, QHBoxLayout, QPainter, QPainterPath,
     QRectF, QColor
 )
 
-Question = namedtuple('Question', 'id text callback')
+Question = namedtuple('Question', 'id text callback extra_buttons')
 
 
 class Popup(QWidget):
@@ -36,9 +37,9 @@ class Popup(QWidget):
     def parent_resized(self):
         self.resize(self.parent().width(), self.sizeHint().height())
 
-    def ask(self, text, callback=None):
+    def ask(self, text, callback=None, extra_buttons=None):
         self.question_id += 1
-        self.questions.append(Question(self.question_id, text, callback))
+        self.questions.append(Question(self.question_id, text, callback, extra_buttons or {}))
         self.show_question()
         return self.question_id
     __call__ = ask
@@ -60,10 +61,13 @@ class Popup(QWidget):
             return
         q = self.questions[0]
         self.msg.setText(q.text or '')
+        self.bb.clear()
         if q.callback is None:
             self.bb.setStandardButtons(self.bb.Close)
         else:
             self.bb.setStandardButtons(self.bb.Yes | self.bb.No)
+        for text, val in q.extra_buttons.items():
+            self.bb.addButton(text, self.bb.AcceptRole).clicked.connect(partial(q.callback, val))
         self.show()
 
     def show(self):
