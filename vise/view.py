@@ -25,6 +25,8 @@ from .places import places
 from .popup import Popup
 from .utils import Dialog, safe_disconnect
 from .resources import get_icon
+from .passwd.db import password_db, key_from_url, password_exclusions
+from .settings import gprefs
 
 view_id = 0
 
@@ -80,7 +82,7 @@ class JStoPython(QObject):
     middle_clicked = pyqtSignal(object)
     focus_changed = pyqtSignal(object)
     called_back = pyqtSignal(object, object)
-    login_form_found = pyqtSignal()
+    login_form_found = pyqtSignal(str)
     login_form_submitted = pyqtSignal(str, str, str)
     set_editable_text_in_gui_thread = pyqtSignal(str, int, str)
 
@@ -99,6 +101,7 @@ class Bridge(QObject):
     follow_next = pyqtSignal(bool)
     get_editable_text = pyqtSignal()
     set_editable_text = pyqtSignal(str, int, str)
+    autofill_login_form = pyqtSignal(str, str, str, bool)
 
     def __init__(self, parent=None):
         QObject.__init__(self, parent)
@@ -125,9 +128,9 @@ class Bridge(QObject):
     def callback(self, name, json_encoded_data):
         self.js_to_python.called_back.emit(name, json.loads(json_encoded_data))
 
-    @pyqtSlot()
-    def login_form_found_in_page(self):
-        self.js_to_python.login_form_found.emit()
+    @pyqtSlot(str)
+    def login_form_found_in_page(self, url):
+        self.js_to_python.login_form_found.emit(url)
 
     @pyqtSlot(str, str, str)
     def login_form_submitted_in_page(self, url, username, password):
@@ -235,6 +238,8 @@ class WebView(QWebEngineView):
         self.icon = QIcon()
         self._page.bridge.js_to_python.middle_clicked.connect(self.open_in_new_tab.emit)
         self._page.bridge.js_to_python.focus_changed.connect(self.on_focus_change)
+        self._page.bridge.js_to_python.login_form_submitted.connect(self.on_login_form_submit)
+        self._page.bridge.js_to_python.login_form_found.connect(self.on_login_form_found)
         self.loadStarted.connect(lambda: self.loading_status_changed.emit(True))
         self.loadFinished.connect(lambda: self.loading_status_changed.emit(False))
         self._page.linkHovered.connect(self.link_hovered.emit)
@@ -376,3 +381,30 @@ class WebView(QWebEngineView):
 
     def follow_next(self, forward=True):
         self._page.bridge.follow_next.emit(bool(forward))
+
+    def on_login_form_submit(self, url, username, password):
+        key = key_from_url(url)
+        if password_exclusions.get(key, False):
+            return
+        if not QApplication.instance().ask_for_master_password(self):
+            return
+        if key not in password_db:
+            def store_passwd(ok, during_shutdown):
+                if ok == 'never':
+                    exclude = gprefs.get('never-store-password-for', {})
+                    exclude[key] = True
+                    password_exclusions.set(key, True)
+                elif ok and not during_shutdown:
+                    QApplication.instance().store_password(url, username, password)
+            self.popup(_('Remember password for: {0}?').format(key),
+                       store_passwd, {_('Never'): 'never'})
+        else:
+            QApplication.instance().store_password(url, username, password)
+
+    def on_login_form_found(self, url):
+        if password_db.join():
+            key = key_from_url(url)
+            accounts = password_db.get_accounts(key)
+            if accounts:
+                ac = accounts[0]
+                self._page.bridge.autofill_login_form.emit(url, ac['username'], ac['password'], ac['autologin'])

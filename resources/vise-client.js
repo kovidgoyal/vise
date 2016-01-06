@@ -2605,6 +2605,7 @@ var str = _$rapyd$_str;;
     _$rapyd$_modules["utils"] = {};
     _$rapyd$_modules["links"] = {};
     _$rapyd$_modules["follow_next"] = {};
+    _$rapyd$_modules["passwd"] = {};
 
     (function(){
         var __name__ = "crypto";
@@ -4046,6 +4047,173 @@ var str = _$rapyd$_str;;
     })();
 
     (function(){
+        var __name__ = "passwd";
+        var input_types, username_names;
+        var send_action = _$rapyd$_modules["frames"].send_action;
+        var register_handler = _$rapyd$_modules["frames"].register_handler;
+        var broadcast_action = _$rapyd$_modules["frames"].broadcast_action;
+        var frame_iter = _$rapyd$_modules["frames"].frame_iter;
+        
+        var qt_bridge = _$rapyd$_modules["qt"].qt_bridge;
+        var connect_signal = _$rapyd$_modules["qt"].connect_signal;
+        
+        input_types = (function(){
+            var s = _$rapyd$_set();
+            s.jsset.add("text");
+            s.jsset.add("email");
+            s.jsset.add("tel");
+            return s;
+        })();
+        username_names = (function(){
+            var s = _$rapyd$_set();
+            s.jsset.add("login");
+            s.jsset.add("user");
+            s.jsset.add("mail");
+            s.jsset.add("email");
+            s.jsset.add("username");
+            s.jsset.add("id");
+            return s;
+        })();
+        function form_submitted(ev) {
+            var form, _$rapyd$_unpack, username, password;
+            form = ev.target;
+            _$rapyd$_unpack = get_login_inputs(form);
+            username = _$rapyd$_unpack[0];
+            password = _$rapyd$_unpack[1];
+            if (username !== null) {
+                username = username.value;
+            }
+            if (password !== null) {
+                password = password.value;
+            }
+            send_action(window.top, "login_form_submitted", document.location.href, username, password);
+        }
+        function get_login_inputs(form) {
+            var username, password, _$rapyd$_chain_assign_temp, itype, name, inp;
+            _$rapyd$_chain_assign_temp = null;
+            username = _$rapyd$_chain_assign_temp;
+            password = _$rapyd$_chain_assign_temp;
+;
+            var _$rapyd$_Iter0 = _$rapyd$_Iterable(form.querySelectorAll("input"));
+            for (var _$rapyd$_Index0 = 0; _$rapyd$_Index0 < _$rapyd$_Iter0.length; _$rapyd$_Index0++) {
+                inp = _$rapyd$_Iter0[_$rapyd$_Index0];
+                if (username !== null && password !== null) {
+                    break;
+                }
+                itype = str.lower(inp.getAttribute("type") || "");
+                if (itype === "password") {
+                    password = inp;
+                } else if (_$rapyd$_in(itype, input_types)) {
+                    name = str.lower(inp.name || inp.id || "");
+                    if (_$rapyd$_in(name, username_names)) {
+                        username = inp;
+                    }
+                }
+            }
+            return [username, password];
+        }
+        function submit_form(form) {
+            var buttons;
+            buttons = list(form.querySelectorAll("button[type=submit]"));
+            if (buttons.length) {
+                buttons[buttons.length-1].click();
+            } else {
+                form.submit();
+            }
+        }
+        function is_login_form(form) {
+            var _$rapyd$_unpack, un, pw;
+            _$rapyd$_unpack = get_login_inputs(form);
+            un = _$rapyd$_unpack[0];
+            pw = _$rapyd$_unpack[1];
+            return un !== null || pw !== null;
+        }
+        function login_form_found(current_frame_id, source_frame_id, source_frame, url) {
+            qt_bridge().login_form_found_in_page(url);
+        }
+        function login_form_submitted(current_frame_id, source_frame_id, source_frame, url, username, password) {
+            qt_bridge().login_form_submitted_in_page(url, username, password);
+        }
+        function on_autofill_login_form(url, username, password, autosubmit) {
+            if (!do_autofill(url, username, password, autosubmit)) {
+                broadcast_action(frame_iter(window.self), "autofill_login_form", url, username, password, autosubmit);
+            }
+        }
+        function autofill_login_form(current_frame_id, source_frame_id, source_frame, url, username, password, autosubmit) {
+            do_autofill(url, username, password, autosubmit);
+        }
+        function do_autofill(url, username, password, autosubmit) {
+            var _$rapyd$_unpack, un, pw, form;
+            if (url === document.location.href) {
+                var _$rapyd$_Iter1 = _$rapyd$_Iterable(document.querySelectorAll("form"));
+                for (var _$rapyd$_Index1 = 0; _$rapyd$_Index1 < _$rapyd$_Iter1.length; _$rapyd$_Index1++) {
+                    form = _$rapyd$_Iter1[_$rapyd$_Index1];
+                    if (is_login_form(form)) {
+                        _$rapyd$_unpack = get_login_inputs(form);
+                        un = _$rapyd$_unpack[0];
+                        pw = _$rapyd$_unpack[1];
+                        if (un !== null && username) {
+                            un.value = username;
+                        }
+                        if (pw !== null && password) {
+                            pw.value = password;
+                        }
+                        if (autosubmit) {
+                            submit_form(form);
+                        }
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        function onload() {
+            var login_forms_found, form;
+            if (window === window.top) {
+                register_handler("login_form_found", login_form_found);
+                register_handler("login_form_submitted", login_form_submitted);
+                connect_signal("autofill_login_form", on_autofill_login_form);
+            }
+            register_handler("autofill_login_form", autofill_login_form);
+            login_forms_found = false;
+            var _$rapyd$_Iter2 = _$rapyd$_Iterable(document.querySelectorAll("form"));
+            for (var _$rapyd$_Index2 = 0; _$rapyd$_Index2 < _$rapyd$_Iter2.length; _$rapyd$_Index2++) {
+                form = _$rapyd$_Iter2[_$rapyd$_Index2];
+                if (is_login_form(form)) {
+                    form.addEventListener("submit", form_submitted);
+                    login_forms_found = true;
+                }
+            }
+            if (login_forms_found) {
+                send_action(window.top, "login_form_found", document.location.href);
+            }
+        }
+        _$rapyd$_modules["passwd"]["input_types"] = input_types;
+
+        _$rapyd$_modules["passwd"]["username_names"] = username_names;
+
+        _$rapyd$_modules["passwd"]["form_submitted"] = form_submitted;
+
+        _$rapyd$_modules["passwd"]["get_login_inputs"] = get_login_inputs;
+
+        _$rapyd$_modules["passwd"]["submit_form"] = submit_form;
+
+        _$rapyd$_modules["passwd"]["is_login_form"] = is_login_form;
+
+        _$rapyd$_modules["passwd"]["login_form_found"] = login_form_found;
+
+        _$rapyd$_modules["passwd"]["login_form_submitted"] = login_form_submitted;
+
+        _$rapyd$_modules["passwd"]["on_autofill_login_form"] = on_autofill_login_form;
+
+        _$rapyd$_modules["passwd"]["autofill_login_form"] = autofill_login_form;
+
+        _$rapyd$_modules["passwd"]["do_autofill"] = do_autofill;
+
+        _$rapyd$_modules["passwd"]["onload"] = onload;
+    })();
+
+    (function(){
 
         var __name__ = "__main__";
 
@@ -4064,17 +4232,21 @@ var str = _$rapyd$_str;;
         
         var fn_onload = _$rapyd$_modules["follow_next"].onload;
         
+        var passwd_onload = _$rapyd$_modules["passwd"].onload;
+        
         function on_document_loaded() {
             connect_bridge(function() {
-                mc_onload();
-                focus_onload();
-                fn_onload();
                 if (document.location.href === "__DOWNLOADS_URL__") {
                     downloads();
+                } else {
+                    mc_onload();
+                    focus_onload();
+                    fn_onload();
+                    passwd_onload();
                 }
             });
         }
-        document.addEventListener("DOMContentLoaded", on_document_loaded);
         init_crypto(register_frames);
+        document.addEventListener("DOMContentLoaded", on_document_loaded);
     })();
 })();

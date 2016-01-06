@@ -1,0 +1,83 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+
+from frames import send_action, register_handler, broadcast_action, frame_iter
+from qt import qt_bridge, connect_signal
+
+input_types = {'text', 'email', 'tel'}
+username_names = {'login', 'user', 'mail', 'email', 'username', 'id'}
+
+def form_submitted(ev):
+    form = ev.target
+    username, password = get_login_inputs(form)
+    if username is not None:
+        username = username.value
+    if password is not None:
+        password = password.value
+    send_action(window.top, 'login_form_submitted', document.location.href, username, password)
+
+def get_login_inputs(form):
+    username = password = None
+    for inp in form.querySelectorAll('input'):
+        if username is not None and password is not None:
+            break
+        itype = str.lower(inp.getAttribute('type') or '')
+        if itype == 'password':
+            password = inp
+        elif itype in input_types:
+            name = str.lower(inp.name or inp.id or '')
+            if name in username_names:
+                username = inp
+    return username, password
+
+def submit_form(form):
+    buttons = list(form.querySelectorAll('button[type=submit]'))
+    if buttons.length:
+        buttons[-1].click()
+    else:
+        form.submit()
+
+def is_login_form(form):
+    un, pw = get_login_inputs(form)
+    return un is not None or pw is not None
+
+def login_form_found(current_frame_id, source_frame_id, source_frame, url):
+    qt_bridge().login_form_found_in_page(url)
+
+def login_form_submitted(current_frame_id, source_frame_id, source_frame, url, username, password):
+    qt_bridge().login_form_submitted_in_page(url, username, password)
+
+def on_autofill_login_form(url, username, password, autosubmit):
+    if not do_autofill(url, username, password, autosubmit):
+        broadcast_action(frame_iter(window.self), 'autofill_login_form', url, username, password, autosubmit)
+
+def autofill_login_form(current_frame_id, source_frame_id, source_frame, url, username, password, autosubmit):
+    do_autofill(url, username, password, autosubmit)
+
+def do_autofill(url, username, password, autosubmit):
+    if url == document.location.href:
+        for form in document.querySelectorAll('form'):
+            if is_login_form(form):
+                un, pw = get_login_inputs(form)
+                if un is not None and username:
+                    un.value = username
+                if pw is not None and password:
+                    pw.value = password
+                if autosubmit:
+                    submit_form(form)
+                return True
+    return False
+
+def onload():
+    if window is window.top:
+        register_handler('login_form_found', login_form_found)
+        register_handler('login_form_submitted', login_form_submitted)
+        connect_signal('autofill_login_form', on_autofill_login_form)
+    register_handler('autofill_login_form', autofill_login_form)
+    login_forms_found = False
+    for form in document.querySelectorAll('form'):
+        if is_login_form(form):
+            form.addEventListener('submit', form_submitted)
+            login_forms_found = True
+    if login_forms_found:
+        send_action(window.top, 'login_form_found', document.location.href)

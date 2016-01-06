@@ -13,7 +13,8 @@ from xml.sax.saxutils import escape
 
 from PyQt5.Qt import (
     QUrl, QFontMetrics, QApplication, QConicalGradient, QPen, QBrush, QPainter,
-    QRect, Qt, QDialog, QDialogButtonBox, QIcon, QByteArray, QBuffer, QStaticText)
+    QRect, Qt, QDialog, QDialogButtonBox, QIcon, QByteArray, QBuffer,
+    QStaticText, QCursor)
 
 from .constants import cache_dir, str_version, isosx
 from .settings import gprefs
@@ -349,3 +350,12 @@ def make_highlighted_text(text, positions, emph='color:magenta', wrapper=None):
     ans.setTextOption(to)
     ans.setTextFormat(Qt.RichText)
     return ans
+
+
+class BusyCursor:
+
+    def __enter__(self):
+        QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
+
+    def __exit__(self, *args):
+        QApplication.restoreOverrideCursor()

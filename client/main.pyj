@@ -8,15 +8,18 @@ from middle_click import onload as mc_onload
 from focus import onload as focus_onload
 from downloads import main as downloads
 from follow_next import onload as fn_onload
+from passwd import onload as passwd_onload
 
 def on_document_loaded():
     connect_bridge(def ():
-        mc_onload()
-        focus_onload()
-        fn_onload()
         if document.location.href == '__DOWNLOADS_URL__':
             downloads()
+        else:
+            mc_onload()
+            focus_onload()
+            fn_onload()
+            passwd_onload()
     )
 
-document.addEventListener('DOMContentLoaded', on_document_loaded)
 init_crypto(register_frames)
+document.addEventListener('DOMContentLoaded', on_document_loaded)

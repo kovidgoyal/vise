@@ -14,6 +14,9 @@ from urllib.parse import urlparse
 from ..constants import config_dir
 from ..crypto import derive_key_v1, generate_salt_v1, nonce_size_v1, decrypt_v1, encrypt_v1, lock_python_bytes, MessageForged
 from ..utils import atomic_write
+from ..settings import DynamicPrefs
+
+password_exclusions = DynamicPrefs('password-exclusions')
 
 
 class PasswordWrong(ValueError):
@@ -104,6 +107,10 @@ class PasswordStore:  # {{{
                     yield name
 
     # External API {{{
+
+    def __contains__(self, key):
+        fname = self.generate_file_name(key)
+        return os.path.exists(os.path.join(self.root, fname))
 
     def get_data(self, key):
         self.join()
@@ -205,14 +212,32 @@ class PasswordDB:
     def __delitem__(self, key):
         self[key] = None
 
+    def __contains__(self, key):
+        return key in self.store
+
     def __iter__(self):
         for key, data in self.store.get_all_data():
             yield key
 
-    def add_account(self, key, username, password, notes=None):
+    def get_accounts(self, key):
+        return self[key]['accounts']
+
+    def add_account(self, key, username, password, notes=None, autologin=None):
         data = self[key]
-        accounts = [a for a in data['accounts'] if a['username'] != username]
-        accounts.insert(0, {'username': username, 'password': password, 'notes': notes})
+        existing, existing_pos = None, -1
+        for i, a in enumerate(data['accounts']):
+            if a['username'] == username:
+                existing, existing_pos = a, i
+                if not notes:
+                    notes = a.get('notes')
+                if autologin is None:
+                    autologin = a.get('autologin', False)
+                break
+        adata = {'username': username, 'password': password, 'notes': notes, 'autologin': autologin or False}
+        if existing_pos == 0 and adata == existing:
+            return
+        accounts = [a for a in data['accounts'] if a is not existing]
+        accounts.insert(0, adata)
         data['accounts'] = accounts
         self[key] = data
 
@@ -231,41 +256,45 @@ class PasswordDB:
         else:
             del self[key]
 
-_db = None
 
+class DelayLoadedPasswordDB(PasswordDB):
 
-def has_password_db():
-    return _db is not None
+    def __init__(self):
+        self.store = None
+        self.error = (None, None)
+        self.loader = None
 
-
-def password_db():
-    return _db
-
-
-class Loader(Thread):
-    daemon = True
-
-    def __init__(self, password, callback):
-        Thread.__init__(self, name='LoadPW')
-        self.password = password
-        self.callback = callback
+    def start_load(self, password, callback=None):
+        if self.loader is not None:
+            return
         self.error = (None, None)
 
-    def run(self):
-        pw, self.password = self.password, None
-        global _db
+        def loadpw():
+            try:
+                self.store = PasswordStore(password)
+                self.store.join()
+            except Exception as e:
+                import traceback
+                self.error = (e, traceback.format_exc())
+            if callback is not None:
+                callback(*self.error)
+        self.loader = t = Thread(name='LoadPW', target=loadpw)
+        t.daemon = True
+        t.start()
+
+    def join(self):
         try:
-            _db = PasswordDB(pw)
-        except Exception as e:
-            import traceback
-            self.error = (e, traceback.format_exc())
-        self.callback(*self.error)
+            self.loader.join()
+        except AttributeError:
+            pass
+        return self.is_loaded
+
+    @property
+    def is_loaded(self):
+        return self.store is not None
 
 
-def load_password_db(password, callback):
-    loader = Loader(password, callback)
-    loader.start()
-    return loader
+password_db = DelayLoadedPasswordDB()
 
 
 def import_lastpass_db(path, password_for_store):

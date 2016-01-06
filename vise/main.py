@@ -24,10 +24,10 @@ from .keys import KeyFilter
 from .message_box import error_dialog
 from .settings import delete_profile
 from .window import MainWindow
-from .utils import parse_url
+from .utils import parse_url, BusyCursor
 from .certs import handle_qt_ssl_error
 from .places import places
-from .passwd.db import load_password_db
+from .passwd.db import password_db, key_from_url
 
 app = ADDRESS = None
 
@@ -61,7 +61,7 @@ class Application(QApplication):
             raise SystemExit('Qt has been compiled without SSL support!')
         self.password_loaded.connect(self.on_password_load, type=Qt.QueuedConnection)
         if master_password is not None:
-            load_password_db(master_password, self.password_loaded.emit)
+            password_db.start_load(master_password, self.password_loaded.emit)
 
         self.run_local_server(args)
         sys.excepthook = self.on_unhandled_error
@@ -80,10 +80,32 @@ class Application(QApplication):
         self.key_filter = KeyFilter(self)
         self.installEventFilter(self.key_filter)
 
+    def show_password_load_error(self, error, tb, parent=None):
+        error_dialog(parent or (self.windows[0] if self.windows else None), _('Failed to load password database'), _(
+            'There was an error processing the password database:') + '<br>' + str(error), det_msg=tb, show=True)
+
     def on_password_load(self, error, tb):
         if error:
-            error_dialog(self.windows[0] if self.windows else None, _('Failed to load password database'), _(
-                'There was an error processing the password database:') + '<br>' + str(error), det_msg=tb, show=True)
+            self.show_password_load_error(error, tb)
+
+    def ask_for_master_password(self, parent=None):
+        from .passwd.gui import AskForPassword
+        if not password_db.join():
+            while True:
+                d = AskForPassword(self)
+                if d.exec_() != AskForPassword.Accepted:
+                    return
+                with BusyCursor():
+                    password_db.start_load(d.password)
+                    password_db.join()
+                if password_db.error[0] is None:
+                    break
+                self.show_password_load_error(password_db.error[0], password_db.error[1], parent=self)
+        return password_db.is_loaded
+
+    def store_password(self, url, username, password):
+        key = key_from_url(url)
+        password_db.add_account(key, username, password)
 
     def run_local_server(self, args):
         prefix = r'\\.\pipe' if iswindows else tempfile.gettempdir().rstrip('/')

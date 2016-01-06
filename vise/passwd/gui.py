@@ -207,6 +207,29 @@ class PasswordManager(Dialog):
             self.model.refresh(self.db)
 
 
+class AskForPassword(Dialog):
+
+    def __init__(self, parent=None):
+        Dialog.__init__(self, _('Master password required'), 'master-password-input', parent=parent)
+
+    def setup_ui(self):
+        self.l = l = QVBoxLayout(self)
+        self.la = la = QLabel(_('Enter the master password for the password manager.'))
+        la.setWordWrap(True)
+        l.addWidget(la)
+        self.pw = pw = QLineEdit(self)
+        pw.setEchoMode(pw.Password)
+        l.addWidget(pw)
+        self.showp = sp = QCheckBox(_('&Show password'), self)
+        l.addWidget(sp)
+        sp.toggled.connect(lambda show: pw.setEchoMode(pw.Normal if show else pw.Password))
+        l.addWidget(self.bb)
+
+    @property
+    def password(self):
+        return self.pw.text()
+
+
 def standalone(password, path=None):
     from ..main import Application
     db = PasswordDB(password, path)
