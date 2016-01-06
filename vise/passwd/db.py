@@ -25,6 +25,20 @@ class PasswordWrong(ValueError):
 
 class PasswordStore:  # {{{
 
+    @classmethod
+    def has_password(self, dirpath=None):
+        dirpath = os.path.realpath(dirpath or os.path.join(config_dir, 'passwd'))
+        try:
+            with open(os.path.join(dirpath, 'metadata.json'), 'rb') as f:
+                metadata = json.loads(f.read().decode('utf-8'))
+            return 'sentinel' in metadata
+        except FileNotFoundError:
+            return False
+        except Exception:
+            import traceback
+            traceback.print_exc()
+            return False
+
     def __init__(self, password, dirpath=None):
         dirpath = os.path.realpath(dirpath or os.path.join(config_dir, 'passwd'))
         self.root = dirpath
@@ -193,6 +207,10 @@ def key_from_url(url):
 
 
 class PasswordDB:
+
+    @classmethod
+    def has_password(cls, path=None):
+        return PasswordStore.has_password(path)
 
     def __init__(self, password, path=None):
         self.store = PasswordStore(password, path)

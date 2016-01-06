@@ -209,12 +209,13 @@ class PasswordManager(Dialog):
 
 class AskForPassword(Dialog):
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, create_password=False):
+        self.create_password = create_password
         Dialog.__init__(self, _('Master password required'), 'master-password-input', parent=parent)
 
     def setup_ui(self):
         self.l = l = QVBoxLayout(self)
-        self.la = la = QLabel(_('Enter the master password for the password manager.'))
+        self.la = la = QLabel(_('Enter the master password for the password manager'))
         la.setWordWrap(True)
         l.addWidget(la)
         self.pw = pw = QLineEdit(self)
@@ -223,11 +224,27 @@ class AskForPassword(Dialog):
         self.showp = sp = QCheckBox(_('&Show password'), self)
         l.addWidget(sp)
         sp.toggled.connect(lambda show: pw.setEchoMode(pw.Normal if show else pw.Password))
+        if self.create_password:
+            self.la2 = la = QLabel(_('Confirm (re-enter) the password'))
+            l.addWidget(la)
+            self.confirm = c = QLineEdit(self)
+            l.addWidget(c)
         l.addWidget(self.bb)
 
     @property
     def password(self):
         return self.pw.text()
+
+    def accept(self):
+        if self.create_password and self.password != self.confirm.text():
+            return error_dialog(self, _('Passwords do not match'), _(
+                'The password and its confirmation do not match'))
+        Dialog.accept(self)
+
+    def sizeHint(self):
+        ans = Dialog.sizeHint(self)
+        ans.setWidth(max(ans.width(), 400))
+        return ans
 
 
 def standalone(password, path=None):

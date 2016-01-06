@@ -92,7 +92,7 @@ class Application(QApplication):
         from .passwd.gui import AskForPassword
         if not password_db.join():
             while True:
-                d = AskForPassword(self)
+                d = AskForPassword(parent=parent, create_password=not password_db.has_password())
                 if d.exec_() != AskForPassword.Accepted:
                     return
                 with BusyCursor():
