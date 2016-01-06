@@ -90,7 +90,9 @@ class Application(QApplication):
 
     def ask_for_master_password(self, parent=None):
         from .passwd.gui import AskForPassword
-        if not password_db.join():
+        with BusyCursor():
+            pw_loaded = password_db.join()
+        if not pw_loaded:
             while True:
                 d = AskForPassword(parent=parent, create_password=not password_db.has_password())
                 if d.exec_() != AskForPassword.Accepted:
