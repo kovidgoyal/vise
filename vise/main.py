@@ -9,6 +9,7 @@ import sys
 import traceback
 import json
 import tempfile
+import socket
 from datetime import datetime
 from gettext import gettext as _
 
@@ -219,6 +220,18 @@ class Application(QApplication):
 def run_app(urls=(), callback=None, callback_wait=0, master_password=None):
     env = os.environ.copy()
     app = Application([], master_password=master_password)
+    if False:
+        # This is disabled because it is insecure, see
+        # https://bugreports.qt.io/browse/QTBUG-50725
+        # Also it causes the process to segfault on exit.
+        # Note that you can get a list of inspectable pages
+        # by fetching the /json URL from the debugging server.
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        s.bind(('127.0.0.1', 0))
+        port = s.getsockname()[1]
+        os.environ['QTWEBENGINE_REMOTE_DEBUGGING'] = '127.0.0.1:%d' % port
+        app.debug_port = port
     app.setOrganizationName('kovidgoyal')
     app.setApplicationName(appname)
     app.setApplicationVersion(str_version)
