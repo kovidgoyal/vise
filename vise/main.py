@@ -30,7 +30,7 @@ from .certs import handle_qt_ssl_error
 from .places import places
 from .passwd.db import password_db, key_from_url
 
-app = ADDRESS = None
+ADDRESS = None
 
 
 def option_parser():
@@ -252,7 +252,6 @@ def run_app(urls=(), callback=None, callback_wait=0, master_password=None):
 
 
 def main():
-    global app
     parser = option_parser()
     args = parser.parse_args()
     if args.cmd:
