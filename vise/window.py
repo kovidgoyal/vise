@@ -251,8 +251,8 @@ class MainWindow(QMainWindow):
 
     def closeEvent(self, ev):
         self.save_state()
-        ev.accept()
         QApplication.instance().remove_window(self)
+        ev.accept()
 
     def create_new_tab(self):
         ans = WebView(self.profile, self)

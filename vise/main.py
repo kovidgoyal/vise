@@ -13,6 +13,7 @@ import socket
 from datetime import datetime
 from gettext import gettext as _
 
+import sip
 from PyQt5.Qt import (
     QApplication, QFontDatabase, QNetworkAccessManager, QNetworkDiskCache,
     QLocalSocket, QLocalServer, QSslSocket, QTextStream, QAbstractSocket,
@@ -208,13 +209,13 @@ class Application(QApplication):
     def break_cycles(self):
         # Make sure the application object has no references in python and the
         # other global objects can also be garbage collected
+        sys.excepthook = sys.__excepthook__
         self.local_server.close()
         self.downloads.break_cycles()
         for w in self.windows:
             w.break_cycles()
             w.deleteLater()
         del self.windows, self.network_access_manager, self.local_server
-        sys.excepthook = sys.__excepthook__
 
 
 def run_app(urls=(), callback=None, callback_wait=0, master_password=None):
@@ -247,6 +248,7 @@ def run_app(urls=(), callback=None, callback_wait=0, master_password=None):
         delete_profile()
         places.close()
         app.sendPostedEvents()
+        sip.delete(app)
         del app
         gc.collect(), gc.collect(), gc.collect()
 
