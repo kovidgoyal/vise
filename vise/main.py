@@ -56,6 +56,7 @@ def create_favicon_cache():
 class Application(QApplication):
 
     password_loaded = pyqtSignal(object, object)
+    remove_window_later = pyqtSignal(object)
 
     def __init__(self, args, master_password=None):
         QApplication.__init__(self, [])
@@ -68,6 +69,7 @@ class Application(QApplication):
         self.run_local_server(args)
         sys.excepthook = self.on_unhandled_error
         self.windows = []
+        self.remove_window_later.connect(self.remove_window, type=Qt.QueuedConnection)
         f = self.font()
         if (f.family(), f.pointSize()) == ('Sans Serif', 9):  # Hard coded Qt settings, no user preference detected
             f.setPointSize(10)
@@ -215,6 +217,8 @@ class Application(QApplication):
         for w in self.windows:
             w.break_cycles()
             w.deleteLater()
+        for s in (self.password_loaded, self.remove_window_later):
+            s.disconnect()
         del self.windows, self.network_access_manager, self.local_server
 
 

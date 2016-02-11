@@ -251,7 +251,7 @@ class MainWindow(QMainWindow):
 
     def closeEvent(self, ev):
         self.save_state()
-        QApplication.instance().remove_window(self)
+        QApplication.instance().remove_window_later.emit(self)
         ev.accept()
 
     def create_new_tab(self):
