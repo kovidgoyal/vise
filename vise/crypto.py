@@ -28,7 +28,11 @@ with init_lock:
     if sodium_init() == -1:
         raise RuntimeError('sodium_init() failed')
 
-crypto_aead_aes256gcm_is_available = bind('crypto_aead_aes256gcm_is_available', c_int)
+try:
+    crypto_aead_aes256gcm_is_available = bind('crypto_aead_aes256gcm_is_available', c_int)
+except AttributeError:
+    def crypto_aead_aes256gcm_is_available():
+        return 0
 
 crypto_pwhash_scryptsalsa208sha256_opslimit_interactive = bind(
     'crypto_pwhash_scryptsalsa208sha256_opslimit_interactive', c_size_t)
