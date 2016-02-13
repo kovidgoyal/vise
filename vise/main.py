@@ -211,6 +211,9 @@ class Application(QApplication):
     def break_cycles(self):
         # Make sure the application object has no references in python and the
         # other global objects can also be garbage collected
+
+        # Reset excepthook otherwise we get a segfault on exit, since the application object is deleted
+        # before we exit
         sys.excepthook = sys.__excepthook__
         self.local_server.close()
         self.downloads.break_cycles()
@@ -247,7 +250,6 @@ def run_app(urls=(), callback=None, callback_wait=0, master_password=None):
             QTimer.singleShot(callback_wait, callback)
         app.exec_()
     finally:
-        # Without the following cleanup code, PyQt segfaults on exit
         app.break_cycles()
         delete_profile()
         places.close()
