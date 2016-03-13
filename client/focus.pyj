@@ -8,11 +8,11 @@ def text_editing_allowed(node):
     return not node.hasAttribute('readonly') and not node.hasAttribute('disabled')
 
 def is_text_input_node(node):
-    if node and node.nodeType == Node.ELEMENT_NODE:
+    if node and node.nodeType is Node.ELEMENT_NODE:
         name = node.nodeName.toUpperCase()
-        if name == 'TEXTAREA':
+        if name is 'TEXTAREA':
             return text_editing_allowed(node)
-        if name == 'INPUT':
+        if name is 'INPUT':
             itype = (node.getAttribute('type') or '').toLowerCase()
             if itype not in {'hidden', 'image', 'button', 'reset', 'file', 'reset', 'radio', 'submit'}:
                 return text_editing_allowed(node)
@@ -58,7 +58,7 @@ def set_edit_text(current_frame_id, source_frame_id, source_frame, text, eid):
 def onload():
     document.addEventListener('focusin', handle_focus_in, True)
     document.addEventListener('focusout', handle_focus_out, True)
-    if window.self == window.top:
+    if window.self is window.top:
         register_handler('focus_event_received', focus_event_received)
         register_handler('export_edit_text_to_qt', export_edit_text_to_qt)
         connect_signal('get_editable_text', def(): send_action(window.top, 'find_editable_text');)

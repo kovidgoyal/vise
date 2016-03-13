@@ -40,7 +40,7 @@ def create_download(dl_id, fname, mime_type, icon_url, hostname):
 def update_download(dl_id, state, received, total, rate, avg_rate):
     status = document.getElementById('status' + dl_id)
     h = humanize_size
-    if state == 'running':
+    if state is 'running':
         if received > -1 and total > -1:
             if rate > 0:
                 left = relative_time(Date.now() + 1000 * ((total - received) / avg_rate))
@@ -52,7 +52,7 @@ def update_download(dl_id, state, received, total, rate, avg_rate):
                     recv=h(received), total=h(total), left=left)
         else:
             status.innerText = 'Downloading, please wait...'
-    elif state == 'completed':
+    elif state is 'completed':
         fname = document.getElementById('fname' + dl_id)
         if fname:
             if not fname.getAttribute('class'):
@@ -69,11 +69,11 @@ def update_download(dl_id, state, received, total, rate, avg_rate):
             text += ' at ' + h(rate) + '/s'
         status.innerText = text
     else:
-        text = 'Canceled' if state == 'canceled' else 'Interrupted'
+        text = 'Canceled' if state is 'canceled' else 'Interrupted'
         text += ' — ' + status.getAttribute('data-hostname')
         status.innerText = text
     stop = document.getElementById('stop' + dl_id)
-    stop.style.display = 'block' if state == 'running' else 'none'
+    stop.style.display = 'block' if state is 'running' else 'none'
 
 def main():
     window.create_download = create_download

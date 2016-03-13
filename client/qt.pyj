@@ -30,7 +30,7 @@ def connect_signal(name, func):
 
 def connect_bridge(proceed):
     nonlocal channel
-    if window.self != window.top:
+    if window.self is not window.top:
         proceed()
         return  # Do not connect in child frames
     channel = new QWebChannel(qt.webChannelTransport, def(channel):

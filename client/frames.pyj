@@ -28,11 +28,11 @@ handlers = {}
 def handle_message_from_frame(source, source_id, data):
     nonlocal frame_count, frame_id
     action = data.action
-    if action == '*register':
+    if action is '*register':
         frame_count += 1
         frame_map.set(source, frame_count)
         post_message(source, {'action':'*set_id', 'value': frame_count})
-    elif action == '*set_id':
+    elif action is '*set_id':
         frame_id = data.value
     else:
         f = handlers[action]
@@ -42,7 +42,7 @@ def handle_message_from_frame(source, source_id, data):
             f(frame_id, source_id, source, *args, **kw)
 
 def decode_message(event):
-    if not event.data or event.data.type != 'ͻvise_frame_message':
+    if not event.data or event.data.type is not 'ͻvise_frame_message':
         return
     try:
         raw = decrypt(event.data.iv, event.data.encrypted_payload, event.data.encryption_tag)
@@ -62,16 +62,16 @@ def frame_iter(win, filter_func=None):
         yield from frame_iter(frame, filter_func=filter_func)
 
 def frame_for_id(frame_id):
-    if frame_id == 0:
+    if frame_id is 0:
         return window.top
     for frame in frame_iter():
         ans = frame_map.get(frame)
-        if ans is not undefined and ans == frame_id:
+        if ans is not undefined and ans is frame_id:
             return frame
 
 def register_frames():
     nonlocal registered
-    if window.self != window.top and window.location.href == 'about:blank':
+    if window.self is not window.top and window.location.href is 'about:blank':
         # This is needed because of a bug in Blink or QtWebEngine. Without
         # this, decode_message is called twice for every message in child
         # frames. Basically, the context for the about:blank frame is not
@@ -80,7 +80,7 @@ def register_frames():
     if not registered:
         registered = True
         window.addEventListener('message', decode_message, False)
-        if window.self != window.top:
+        if window.self is not window.top:
             post_message(window.top, {'action':'*register'})
 
 def register_handler(name, func):

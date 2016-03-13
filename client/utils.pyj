@@ -35,12 +35,12 @@ def is_visible(elem):
 
     if not rect.width or not rect.height:
         for child in elem.childNodes:
-            if child.nodeType == child.ELEMENT_NODE and win.getComputedStyle(child).float != 'none' and is_visible(child):
+            if child.nodeType is child.ELEMENT_NODE and win.getComputedStyle(child).float is not 'none' and is_visible(child):
                 return True  # Has visible floating child
         return False  # is zero width or zero height
 
     s = win.getComputedStyle(elem)
-    if not s or s.visibility != "visible" or s.display == "none":
+    if not s or s.visibility is not "visible" or s.display is "none":
         return False
     return True
 

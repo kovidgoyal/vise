@@ -32,7 +32,7 @@ def follow_next_found(current_frame_id, source_frame_id, source_frame, remote_re
     nonlocal request_serviced
     if not was_found:
         return
-    do_it = remote_request_id == request_id and not request_serviced
+    do_it = remote_request_id is request_id and not request_serviced
     send_action(source_frame, 'follow_next_execute', remote_request_id, do_it)
     if do_it:
         request_serviced = True
@@ -53,12 +53,12 @@ def follow_next_execute(current_frame_id, source_frame_id, source_frame, request
     if current_follow_next_candidate:
         elem, rid = current_follow_next_candidate
         current_follow_next_candidate = None
-        if do_it and rid == request_id:
+        if do_it and rid is request_id:
             follow_link(elem)
 # }}}
 
 def onload():
-    if window.self == window.top:
+    if window.self is window.top:
         connect_signal('follow_next', follow_next)
         register_handler('follow_next_found', follow_next_found)
     else:

@@ -5,8 +5,8 @@ from qt import qt_bridge
 from frames import send_action, register_handler
 
 def find_link(node):
-    if node and node.nodeType == Node.ELEMENT_NODE:
-        if node.nodeName.toUpperCase() == 'A' and node.getAttribute('href'):
+    if node and node.nodeType is Node.ELEMENT_NODE:
+        if node.nodeName.toUpperCase() is 'A' and node.getAttribute('href'):
             return node.href  # absolute URL
         return find_link(node.parentElement)
 
@@ -14,7 +14,7 @@ def middle_clicked(current_frame_id, source_frame_id, source_frame, href):
     qt_bridge().middle_clicked_link(href)
 
 def handle_middle_click(ev):
-    if ev.button != 1:
+    if ev.button is not 1:
         return True
     href = find_link(ev.target)
     if not href:

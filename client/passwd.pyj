@@ -22,7 +22,7 @@ def get_login_inputs(form):
         if username is not None and password is not None:
             break
         itype = str.lower(inp.getAttribute('type') or '')
-        if itype == 'password':
+        if itype is 'password':
             password = inp
         elif itype in input_types:
             name = str.lower(inp.name or inp.id or '')
@@ -55,14 +55,14 @@ def autofill_login_form(current_frame_id, source_frame_id, source_frame, url, us
     do_autofill(url, username, password, autosubmit, is_current_form)
 
 def do_autofill(url, username, password, autosubmit, is_current_form):
-    if url == document.location.href:
+    if url is document.location.href:
         found_form = None
         if is_current_form:
             c = document.activeElement
-            if c and str.lower(c.tagName) == 'input':
+            if c and str.lower(c.tagName) is 'input':
                 while c.parentNode:
                     c = c.parentNode
-                    if str.lower(c.tagName) == 'form':
+                    if str.lower(c.tagName) is 'form':
                         found_form = c
                         break
         else:
@@ -87,18 +87,18 @@ current_login_form_request_id = 0
 def on_get_url_for_current_login_form():
     nonlocal current_login_form_request_id
     current_login_form_request_id += 1
-    if document.activeElement and str.lower(document.activeElement.tagName) == 'input':
+    if document.activeElement and str.lower(document.activeElement.tagName) is 'input':
         send_action(window.top, 'send_url_for_current_login_form', current_login_form_request_id, document.location.href)
     else:
         broadcast_action(frame_iter(window.self), 'get_url_for_current_login_form_in_subframe', current_login_form_request_id)
 
 def get_url_for_current_login_form_in_subframe(current_frame_id, source_frame_id, source_frame, request_id):
-    if document.activeElement and str.lower(document.activeElement.tagName) == 'input':
+    if document.activeElement and str.lower(document.activeElement.tagName) is 'input':
         send_action(window.top, 'send_url_for_current_login_form', request_id, document.location.href)
 
 def send_url_for_current_login_form(current_frame_id, source_frame_id, source_frame, request_id, url):
     nonlocal current_login_form_request_id
-    if request_id == current_login_form_request_id:
+    if request_id is current_login_form_request_id:
         current_login_form_request_id += 1
         qt_bridge().url_for_current_login_form(url)
 

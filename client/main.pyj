@@ -12,7 +12,7 @@ from passwd import onload as passwd_onload
 
 def on_document_loaded():
     connect_bridge(def ():
-        if document.location.href == '__DOWNLOADS_URL__':
+        if document.location.href is '__DOWNLOADS_URL__':
             downloads()
         else:
             mc_onload()
