@@ -1,39 +1,25 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-forge = None
-secret_key = '__SECRET_KEY__'  # This is replaced by a secret generated from os.urandom
+from aes import GCM
 
+secret_key = '__SECRET_KEY__'  # This is replaced by a secret generated from os.urandom
+gcm = None
 # We do not use the WebCrypto API because of
 # https://bugreports.qt.io/browse/QTBUG-50142
 
 def initialize(after):
-    nonlocal forge, secret_key
+    nonlocal secret_key, gcm
     if '_' in secret_key:
         raise Exception('secret key was not generated')
-    forge = window.forge
-    if not forge:
-        # Happens if Qt executes the forge script after the client script
-        # See https://bugreports.qt.io/browse/QTBUG-50150
-        setTimeout(def(): initialize(after);, 0)
-        return
-    v'delete window.forge'
-    secret_key = window.atob(secret_key)
+    decoded = Uint8Array(len(secret_key)//2)
+    for v'var i = 0, j = 0; i < secret_key.length; i += 2, j++':
+        decoded[j] = parseInt(secret_key[i] + secret_key[i+1], 16)
+    gcm = GCM(decoded)
     after()
 
 def encrypt(text):
-    cipher = forge.cipher.createCipher('AES-GCM', secret_key)
-    iv = forge.random.getBytesSync(16)
-    cipher.start({'iv':iv})
-    cipher.update(forge.util.createBuffer(text))
-    cipher.finish()
-    return iv, cipher.output.data, cipher.mode.tag.data
+    return gcm.encrypt(text)
 
-def decrypt(iv, encrypted, tag):
-    decipher = forge.cipher.createDecipher('AES-GCM', secret_key)
-    decipher.start({'iv':iv, 'tag':forge.util.createBuffer(tag)})
-    decipher.update(forge.util.createBuffer(encrypted))
-    ok = decipher.finish()
-    if not ok:
-        raise ValueError('Failed to decrypt')
-    return decipher.output.data
+def decrypt(output_from_encrypt):
+    return gcm.decrypt(output_from_encrypt)

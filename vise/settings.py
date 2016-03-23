@@ -6,6 +6,7 @@ import os
 import apsw
 import json
 from base64 import standard_b64decode, standard_b64encode
+from binascii import hexlify
 from collections import defaultdict
 from functools import lru_cache
 
@@ -148,7 +149,7 @@ def client_script():
     f = get_data_as_file(name)
     src = f.read().decode('utf-8')
     src = src.replace('__DOWNLOADS_URL__', DOWNLOADS_URL)
-    src = src.replace('__SECRET_KEY__', (standard_b64encode(os.urandom(32))).decode('ascii'))
+    src = src.replace('__SECRET_KEY__', hexlify(os.urandom(32)).decode('ascii'))
     return create_script(f.name, src)
 
 
@@ -156,13 +157,6 @@ def client_script():
 def qwebchannel_script():
     # Has to be in main world for the webChannelTransport to work
     return create_script('qwebchannel.js', qwebchannel_js)
-
-
-@lru_cache()
-def forge_script():
-    f = get_data_as_file('forge.bundle.js')
-    src = f.read().decode('utf-8')
-    return create_script(f.name, src)
 
 
 def insert_scripts(profile, *scripts):
@@ -186,7 +180,7 @@ def create_profile(parent=None, private=False):
         ans.setPersistentStoragePath(os.path.join(cache_dir, appname, 'storage'))
         safe_makedirs(ans.persistentStoragePath())
     ans.setHttpUserAgent(ans.httpUserAgent().replace('QtWebEngine/', '%s/%s QtWebEngine/' % (appname, str_version)))
-    insert_scripts(ans, qwebchannel_script(), forge_script(), client_script())
+    insert_scripts(ans, qwebchannel_script(), client_script())
     return ans
 
 _profile = None

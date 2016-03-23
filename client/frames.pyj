@@ -9,8 +9,8 @@ frame_map = WeakMap()
 
 def prepare_message(payload, cont):
     payload = JSON.stringify(payload)
-    iv, data, tag = encrypt(payload)
-    cont({'type':'ͻvise_frame_message', 'iv':iv, 'encrypted_payload':data, 'encryption_tag':tag, 'source_frame_id':frame_id})
+    c = encrypt(payload)
+    cont({'type':'ͻvise_frame_message', 'encrypted_payload':c, 'source_frame_id':frame_id})
 
 def post_message(win, payload):
     prepare_message(payload, def(msg):
@@ -45,7 +45,7 @@ def decode_message(event):
     if not event.data or event.data.type is not 'ͻvise_frame_message':
         return
     try:
-        raw = decrypt(event.data.iv, event.data.encrypted_payload, event.data.encryption_tag)
+        raw = decrypt(event.data.encrypted_payload)
     except Exception as err:
         console.error(err.stack)
         console.error('Failed to decrypt frame message: ' + err.message)
