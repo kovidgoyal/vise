@@ -15,7 +15,7 @@ def initialize(after):
     decoded = Uint8Array(len(secret_key)//2)
     for v'var i = 0, j = 0; i < secret_key.length; i += 2, j++':
         decoded[j] = parseInt(secret_key[i] + secret_key[i+1], 16)
-    gcm = GCM(decoded)
+    gcm = GCM(decoded, random_iv=True)
     after()
 
 def encrypt(text):
