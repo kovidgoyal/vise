@@ -160,10 +160,12 @@ def qwebchannel_script():
 
 
 def insert_scripts(profile, *scripts):
+    sc = profile.scripts()
     for script in scripts:
-        for existing in profile.scripts().findScripts(script.name()):
-            profile.scripts().remove(existing)
-    profile.scripts().insert(scripts)
+        for existing in sc.findScripts(script.name()):
+            sc.remove(existing)
+    for script in scripts:
+        sc.insert(script)
 
 
 def create_profile(parent=None, private=False):
