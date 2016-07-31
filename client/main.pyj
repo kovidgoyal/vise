@@ -3,6 +3,7 @@
 
 from crypto import initialize as init_crypto
 from qt import connect_bridge
+from web_socket import connect_bridge as connect_websocket
 from frames import register_frames
 from middle_click import onload as mc_onload
 from focus import onload as focus_onload
@@ -11,6 +12,7 @@ from follow_next import onload as fn_onload
 from passwd import onload as passwd_onload
 
 def on_document_loaded():
+    connect_websocket()
     connect_bridge(def ():
         if document.location.href is '__DOWNLOADS_URL__':
             downloads()

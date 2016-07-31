@@ -279,6 +279,10 @@ class MainWindow(QMainWindow):
             self.tabs.remove(tab)
             self.stack.removeWidget(tab)
 
+    def on_new_ws_connection(self, func, data):
+        for tab in self.tabs:
+            tab.on_new_ws_connection(func, data)
+
     def break_cycles(self):
         for tab in self.tabs:
             self.stack.removeWidget(tab)

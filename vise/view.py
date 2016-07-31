@@ -11,6 +11,7 @@ from contextlib import closing
 from tempfile import NamedTemporaryFile
 from threading import Thread
 from gettext import gettext as _
+from functools import partial
 
 from PyQt5.Qt import (
     QWebEngineView, QWebEnginePage, QSize, QNetworkRequest, QIcon,
@@ -151,6 +152,7 @@ class WebPage(QWebEnginePage):
 
     def __init__(self, profile, parent):
         QWebEnginePage.__init__(self, profile, parent)
+        self.ws_connection = None
         self.bridge = Bridge(self)
         self.channel = QWebChannel(self)
         self.setWebChannel(self.channel, QWebEngineScript.ApplicationWorld)
@@ -207,6 +209,9 @@ class WebPage(QWebEnginePage):
         Alert(self.title(), qurl, msg, self.parent()).exec_()
 
     def break_cycles(self):
+        if self.ws_connection is not None:
+            self.ws_connection.break_cycles()
+        self.ws_connection = None
         self.bridge.break_cycles()
         self.callbacks.clear()
         for s in ('authenticationRequired proxyAuthenticationRequired linkHovered featurePermissionRequested'
@@ -418,3 +423,15 @@ class WebView(QWebEngineView):
             if accounts:
                 ac = accounts[0]
                 self._page.bridge.autofill_login_form.emit(url, ac['username'], ac['password'], ac['autologin'], is_current_form)
+
+    def on_new_ws_connection(self, func, data):
+        self.js_func('window.get_bridge_id', callback=partial(self.on_get_bridge_id, func, data.get('bridge_id')))
+
+    def on_get_bridge_id(self, func, bridge_id, q):
+        if q == bridge_id:
+            func(self)
+
+    def set_ws_connection(self, conn):
+        if self._page.ws_connection is not None:
+            self._page.ws_connection.break_cycles()
+        self._page.ws_connection = conn

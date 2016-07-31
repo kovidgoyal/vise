@@ -12,6 +12,7 @@ import tempfile
 import socket
 from datetime import datetime
 from gettext import gettext as _
+from functools import partial
 
 import sip
 from PyQt5.Qt import (
@@ -30,6 +31,7 @@ from .utils import parse_url, BusyCursor
 from .certs import handle_qt_ssl_error
 from .places import places
 from .passwd.db import password_db, key_from_url
+from .web_socket import WebSocketServer
 
 ADDRESS = None
 
@@ -69,6 +71,8 @@ class Application(QApplication):
             password_db.start_load(master_password, self.password_loaded.emit)
 
         self.run_local_server(urls, new_instance)
+        self.web_socket_server = WebSocketServer(self)
+        self.web_socket_server.new_connection.connect(self.on_new_ws_connection)
         sys.excepthook = self.on_unhandled_error
         self.windows = []
         self.remove_window_later.connect(self.remove_window, type=Qt.QueuedConnection)
@@ -167,6 +171,14 @@ class Application(QApplication):
         urls = [x for x in urls if isinstance(x, str)]
         if urls:
             self.open_urls(urls, in_current_tab=False)
+
+    def on_new_ws_connection(self, conn, data):
+        dp = partial(self.dispatch_ws_connection, conn)
+        for w in self.windows:
+            w.on_new_ws_connection(dp, data)
+
+    def dispatch_ws_connection(self, conn, tab):
+        tab.set_ws_connection(conn)
 
     def new_window(self, is_private=False):
         w = MainWindow(is_private=is_private)
