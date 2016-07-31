@@ -15,23 +15,24 @@ def callback(name, data, console_err):
     if not bridge:
         console.error(console_err or ('Aborting callback: ' + name + ' as Qt bridge not available'))
     else:
-        bridge.callback(name, JSON.stringify(data))
+        bridge.callback(name, data)
+
+def js_to_python(name, *args):
+    bridge = qt_bridge()
+    if not bridge:
+        console.error('Aborting js_to_python: ' + name + ' as Qt bridge not available')
+    else:
+        bridge.js_to_python(name, args)
 
 def connect_signal(name, func):
     bridge = qt_bridge()
-    if not bridge:
-        console.error('Failed to connect signal: ' + name + ' as Qt bridge not available')
-    else:
-        signal = bridge[name]
-        if not signal:
-            console.error('Failed to connect signal: ' + name + ' as no signal by that name exists')
-        else:
-            signal.connect(func)
+    bridge.signals[name] = func
 
 class Bridge:
 
     def __init__(self, proceed):
         self.proceed = proceed
+        self.signals = {}
         r = Uint8Array(16)
         window.crypto.getRandomValues(r)
         self.bridge_id = window.performance.now() + ' ' + base64encode(r)
@@ -50,18 +51,34 @@ class Bridge:
     def send_message(self, msg_type, **data):
         self.socket.send(JSON.stringify({'type':msg_type, 'auth_token':AUTH_TOKEN, 'data':data}))
 
+    def callback(self, name, data):
+        self.send_message('callback', name=name, data=data)
+
+    def js_to_python(self, name, args):
+        self.send_message('js_to_python', name=name, args=args)
+
     def onopen(self, event):
         self.send_message('handshake', bridge_id=self.bridge_id, initial_connection=self.initial_connection)
 
     def onmessage(self, event):
-        print('client received msg:', event.origin, event.ports)
         if type(event.data) is 'string':
             msg = JSON.parse(event.data)
             if msg:
-                if msg.type is 'connected':
+                mtype = msg.type
+                if mtype is 'connected':
                     self.initial_connection = False
                     if self.proceed:
                         self.proceed()
+                elif mtype is 'python_to_js':
+                    msg = msg.data or {}
+                    func = self.signals[msg.name]
+                    if func:
+                        args = msg.args or v'[]'
+                        func(*args)
+                    else:
+                        print('WebSocket signal activation for unconnected signal: ' + msg.name)
+                else:
+                    print('WebSocket message of unknown type from python: ' + mtype)
 
     def onerror(self, event):
         print('WebSocket client unhandled error:', event)

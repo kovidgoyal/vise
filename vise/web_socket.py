@@ -6,6 +6,8 @@ import json
 
 from PyQt5.Qt import QWebSocketServer, QHostAddress, QObject, pyqtSignal, Qt
 
+from .utils import safe_disconnect
+
 
 class Connection(QObject):
 
@@ -35,20 +37,14 @@ class Connection(QObject):
         else:
             self.message_received.emit(mtype, data)
 
+    def send_message(self, mtype, data=None):
+        self.socket.sendTextMessage(json.dumps({'type': mtype, 'data': data}))
+
     def break_cycles(self):
         if hasattr(self, 'socket'):
-            try:
-                self.socket.textMessageReceived.disconnect()
-            except TypeError:
-                pass
-            try:
-                self.message_received.disconnect()
-            except TypeError:
-                pass
-            try:
-                self.handshake_initiated.disconnect()
-            except TypeError:
-                pass
+            safe_disconnect(self.socket.textMessageReceived)
+            safe_disconnect(self.message_received)
+            safe_disconnect(self.handshake_initiated)
             self.socket.close()
             del self.socket
 

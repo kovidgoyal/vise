@@ -1,7 +1,7 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-from qt import qt_bridge, connect_signal
+from web_socket import connect_signal, js_to_python
 from frames import send_action, register_handler, frame_for_id
 
 def text_editing_allowed(node):
@@ -19,7 +19,7 @@ def is_text_input_node(node):
     return False
 
 def focus_event_received(current_frame_id, source_frame_id, source_frame, focussed):
-    qt_bridge().element_focused(focussed)
+    js_to_python('element_focused', focussed)
 
 def handle_focus_in(ev):
     send_action(window.top, 'focus_event_received', is_text_input_node(document.activeElement))
@@ -30,7 +30,7 @@ def handle_focus_out(ev):
 edit_counter = 0
 
 def export_edit_text_to_qt(current_frame_id, source_frame_id, source_frame, text, node_id):
-    qt_bridge().edit_text(text, source_frame_id, node_id)
+    js_to_python('edit_text', text, source_frame_id, node_id)
 
 def find_editable_text(current_frame_id, source_frame_id, source_frame):
     nonlocal edit_counter

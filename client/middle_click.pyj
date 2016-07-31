@@ -1,7 +1,7 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-from qt import qt_bridge
+from web_socket import js_to_python
 from frames import send_action, register_handler
 
 def find_link(node):
@@ -11,7 +11,7 @@ def find_link(node):
         return find_link(node.parentElement)
 
 def middle_clicked(current_frame_id, source_frame_id, source_frame, href):
-    qt_bridge().middle_clicked_link(href)
+    js_to_python('middle_clicked_link', href)
 
 def handle_middle_click(ev):
     if ev.button is not 1:

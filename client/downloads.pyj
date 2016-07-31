@@ -3,7 +3,7 @@
 
 from elementmaker import E
 from humanize import humanize_size, relative_time
-from qt import callback
+from web_socket import callback
 
 CALLBACK_NAME = 'vise_downloads_page'
 

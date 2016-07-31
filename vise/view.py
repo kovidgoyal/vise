@@ -15,8 +15,8 @@ from functools import partial
 
 from PyQt5.Qt import (
     QWebEngineView, QWebEnginePage, QSize, QNetworkRequest, QIcon,
-    QApplication, QPixmap, pyqtSignal, QWebChannel, pyqtSlot, QObject,
-    QGridLayout, QCheckBox, QLabel, Qt, QWebEngineScript
+    QApplication, QPixmap, pyqtSignal, pyqtSlot, QObject,
+    QGridLayout, QCheckBox, QLabel, Qt, QWebEngineScript, pyqtBoundSignal
 )
 
 from .auth import get_http_auth_credentials, get_proxy_auth_credentials
@@ -78,11 +78,20 @@ def edit_text(bridgeref, text, frame_id, eid):  # {{{
 # }}}
 
 
+def itersignals(self, get_name=False):
+    for name in dir(self):
+        val = getattr(self, name)
+        if isinstance(val, pyqtBoundSignal) and '_' in name:
+            if get_name:
+                yield name, val
+            else:
+                yield val
+
+
 class JStoPython(QObject):
 
     middle_clicked = pyqtSignal(object)
     focus_changed = pyqtSignal(object)
-    called_back = pyqtSignal(object, object)
     login_form_found = pyqtSignal(str, bool)
     login_form_submitted = pyqtSignal(str, str, str)
     set_editable_text_in_gui_thread = pyqtSignal(str, int, str)
@@ -91,10 +100,8 @@ class JStoPython(QObject):
         QObject.__init__(self, parent)
 
     def break_cycles(self):
-        for name in dir(self):
-            val = getattr(self, name)
-            if isinstance(val, pyqtSignal) and '_' in name:
-                safe_disconnect(val)
+        for sig in itersignals(self):
+            safe_disconnect(sig)
 
 
 class Bridge(QObject):
@@ -109,6 +116,13 @@ class Bridge(QObject):
         QObject.__init__(self, parent)
         self.js_to_python = JStoPython(self)
         self.js_to_python.set_editable_text_in_gui_thread.connect(self.set_editable_text.emit, type=Qt.QueuedConnection)
+        for name, sig in itersignals(self, get_name=True):
+            sig.connect(partial(self.python_to_js, name))
+
+    def python_to_js(self, name, *args):
+        conn = self.parent().ws_connection
+        if conn is not None:
+            conn.send_message('python_to_js', {'name': name, 'args': args})
 
     @pyqtSlot(str)
     def middle_clicked_link(self, href):
@@ -126,10 +140,6 @@ class Bridge(QObject):
         t.daemon = True
         t.start()
 
-    @pyqtSlot(str, str)
-    def callback(self, name, json_encoded_data):
-        self.js_to_python.called_back.emit(name, json.loads(json_encoded_data))
-
     @pyqtSlot(str)
     def login_form_found_in_page(self, url):
         self.js_to_python.login_form_found.emit(url, False)
@@ -143,8 +153,8 @@ class Bridge(QObject):
         self.js_to_python.login_form_submitted.emit(url, username, password)
 
     def break_cycles(self):
-        for s in 'follow_next get_editable_text set_editable_text'.split():
-            safe_disconnect(getattr(self, s))
+        for sig in itersignals(self):
+            safe_disconnect(sig)
         self.js_to_python.break_cycles()
 
 
@@ -154,19 +164,21 @@ class WebPage(QWebEnginePage):
         QWebEnginePage.__init__(self, profile, parent)
         self.ws_connection = None
         self.bridge = Bridge(self)
-        self.channel = QWebChannel(self)
-        self.setWebChannel(self.channel, QWebEngineScript.ApplicationWorld)
-        self.channel.registerObject('bridge', self.bridge)
         self.authenticationRequired.connect(self.authentication_required)
         self.proxyAuthenticationRequired.connect(self.proxy_authentication_required)
         self.callbacks = {'vise_downloads_page': (self.downloads_callback, (), {})}
-        self.bridge.js_to_python.called_back.connect(self.called_back)
 
     def register_callback(self, name, func, *args, **kw):
         self.callbacks[name] = (func, args, kw)
 
     def downloads_callback(self, *args, **kw):
         return QApplication.instance().downloads.callback(*args, **kw)
+
+    def message_received_from_js(self, mtype, data):
+        if mtype == 'callback':
+            self.called_back(data['name'], data['data'])
+        elif mtype == 'js_to_python':
+            getattr(self.bridge, data['name'])(*data['args'])
 
     def called_back(self, name, data):
         try:
@@ -435,3 +447,5 @@ class WebView(QWebEngineView):
         if self._page.ws_connection is not None:
             self._page.ws_connection.break_cycles()
         self._page.ws_connection = conn
+        conn.message_received.connect(self._page.message_received_from_js)
+        conn.send_message('connected')

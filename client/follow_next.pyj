@@ -1,7 +1,7 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-from qt import connect_signal
+from web_socket import connect_signal
 from frames import frame_iter, broadcast_action, send_action, register_handler
 from links import iter_visible_links
 from utils import follow_link, is_visible

@@ -156,11 +156,6 @@ def client_script():
     return create_script(f.name, src)
 
 
-@lru_cache()
-def qwebchannel_script():
-    return create_script('qwebchannel.js', qwebchannel_js)
-
-
 def insert_scripts(profile, *scripts):
     sc = profile.scripts()
     for script in scripts:
@@ -186,7 +181,7 @@ def create_profile(parent=None, private=False):
         safe_makedirs(ans.persistentStoragePath())
     ans.setHttpUserAgent(ans.httpUserAgent().replace('QtWebEngine/', '%s/%s QtWebEngine/' % (appname, str_version)))
     try:
-        insert_scripts(ans, qwebchannel_script(), client_script())
+        insert_scripts(ans, client_script())
     except FileNotFoundError as err:
         if '-client.js' in str(err):
             raise SystemExit('You need to compile the rapydscript parts of vise before running it. Install rapydscript-ng and run the build script')

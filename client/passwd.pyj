@@ -2,7 +2,7 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 from frames import send_action, register_handler, broadcast_action, frame_iter
-from qt import qt_bridge, connect_signal
+from web_socket import js_to_python, connect_signal
 
 input_types = {'text', 'email', 'tel'}
 username_names = {'login', 'user', 'mail', 'email', 'username', 'id'}
@@ -43,10 +43,10 @@ def is_login_form(form):
     return un is not None or pw is not None
 
 def login_form_found(current_frame_id, source_frame_id, source_frame, url):
-    qt_bridge().login_form_found_in_page(url)
+    js_to_python('login_form_found_in_page', url)
 
 def login_form_submitted(current_frame_id, source_frame_id, source_frame, url, username, password):
-    qt_bridge().login_form_submitted_in_page(url, username, password)
+    js_to_python('login_form_submitted_in_page', url, username, password)
 
 def on_autofill_login_form(url, username, password, autosubmit, is_current_form):
     if not do_autofill(url, username, password, autosubmit, is_current_form):
@@ -101,7 +101,7 @@ def send_url_for_current_login_form(current_frame_id, source_frame_id, source_fr
     nonlocal current_login_form_request_id
     if request_id is current_login_form_request_id:
         current_login_form_request_id += 1
-        qt_bridge().url_for_current_login_form(url)
+        js_to_python('url_for_current_login_form', url)
 
 def onload():
     if window is window.top:
