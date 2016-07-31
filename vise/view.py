@@ -15,7 +15,7 @@ from gettext import gettext as _
 from PyQt5.Qt import (
     QWebEngineView, QWebEnginePage, QSize, QNetworkRequest, QIcon,
     QApplication, QPixmap, pyqtSignal, QWebChannel, pyqtSlot, QObject,
-    QGridLayout, QCheckBox, QLabel, Qt
+    QGridLayout, QCheckBox, QLabel, Qt, QWebEngineScript
 )
 
 from .auth import get_http_auth_credentials, get_proxy_auth_credentials
@@ -153,7 +153,7 @@ class WebPage(QWebEnginePage):
         QWebEnginePage.__init__(self, profile, parent)
         self.bridge = Bridge(self)
         self.channel = QWebChannel(self)
-        self.setWebChannel(self.channel)
+        self.setWebChannel(self.channel, QWebEngineScript.ApplicationWorld)
         self.channel.registerObject('bridge', self.bridge)
         self.authenticationRequired.connect(self.authentication_required)
         self.proxyAuthenticationRequired.connect(self.proxy_authentication_required)

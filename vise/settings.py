@@ -129,7 +129,7 @@ def safe_makedirs(path):
         pass
 
 
-def create_script(name, src, world=QWebEngineScript.MainWorld, injection_point=QWebEngineScript.DocumentCreation, on_subframes=True):
+def create_script(name, src, world=QWebEngineScript.ApplicationWorld, injection_point=QWebEngineScript.DocumentCreation, on_subframes=True):
     script = QWebEngineScript()
     script.setSourceCode(src)
     script.setName(name)
