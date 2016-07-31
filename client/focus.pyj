@@ -65,3 +65,5 @@ def onload():
         connect_signal('set_editable_text', set_editable_text)
     register_handler('find_editable_text', find_editable_text)
     register_handler('set_edit_text', set_edit_text)
+    if is_text_input_node(document.activeElement):
+        handle_focus_in()
