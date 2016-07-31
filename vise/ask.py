@@ -87,6 +87,7 @@ class Ask(QWidget):
     run_command = pyqtSignal(object)
 
     def __init__(self, parent=None):
+        self.complete_pos = 0
         QWidget.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
         self.edit = e = QLineEdit(self)
@@ -106,7 +107,6 @@ class Ask(QWidget):
         c.setItemDelegate(d)
         c.setModel(m)
         l.addWidget(e), l.addWidget(c)
-        self.complete_pos = 0
         if hasattr(parent, 'resized'):
             parent.resized.connect(self.re_layout)
             self.re_layout()
@@ -178,8 +178,9 @@ class Ask(QWidget):
 
     def current_changed(self, old_index, new_index):
         item = self.candidates.currentIndex().data(Qt.UserRole)
-        text = self.edit.text()[:self.complete_pos] + item.value
-        self.edit.setText(text)
+        if item is not None:
+            text = self.edit.text()[:self.complete_pos] + item.value
+            self.edit.setText(text)
 
 
 def develop():
