@@ -5267,10 +5267,10 @@ return this.__repr__();
             if (kwargs !== null && typeof kwargs === "object" && kwargs [ρσ_kwargs_symbol] === true) args.pop();
             var ans, vattr, val, attr, arg;
             ans = this.createElement(tag);
-            var ρσ_Iter3 = kwargs;
-            ρσ_Iter3 = ((typeof ρσ_Iter3[Symbol.iterator] === "function") ? (ρσ_Iter3 instanceof Map ? ρσ_Iter3.keys() : ρσ_Iter3) : Object.keys(ρσ_Iter3));
-            for (var ρσ_Index3 of ρσ_Iter3) {
-                attr = ρσ_Index3;
+            var ρσ_Iter0 = kwargs;
+            ρσ_Iter0 = ((typeof ρσ_Iter0[Symbol.iterator] === "function") ? (ρσ_Iter0 instanceof Map ? ρσ_Iter0.keys() : ρσ_Iter0) : Object.keys(ρσ_Iter0));
+            for (var ρσ_Index0 of ρσ_Iter0) {
+                attr = ρσ_Index0;
                 vattr = str.replace(str.rstrip(attr, "_"), "_", "-");
                 val = kwargs[(typeof attr === "number" && attr < 0) ? kwargs.length + attr : attr];
                 if (callable(val)) {
@@ -5284,10 +5284,10 @@ return this.__repr__();
                     ans.setAttribute(vattr, val);
                 }
             }
-            var ρσ_Iter4 = args;
-            ρσ_Iter4 = ((typeof ρσ_Iter4[Symbol.iterator] === "function") ? (ρσ_Iter4 instanceof Map ? ρσ_Iter4.keys() : ρσ_Iter4) : Object.keys(ρσ_Iter4));
-            for (var ρσ_Index4 of ρσ_Iter4) {
-                arg = ρσ_Index4;
+            var ρσ_Iter1 = args;
+            ρσ_Iter1 = ((typeof ρσ_Iter1[Symbol.iterator] === "function") ? (ρσ_Iter1 instanceof Map ? ρσ_Iter1.keys() : ρσ_Iter1) : Object.keys(ρσ_Iter1));
+            for (var ρσ_Index1 of ρσ_Iter1) {
+                arg = ρσ_Index1;
                 if (typeof arg === "string") {
                     arg = this.createTextNode(arg);
                 }
@@ -5303,10 +5303,10 @@ return this.__repr__();
         function maker_for_document(document) {
             var E, tag;
             E = _makeelement.bind(document);
-            var ρσ_Iter5 = html5_tags;
-            ρσ_Iter5 = ((typeof ρσ_Iter5[Symbol.iterator] === "function") ? (ρσ_Iter5 instanceof Map ? ρσ_Iter5.keys() : ρσ_Iter5) : Object.keys(ρσ_Iter5));
-            for (var ρσ_Index5 of ρσ_Iter5) {
-                tag = ρσ_Index5;
+            var ρσ_Iter2 = html5_tags;
+            ρσ_Iter2 = ((typeof ρσ_Iter2[Symbol.iterator] === "function") ? (ρσ_Iter2 instanceof Map ? ρσ_Iter2.keys() : ρσ_Iter2) : Object.keys(ρσ_Iter2));
+            for (var ρσ_Index2 of ρσ_Iter2) {
+                tag = ρσ_Index2;
                 Object.defineProperty(E, tag, (function(){
                     var ρσ_d = {};
                     ρσ_d["value"] = _makeelement.bind(document, tag);
@@ -5438,10 +5438,10 @@ return this.__repr__();
         LABELS = ρσ_list_decorate([ ρσ_list_decorate([ "P", Math.pow(2, 50) ]), ρσ_list_decorate([ "T", Math.pow(2, 40) ]), ρσ_list_decorate([ "G", 1 << 30 ]), ρσ_list_decorate([ "M", 1 << 20 ]) ]);
         function humanize_size(size) {
             var ρσ_unpack, label, minnum;
-            var ρσ_Iter6 = LABELS;
-            ρσ_Iter6 = ((typeof ρσ_Iter6[Symbol.iterator] === "function") ? (ρσ_Iter6 instanceof Map ? ρσ_Iter6.keys() : ρσ_Iter6) : Object.keys(ρσ_Iter6));
-            for (var ρσ_Index6 of ρσ_Iter6) {
-                ρσ_unpack = ρσ_Index6;
+            var ρσ_Iter0 = LABELS;
+            ρσ_Iter0 = ((typeof ρσ_Iter0[Symbol.iterator] === "function") ? (ρσ_Iter0 instanceof Map ? ρσ_Iter0.keys() : ρσ_Iter0) : Object.keys(ρσ_Iter0));
+            for (var ρσ_Index0 of ρσ_Iter0) {
+                ρσ_unpack = ρσ_Index0;
                 label = ρσ_unpack[0];
                 minnum = ρσ_unpack[1];
                 if (size >= minnum) {
@@ -5644,8 +5644,8 @@ return this.__repr__();
                     document = stack.pop();
                     win = document.defaultView;
                     yield win;
-                    for (var ρσ_Index7 = 0; ρσ_Index7 < win.frames.length; ρσ_Index7++) {
-                        i = ρσ_Index7;
+                    for (var ρσ_Index0 = 0; ρσ_Index0 < win.frames.length; ρσ_Index0++) {
+                        i = ρσ_Index0;
                         try {
                             frame = (ρσ_expr_temp = win.frames)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i];
                             if (frame.document !== document) {
@@ -5681,10 +5681,10 @@ return this.__repr__();
                 return false;
             }
             if (!rect.width || !rect.height) {
-                var ρσ_Iter8 = elem.childNodes;
-                ρσ_Iter8 = ((typeof ρσ_Iter8[Symbol.iterator] === "function") ? (ρσ_Iter8 instanceof Map ? ρσ_Iter8.keys() : ρσ_Iter8) : Object.keys(ρσ_Iter8));
-                for (var ρσ_Index8 of ρσ_Iter8) {
-                    child = ρσ_Index8;
+                var ρσ_Iter1 = elem.childNodes;
+                ρσ_Iter1 = ((typeof ρσ_Iter1[Symbol.iterator] === "function") ? (ρσ_Iter1 instanceof Map ? ρσ_Iter1.keys() : ρσ_Iter1) : Object.keys(ρσ_Iter1));
+                for (var ρσ_Index1 of ρσ_Iter1) {
+                    child = ρσ_Index1;
                     if (child.nodeType === child.ELEMENT_NODE && win.getComputedStyle(child).float !== "none" && is_visible(child)) {
                         return true;
                     }
@@ -5781,10 +5781,10 @@ return this.__repr__();
                         return ρσ_Result;
                     })();
                 }
-                var ρσ_Iter9 = win.document.querySelectorAll(selector);
-                ρσ_Iter9 = ((typeof ρσ_Iter9[Symbol.iterator] === "function") ? (ρσ_Iter9 instanceof Map ? ρσ_Iter9.keys() : ρσ_Iter9) : Object.keys(ρσ_Iter9));
-                for (var ρσ_Index9 of ρσ_Iter9) {
-                    elem = ρσ_Index9;
+                var ρσ_Iter0 = win.document.querySelectorAll(selector);
+                ρσ_Iter0 = ((typeof ρσ_Iter0[Symbol.iterator] === "function") ? (ρσ_Iter0 instanceof Map ? ρσ_Iter0.keys() : ρσ_Iter0) : Object.keys(ρσ_Iter0));
+                for (var ρσ_Index0 of ρσ_Iter0) {
+                    elem = ρσ_Index0;
                     if (filter_func !== null && !filter_func(elem)) {
                         continue;
                     }
@@ -5795,18 +5795,18 @@ return this.__repr__();
                         if (regexps === null) {
                             matches = true;
                         } else {
-                            var ρσ_Iter10 = regexps;
-                            ρσ_Iter10 = ((typeof ρσ_Iter10[Symbol.iterator] === "function") ? (ρσ_Iter10 instanceof Map ? ρσ_Iter10.keys() : ρσ_Iter10) : Object.keys(ρσ_Iter10));
-                            for (var ρσ_Index10 of ρσ_Iter10) {
-                                regexp = ρσ_Index10;
+                            var ρσ_Iter1 = regexps;
+                            ρσ_Iter1 = ((typeof ρσ_Iter1[Symbol.iterator] === "function") ? (ρσ_Iter1 instanceof Map ? ρσ_Iter1.keys() : ρσ_Iter1) : Object.keys(ρσ_Iter1));
+                            for (var ρσ_Index1 of ρσ_Iter1) {
+                                regexp = ρσ_Index1;
                                 if (regexp.test(elem.textContent)) {
                                     matches = true;
                                     break;
                                 }
-                                var ρσ_Iter11 = elem.childNodes;
-                                ρσ_Iter11 = ((typeof ρσ_Iter11[Symbol.iterator] === "function") ? (ρσ_Iter11 instanceof Map ? ρσ_Iter11.keys() : ρσ_Iter11) : Object.keys(ρσ_Iter11));
-                                for (var ρσ_Index11 of ρσ_Iter11) {
-                                    child = ρσ_Index11;
+                                var ρσ_Iter2 = elem.childNodes;
+                                ρσ_Iter2 = ((typeof ρσ_Iter2[Symbol.iterator] === "function") ? (ρσ_Iter2 instanceof Map ? ρσ_Iter2.keys() : ρσ_Iter2) : Object.keys(ρσ_Iter2));
+                                for (var ρσ_Index2 of ρσ_Iter2) {
+                                    child = ρσ_Index2;
                                     if (regexp.test(child.alt)) {
                                         matches = true;
                                         break;
@@ -5817,10 +5817,10 @@ return this.__repr__();
                                 }
                             }
                             if (!matches) {
-                                var ρσ_Iter12 = regexps;
-                                ρσ_Iter12 = ((typeof ρσ_Iter12[Symbol.iterator] === "function") ? (ρσ_Iter12 instanceof Map ? ρσ_Iter12.keys() : ρσ_Iter12) : Object.keys(ρσ_Iter12));
-                                for (var ρσ_Index12 of ρσ_Iter12) {
-                                    regexp = ρσ_Index12;
+                                var ρσ_Iter3 = regexps;
+                                ρσ_Iter3 = ((typeof ρσ_Iter3[Symbol.iterator] === "function") ? (ρσ_Iter3 instanceof Map ? ρσ_Iter3.keys() : ρσ_Iter3) : Object.keys(ρσ_Iter3));
+                                for (var ρσ_Index3 of ρσ_Iter3) {
+                                    regexp = ρσ_Index3;
                                     if (regexp.test(elem.title)) {
                                         matches = true;
                                         break;
@@ -5900,10 +5900,10 @@ return this.__repr__();
             var regexps, rel, elem;
             regexps = (forward) ? next_regexps : prev_regexps;
             rel = (forward) ? "next" : "prev";
-            var ρσ_Iter13 = iter_visible_links(win, regexps, rel);
-            ρσ_Iter13 = ((typeof ρσ_Iter13[Symbol.iterator] === "function") ? (ρσ_Iter13 instanceof Map ? ρσ_Iter13.keys() : ρσ_Iter13) : Object.keys(ρσ_Iter13));
-            for (var ρσ_Index13 of ρσ_Iter13) {
-                elem = ρσ_Index13;
+            var ρσ_Iter0 = iter_visible_links(win, regexps, rel);
+            ρσ_Iter0 = ((typeof ρσ_Iter0[Symbol.iterator] === "function") ? (ρσ_Iter0 instanceof Map ? ρσ_Iter0.keys() : ρσ_Iter0) : Object.keys(ρσ_Iter0));
+            for (var ρσ_Index0 of ρσ_Iter0) {
+                elem = ρσ_Index0;
                 return elem;
             }
         };
@@ -6042,10 +6042,10 @@ return this.__repr__();
         function get_login_inputs(form) {
             var username, password, itype, name, inp;
             username = password = null;
-            var ρσ_Iter14 = form.querySelectorAll("input");
-            ρσ_Iter14 = ((typeof ρσ_Iter14[Symbol.iterator] === "function") ? (ρσ_Iter14 instanceof Map ? ρσ_Iter14.keys() : ρσ_Iter14) : Object.keys(ρσ_Iter14));
-            for (var ρσ_Index14 of ρσ_Iter14) {
-                inp = ρσ_Index14;
+            var ρσ_Iter0 = form.querySelectorAll("input");
+            ρσ_Iter0 = ((typeof ρσ_Iter0[Symbol.iterator] === "function") ? (ρσ_Iter0 instanceof Map ? ρσ_Iter0.keys() : ρσ_Iter0) : Object.keys(ρσ_Iter0));
+            for (var ρσ_Index0 of ρσ_Iter0) {
+                inp = ρσ_Index0;
                 if (username !== null && password !== null) {
                     break;
                 }
@@ -6135,10 +6135,10 @@ return this.__repr__();
                         }
                     }
                 } else {
-                    var ρσ_Iter15 = document.querySelectorAll("form");
-                    ρσ_Iter15 = ((typeof ρσ_Iter15[Symbol.iterator] === "function") ? (ρσ_Iter15 instanceof Map ? ρσ_Iter15.keys() : ρσ_Iter15) : Object.keys(ρσ_Iter15));
-                    for (var ρσ_Index15 of ρσ_Iter15) {
-                        form = ρσ_Index15;
+                    var ρσ_Iter1 = document.querySelectorAll("form");
+                    ρσ_Iter1 = ((typeof ρσ_Iter1[Symbol.iterator] === "function") ? (ρσ_Iter1 instanceof Map ? ρσ_Iter1.keys() : ρσ_Iter1) : Object.keys(ρσ_Iter1));
+                    for (var ρσ_Index1 of ρσ_Iter1) {
+                        form = ρσ_Index1;
                         if (is_login_form(form)) {
                             found_form = form;
                             break;
@@ -6209,10 +6209,10 @@ return this.__repr__();
                 register_handler("get_url_for_current_login_form_in_subframe", get_url_for_current_login_form_in_subframe);
             }
             login_forms_found = false;
-            var ρσ_Iter16 = document.querySelectorAll("form");
-            ρσ_Iter16 = ((typeof ρσ_Iter16[Symbol.iterator] === "function") ? (ρσ_Iter16 instanceof Map ? ρσ_Iter16.keys() : ρσ_Iter16) : Object.keys(ρσ_Iter16));
-            for (var ρσ_Index16 of ρσ_Iter16) {
-                form = ρσ_Index16;
+            var ρσ_Iter2 = document.querySelectorAll("form");
+            ρσ_Iter2 = ((typeof ρσ_Iter2[Symbol.iterator] === "function") ? (ρσ_Iter2 instanceof Map ? ρσ_Iter2.keys() : ρσ_Iter2) : Object.keys(ρσ_Iter2));
+            for (var ρσ_Index2 of ρσ_Iter2) {
+                form = ρσ_Index2;
                 if (is_login_form(form)) {
                     form.addEventListener("submit", form_submitted);
                     login_forms_found = true;
