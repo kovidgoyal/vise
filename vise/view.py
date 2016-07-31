@@ -410,6 +410,8 @@ class WebView(QWebEngineView):
         self._page.bridge.follow_next.emit(bool(forward))
 
     def on_login_form_submit(self, url, username, password):
+        if not username or not password:
+            return
         key = key_from_url(url)
         if password_exclusions.get(key, False):
             return
