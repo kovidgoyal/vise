@@ -88,10 +88,14 @@ class Open(Command):
         return items
 
     def __call__(self, cmd, rest, window):
-        is_search = ' ' in rest or '.' not in rest.strip('.')
+        rest = rest.strip()
+        if rest.startswith('http://') or rest.startswith('https://'):
+            is_search = False
+        else:
+            is_search = ' ' in rest or '.' not in rest.strip('.')
         url = search_engine(rest) if is_search else parse_url(rest)
         if cmd in {'open', 'topen', 'tabopen'}:
-            window.open_url(url, in_current_tab=cmd == 'open')
+            window.open_url(url, in_current_tab=cmd == 'open', switch_to_tab=True)
         else:
             window = QApplication.instance().new_window(is_private=cmd.startswith('p'))
             window.open_url(url, in_current_tab=True)

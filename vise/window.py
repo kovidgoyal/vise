@@ -315,9 +315,12 @@ class MainWindow(QMainWindow):
                 self.current_tab = tab
         return tab
 
-    def open_url(self, qurl, in_current_tab=True):
+    def open_url(self, qurl, in_current_tab=True, switch_to_tab=False):
         tab = self.get_tab_for_load(in_current_tab=in_current_tab)
         tab.load(qurl)
+        if switch_to_tab:
+            self.show_tab(tab)
+        return tab
 
     def show_html(self, html, in_current_tab=True):
         if isinstance(html, bytes):
@@ -362,7 +365,7 @@ class MainWindow(QMainWindow):
                 key = QKeySequence(key).toString()
                 self.statusBar().showMessage(_('Quickmark %s is not defined!') % key, 5000)
             return
-        self.open_url(url, in_current_tab=in_current_tab)
+        self.open_url(url, in_current_tab=in_current_tab, switch_to_tab=True)
 
     def choose_tab(self, key):
         self.choose_tab_pending = None
