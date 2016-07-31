@@ -16,12 +16,12 @@ from PyQt5.Qt import (
     QWebEngineDownloadItem, pyqtSignal, QTimer, Qt, QWidget, QPainter
 )
 
-from .constants import cache_dir, DOWNLOADS_URL as DU
+from .constants import DOWNLOADS_URL as DU
 from .resources import get_data, get_icon
 from .settings import DynamicPrefs
 from .utils import (
     Dialog, sanitize_file_name, safe_disconnect, get_content_type_icon,
-    atomic_write, open_local_file, draw_snake_spinner
+    open_local_file, draw_snake_spinner
 )
 
 if os.path.isdir('/t') and os.access('/t', os.R_OK | os.W_OK | os.X_OK):
@@ -33,17 +33,10 @@ open_after = DynamicPrefs('open-after')
 DOWNLOADS_URL = QUrl(DU)
 
 
-@lru_cache(maxsize=None)
-def mimetype_icon_path(mime_type):
+@lru_cache(maxsize=50)
+def mimetype_icon_data(mime_type):
     raw = get_content_type_icon(mime_type, as_data=True) or get_data('images/blank.png')
-    ans = os.path.join(cache_dir, 'mimetype-icons')
-    try:
-        os.mkdir(ans)
-    except FileExistsError:
-        pass
-    ans = os.path.join(ans, sanitize_file_name(mime_type or 'blank.png') + '.png')
-    atomic_write(ans, raw)
-    return ans
+    return QByteArray(raw)
 
 
 class AskAboutDownload(Dialog):  # {{{
@@ -268,7 +261,7 @@ class Downloads(QObject):
     def create_item(self, tab, download_item):
         tab.js_func('window.create_download',
                     download_item.id(), download_item.fname, download_item.mime_type,
-                    'file://' + mimetype_icon_path(download_item.mime_type),
+                    'vise:mimetype-icon/' + download_item.mime_type,
                     download_item.url().host() or 'localhost')
 
     def update_item(self, tab, download_item):

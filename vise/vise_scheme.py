@@ -4,7 +4,7 @@
 
 from PyQt5.Qt import QWebEngineUrlSchemeHandler, QBuffer
 
-from .downloads import get_downloads_html
+from .downloads import get_downloads_html, mimetype_icon_data
 
 
 class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
@@ -17,5 +17,11 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
         q = url.path()
         if q == 'downloads':
             rq.reply(b'text/html', QBuffer(get_downloads_html(), self))
+        elif q.startswith('mimetype-icon/'):
+            q = q.partition('/')[2].strip()
+            if q:
+                rq.reply(b'image/png', QBuffer(mimetype_icon_data(q), self))
+            else:
+                rq.fail(rq.UrlNotFound)
         else:
             rq.fail(rq.UrlNotFound)
