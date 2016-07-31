@@ -178,7 +178,7 @@ class WebPage(QWebEnginePage):
         self.runJavaScript('window.get_messages_from_javascript()', QWebEngineScript.ApplicationWorld, self.messages_received_from_js)
 
     def messages_received_from_js(self, messages):
-        if messages:
+        if messages and messages != '[]':
             for msg in json.loads(messages):
                 mtype = msg['type']
                 if mtype == 'callback':
