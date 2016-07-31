@@ -1,0 +1,33 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+
+TITLE_TOKEN = '__TITLE_TOKEN__'
+
+
+to_python = v'[]'
+from_python = {}
+
+
+def notify_python():
+    t, document.title = document.title, TITLE_TOKEN
+    document.title = t
+
+def callback(name, data, console_err):
+    to_python.push({'type':'callback', 'name':name, 'data':data})
+    notify_python()
+
+def js_to_python(name, *args):
+    to_python.push({'type':'js_to_python', 'name':name, 'args':args})
+    notify_python()
+
+def connect_signal(name, func):
+    from_python[name] = func
+
+window.get_messages_from_javascript = def get_messages_from_javascript():
+    nonlocal to_python
+    t, to_python = to_python, v'[]'
+    return JSON.stringify(t)
+
+window.send_message_to_javascript = def send_message_to_javascript(name, args):
+    from_python[name](*args)

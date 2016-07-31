@@ -259,7 +259,7 @@ class MainWindow(QMainWindow):
         ans = WebView(self.profile, self)
         self.stack.addWidget(ans)
         self.tabs.append(ans)
-        ans.titleChanged.connect(self.update_window_title)
+        ans.title_changed.connect(self.update_window_title)
         ans.open_in_new_tab.connect(self.open_in_new_tab)
         ans.urlChanged.connect(self.url_changed)
         ans.link_hovered.connect(partial(self.link_hovered, ans))
@@ -279,10 +279,6 @@ class MainWindow(QMainWindow):
             tab.break_cycles()
             self.tabs.remove(tab)
             self.stack.removeWidget(tab)
-
-    def on_new_ws_connection(self, func, data):
-        for tab in self.tabs:
-            tab.on_new_ws_connection(func, data)
 
     def break_cycles(self):
         for tab in self.tabs:

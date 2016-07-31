@@ -120,9 +120,7 @@ class Bridge(QObject):
             sig.connect(partial(self.python_to_js, name))
 
     def python_to_js(self, name, *args):
-        conn = self.parent().ws_connection
-        if conn is not None:
-            conn.send_message('python_to_js', {'name': name, 'args': args})
+        self.parent().runJavaScript('window.send_message_to_javascript(%s, %s)' % (json.dumps(name), json.dumps(args)), QWebEngineScript.ApplicationWorld)
 
     @pyqtSlot(str)
     def middle_clicked_link(self, href):
@@ -160,13 +158,15 @@ class Bridge(QObject):
 
 class WebPage(QWebEnginePage):
 
+    poll_for_messages = pyqtSignal()
+
     def __init__(self, profile, parent):
         QWebEnginePage.__init__(self, profile, parent)
-        self.ws_connection = None
         self.bridge = Bridge(self)
         self.authenticationRequired.connect(self.authentication_required)
         self.proxyAuthenticationRequired.connect(self.proxy_authentication_required)
         self.callbacks = {'vise_downloads_page': (self.downloads_callback, (), {})}
+        self.poll_for_messages.connect(self.check_for_messages_from_js, type=Qt.QueuedConnection)
 
     def register_callback(self, name, func, *args, **kw):
         self.callbacks[name] = (func, args, kw)
@@ -174,11 +174,19 @@ class WebPage(QWebEnginePage):
     def downloads_callback(self, *args, **kw):
         return QApplication.instance().downloads.callback(*args, **kw)
 
-    def message_received_from_js(self, mtype, data):
-        if mtype == 'callback':
-            self.called_back(data['name'], data['data'])
-        elif mtype == 'js_to_python':
-            getattr(self.bridge, data['name'])(*data['args'])
+    def check_for_messages_from_js(self):
+        self.runJavaScript('window.get_messages_from_javascript()', QWebEngineScript.ApplicationWorld, self.messages_received_from_js)
+
+    def messages_received_from_js(self, messages):
+        if messages:
+            for msg in json.loads(messages):
+                mtype = msg['type']
+                if mtype == 'callback':
+                    self.called_back(msg['name'], msg['data'])
+                elif mtype == 'js_to_python':
+                    getattr(self.bridge, msg['name'])(*msg['args'])
+                else:
+                    print('Unknown message type %s received from javascript' % mtype)
 
     def called_back(self, name, data):
         try:
@@ -221,13 +229,10 @@ class WebPage(QWebEnginePage):
         Alert(self.title(), qurl, msg, self.parent()).exec_()
 
     def break_cycles(self):
-        if self.ws_connection is not None:
-            self.ws_connection.break_cycles()
-        self.ws_connection = None
         self.bridge.break_cycles()
         self.callbacks.clear()
         for s in ('authenticationRequired proxyAuthenticationRequired linkHovered featurePermissionRequested'
-                  ' featurePermissionRequestCanceled windowCloseRequested').split():
+                  ' featurePermissionRequestCanceled windowCloseRequested poll_for_messages').split():
             safe_disconnect(getattr(self, s))
 
     def acceptNavigationRequest(self, qurl, navtype, is_main_frame):
@@ -250,6 +255,7 @@ class WebView(QWebEngineView):
     resized = pyqtSignal()
     moved = pyqtSignal()
     passthrough_changed = pyqtSignal(object, object)
+    title_changed = pyqtSignal(object)
 
     def __init__(self, profile, main_window):
         global view_id
@@ -275,7 +281,7 @@ class WebView(QWebEngineView):
         self.feature_permission_map = {}
         self.text_input_focused = False
         self._force_passthrough = False
-        self.titleChanged.connect(self.title_changed)
+        self.titleChanged.connect(self.on_title_change)
 
     def load_finished(self):
         from .downloads import DOWNLOADS_URL
@@ -284,12 +290,16 @@ class WebView(QWebEngineView):
             self.icon_changed.emit(self.icon)
         self.loading_status_changed.emit(False)
 
-    def title_changed(self, title):
-        try:
-            places.on_title_change(self.url(), title)
-        except Exception:
-            import traceback
-            traceback.print_exc()
+    def on_title_change(self, title):
+        from .settings import TITLE_TOKEN
+        if title != TITLE_TOKEN:
+            try:
+                places.on_title_change(self.url(), title)
+            except Exception:
+                import traceback
+                traceback.print_exc()
+            self.title_changed.emit(title)
+        self._page.poll_for_messages.emit()
 
     def register_callback(self, name, func, *args, **kw):
         self._page.register_callback(name, func, *args, **kw)
@@ -439,17 +449,3 @@ class WebView(QWebEngineView):
             if accounts:
                 ac = accounts[0]
                 self._page.bridge.autofill_login_form.emit(url, ac['username'], ac['password'], ac['autologin'], is_current_form)
-
-    def on_new_ws_connection(self, func, data):
-        self.js_func('window.get_bridge_id', callback=partial(self.on_get_bridge_id, func, data.get('bridge_id')))
-
-    def on_get_bridge_id(self, func, bridge_id, q):
-        if q == bridge_id:
-            func(self)
-
-    def set_ws_connection(self, conn):
-        if self._page.ws_connection is not None:
-            self._page.ws_connection.break_cycles()
-        self._page.ws_connection = conn
-        conn.message_received.connect(self._page.message_received_from_js)
-        conn.send_message('connected')

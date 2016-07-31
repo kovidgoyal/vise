@@ -139,19 +139,18 @@ def create_script(name, src, world=QWebEngineScript.ApplicationWorld, injection_
     return script
 
 
-AUTH_TOKEN = None
+TITLE_TOKEN = None
 
 
 @lru_cache()
 def client_script():
-    global AUTH_TOKEN
-    AUTH_TOKEN = hexlify(os.urandom(32)).decode('ascii')
+    global TITLE_TOKEN
+    TITLE_TOKEN = hexlify(os.urandom(32)).decode('ascii')
     name = '%s-client.js' % appname
     f = get_data_as_file(name)
     src = f.read().decode('utf-8')
     src = src.replace('__DOWNLOADS_URL__', DOWNLOADS_URL)
-    src = src.replace('__WEBSOCKET_PORT__', str(QApplication.instance().web_socket_server.port))
-    src = src.replace('__AUTH_TOKEN__', AUTH_TOKEN)
+    src = src.replace('__TITLE_TOKEN__', TITLE_TOKEN)
     src = src.replace('__SECRET_KEY__', hexlify(os.urandom(32)).decode('ascii'))
     return create_script(f.name, src)
 

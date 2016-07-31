@@ -2,7 +2,7 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 from frames import send_action, register_handler, broadcast_action, frame_iter
-from web_socket import js_to_python, connect_signal
+from communicate import js_to_python, connect_signal
 
 input_types = {'text', 'email', 'tel'}
 username_names = {'login', 'user', 'mail', 'email', 'username', 'id'}

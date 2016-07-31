@@ -131,7 +131,7 @@ class TabItem(QTreeWidgetItem):
         self.set_data(ANGLE_ROLE, 0)
         self.set_data(HOVER_ROLE, False)
         self.tabref = weakref.ref(tab)
-        tab.titleChanged.connect(partial(self.set_data, DISPLAY_ROLE))
+        tab.title_changed.connect(partial(self.set_data, DISPLAY_ROLE))
         tab.icon_changed.connect(self.icon_changed)
         tab.loading_status_changed.connect(self._loading_status_changed)
 

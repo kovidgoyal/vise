@@ -1,7 +1,7 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-from web_socket import connect_signal, js_to_python
+from communicate import connect_signal, js_to_python
 from frames import send_action, register_handler, frame_for_id
 
 def text_editing_allowed(node):
