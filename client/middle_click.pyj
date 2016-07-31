@@ -26,4 +26,4 @@ def handle_middle_click(ev):
 
 def onload():
     register_handler('middle_clicked', middle_clicked)
-    document.addEventListener('click', handle_middle_click)
+    document.addEventListener('click', handle_middle_click, True)
