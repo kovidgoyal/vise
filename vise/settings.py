@@ -182,7 +182,12 @@ def create_profile(parent=None, private=False):
         ans.setPersistentStoragePath(os.path.join(cache_dir, appname, 'storage'))
         safe_makedirs(ans.persistentStoragePath())
     ans.setHttpUserAgent(ans.httpUserAgent().replace('QtWebEngine/', '%s/%s QtWebEngine/' % (appname, str_version)))
-    insert_scripts(ans, qwebchannel_script(), client_script())
+    try:
+        insert_scripts(ans, qwebchannel_script(), client_script())
+    except FileNotFoundError as err:
+        if '-client.js' in str(err):
+            raise SystemExit('You need to compile the rapydscript parts of vise before running it. Install rapydscript-ng and run the build script')
+        raise
     return ans
 
 _profile = None

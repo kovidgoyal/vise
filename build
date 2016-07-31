@@ -1,0 +1,2 @@
+#!/bin/sh
+rapydscript --js-version 6 --cache-dir .build-cache client/main.pyj > resources/vise-client.js
