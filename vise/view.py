@@ -429,6 +429,8 @@ class WebView(QWebEngineView):
             QApplication.instance().store_password(url, username, password)
 
     def on_login_form_found(self, url, is_current_form):
+        if not QApplication.instance().ask_for_master_password(self):
+            return
         if password_db.join():
             key = key_from_url(url)
             accounts = password_db.get_accounts(key)

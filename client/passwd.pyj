@@ -27,7 +27,7 @@ def get_login_inputs(form):
                 password = inp
             elif itype in input_types:
                 name = str.lower(inp.name or inp.id or '')
-                if name in username_names:
+                if name in username_names or str.endswith(name, '_username'):
                     username = inp
     return username, password
 
