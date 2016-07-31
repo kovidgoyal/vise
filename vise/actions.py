@@ -79,9 +79,9 @@ def prev_match(window, *args, **kwargs):
 
 
 def show_downloads(window, *args, **kwargs):
+    from .downloads import DOWNLOADS_URL
     tab = window.get_tab_for_load(in_current_tab=False)
-    from .downloads import load
-    load(tab)
+    tab.load(DOWNLOADS_URL)
     window.show_tab(tab)
 
 

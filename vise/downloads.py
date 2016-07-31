@@ -10,14 +10,15 @@ from time import monotonic
 from functools import partial, lru_cache
 from gettext import gettext as _
 
+import sip
 from PyQt5.Qt import (
-    QApplication, QVBoxLayout, QCheckBox, QLabel, QObject, QUrl,
+    QApplication, QVBoxLayout, QCheckBox, QLabel, QObject, QUrl, QByteArray,
     QWebEngineDownloadItem, pyqtSignal, QTimer, Qt, QWidget, QPainter
 )
 
-from .constants import cache_dir
+from .constants import cache_dir, DOWNLOADS_URL as DU
 from .resources import get_data, get_icon
-from .settings import DynamicPrefs, DOWNLOADS_URL as DU
+from .settings import DynamicPrefs
 from .utils import (
     Dialog, sanitize_file_name, safe_disconnect, get_content_type_icon,
     atomic_write, open_local_file, draw_snake_spinner
@@ -30,7 +31,6 @@ else:
 
 open_after = DynamicPrefs('open-after')
 DOWNLOADS_URL = QUrl(DU)
-DOWNLOADS_FAVICON_URL = QUrl(DU + '/favicon.png')
 
 
 @lru_cache(maxsize=None)
@@ -197,7 +197,7 @@ class Downloads(QObject):
         for tabref in self.tabrefs:
             tab = tabref()
             if tab is not None:
-                if tab.url() == DOWNLOADS_URL:
+                if not sip.isdeleted(tab) and tab.url() == DOWNLOADS_URL:
                     yield tab
                 else:
                     remove.append(tabref)
@@ -211,10 +211,7 @@ class Downloads(QObject):
         self.items.append(download_item)
         download_item.downloadProgress.connect(partial(self.on_state_change, idx))
         download_item.finished.connect(partial(self.on_state_change, idx))
-        try:
-            download_item.stateChanged.connect(partial(self.on_state_change, idx))
-        except TypeError:
-            pass  # Bug in PyQt
+        download_item.stateChanged.connect(partial(self.on_state_change, idx))
         download_item.last_tick = (monotonic(), 0)
         download_item.rates = [-1]
         for tab in self.itertabs():
@@ -281,7 +278,7 @@ class Downloads(QObject):
         if len(rates) == 1:
             rate = rates[0]
         else:
-            rate = sum(rates[-100:])/100
+            rate = sum(rates[-100:]) / 100
         tab.js_func('window.update_download',
                     download_item.id(), state, download_item.receivedBytes(), download_item.totalBytes(), rates[-1], rate)
 
@@ -300,11 +297,10 @@ class Downloads(QObject):
                 break
 
 
-def load(tab):
-    app = QApplication.instance()
-    html = get_data('downloads.html').decode('utf-8').replace('_TITLE_', _('Downloads')).replace('_FAVICON_', DOWNLOADS_FAVICON_URL.toString())
-    tab.setHtml(html, DOWNLOADS_URL)
-    tab.register_callback('downloads', app.downloads.callback)
+def get_downloads_html():
+    if not hasattr(get_downloads_html, 'html'):
+        get_downloads_html.html = QByteArray(get_data('downloads.html').decode('utf-8').replace('_TITLE_', _('Downloads')).encode('utf-8'))
+    return get_downloads_html.html
 
 
 def develop():  # {{{
@@ -381,5 +377,5 @@ def develop():  # {{{
         app.downloads.download_created(FakeDownloadItem(size=100 * 1024))
 
     Downloads.for_develop = create_downloads
-    run_app(['about:downloads'])
+    run_app([DU], new_instance=True)
 # }}}

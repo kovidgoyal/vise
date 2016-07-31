@@ -20,6 +20,7 @@ isnetbsd = 'netbsd' in _plat
 isdragonflybsd = 'dragonfly' in _plat
 isbsd = isfreebsd or isnetbsd or isdragonflybsd
 islinux = not(iswindows or isosx or isbsd)
+DOWNLOADS_URL = 'vise:downloads'
 
 
 def _get_cache_dir():

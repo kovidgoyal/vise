@@ -15,7 +15,7 @@ from PyQt5.Qt import (
 from .ask import Ask
 from .cmd import run_command
 from .constants import appname
-from .downloads import DOWNLOADS_URL, Indicator
+from .downloads import Indicator
 from .resources import get_data_as_file, get_icon
 from .settings import gprefs, profile, create_profile, quickmarks
 from .tab_tree import TabTree
@@ -291,8 +291,6 @@ class MainWindow(QMainWindow):
             self.status_msg('')
         else:
             qurl = self.current_tab.url()
-            if qurl == DOWNLOADS_URL:
-                qurl = QUrl('about:downloads')
             val = qurl.toDisplayString()
             self.status_msg(val)
 
@@ -313,11 +311,7 @@ class MainWindow(QMainWindow):
 
     def open_url(self, qurl, in_current_tab=True):
         tab = self.get_tab_for_load(in_current_tab=in_current_tab)
-        if qurl.toString() == 'about:downloads':
-            from .downloads import load
-            load(tab)
-        else:
-            tab.load(qurl)
+        tab.load(qurl)
 
     def show_html(self, html, in_current_tab=True):
         if isinstance(html, bytes):

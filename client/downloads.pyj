@@ -5,11 +5,13 @@ from elementmaker import E
 from humanize import humanize_size, relative_time
 from qt import callback
 
+CALLBACK_NAME = 'vise_downloads_page'
+
 def cancel_download(dl_id):
-    callback('downloads', {'id':int(dl_id), 'cmd':'cancel'})
+    callback(CALLBACK_NAME, {'id':int(dl_id), 'cmd':'cancel'})
 
 def open_download(dl_id):
-    callback('downloads', {'id':int(dl_id), 'cmd':'open'})
+    callback(CALLBACK_NAME, {'id':int(dl_id), 'cmd':'open'})
 
 def create_download(dl_id, fname, mime_type, icon_url, hostname):
     document.getElementById('init').style.display= 'none'
@@ -84,4 +86,4 @@ def main():
     .fname { cursor: pointer }
     .fname:hover { color: red; font-style: italic }
     '''
-    callback('downloads', {'cmd':'inited'})
+    callback(CALLBACK_NAME, {'cmd':'inited'})

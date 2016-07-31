@@ -23,8 +23,8 @@ from .certs import cert_exceptions
 from .message_box import question_dialog
 from .places import places
 from .popup import Popup
-from .utils import Dialog, safe_disconnect
 from .resources import get_icon
+from .utils import Dialog, safe_disconnect
 from .passwd.db import password_db, key_from_url, password_exclusions
 from .settings import gprefs
 
@@ -157,11 +157,14 @@ class WebPage(QWebEnginePage):
         self.channel.registerObject('bridge', self.bridge)
         self.authenticationRequired.connect(self.authentication_required)
         self.proxyAuthenticationRequired.connect(self.proxy_authentication_required)
-        self.callbacks = {}
+        self.callbacks = {'vise_downloads_page': (self.downloads_callback, (), {})}
         self.bridge.js_to_python.called_back.connect(self.called_back)
 
     def register_callback(self, name, func, *args, **kw):
         self.callbacks[name] = (func, args, kw)
+
+    def downloads_callback(self, *args, **kw):
+        return QApplication.instance().downloads.callback(*args, **kw)
 
     def called_back(self, name, data):
         try:
@@ -246,7 +249,7 @@ class WebView(QWebEngineView):
         self._page.bridge.js_to_python.login_form_submitted.connect(self.on_login_form_submit)
         self._page.bridge.js_to_python.login_form_found.connect(self.on_login_form_found)
         self.loadStarted.connect(lambda: self.loading_status_changed.emit(True))
-        self.loadFinished.connect(lambda: self.loading_status_changed.emit(False))
+        self.loadFinished.connect(self.load_finished)
         self._page.linkHovered.connect(self.link_hovered.emit)
         self._page.windowCloseRequested.connect(lambda: self.window_close_requested.emit(self))
         self.popup = Popup(self)
@@ -256,6 +259,13 @@ class WebView(QWebEngineView):
         self.text_input_focused = False
         self._force_passthrough = False
         self.titleChanged.connect(self.title_changed)
+
+    def load_finished(self):
+        from .downloads import DOWNLOADS_URL
+        if self.url() == DOWNLOADS_URL:
+            self.icon = get_icon('emblem-downloads.png')
+            self.icon_changed.emit(self.icon)
+        self.loading_status_changed.emit(False)
 
     def title_changed(self, title):
         try:
@@ -320,11 +330,6 @@ class WebView(QWebEngineView):
         return QSize(800, 600)
 
     def icon_url_changed(self, qurl):
-        from .downloads import DOWNLOADS_FAVICON_URL
-        if qurl == DOWNLOADS_FAVICON_URL:
-            self.icon = get_icon('emblem-downloads.png')
-            self.icon_changed.emit(self.icon)
-            return
         if qurl.isEmpty():
             self.icon_loaded()
             return

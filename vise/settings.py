@@ -12,10 +12,10 @@ from functools import lru_cache
 
 from PyQt5.Qt import (
     QWebEngineProfile, QApplication, QWebEngineScript, QFile, QIODevice,
-    QKeySequence
+    QKeySequence, QByteArray
 )
 
-from .constants import config_dir, appname, cache_dir, str_version
+from .constants import config_dir, appname, cache_dir, str_version, DOWNLOADS_URL
 from .resources import get_data_as_file
 
 
@@ -139,9 +139,6 @@ def create_script(name, src, world=QWebEngineScript.ApplicationWorld, injection_
     return script
 
 
-DOWNLOADS_URL = 'file:///' + standard_b64encode(os.urandom(32)).decode('ascii')
-
-
 @lru_cache()
 def client_script():
     # Has to be in main world for the webChannelTransport to work
@@ -169,6 +166,7 @@ def insert_scripts(profile, *scripts):
 
 
 def create_profile(parent=None, private=False):
+    from .vise_scheme import UrlSchemeHandler
     if parent is None:
         parent = QApplication.instance()
     if private:
@@ -188,6 +186,8 @@ def create_profile(parent=None, private=False):
         if '-client.js' in str(err):
             raise SystemExit('You need to compile the rapydscript parts of vise before running it. Install rapydscript-ng and run the build script')
         raise
+    ans.url_handler = UrlSchemeHandler(ans)
+    ans.installUrlSchemeHandler(QByteArray(b'vise'), ans.url_handler)
     return ans
 
 _profile = None
