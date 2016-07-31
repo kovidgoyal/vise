@@ -141,7 +141,6 @@ def create_script(name, src, world=QWebEngineScript.ApplicationWorld, injection_
 
 @lru_cache()
 def client_script():
-    # Has to be in main world for the webChannelTransport to work
     name = '%s-client.js' % appname
     f = get_data_as_file(name)
     src = f.read().decode('utf-8')
@@ -152,7 +151,6 @@ def client_script():
 
 @lru_cache()
 def qwebchannel_script():
-    # Has to be in main world for the webChannelTransport to work
     return create_script('qwebchannel.js', qwebchannel_js)
 
 
