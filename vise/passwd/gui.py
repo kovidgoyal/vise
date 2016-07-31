@@ -60,15 +60,16 @@ class EditAccount(QWidget):
         l.addWidget(sp)
         sp.toggled.connect(lambda checked: p.setEchoMode(p.Normal if checked else p.Password))
         self.la = la = QLabel(_('&Notes:'))
-        l.addWidget(la)
+        l.addRow(la)
         self.notes = n = QPlainTextEdit(self)
         la.setBuddy(n)
         n.textChanged.connect(self.changed.emit)
-        l.addWidget(n)
-        self.autosubmit = QCheckBox(_('&Auto login with these credentials'), self)
+        l.addRow(n)
+        self.autosubmit = asb = QCheckBox(_('&Auto login with these credentials'), self)
+        l.addRow(asb)
         self.rb = b = QPushButton(_('&Delete this account'))
         b.clicked.connect(self.delete_requested.emit)
-        l.addWidget(b)
+        l.addRow(b)
 
     @property
     def data(self):
