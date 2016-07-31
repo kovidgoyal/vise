@@ -132,36 +132,43 @@ class Dialog(QDialog):
 
 
 def ipython(user_ns=None):
-    import IPython
-    from traitlets.config import Config
     ipydir = os.path.join(cache_dir, 'ipython')
-    defns = {'os': os, 're': re, 'sys': sys}
+    os.environ['IPYTHONDIR'] = ipydir
     BANNER = ('Welcome to the interactive vise shell!\n')
-    if not user_ns:
-        user_ns = defns
-    else:
-        defns.update(user_ns)
-        user_ns = defns
+    from IPython.terminal.embed import InteractiveShellEmbed
+    from traitlets.config.loader import Config
+    from IPython.terminal.prompts import Prompts, Token
+
+    class CustomPrompt(Prompts):
+
+        def in_prompt_tokens(self, cli=None):
+            return [
+                (Token.Prompt, 'vise['),
+                (Token.PromptNum, str_version),
+                (Token.Prompt, ']> '),
+            ]
+
+        def out_prompt_tokens(self):
+            return []
+
+    defns = {'os': os, 're': re, 'sys': sys}
+    defns.update(user_ns or {})
 
     c = Config()
+    c.TerminalInteractiveShell.prompts_class = CustomPrompt
+    c.InteractiveShellApp.exec_lines = [
+        'from __future__ import division, absolute_import, unicode_literals, print_function',
+    ]
     c.TerminalInteractiveShell.confirm_exit = False
-    c.PromptManager.in_template = (r'{color.LightGreen}vise '
-                                   '{color.LightBlue}[{color.LightCyan}%s{color.LightBlue}]'
-                                   r'{color.Green}|\#> ' % str_version)
-    c.PromptManager.in2_template = r'{color.Green}|{color.LightGreen}\D{color.Green}> '
-    c.PromptManager.out_template = r'<\#> '
     c.TerminalInteractiveShell.banner1 = BANNER
-    c.PromptManager.justify = True
-    c.TerminalIPythonApp.ipython_dir = ipydir
-    os.environ['IPYTHONDIR'] = ipydir
+    c.BaseIPythonApplication.ipython_dir = ipydir
 
     c.InteractiveShell.separate_in = ''
     c.InteractiveShell.separate_out = ''
     c.InteractiveShell.separate_out2 = ''
 
-    c.PrefilterManager.multi_line_specials = True
-
-    IPython.embed(config=c, user_ns=user_ns)
+    ipshell = InteractiveShellEmbed.instance(config=c, user_ns=user_ns)
+    ipshell()
 
 _filename_sanitize = frozenset('\\|?*<":>+/' + ''.join(map(chr, range(32))))
 
