@@ -7,13 +7,20 @@ from web_socket import js_to_python, connect_signal
 input_types = {'text', 'email', 'tel'}
 username_names = {'login', 'user', 'mail', 'email', 'username', 'id'}
 
+
+def password_changed(ev):
+    pw = ev.currentTarget
+    pwd = pw.value
+    if pwd:
+        pw.dataset.viseLastPasswordValue = pwd
+
 def form_submitted(ev):
     form = ev.target
-    username, password = get_login_inputs(form)
-    if username is not None:
-        username = username.value
-    if password is not None:
-        password = password.value
+    u, p = get_login_inputs(form)
+    if u:
+        username = u.value
+    if p:
+        password = p.value or p.dataset.viseLastPasswordValue
     send_action(window.top, 'login_form_submitted', document.location.href, username, password)
 
 def get_login_inputs(form):
@@ -116,7 +123,10 @@ def onload():
     login_forms_found = False
     for form in document.querySelectorAll('form'):
         if is_login_form(form):
-            form.addEventListener('submit', form_submitted)
+            pw = get_login_inputs(form)[1]
+            if pw:
+                pw.addEventListener('input', password_changed, True)
+            form.addEventListener('submit', form_submitted, True)
             login_forms_found = True
     if login_forms_found:
         send_action(window.top, 'login_form_found', document.location.href)
