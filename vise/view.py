@@ -379,15 +379,15 @@ class WebView(QWebEngineView):
                     'The site {0} wants to open a new tab, allow it?').format(site)):
                 return self.main_window.get_tab_for_load(in_current_tab=False)
 
-    def runjs(self, src, callback=None):
+    def runjs(self, src, callback=None, world_id=QWebEngineScript.ApplicationWorld):
         if callback is not None:
-            self._page.runJavaScript(src, callback)
+            self._page.runJavaScript(src, world_id, callback)
         else:
-            self._page.runJavaScript(src)
+            self._page.runJavaScript(src, world_id)
 
-    def js_func(self, name, *args, callback=None):
+    def js_func(self, name, *args, callback=None, world_id=QWebEngineScript.ApplicationWorld):
         func = '%s(%s)' % (name, ','.join(map(lambda x: json.dumps(x, ensure_ascii=False), args)))
-        self.runjs(func, callback=callback)
+        self.runjs(func, callback=callback, world_id=world_id)
 
     def follow_next(self, forward=True):
         self._page.bridge.follow_next.emit(bool(forward))
