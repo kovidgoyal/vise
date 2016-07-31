@@ -1,766 +1,376 @@
 (function(){
     "use strict";
-    var _$rapyd$_iterator_symbol = (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") ? Symbol.iterator : "iterator-Symbol-5d0927e5554349048cf0e3762a228256";
-    var _$rapyd$_kwargs_symbol = (typeof Symbol === "function") ? Symbol("kwargs-object") : "kwargs-object-Symbol-5d0927e5554349048cf0e3762a228256";
-    var _$rapyd$_cond_temp;
-    var _$rapyd$_object_counter = 0;
-    function _$rapyd$_Iterable(iterable) {
-            var iterator, ans, result;
-            if (_$rapyd$_arraylike(iterable)) {
-                return iterable;
-            }
-            if (typeof iterable[_$rapyd$_iterator_symbol] === "function") {
-                iterator = (typeof Map === "function" && iterable instanceof Map) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]();
-                ans = _$rapyd$_list_decorate([]);
-                result = iterator.next();
-                while (!result.done) {
-                    ans.push(result.value);
-                    result = iterator.next();
-                }
-                return ans;
-            }
-            return Object.keys(iterable);
-        };
-    function _$rapyd$_extends(child, parent) {
-            child.prototype = Object.create(parent.prototype);
-            child.prototype.constructor = child;
-        };
-    var _$rapyd$_in = (function _$rapyd$_in() {
-            if (typeof Map === "function" && typeof Set === "function") {
-                return function(val, arr) {
-                    if (typeof arr === "string") {
-                        return arr.indexOf(val) !== -1;
-                    }
-                    if (typeof arr.__contains__ === "function") {
-                        return arr.__contains__(val);
-                    }
-                    if ((arr instanceof Map || arr instanceof Set)) {
-                        return arr.has(val);
-                    }
-                    if (_$rapyd$_arraylike(arr)) {
-                        return _$rapyd$_list_contains.call(arr, val);
-                    }
-                    return Object.prototype.hasOwnProperty.call(arr, val);
-                };
-            }
-            return function(val, arr) {
-                if (typeof arr === "string") {
-                    return arr.indexOf(val) !== -1;
-                }
-                if (typeof arr.__contains__ === "function") {
-                    return arr.__contains__(val);
-                }
-                if (_$rapyd$_arraylike(arr)) {
-                    return _$rapyd$_list_contains.call(arr, val);
-                }
-                return Object.prototype.hasOwnProperty.call(arr, val);
-            };
-        })();
-    var len = (function _$rapyd$_len() {
-            if (typeof Set === "function" && typeof Map === "function") {
-                return function(obj) {
-                    if (_$rapyd$_arraylike(obj)) {
-                        return obj.length;
-                    }
-                    if (obj instanceof Set || obj instanceof Map) {
-                        return obj.size;
-                    }
-                    if (typeof obj.__len__ === "function") {
-                        return obj.__len__();
-                    }
-                    return Object.keys(obj).length;
-                };
-            }
-            return function(obj) {
-                if (_$rapyd$_arraylike(obj)) {
-                    return obj.length;
-                }
-                if (typeof obj.__len__ === "function") {
-                    return obj.__len__();
-                }
-                return Object.keys(obj).length;
-            };
-        })();
-    var _$rapyd$_desugar_kwargs = (function _$rapyd$_desugar_kwargs() {
-            if (typeof Object.assign === "function") {
-                return function() {
-                    var ans;
-                    ans = {};
-                    ans[_$rapyd$_kwargs_symbol] = true;
-                    for (var i = 0; i < arguments.length; i++) {
-                        Object.assign(ans, arguments[i]);
-                    }
-                    return ans;
-                };
-            }
-            return function() {
-                var ans, keys;
-                ans = {};
-                ans[_$rapyd$_kwargs_symbol] = true;
-                for (var i = 0; i < arguments.length; i++) {
-                    keys = Object.keys(arguments[i]);
-                    for (var j = 0; j < keys.length; j++) {
-                        ans[keys[j]] = arguments[i][keys[j]];
-                    }
-                }
-                return ans;
-            };
-        })();
-    function range(start, stop, step) {
-            var length;
-            if (arguments.length <= 1) {
-                stop = start || 0;
-                start = 0;
-            }
-            step = arguments[2] || 1;
-            length = Math.max(Math.ceil((stop - start) / step), 0);
-            return (function(){
-                var _$rapyd$_d = {};
-                _$rapyd$_d[_$rapyd$_iterator_symbol] = function() {
-                    return this;
-                };
-                _$rapyd$_d["_i"] = start - step;
-                _$rapyd$_d["_idx"] = -1;
-                _$rapyd$_d["next"] = function() {
-                    this._i += step;
-                    this._idx += 1;
-                    if (this._idx >= length) {
-                        return {
-                            "done": true
-                        };
-                    }
-                    return {
-                        "done": false,
-                        "value": this._i
-                    };
-                };
-                return _$rapyd$_d;
-            })();
-        };
-    var _$rapyd$_regenerator = {};
-    !(function(global) {
-      "use strict";
-    
-      var hasOwn = Object.prototype.hasOwnProperty;
-      var undefined; 
-    
-      var iteratorSymbol =
-        typeof Symbol === "function" && Symbol.iterator || "@@iterator";
-    
-      var inModule = typeof module === "object";
-      var runtime = global.regeneratorRuntime;
-      if (runtime) {
-        if (inModule) {
-    
-          module.exports = runtime;
+    var ρσ_iterator_symbol = (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") ? Symbol.iterator : "iterator-Symbol-5d0927e5554349048cf0e3762a228256";
+    var ρσ_kwargs_symbol = (typeof Symbol === "function") ? Symbol("kwargs-object") : "kwargs-object-Symbol-5d0927e5554349048cf0e3762a228256";
+    var ρσ_cond_temp, ρσ_expr_temp, ρσ_last_exception;
+    var ρσ_object_counter = 0;
+var ρσ_len;
+function ρσ_bool(val) {
+    return !!val;
+};
+Object.defineProperties(ρσ_bool, {
+    __argnames__ : {value: ["val"]}
+});
+
+function ρσ_print() {
+    var parts;
+    if (typeof console === "object") {
+        parts = [];
+        for (var i = 0; i < arguments.length; i++) {
+            parts.push(ρσ_str(arguments[(typeof i === "number" && i < 0) ? arguments.length + i : i]));
         }
-    
-        return;
-      }
-    
-      runtime = global.regeneratorRuntime = inModule ? module.exports : {};
-    
-      function wrap(innerFn, outerFn, self, tryLocsList) {
-    
-        var generator = Object.create((outerFn || Generator).prototype);
-    
-        generator._invoke = makeInvokeMethod(
-          innerFn, self || null,
-          new Context(tryLocsList || [])
-        );
-    
-        return generator;
-      }
-      runtime.wrap = wrap;
-    
-      function tryCatch(fn, obj, arg) {
-        try {
-          return { type: "normal", arg: fn.call(obj, arg) };
-        } catch (err) {
-          return { type: "throw", arg: err };
-        }
-      }
-    
-      var GenStateSuspendedStart = "suspendedStart";
-      var GenStateSuspendedYield = "suspendedYield";
-      var GenStateExecuting = "executing";
-      var GenStateCompleted = "completed";
-    
-      var ContinueSentinel = {};
-    
-      function Generator() {}
-      function GeneratorFunction() {}
-      function GeneratorFunctionPrototype() {}
-    
-      var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype;
-      GeneratorFunction.prototype = Gp.constructor = GeneratorFunctionPrototype;
-      GeneratorFunctionPrototype.constructor = GeneratorFunction;
-      GeneratorFunction.displayName = "GeneratorFunction";
-    
-      function defineIteratorMethods(prototype) {
-        ["next", "throw", "return"].forEach(function(method) {
-          prototype[method] = function(arg) {
-            return this._invoke(method, arg);
-          };
+        console.log(parts.join(" "));
+    }
+};
+
+function ρσ_int(val, base) {
+    var ans;
+    ans = parseInt(val, base || 10);
+    if (isNaN(ans)) {
+        throw new ValueError("Invalid literal for int with base " + (base || 10) + ": " + val);
+    }
+    return ans;
+};
+Object.defineProperties(ρσ_int, {
+    __argnames__ : {value: ["val", "base"]}
+});
+
+function ρσ_float() {
+    var ans;
+    ans = parseFloat.apply(null, arguments);
+    if (isNaN(ans)) {
+        throw new ValueError("Could not convert string to float: " + arguments[0]);
+    }
+    return ans;
+};
+
+function ρσ_arraylike_creator() {
+    var names;
+    names = "Int8Array Uint8Array Uint8ClampedArray Int16Array Uint16Array Int32Array Uint32Array Float32Array Float64Array".split(" ");
+    if (typeof HTMLCollection === "function") {
+        names = names.concat("HTMLCollection NodeList NamedNodeMap".split(" "));
+    }
+    return (function() {
+        var ρσ_anonfunc = function (x) {
+            if (Array.isArray(x) || typeof x === "string" || names.indexOf(Object.prototype.toString.call(x).slice(8, -1)) > -1) {
+                return true;
+            }
+            return false;
+        };
+        Object.defineProperties(ρσ_anonfunc, {
+            __argnames__ : {value: ["x"]}
         });
-      }
-    
-      runtime.isGeneratorFunction = function(genFun) {
-        var ctor = typeof genFun === "function" && genFun.constructor;
-        return ctor
-          ? ctor === GeneratorFunction ||
-    
-            (ctor.displayName || ctor.name) === "GeneratorFunction"
-          : false;
-      };
-    
-      runtime.mark = function(genFun) {
-        genFun.__proto__ = GeneratorFunctionPrototype;
-        genFun.prototype = Object.create(Gp);
-        return genFun;
-      };
-    
-      runtime.awrap = function(arg) {
-        return new AwaitArgument(arg);
-      };
-    
-      function AwaitArgument(arg) {
-        this.arg = arg;
-      }
-    
-      function AsyncIterator(generator) {
-    
-        function invoke(method, arg) {
-          var result = generator[method](arg);
-          var value = result.value;
-          return value instanceof AwaitArgument
-            ? Promise.resolve(value.arg).then(invokeNext, invokeThrow)
-            : Promise.resolve(value).then(function(unwrapped) {
-    
-                result.value = unwrapped;
-                return result;
-              });
+        return ρσ_anonfunc;
+    })();
+};
+
+function options_object(f) {
+    return function () {
+        if (typeof arguments[arguments.length - 1] === "object") {
+            arguments[ρσ_bound_index(arguments.length - 1, arguments)][ρσ_kwargs_symbol] = true;
         }
-    
-        if (typeof process === "object" && process.domain) {
-          invoke = process.domain.bind(invoke);
+        return f.apply(this, arguments);
+    };
+};
+Object.defineProperties(options_object, {
+    __argnames__ : {value: ["f"]}
+});
+
+function ρσ_id(x) {
+    return x.ρσ_object_id;
+};
+Object.defineProperties(ρσ_id, {
+    __argnames__ : {value: ["x"]}
+});
+
+function ρσ_dir(item) {
+    var arr;
+    arr = ρσ_list_decorate([]);
+    for (var i in item) {
+        arr.push(i);
+    }
+    return arr;
+};
+Object.defineProperties(ρσ_dir, {
+    __argnames__ : {value: ["item"]}
+});
+
+function ρσ_ord(x) {
+    var ans, second;
+    ans = x.charCodeAt(0);
+    if (55296 <= ans && ans <= 56319) {
+        second = x.charCodeAt(1);
+        if (56320 <= second && second <= 57343) {
+            return (ans - 55296) * 1024 + second - 56320 + 65536;
         }
-    
-        var invokeNext = invoke.bind(generator, "next");
-        var invokeThrow = invoke.bind(generator, "throw");
-        var invokeReturn = invoke.bind(generator, "return");
-        var previousPromise;
-    
-        function enqueue(method, arg) {
-          var enqueueResult =
-    
-            previousPromise ? previousPromise.then(function() {
-              return invoke(method, arg);
-            }) : new Promise(function(resolve) {
-              resolve(invoke(method, arg));
-            });
-    
-          previousPromise = enqueueResult["catch"](function(ignored){});
-    
-          return enqueueResult;
-        }
-    
-        this._invoke = enqueue;
-      }
-    
-      defineIteratorMethods(AsyncIterator.prototype);
-    
-      runtime.async = function(innerFn, outerFn, self, tryLocsList) {
-        var iter = new AsyncIterator(
-          wrap(innerFn, outerFn, self, tryLocsList)
-        );
-    
-        return runtime.isGeneratorFunction(outerFn)
-          ? iter 
-    
-          : iter.next().then(function(result) {
-              return result.done ? result.value : iter.next();
-            });
-      };
-    
-      function makeInvokeMethod(innerFn, self, context) {
-        var state = GenStateSuspendedStart;
-    
-        return function invoke(method, arg) {
-          if (state === GenStateExecuting) {
-            throw new Error("Generator is already running");
-          }
-    
-          if (state === GenStateCompleted) {
-            if (method === "throw") {
-              throw arg;
-            }
-    
-            return doneResult();
-          }
-    
-          while (true) {
-            var delegate = context.delegate;
-            if (delegate) {
-              if (method === "return" ||
-                  (method === "throw" && delegate.iterator[method] === undefined)) {
-    
-                context.delegate = null;
-    
-                var returnMethod = delegate.iterator["return"];
-                if (returnMethod) {
-                  var record = tryCatch(returnMethod, delegate.iterator, arg);
-                  if (record.type === "throw") {
-    
-                    method = "throw";
-                    arg = record.arg;
-                    continue;
-                  }
-                }
-    
-                if (method === "return") {
-    
-                  continue;
-                }
-              }
-    
-              var record = tryCatch(
-                delegate.iterator[method],
-                delegate.iterator,
-                arg
-              );
-    
-              if (record.type === "throw") {
-                context.delegate = null;
-    
-                method = "throw";
-                arg = record.arg;
-                continue;
-              }
-    
-              method = "next";
-              arg = undefined;
-    
-              var info = record.arg;
-              if (info.done) {
-                context[delegate.resultName] = info.value;
-                context.next = delegate.nextLoc;
-              } else {
-                state = GenStateSuspendedYield;
-                return info;
-              }
-    
-              context.delegate = null;
-            }
-    
-            if (method === "next") {
-              if (state === GenStateSuspendedYield) {
-                context.sent = arg;
-              } else {
-                context.sent = undefined;
-              }
-    
-            } else if (method === "throw") {
-              if (state === GenStateSuspendedStart) {
-                state = GenStateCompleted;
-                throw arg;
-              }
-    
-              if (context.dispatchException(arg)) {
-    
-                method = "next";
-                arg = undefined;
-              }
-    
-            } else if (method === "return") {
-              context.abrupt("return", arg);
-            }
-    
-            state = GenStateExecuting;
-    
-            var record = tryCatch(innerFn, self, context);
-            if (record.type === "normal") {
-    
-              state = context.done
-                ? GenStateCompleted
-                : GenStateSuspendedYield;
-    
-              var info = {
-                value: record.arg,
-                done: context.done
-              };
-    
-              if (record.arg === ContinueSentinel) {
-                if (context.delegate && method === "next") {
-    
-                  arg = undefined;
-                }
-              } else {
-                return info;
-              }
-    
-            } else if (record.type === "throw") {
-              state = GenStateCompleted;
-    
-              method = "throw";
-              arg = record.arg;
-            }
-          }
-        };
-      }
-    
-      defineIteratorMethods(Gp);
-    
-      Gp[iteratorSymbol] = function() {
+        throw new TypeError("string is missing the low surrogate char");
+    }
+    return ans;
+};
+Object.defineProperties(ρσ_ord, {
+    __argnames__ : {value: ["x"]}
+});
+
+function ρσ_chr(code) {
+    if (code <= 65535) {
+        return String.fromCharCode(code);
+    }
+    code -= 65536;
+    return String.fromCharCode(55296 + (code >> 10), 56320 + (code & 1023));
+};
+Object.defineProperties(ρσ_chr, {
+    __argnames__ : {value: ["code"]}
+});
+
+function ρσ_callable(x) {
+    return typeof x === "function";
+};
+Object.defineProperties(ρσ_callable, {
+    __argnames__ : {value: ["x"]}
+});
+
+function ρσ_bin(x) {
+    var ans;
+    if (typeof x !== "number" || x % 1 !== 0) {
+        throw new TypeError("integer required");
+    }
+    ans = x.toString(2);
+    if (ans[0] === "-") {
+        ans = "-" + "0b" + ans.slice(1);
+    } else {
+        ans = "0b" + ans;
+    }
+    return ans;
+};
+Object.defineProperties(ρσ_bin, {
+    __argnames__ : {value: ["x"]}
+});
+
+function ρσ_hex(x) {
+    var ans;
+    if (typeof x !== "number" || x % 1 !== 0) {
+        throw new TypeError("integer required");
+    }
+    ans = x.toString(16);
+    if (ans[0] === "-") {
+        ans = "-" + "0x" + ans.slice(1);
+    } else {
+        ans = "0x" + ans;
+    }
+    return ans;
+};
+Object.defineProperties(ρσ_hex, {
+    __argnames__ : {value: ["x"]}
+});
+
+function ρσ_enumerate(iterable) {
+    var ans, iterator;
+    ans = {"_i":-1};
+    ans[ρσ_iterator_symbol] = function () {
         return this;
-      };
-    
-      Gp.toString = function() {
-        return "[object Generator]";
-      };
-    
-      function pushTryEntry(locs) {
-        var entry = { tryLoc: locs[0] };
-    
-        if (1 in locs) {
-          entry.catchLoc = locs[1];
-        }
-    
-        if (2 in locs) {
-          entry.finallyLoc = locs[2];
-          entry.afterLoc = locs[3];
-        }
-    
-        this.tryEntries.push(entry);
-      }
-    
-      function resetTryEntry(entry) {
-        var record = entry.completion || {};
-        record.type = "normal";
-        delete record.arg;
-        entry.completion = record;
-      }
-    
-      function Context(tryLocsList) {
-    
-        this.tryEntries = [{ tryLoc: "root" }];
-        tryLocsList.forEach(pushTryEntry, this);
-        this.reset(true);
-      }
-    
-      runtime.keys = function(object) {
-        var keys = [];
-        for (var key in object) {
-          keys.push(key);
-        }
-        keys.reverse();
-    
-        return function next() {
-          while (keys.length) {
-            var key = keys.pop();
-            if (key in object) {
-              next.value = key;
-              next.done = false;
-              return next;
+    };
+    if (ρσ_arraylike(iterable)) {
+        ans["next"] = function () {
+            this._i += 1;
+            if (this._i < iterable.length) {
+                return {'done':false, 'value':[this._i, iterable[this._i]]};
             }
-          }
-    
-          next.done = true;
-          return next;
+            return {'done':true};
         };
-      };
-    
-      function values(iterable) {
-        if (iterable) {
-          var iteratorMethod = iterable[iteratorSymbol];
-          if (iteratorMethod) {
-            return iteratorMethod.call(iterable);
-          }
-    
-          if (typeof iterable.next === "function") {
-            return iterable;
-          }
-    
-          if (!isNaN(iterable.length)) {
-            var i = -1, next = function next() {
-              while (++i < iterable.length) {
-                if (hasOwn.call(iterable, i)) {
-                  next.value = iterable[i];
-                  next.done = false;
-                  return next;
-                }
-              }
-    
-              next.value = undefined;
-              next.done = true;
-    
-              return next;
-            };
-    
-            return next.next = next;
-          }
-        }
-    
-        return { next: doneResult };
-      }
-      runtime.values = values;
-    
-      function doneResult() {
-        return { value: undefined, done: true };
-      }
-    
-      Context.prototype = {
-        constructor: Context,
-    
-        reset: function(skipTempReset) {
-          this.prev = 0;
-          this.next = 0;
-          this.sent = undefined;
-          this.done = false;
-          this.delegate = null;
-    
-          this.tryEntries.forEach(resetTryEntry);
-    
-          if (!skipTempReset) {
-            for (var name in this) {
-    
-              if (name.charAt(0) === "t" &&
-                  hasOwn.call(this, name) &&
-                  !isNaN(+name.slice(1))) {
-                this[name] = undefined;
-              }
+        return ans;
+    }
+    if (typeof iterable[ρσ_iterator_symbol] === "function") {
+        iterator = (typeof Map === "function" && ρσ_instanceof(iterable, Map)) ? iterable.keys() : iterable[ρσ_iterator_symbol]();
+        ans["_iterator"] = iterator;
+        ans["next"] = function () {
+            var r;
+            r = this._iterator.next();
+            if (r.done) {
+                return {'done':true};
             }
-          }
-        },
-    
-        stop: function() {
-          this.done = true;
-    
-          var rootEntry = this.tryEntries[0];
-          var rootRecord = rootEntry.completion;
-          if (rootRecord.type === "throw") {
-            throw rootRecord.arg;
-          }
-    
-          return this.rval;
-        },
-    
-        dispatchException: function(exception) {
-          if (this.done) {
-            throw exception;
-          }
-    
-          var context = this;
-          function handle(loc, caught) {
-            record.type = "throw";
-            record.arg = exception;
-            context.next = loc;
-            return !!caught;
-          }
-    
-          for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-            var entry = this.tryEntries[i];
-            var record = entry.completion;
-    
-            if (entry.tryLoc === "root") {
-    
-              return handle("end");
-            }
-    
-            if (entry.tryLoc <= this.prev) {
-              var hasCatch = hasOwn.call(entry, "catchLoc");
-              var hasFinally = hasOwn.call(entry, "finallyLoc");
-    
-              if (hasCatch && hasFinally) {
-                if (this.prev < entry.catchLoc) {
-                  return handle(entry.catchLoc, true);
-                } else if (this.prev < entry.finallyLoc) {
-                  return handle(entry.finallyLoc);
-                }
-    
-              } else if (hasCatch) {
-                if (this.prev < entry.catchLoc) {
-                  return handle(entry.catchLoc, true);
-                }
-    
-              } else if (hasFinally) {
-                if (this.prev < entry.finallyLoc) {
-                  return handle(entry.finallyLoc);
-                }
-    
-              } else {
-                throw new Error("try statement without catch or finally");
-              }
-            }
-          }
-        },
-    
-        abrupt: function(type, arg) {
-          for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-            var entry = this.tryEntries[i];
-            if (entry.tryLoc <= this.prev &&
-                hasOwn.call(entry, "finallyLoc") &&
-                this.prev < entry.finallyLoc) {
-              var finallyEntry = entry;
-              break;
-            }
-          }
-    
-          if (finallyEntry &&
-              (type === "break" ||
-               type === "continue") &&
-              finallyEntry.tryLoc <= arg &&
-              arg <= finallyEntry.finallyLoc) {
-    
-            finallyEntry = null;
-          }
-    
-          var record = finallyEntry ? finallyEntry.completion : {};
-          record.type = type;
-          record.arg = arg;
-    
-          if (finallyEntry) {
-            this.next = finallyEntry.finallyLoc;
-          } else {
-            this.complete(record);
-          }
-    
-          return ContinueSentinel;
-        },
-    
-        complete: function(record, afterLoc) {
-          if (record.type === "throw") {
-            throw record.arg;
-          }
-    
-          if (record.type === "break" ||
-              record.type === "continue") {
-            this.next = record.arg;
-          } else if (record.type === "return") {
-            this.rval = record.arg;
-            this.next = "end";
-          } else if (record.type === "normal" && afterLoc) {
-            this.next = afterLoc;
-          }
-        },
-    
-        finish: function(finallyLoc) {
-          for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-            var entry = this.tryEntries[i];
-            if (entry.finallyLoc === finallyLoc) {
-              this.complete(entry.completion, entry.afterLoc);
-              resetTryEntry(entry);
-              return ContinueSentinel;
-            }
-          }
-        },
-    
-        "catch": function(tryLoc) {
-          for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-            var entry = this.tryEntries[i];
-            if (entry.tryLoc === tryLoc) {
-              var record = entry.completion;
-              if (record.type === "throw") {
-                var thrown = record.arg;
-                resetTryEntry(entry);
-              }
-              return thrown;
-            }
-          }
-    
-          throw new Error("illegal catch attempt");
-        },
-    
-        delegateYield: function(iterable, resultName, nextLoc) {
-          this.delegate = {
-            iterator: values(iterable),
-            resultName: resultName,
-            nextLoc: nextLoc
-          };
-    
-          return ContinueSentinel;
-        }
-      };
-    })(_$rapyd$_regenerator);
-    function callable(x) {
-            return typeof x === "function";
+            this._i += 1;
+            return {'done':false, 'value':[this._i, r.value]};
         };
-    var Exception = Error;
-function AttributeError() {
-    if (this._$rapyd$_object_id === undefined) Object.defineProperty(this, "_$rapyd$_object_id", {"value":++_$rapyd$_object_counter});
-    AttributeError.prototype.__init__.apply(this, arguments);
-}
-_$rapyd$_extends(AttributeError, Error);
-AttributeError.prototype.__init__ = function __init__(msg) {
-    var self = this;
-    self.message = msg;
-    self.stack = new Error().stack;
+        return ans;
+    }
+    return ρσ_enumerate(Object.keys(iterable));
 };
-AttributeError.prototype.__repr__ = function __repr__ () {
-    return "<" + __name__ + "." + "AttributeError" + " #" + this._$rapyd$_object_id + ">";
-};
-AttributeError.prototype.__str__ = function __str__ () {
-    return this.__repr__();
-};
-AttributeError.prototype.name = "AttributeError";
+Object.defineProperties(ρσ_enumerate, {
+    __argnames__ : {value: ["iterable"]}
+});
 
-function IndexError() {
-    if (this._$rapyd$_object_id === undefined) Object.defineProperty(this, "_$rapyd$_object_id", {"value":++_$rapyd$_object_counter});
-    IndexError.prototype.__init__.apply(this, arguments);
-}
-_$rapyd$_extends(IndexError, Error);
-IndexError.prototype.__init__ = function __init__(msg) {
-    var self = this;
-    self.message = msg;
-    self.stack = new Error().stack;
+function ρσ_reversed(iterable) {
+    var ans;
+    if (ρσ_arraylike(iterable)) {
+        ans = {"_i": iterable.length};
+        ans["next"] = function () {
+            this._i -= 1;
+            if (this._i > -1) {
+                return {'done':false, 'value':iterable[this._i]};
+            }
+            return {'done':true};
+        };
+        ans[ρσ_iterator_symbol] = function () {
+            return this;
+        };
+        return ans;
+    }
+    throw new TypeError("reversed() can only be called on arrays or strings");
 };
-IndexError.prototype.__repr__ = function __repr__ () {
-    return "<" + __name__ + "." + "IndexError" + " #" + this._$rapyd$_object_id + ">";
-};
-IndexError.prototype.__str__ = function __str__ () {
-    return this.__repr__();
-};
-IndexError.prototype.name = "IndexError";
+Object.defineProperties(ρσ_reversed, {
+    __argnames__ : {value: ["iterable"]}
+});
 
-function KeyError() {
-    if (this._$rapyd$_object_id === undefined) Object.defineProperty(this, "_$rapyd$_object_id", {"value":++_$rapyd$_object_counter});
-    KeyError.prototype.__init__.apply(this, arguments);
-}
-_$rapyd$_extends(KeyError, Error);
-KeyError.prototype.__init__ = function __init__(msg) {
-    var self = this;
-    self.message = msg;
-    self.stack = new Error().stack;
+function ρσ_iter(iterable) {
+    var ans;
+    if (typeof iterable[ρσ_iterator_symbol] === "function") {
+        return (typeof Map === "function" && ρσ_instanceof(iterable, Map)) ? iterable.keys() : iterable[ρσ_iterator_symbol]();
+    }
+    if (ρσ_arraylike(iterable)) {
+        ans = {"_i":-1};
+        ans[ρσ_iterator_symbol] = function () {
+            return this;
+        };
+        ans["next"] = function () {
+            this._i += 1;
+            if (this._i < iterable.length) {
+                return {'done':false, 'value':iterable[this._i]};
+            }
+            return {'done':true};
+        };
+        return ans;
+    }
+    return ρσ_iter(Object.keys(iterable));
 };
-KeyError.prototype.__repr__ = function __repr__ () {
-    return "<" + __name__ + "." + "KeyError" + " #" + this._$rapyd$_object_id + ">";
-};
-KeyError.prototype.__str__ = function __str__ () {
-    return this.__repr__();
-};
-KeyError.prototype.name = "KeyError";
+Object.defineProperties(ρσ_iter, {
+    __argnames__ : {value: ["iterable"]}
+});
 
-function ValueError() {
-    if (this._$rapyd$_object_id === undefined) Object.defineProperty(this, "_$rapyd$_object_id", {"value":++_$rapyd$_object_counter});
-    ValueError.prototype.__init__.apply(this, arguments);
-}
-_$rapyd$_extends(ValueError, Error);
-ValueError.prototype.__init__ = function __init__(msg) {
-    var self = this;
-    self.message = msg;
-    self.stack = new Error().stack;
+function ρσ_range(start, stop, step) {
+    var length, ans;
+    if (arguments.length <= 1) {
+        stop = start || 0;
+        start = 0;
+    }
+    step = arguments[2] || 1;
+    length = Math.max(Math.ceil((stop - start) / step), 0);
+    ans = {'_i': start - step, '_idx': -1};
+    ans[ρσ_iterator_symbol] = function () {
+        return this;
+    };
+    ans["next"] = function () {
+        this._i += step;
+        this._idx += 1;
+        if (this._idx >= length) {
+            return {'done':true};
+        }
+        return {'done':false, 'value':this._i};
+    };
+    return ans;
 };
-ValueError.prototype.__repr__ = function __repr__ () {
-    return "<" + __name__ + "." + "ValueError" + " #" + this._$rapyd$_object_id + ">";
+Object.defineProperties(ρσ_range, {
+    __argnames__ : {value: ["start", "stop", "step"]}
+});
+
+function ρσ_getattr(obj, name, defval) {
+    var ret;
+    try {
+        ret = obj[(typeof name === "number" && name < 0) ? obj.length + name : name];
+    } catch (ρσ_Exception) {
+        ρσ_last_exception = ρσ_Exception;
+        if (ρσ_Exception instanceof TypeError) {
+            if (defval === undefined) {
+                throw new AttributeError("The attribute " + name + " is not present");
+            }
+            return defval;
+        } else {
+            throw ρσ_Exception;
+        }
+    }
+    if (ret === undefined && !(name in obj)) {
+        if (defval === undefined) {
+            throw new AttributeError("The attribute " + name + " is not present");
+        }
+        ret = defval;
+    }
+    return ret;
 };
-ValueError.prototype.__str__ = function __str__ () {
-    return this.__repr__();
+Object.defineProperties(ρσ_getattr, {
+    __argnames__ : {value: ["obj", "name", "defval"]}
+});
+
+function ρσ_setattr(obj, name, value) {
+    obj[(typeof name === "number" && name < 0) ? obj.length + name : name] = value;
 };
-ValueError.prototype.name = "ValueError";
-;
-    var _$rapyd$_chain_assign_temp;
-function _$rapyd$_equals(a, b) {
-    var _$rapyd$_unpack, akeys, bkeys, key;
+Object.defineProperties(ρσ_setattr, {
+    __argnames__ : {value: ["obj", "name", "value"]}
+});
+
+function ρσ_hasattr(obj, name) {
+    return name in obj;
+};
+Object.defineProperties(ρσ_hasattr, {
+    __argnames__ : {value: ["obj", "name"]}
+});
+
+ρσ_len = function () {
+    function len(obj) {
+        if (ρσ_arraylike(obj)) {
+            return obj.length;
+        }
+        if (typeof obj.__len__ === "function") {
+            return obj.__len__();
+        }
+        if (obj instanceof Set || obj instanceof Map) {
+            return obj.size;
+        }
+        return Object.keys(obj).length;
+    };
+    Object.defineProperties(len, {
+        __argnames__ : {value: ["obj"]}
+    });
+
+    function len5(obj) {
+        if (ρσ_arraylike(obj)) {
+            return obj.length;
+        }
+        if (typeof obj.__len__ === "function") {
+            return obj.__len__();
+        }
+        return Object.keys(obj).length;
+    };
+    Object.defineProperties(len5, {
+        __argnames__ : {value: ["obj"]}
+    });
+
+    return (typeof Set === "function" && typeof Map === "function") ? len : len5;
+}();
+function ρσ_get_module(name) {
+    return ρσ_modules[(typeof name === "number" && name < 0) ? ρσ_modules.length + name : name];
+};
+Object.defineProperties(ρσ_get_module, {
+    __argnames__ : {value: ["name"]}
+});
+
+function ρσ_pow(x, y, z) {
+    var ans;
+    ans = Math.pow(x, y);
+    if (z !== undefined) {
+        ans %= z;
+    }
+    return ans;
+};
+Object.defineProperties(ρσ_pow, {
+    __argnames__ : {value: ["x", "y", "z"]}
+});
+
+var abs = Math.abs, max = Math.max, min = Math.min, bool = ρσ_bool;
+var float = ρσ_float, int = ρσ_int, arraylike = ρσ_arraylike_creator(), ρσ_arraylike = arraylike;
+var print = ρσ_print, id = ρσ_id, get_module = ρσ_get_module, pow = ρσ_pow;
+var dir = ρσ_dir, ord = ρσ_ord, chr = ρσ_chr, bin = ρσ_bin, hex = ρσ_hex, callable = ρσ_callable;
+var enumerate = ρσ_enumerate, iter = ρσ_iter, reversed = ρσ_reversed, len = ρσ_len;
+var range = ρσ_range, getattr = ρσ_getattr, setattr = ρσ_setattr, hasattr = ρσ_hasattr;function ρσ_equals(a, b) {
+    var ρσ_unpack, akeys, bkeys, key;
     if (a === b) {
         return true;
     }
@@ -770,35 +380,39 @@ function _$rapyd$_equals(a, b) {
     if (b && typeof b.__eq__ === "function") {
         return b.__eq__(a);
     }
-    if (_$rapyd$_arraylike(a) && _$rapyd$_arraylike(b)) {
-        if ((a.length !== b.length && (typeof a.length !== "object" || _$rapyd$_not_equals(a.length, b.length)))) {
+    if (ρσ_arraylike(a) && ρσ_arraylike(b)) {
+        if ((a.length !== b.length && (typeof a.length !== "object" || ρσ_not_equals(a.length, b.length)))) {
             return false;
         }
         for (var i=0; i < a.length; i++) {
-            if (!((a[i] === b[i] || typeof a[i] === "object" && _$rapyd$_equals(a[i], b[i])))) {
+            if (!((a[(typeof i === "number" && i < 0) ? a.length + i : i] === b[(typeof i === "number" && i < 0) ? b.length + i : i] || typeof a[(typeof i === "number" && i < 0) ? a.length + i : i] === "object" && ρσ_equals(a[(typeof i === "number" && i < 0) ? a.length + i : i], b[(typeof i === "number" && i < 0) ? b.length + i : i])))) {
                 return false;
             }
         }
         return true;
     }
-    if (a && b && a.constructor === b.constructor && a.constructor === Object) {
-        _$rapyd$_unpack = [Object.keys(a), Object.keys(b)];
-        akeys = _$rapyd$_unpack[0];
-        bkeys = _$rapyd$_unpack[1];
+    if (typeof a === "object" && typeof b === "object" && (a.constructor === Object && b.constructor === Object || Object.getPrototypeOf(a) === null && Object.getPrototypeOf(b) === null)) {
+        ρσ_unpack = [Object.keys(a), Object.keys(b)];
+        akeys = ρσ_unpack[0];
+        bkeys = ρσ_unpack[1];
         if (akeys.length !== bkeys.length) {
             return false;
         }
         for (var j=0; j < akeys.length; j++) {
-            key = akeys[j];
-            if (!((a[key] === b[key] || typeof a[key] === "object" && _$rapyd$_equals(a[key], b[key])))) {
+            key = akeys[(typeof j === "number" && j < 0) ? akeys.length + j : j];
+            if (!((a[(typeof key === "number" && key < 0) ? a.length + key : key] === b[(typeof key === "number" && key < 0) ? b.length + key : key] || typeof a[(typeof key === "number" && key < 0) ? a.length + key : key] === "object" && ρσ_equals(a[(typeof key === "number" && key < 0) ? a.length + key : key], b[(typeof key === "number" && key < 0) ? b.length + key : key])))) {
                 return false;
             }
         }
         return true;
     }
     return false;
-}
-function _$rapyd$_not_equals(a, b) {
+};
+Object.defineProperties(ρσ_equals, {
+    __argnames__ : {value: ["a", "b"]}
+});
+
+function ρσ_not_equals(a, b) {
     if (a === b) {
         return false;
     }
@@ -808,27 +422,35 @@ function _$rapyd$_not_equals(a, b) {
     if (b && typeof b.__ne__ === "function") {
         return b.__ne__(a);
     }
-    return !_$rapyd$_equals(a, b);
-}
-var equals = _$rapyd$_equals;
-function _$rapyd$_list_extend(iterable) {
+    return !ρσ_equals(a, b);
+};
+Object.defineProperties(ρσ_not_equals, {
+    __argnames__ : {value: ["a", "b"]}
+});
+
+var equals = ρσ_equals;
+function ρσ_list_extend(iterable) {
     var start, iterator, result;
     if (Array.isArray(iterable) || typeof iterable === "string") {
         start = this.length;
         this.length += iterable.length;
         for (var i = 0; i < iterable.length; i++) {
-            this[start + i] = iterable[i];
+            (ρσ_expr_temp = this)[ρσ_bound_index(start + i, ρσ_expr_temp)] = iterable[(typeof i === "number" && i < 0) ? iterable.length + i : i];
         }
     } else {
-        iterator = (typeof Map === "function" && iterable instanceof Map) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]();
+        iterator = (typeof Map === "function" && ρσ_instanceof(iterable, Map)) ? iterable.keys() : iterable[ρσ_iterator_symbol]();
         result = iterator.next();
         while (!result.done) {
             this.push(result.value);
             result = iterator.next();
         }
     }
-}
-function _$rapyd$_list_index(val, start, stop) {
+};
+Object.defineProperties(ρσ_list_extend, {
+    __argnames__ : {value: ["iterable"]}
+});
+
+function ρσ_list_index(val, start, stop) {
     var idx;
     start = start || 0;
     if (start < 0) {
@@ -848,13 +470,17 @@ function _$rapyd$_list_index(val, start, stop) {
         stop = this.length + stop;
     }
     for (var i = start; i < stop; i++) {
-        if ((this[i] === val || typeof this[i] === "object" && _$rapyd$_equals(this[i], val))) {
+        if (((ρσ_expr_temp = this)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i] === val || typeof (ρσ_expr_temp = this)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i] === "object" && ρσ_equals((ρσ_expr_temp = this)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i], val))) {
             return i;
         }
     }
     throw new ValueError(val + " is not in list");
-}
-function _$rapyd$_list_pop(index) {
+};
+Object.defineProperties(ρσ_list_index, {
+    __argnames__ : {value: ["val", "start", "stop"]}
+});
+
+function ρσ_list_pop(index) {
     var ans;
     if (this.length === 0) {
         throw new IndexError("list is empty");
@@ -864,19 +490,28 @@ function _$rapyd$_list_pop(index) {
         throw new IndexError("pop index out of range");
     }
     return ans[0];
-}
-function _$rapyd$_list_remove(value) {
+};
+Object.defineProperties(ρσ_list_pop, {
+    __argnames__ : {value: ["index"]}
+});
+
+function ρσ_list_remove(value) {
     var idx;
     idx = this.indexOf(value);
     if (idx === -1) {
         throw new ValueError(value + " not in list");
     }
     this.splice(idx, 1);
-}
-function _$rapyd$_list_to_string() {
+};
+Object.defineProperties(ρσ_list_remove, {
+    __argnames__ : {value: ["value"]}
+});
+
+function ρσ_list_to_string() {
     return "[" + this.join(", ") + "]";
-}
-function _$rapyd$_list_insert(index, val) {
+};
+
+function ρσ_list_insert(index, val) {
     if (index < 0) {
         index += this.length;
     }
@@ -886,33 +521,54 @@ function _$rapyd$_list_insert(index, val) {
         return;
     }
     for (var i = this.length; i > index; i--) {
-        this[i] = this[i - 1];
+        (ρσ_expr_temp = this)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i] = (ρσ_expr_temp = this)[ρσ_bound_index(i - 1, ρσ_expr_temp)];
     }
-    this[index] = val;
-}
-function _$rapyd$_list_copy() {
-    return _$rapyd$_list_constructor(this);
-}
-function _$rapyd$_list_clear() {
+    (ρσ_expr_temp = this)[(typeof index === "number" && index < 0) ? ρσ_expr_temp.length + index : index] = val;
+};
+Object.defineProperties(ρσ_list_insert, {
+    __argnames__ : {value: ["index", "val"]}
+});
+
+function ρσ_list_copy() {
+    return ρσ_list_constructor(this);
+};
+
+function ρσ_list_clear() {
     this.length = 0;
-}
-function _$rapyd$_list_as_array() {
+};
+
+function ρσ_list_as_array() {
     return Array.prototype.slice.call(this);
-}
-function _$rapyd$_list_count(value) {
-    return this.reduce(function(n, val) {
-        return n + (val === value);
-    }, 0);
-}
-function _$rapyd$_list_sort_key(value) {
+};
+
+function ρσ_list_count(value) {
+    return this.reduce((function() {
+        var ρσ_anonfunc = function (n, val) {
+            return n + (val === value);
+        };
+        Object.defineProperties(ρσ_anonfunc, {
+            __argnames__ : {value: ["n", "val"]}
+        });
+        return ρσ_anonfunc;
+    })(), 0);
+};
+Object.defineProperties(ρσ_list_count, {
+    __argnames__ : {value: ["value"]}
+});
+
+function ρσ_list_sort_key(value) {
     var t;
     t = typeof value;
     if (t === "string" || t === "number") {
         return value;
     }
     return value.toString();
-}
-function _$rapyd$_list_sort_cmp(a, b) {
+};
+Object.defineProperties(ρσ_list_sort_key, {
+    __argnames__ : {value: ["value"]}
+});
+
+function ρσ_list_sort_cmp(a, b) {
     if (a < b) {
         return -1;
     }
@@ -920,124 +576,153 @@ function _$rapyd$_list_sort_cmp(a, b) {
         return 1;
     }
     return 0;
-}
-function _$rapyd$_list_sort() {
-    var key = (arguments[0] === undefined || ( 0 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [_$rapyd$_kwargs_symbol] === true)) ? (null) : arguments[0];
-    var reverse = (arguments[1] === undefined || ( 1 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [_$rapyd$_kwargs_symbol] === true)) ? (false) : arguments[1];
-    var _$rapyd$_kwargs_obj = arguments[arguments.length-1];
-    if (_$rapyd$_kwargs_obj === null || typeof _$rapyd$_kwargs_obj !== "object" || _$rapyd$_kwargs_obj [_$rapyd$_kwargs_symbol] !== true) _$rapyd$_kwargs_obj = {};
-    if (Object.prototype.hasOwnProperty.call(_$rapyd$_kwargs_obj, "key")){
-        key = _$rapyd$_kwargs_obj.key;
-    }
-    if (Object.prototype.hasOwnProperty.call(_$rapyd$_kwargs_obj, "reverse")){
-        reverse = _$rapyd$_kwargs_obj.reverse;
-    }
+};
+Object.defineProperties(ρσ_list_sort_cmp, {
+    __argnames__ : {value: ["a", "b"]}
+});
+
+function ρσ_list_sort(key, reverse) {
     var mult, keymap, k;
-    key = key || _$rapyd$_list_sort_key;
+    key = key || ρσ_list_sort_key;
     mult = (reverse) ? -1 : 1;
     keymap = dict();
     for (var i=0; i < this.length; i++) {
-        k = this[i];
+        k = (ρσ_expr_temp = this)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i];
         keymap.set(k, key(k));
     }
-    this.sort(function(a, b) {
-        return mult * _$rapyd$_list_sort_cmp(keymap.get(a), keymap.get(b));
-    });
-}
-function _$rapyd$_list_concat() {
+    this.sort((function() {
+        var ρσ_anonfunc = function (a, b) {
+            return mult * ρσ_list_sort_cmp(keymap.get(a), keymap.get(b));
+        };
+        Object.defineProperties(ρσ_anonfunc, {
+            __argnames__ : {value: ["a", "b"]}
+        });
+        return ρσ_anonfunc;
+    })());
+};
+Object.defineProperties(ρσ_list_sort, {
+    __argnames__ : {value: ["key", "reverse"]}
+});
+
+function ρσ_list_concat() {
     var ans;
     ans = Array.prototype.concat.apply(this, arguments);
-    _$rapyd$_list_decorate(ans);
+    ρσ_list_decorate(ans);
     return ans;
-}
-function _$rapyd$_list_slice() {
+};
+
+function ρσ_list_slice() {
     var ans;
     ans = Array.prototype.slice.apply(this, arguments);
-    _$rapyd$_list_decorate(ans);
+    ρσ_list_decorate(ans);
     return ans;
-}
-function _$rapyd$_list_iterator(value) {
+};
+
+function ρσ_list_iterator(value) {
     var self;
     self = this;
-    return {
-        "_i": -1,
-        "_list": self,
-        "next": function() {
+    return (function(){
+        var ρσ_d = {};
+        ρσ_d["_i"] = -1;
+        ρσ_d["_list"] = self;
+        ρσ_d["next"] = function () {
             this._i += 1;
             if (this._i >= this._list.length) {
-                return {
-                    "done": true
-                };
+                return (function(){
+                    var ρσ_d = {};
+                    ρσ_d["done"] = true;
+                    return ρσ_d;
+                }).call(this);
             }
-            return {
-                "done": false,
-                "value": this._list[this._i]
-            };
-        }
-    };
-}
-function _$rapyd$_list_len() {
+            return (function(){
+                var ρσ_d = {};
+                ρσ_d["done"] = false;
+                ρσ_d["value"] = (ρσ_expr_temp = this._list)[ρσ_bound_index(this._i, ρσ_expr_temp)];
+                return ρσ_d;
+            }).call(this);
+        };
+        return ρσ_d;
+    }).call(this);
+};
+Object.defineProperties(ρσ_list_iterator, {
+    __argnames__ : {value: ["value"]}
+});
+
+function ρσ_list_len() {
     return this.length;
-}
-function _$rapyd$_list_contains(val) {
+};
+
+function ρσ_list_contains(val) {
     for (var i = 0; i < this.length; i++) {
-        if ((this[i] === val || typeof this[i] === "object" && _$rapyd$_equals(this[i], val))) {
+        if (((ρσ_expr_temp = this)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i] === val || typeof (ρσ_expr_temp = this)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i] === "object" && ρσ_equals((ρσ_expr_temp = this)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i], val))) {
             return true;
         }
     }
     return false;
-}
-function _$rapyd$_list_eq(other) {
-    if (!_$rapyd$_arraylike(other)) {
+};
+Object.defineProperties(ρσ_list_contains, {
+    __argnames__ : {value: ["val"]}
+});
+
+function ρσ_list_eq(other) {
+    if (!ρσ_arraylike(other)) {
         return false;
     }
-    if ((this.length !== other.length && (typeof this.length !== "object" || _$rapyd$_not_equals(this.length, other.length)))) {
+    if ((this.length !== other.length && (typeof this.length !== "object" || ρσ_not_equals(this.length, other.length)))) {
         return false;
     }
     for (var i = 0; i < this.length; i++) {
-        if (!((this[i] === other[i] || typeof this[i] === "object" && _$rapyd$_equals(this[i], other[i])))) {
+        if (!(((ρσ_expr_temp = this)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i] === other[(typeof i === "number" && i < 0) ? other.length + i : i] || typeof (ρσ_expr_temp = this)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i] === "object" && ρσ_equals((ρσ_expr_temp = this)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i], other[(typeof i === "number" && i < 0) ? other.length + i : i])))) {
             return false;
         }
     }
     return true;
-}
-function _$rapyd$_list_decorate(ans) {
+};
+Object.defineProperties(ρσ_list_eq, {
+    __argnames__ : {value: ["other"]}
+});
+
+function ρσ_list_decorate(ans) {
     ans.append = Array.prototype.push;
-    ans.toString = _$rapyd$_list_to_string;
-    ans.inspect = _$rapyd$_list_to_string;
-    ans.extend = _$rapyd$_list_extend;
-    ans.index = _$rapyd$_list_index;
-    ans.pypop = _$rapyd$_list_pop;
-    ans.remove = _$rapyd$_list_remove;
-    ans.insert = _$rapyd$_list_insert;
-    ans.copy = _$rapyd$_list_copy;
-    ans.clear = _$rapyd$_list_clear;
-    ans.count = _$rapyd$_list_count;
-    ans.concat = _$rapyd$_list_concat;
-    ans.pysort = _$rapyd$_list_sort;
-    ans.slice = _$rapyd$_list_slice;
-    ans.as_array = _$rapyd$_list_as_array;
-    ans.__len__ = _$rapyd$_list_len;
-    ans.__contains__ = _$rapyd$_list_contains;
-    ans.__eq__ = _$rapyd$_list_eq;
-    ans.constructor = _$rapyd$_list_constructor;
-    if (typeof ans[_$rapyd$_iterator_symbol] !== "function") {
-        ans[_$rapyd$_iterator_symbol] = _$rapyd$_list_iterator;
+    ans.toString = ρσ_list_to_string;
+    ans.inspect = ρσ_list_to_string;
+    ans.extend = ρσ_list_extend;
+    ans.index = ρσ_list_index;
+    ans.pypop = ρσ_list_pop;
+    ans.remove = ρσ_list_remove;
+    ans.insert = ρσ_list_insert;
+    ans.copy = ρσ_list_copy;
+    ans.clear = ρσ_list_clear;
+    ans.count = ρσ_list_count;
+    ans.concat = ρσ_list_concat;
+    ans.pysort = ρσ_list_sort;
+    ans.slice = ρσ_list_slice;
+    ans.as_array = ρσ_list_as_array;
+    ans.__len__ = ρσ_list_len;
+    ans.__contains__ = ρσ_list_contains;
+    ans.__eq__ = ρσ_list_eq;
+    ans.constructor = ρσ_list_constructor;
+    if (typeof ans[ρσ_iterator_symbol] !== "function") {
+        ans[ρσ_iterator_symbol] = ρσ_list_iterator;
     }
     return ans;
-}
-function _$rapyd$_list_constructor(iterable) {
+};
+Object.defineProperties(ρσ_list_decorate, {
+    __argnames__ : {value: ["ans"]}
+});
+
+function ρσ_list_constructor(iterable) {
     var ans, iterator, result;
     if (iterable === undefined) {
         ans = [];
-    } else if (_$rapyd$_arraylike(iterable)) {
+    } else if (ρσ_arraylike(iterable)) {
         ans = new Array(iterable.length);
         for (var i = 0; i < iterable.length; i++) {
-            ans[i] = iterable[i];
+            ans[(typeof i === "number" && i < 0) ? ans.length + i : i] = iterable[(typeof i === "number" && i < 0) ? iterable.length + i : i];
         }
-    } else if (typeof iterable[_$rapyd$_iterator_symbol] === "function") {
-        iterator = (typeof Map === "function" && iterable instanceof Map) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]();
-        ans = _$rapyd$_list_decorate([]);
+    } else if (typeof iterable[ρσ_iterator_symbol] === "function") {
+        iterator = (typeof Map === "function" && ρσ_instanceof(iterable, Map)) ? iterable.keys() : iterable[ρσ_iterator_symbol]();
+        ans = ρσ_list_decorate([]);
         result = iterator.next();
         while (!result.done) {
             ans.push(result.value);
@@ -1048,29 +733,39 @@ function _$rapyd$_list_constructor(iterable) {
     } else {
         ans = Object.keys(iterable);
     }
-    return _$rapyd$_list_decorate(ans);
-}
-_$rapyd$_list_constructor.__name__ = "list";
-var list = _$rapyd$_list_constructor, list_wrap = _$rapyd$_list_decorate;
+    return ρσ_list_decorate(ans);
+};
+Object.defineProperties(ρσ_list_constructor, {
+    __argnames__ : {value: ["iterable"]}
+});
+
+ρσ_list_constructor.__name__ = "list";
+var list = ρσ_list_constructor, list_wrap = ρσ_list_decorate;
 function sorted() {
-    var iterable = ( 0 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [_$rapyd$_kwargs_symbol] === true) ? undefined : arguments[0];
-    var key = (arguments[1] === undefined || ( 1 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [_$rapyd$_kwargs_symbol] === true)) ? (null) : arguments[1];
-    var reverse = (arguments[2] === undefined || ( 2 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [_$rapyd$_kwargs_symbol] === true)) ? (false) : arguments[2];
-    var _$rapyd$_kwargs_obj = arguments[arguments.length-1];
-    if (_$rapyd$_kwargs_obj === null || typeof _$rapyd$_kwargs_obj !== "object" || _$rapyd$_kwargs_obj [_$rapyd$_kwargs_symbol] !== true) _$rapyd$_kwargs_obj = {};
-    if (Object.prototype.hasOwnProperty.call(_$rapyd$_kwargs_obj, "key")){
-        key = _$rapyd$_kwargs_obj.key;
+    var iterable = ( 0 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true) ? undefined : arguments[0];
+    var key = (arguments[1] === undefined || ( 1 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true)) ? sorted.__defaults__.key : arguments[1];
+    var reverse = (arguments[2] === undefined || ( 2 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true)) ? sorted.__defaults__.reverse : arguments[2];
+    var ρσ_kwargs_obj = arguments[arguments.length-1];
+    if (ρσ_kwargs_obj === null || typeof ρσ_kwargs_obj !== "object" || ρσ_kwargs_obj [ρσ_kwargs_symbol] !== true) ρσ_kwargs_obj = {};
+    if (Object.prototype.hasOwnProperty.call(ρσ_kwargs_obj, "key")){
+        key = ρσ_kwargs_obj.key;
     }
-    if (Object.prototype.hasOwnProperty.call(_$rapyd$_kwargs_obj, "reverse")){
-        reverse = _$rapyd$_kwargs_obj.reverse;
+    if (Object.prototype.hasOwnProperty.call(ρσ_kwargs_obj, "reverse")){
+        reverse = ρσ_kwargs_obj.reverse;
     }
     var ans;
-    ans = _$rapyd$_list_constructor(iterable);
+    ans = ρσ_list_constructor(iterable);
     ans.pysort(key, reverse);
     return ans;
-}
-var _$rapyd$_global_object_id = 0, _$rapyd$_set_implementation;
-function _$rapyd$_set_keyfor(x) {
+};
+Object.defineProperties(sorted, {
+    __defaults__ : {value: {key:null, reverse:false}},
+    __handles_kwarg_interpolation__ : {value: true},
+    __argnames__ : {value: ["iterable", "key", "reverse"]}
+});
+
+var ρσ_global_object_id = 0, ρσ_set_implementation;
+function ρσ_set_keyfor(x) {
     var t, ans;
     t = typeof x;
     if (t === "string" || t === "number" || t === "boolean") {
@@ -1079,92 +774,117 @@ function _$rapyd$_set_keyfor(x) {
     if (x === null) {
         return "__!@#$0";
     }
-    ans = x._$rapyd$_hash_key_prop;
+    ans = x.ρσ_hash_key_prop;
     if (ans === undefined) {
-        ans = "_!@#$" + (++_$rapyd$_global_object_id);
-        Object.defineProperty(x, "_$rapyd$_hash_key_prop", {
-            "value": ans
-        });
+        ans = "_!@#$" + (++ρσ_global_object_id);
+        Object.defineProperty(x, "ρσ_hash_key_prop", (function(){
+            var ρσ_d = {};
+            ρσ_d["value"] = ans;
+            return ρσ_d;
+        }).call(this));
     }
     return ans;
-}
-function _$rapyd$_set_polyfill() {
-    this._store = {};
-    this.size = 0;
-}
-_$rapyd$_set_polyfill.prototype.add = function(x) {
-    var key;
-    key = _$rapyd$_set_keyfor(x);
-    if (!Object.hasOwnProperty.call(this._store, key)) {
-        this.size += 1;
-        this._store[key] = x;
-    }
-    return this;
 };
-_$rapyd$_set_polyfill.prototype.clear = function(x) {
+Object.defineProperties(ρσ_set_keyfor, {
+    __argnames__ : {value: ["x"]}
+});
+
+function ρσ_set_polyfill() {
     this._store = {};
     this.size = 0;
 };
-_$rapyd$_set_polyfill.prototype.delete = function(x) {
-    var key;
-    key = _$rapyd$_set_keyfor(x);
-    if (Object.hasOwnProperty.call(this._store, key)) {
-        this.size -= 1;
-        delete this._store[key];
-        return true;
-    }
-    return false;
-};
-_$rapyd$_set_polyfill.prototype.has = function(x) {
-    return Object.hasOwnProperty.call(this._store, _$rapyd$_set_keyfor(x));
-};
-_$rapyd$_set_polyfill.prototype.values = function(x) {
-    var keys, s;
-    keys = Object.keys(this._store);
-    s = this._store;
-    return (function(){
-        var _$rapyd$_d = {};
-        _$rapyd$_d["_keys"] = keys;
-        _$rapyd$_d["_i"] = -1;
-        _$rapyd$_d["_s"] = s;
-        _$rapyd$_d[_$rapyd$_iterator_symbol] = function() {
+
+ρσ_set_polyfill.prototype.add = (function() {
+    var ρσ_anonfunc = function (x) {
+        var key;
+        key = ρσ_set_keyfor(x);
+        if (!Object.prototype.hasOwnProperty.call(this._store, key)) {
+            this.size += 1;
+            (ρσ_expr_temp = this._store)[(typeof key === "number" && key < 0) ? ρσ_expr_temp.length + key : key] = x;
+        }
+        return this;
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["x"]}
+    });
+    return ρσ_anonfunc;
+})();
+ρσ_set_polyfill.prototype.clear = (function() {
+    var ρσ_anonfunc = function (x) {
+        this._store = {};
+        this.size = 0;
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["x"]}
+    });
+    return ρσ_anonfunc;
+})();
+ρσ_set_polyfill.prototype.delete = (function() {
+    var ρσ_anonfunc = function (x) {
+        var key;
+        key = ρσ_set_keyfor(x);
+        if (Object.prototype.hasOwnProperty.call(this._store, key)) {
+            this.size -= 1;
+            delete this._store[key];
+            return true;
+        }
+        return false;
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["x"]}
+    });
+    return ρσ_anonfunc;
+})();
+ρσ_set_polyfill.prototype.has = (function() {
+    var ρσ_anonfunc = function (x) {
+        return Object.prototype.hasOwnProperty.call(this._store, ρσ_set_keyfor(x));
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["x"]}
+    });
+    return ρσ_anonfunc;
+})();
+ρσ_set_polyfill.prototype.values = (function() {
+    var ρσ_anonfunc = function (x) {
+        var ans;
+        ans = {'_keys': Object.keys(this._store), '_i':-1, '_s':this._store};
+        ans[ρσ_iterator_symbol] = function () {
             return this;
         };
-        _$rapyd$_d["next"] = function() {
+        ans["next"] = function () {
             this._i += 1;
             if (this._i >= this._keys.length) {
-                return {
-                    "done": true
-                };
+                return {'done': true};
             }
-            return {
-                "done": false,
-                "value": s[this._keys[this._i]]
-            };
+            return {'done':false, 'value':this._s[this._keys[this._i]]};
         };
-        return _$rapyd$_d;
-    })();
-};
+        return ans;
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["x"]}
+    });
+    return ρσ_anonfunc;
+})();
 if (typeof Set !== "function" || typeof Set.prototype.delete !== "function") {
-    _$rapyd$_set_implementation = _$rapyd$_set_polyfill;
+    ρσ_set_implementation = ρσ_set_polyfill;
 } else {
-    _$rapyd$_set_implementation = Set;
+    ρσ_set_implementation = Set;
 }
-function _$rapyd$_set(iterable) {
+function ρσ_set(iterable) {
     var ans, s, iterator, result, keys;
-    if (this instanceof _$rapyd$_set) {
-        this.jsset = new _$rapyd$_set_implementation();
+    if (ρσ_instanceof(this, ρσ_set)) {
+        this.jsset = new ρσ_set_implementation;
         ans = this;
         if (iterable === undefined) {
             return ans;
         }
         s = ans.jsset;
-        if (_$rapyd$_arraylike(iterable)) {
+        if (ρσ_arraylike(iterable)) {
             for (var i = 0; i < iterable.length; i++) {
-                s.add(iterable[i]);
+                s.add(iterable[(typeof i === "number" && i < 0) ? iterable.length + i : i]);
             }
-        } else if (typeof iterable[_$rapyd$_iterator_symbol] === "function") {
-            iterator = (typeof Map === "function" && iterable instanceof Map) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]();
+        } else if (typeof iterable[ρσ_iterator_symbol] === "function") {
+            iterator = (typeof Map === "function" && ρσ_instanceof(iterable, Map)) ? iterable.keys() : iterable[ρσ_iterator_symbol]();
             result = iterator.next();
             while (!result.done) {
                 s.add(result.value);
@@ -1173,54 +893,79 @@ function _$rapyd$_set(iterable) {
         } else {
             keys = Object.keys(iterable);
             for (var j=0; j < keys.length; j++) {
-                s.add(keys[j]);
+                s.add(keys[(typeof j === "number" && j < 0) ? keys.length + j : j]);
             }
         }
         return ans;
     } else {
-        return new _$rapyd$_set(iterable);
+        return new ρσ_set(iterable);
     }
-}
-_$rapyd$_set.prototype.__name__ = "set";
-Object.defineProperties(_$rapyd$_set.prototype, {
-    "length": {
-        "get": function() {
-            return this.jsset.size;
-        }
-    },
-    "size": {
-        "get": function() {
-            return this.jsset.size;
-        }
-    }
+};
+Object.defineProperties(ρσ_set, {
+    __argnames__ : {value: ["iterable"]}
 });
-_$rapyd$_set.prototype.__len__ = function() {
+
+ρσ_set.prototype.__name__ = "set";
+Object.defineProperties(ρσ_set.prototype, (function(){
+    var ρσ_d = {};
+    ρσ_d["length"] = (function(){
+        var ρσ_d = {};
+        ρσ_d["get"] = function () {
+            return this.jsset.size;
+        };
+        return ρσ_d;
+    }).call(this);
+    ρσ_d["size"] = (function(){
+        var ρσ_d = {};
+        ρσ_d["get"] = function () {
+            return this.jsset.size;
+        };
+        return ρσ_d;
+    }).call(this);
+    return ρσ_d;
+}).call(this));
+ρσ_set.prototype.__len__ = function () {
     return this.jsset.size;
 };
-_$rapyd$_chain_assign_temp = function(x) {
-    return this.jsset.has(x);
-};
-_$rapyd$_set.prototype.has = _$rapyd$_chain_assign_temp;
-_$rapyd$_set.prototype.__contains__ = _$rapyd$_chain_assign_temp;
-;
-_$rapyd$_set.prototype.add = function(x) {
-    this.jsset.add(x);
-};
-_$rapyd$_set.prototype.clear = function() {
+ρσ_set.prototype.has = ρσ_set.prototype.__contains__ = (function() {
+    var ρσ_anonfunc = function (x) {
+        return this.jsset.has(x);
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["x"]}
+    });
+    return ρσ_anonfunc;
+})();
+ρσ_set.prototype.add = (function() {
+    var ρσ_anonfunc = function (x) {
+        this.jsset.add(x);
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["x"]}
+    });
+    return ρσ_anonfunc;
+})();
+ρσ_set.prototype.clear = function () {
     this.jsset.clear();
 };
-_$rapyd$_set.prototype.copy = function() {
-    return _$rapyd$_set(this);
+ρσ_set.prototype.copy = function () {
+    return ρσ_set(this);
 };
-_$rapyd$_set.prototype.discard = function(x) {
-    this.jsset.delete(x);
-};
-_$rapyd$_set.prototype[_$rapyd$_iterator_symbol] = function() {
+ρσ_set.prototype.discard = (function() {
+    var ρσ_anonfunc = function (x) {
+        this.jsset.delete(x);
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["x"]}
+    });
+    return ρσ_anonfunc;
+})();
+ρσ_set.prototype[ρσ_iterator_symbol] = function () {
     return this.jsset.values();
 };
-_$rapyd$_set.prototype.difference = function() {
+ρσ_set.prototype.difference = function () {
     var ans, s, iterator, r, x, has;
-    ans = new _$rapyd$_set();
+    ans = new ρσ_set;
     s = ans.jsset;
     iterator = this.jsset.values();
     r = iterator.next();
@@ -1228,7 +973,7 @@ _$rapyd$_set.prototype.difference = function() {
         x = r.value;
         has = false;
         for (var i = 0; i < arguments.length; i++) {
-            if (arguments[i].has(x)) {
+            if (arguments[(typeof i === "number" && i < 0) ? arguments.length + i : i].has(x)) {
                 has = true;
                 break;
             }
@@ -1240,7 +985,7 @@ _$rapyd$_set.prototype.difference = function() {
     }
     return ans;
 };
-_$rapyd$_set.prototype.difference_update = function() {
+ρσ_set.prototype.difference_update = function () {
     var s, remove, iterator, r, x;
     s = this.jsset;
     remove = [];
@@ -1249,7 +994,7 @@ _$rapyd$_set.prototype.difference_update = function() {
     while (!r.done) {
         x = r.value;
         for (var i = 0; i < arguments.length; i++) {
-            if (arguments[i].has(x)) {
+            if (arguments[(typeof i === "number" && i < 0) ? arguments.length + i : i].has(x)) {
                 remove.push(x);
                 break;
             }
@@ -1257,12 +1002,12 @@ _$rapyd$_set.prototype.difference_update = function() {
         r = iterator.next();
     }
     for (var j = 0; j < remove.length; j++) {
-        s.delete(remove[j]);
+        s.delete(remove[(typeof j === "number" && j < 0) ? remove.length + j : j]);
     }
 };
-_$rapyd$_set.prototype.intersection = function() {
+ρσ_set.prototype.intersection = function () {
     var ans, s, iterator, r, x, has;
-    ans = new _$rapyd$_set();
+    ans = new ρσ_set;
     s = ans.jsset;
     iterator = this.jsset.values();
     r = iterator.next();
@@ -1270,7 +1015,7 @@ _$rapyd$_set.prototype.intersection = function() {
         x = r.value;
         has = true;
         for (var i = 0; i < arguments.length; i++) {
-            if (!arguments[i].has(x)) {
+            if (!arguments[(typeof i === "number" && i < 0) ? arguments.length + i : i].has(x)) {
                 has = false;
                 break;
             }
@@ -1282,7 +1027,7 @@ _$rapyd$_set.prototype.intersection = function() {
     }
     return ans;
 };
-_$rapyd$_set.prototype.intersection_update = function() {
+ρσ_set.prototype.intersection_update = function () {
     var s, remove, iterator, r, x;
     s = this.jsset;
     remove = [];
@@ -1291,7 +1036,7 @@ _$rapyd$_set.prototype.intersection_update = function() {
     while (!r.done) {
         x = r.value;
         for (var i = 0; i < arguments.length; i++) {
-            if (!arguments[i].has(x)) {
+            if (!arguments[(typeof i === "number" && i < 0) ? arguments.length + i : i].has(x)) {
                 remove.push(x);
                 break;
             }
@@ -1299,50 +1044,68 @@ _$rapyd$_set.prototype.intersection_update = function() {
         r = iterator.next();
     }
     for (var j = 0; j < remove.length; j++) {
-        s.delete(remove[j]);
+        s.delete(remove[(typeof j === "number" && j < 0) ? remove.length + j : j]);
     }
 };
-_$rapyd$_set.prototype.isdisjoint = function(other) {
-    var iterator, r, x;
-    iterator = this.jsset.values();
-    r = iterator.next();
-    while (!r.done) {
-        x = r.value;
-        if (other.has(x)) {
-            return false;
-        }
+ρσ_set.prototype.isdisjoint = (function() {
+    var ρσ_anonfunc = function (other) {
+        var iterator, r, x;
+        iterator = this.jsset.values();
         r = iterator.next();
-    }
-    return true;
-};
-_$rapyd$_set.prototype.issubset = function(other) {
-    var iterator, r, x;
-    iterator = this.jsset.values();
-    r = iterator.next();
-    while (!r.done) {
-        x = r.value;
-        if (!other.has(x)) {
-            return false;
+        while (!r.done) {
+            x = r.value;
+            if (other.has(x)) {
+                return false;
+            }
+            r = iterator.next();
         }
+        return true;
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["other"]}
+    });
+    return ρσ_anonfunc;
+})();
+ρσ_set.prototype.issubset = (function() {
+    var ρσ_anonfunc = function (other) {
+        var iterator, r, x;
+        iterator = this.jsset.values();
         r = iterator.next();
-    }
-    return true;
-};
-_$rapyd$_set.prototype.issuperset = function(other) {
-    var s, iterator, r, x;
-    s = this.jsset;
-    iterator = other.jsset.values();
-    r = iterator.next();
-    while (!r.done) {
-        x = r.value;
-        if (!s.has(x)) {
-            return false;
+        while (!r.done) {
+            x = r.value;
+            if (!other.has(x)) {
+                return false;
+            }
+            r = iterator.next();
         }
+        return true;
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["other"]}
+    });
+    return ρσ_anonfunc;
+})();
+ρσ_set.prototype.issuperset = (function() {
+    var ρσ_anonfunc = function (other) {
+        var s, iterator, r, x;
+        s = this.jsset;
+        iterator = other.jsset.values();
         r = iterator.next();
-    }
-    return true;
-};
-_$rapyd$_set.prototype.pop = function() {
+        while (!r.done) {
+            x = r.value;
+            if (!s.has(x)) {
+                return false;
+            }
+            r = iterator.next();
+        }
+        return true;
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["other"]}
+    });
+    return ρσ_anonfunc;
+})();
+ρσ_set.prototype.pop = function () {
     var iterator, r;
     iterator = this.jsset.values();
     r = iterator.next();
@@ -1352,31 +1115,49 @@ _$rapyd$_set.prototype.pop = function() {
     this.jsset.delete(r.value);
     return r.value;
 };
-_$rapyd$_set.prototype.remove = function(x) {
-    if (!this.jsset.delete(x)) {
-        throw new KeyError(x.toString());
-    }
-};
-_$rapyd$_set.prototype.symmetric_difference = function(other) {
-    return this.union(other).difference(this.intersection(other));
-};
-_$rapyd$_set.prototype.symmetric_difference_update = function(other) {
-    var common;
-    common = this.intersection(other);
-    this.update(other);
-    this.difference_update(common);
-};
-_$rapyd$_set.prototype.union = function() {
+ρσ_set.prototype.remove = (function() {
+    var ρσ_anonfunc = function (x) {
+        if (!this.jsset.delete(x)) {
+            throw new KeyError(x.toString());
+        }
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["x"]}
+    });
+    return ρσ_anonfunc;
+})();
+ρσ_set.prototype.symmetric_difference = (function() {
+    var ρσ_anonfunc = function (other) {
+        return this.union(other).difference(this.intersection(other));
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["other"]}
+    });
+    return ρσ_anonfunc;
+})();
+ρσ_set.prototype.symmetric_difference_update = (function() {
+    var ρσ_anonfunc = function (other) {
+        var common;
+        common = this.intersection(other);
+        this.update(other);
+        this.difference_update(common);
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["other"]}
+    });
+    return ρσ_anonfunc;
+})();
+ρσ_set.prototype.union = function () {
     var ans;
-    ans = _$rapyd$_set(this);
+    ans = ρσ_set(this);
     ans.update.apply(ans, arguments);
     return ans;
 };
-_$rapyd$_set.prototype.update = function() {
+ρσ_set.prototype.update = function () {
     var s, iterator, r;
     s = this.jsset;
     for (var i=0; i < arguments.length; i++) {
-        iterator = arguments[i][_$rapyd$_iterator_symbol]();
+        iterator = arguments[(typeof i === "number" && i < 0) ? arguments.length + i : i][ρσ_iterator_symbol]();
         r = iterator.next();
         while (!r.done) {
             s.add(r.value);
@@ -1384,287 +1165,359 @@ _$rapyd$_set.prototype.update = function() {
         }
     }
 };
-_$rapyd$_chain_assign_temp = function() {
+ρσ_set.prototype.toString = ρσ_set.prototype.inspect = function () {
     return "{" + list(this).join(", ") + "}";
 };
-_$rapyd$_set.prototype.toString = _$rapyd$_chain_assign_temp;
-_$rapyd$_set.prototype.inspect = _$rapyd$_chain_assign_temp;
-;
-_$rapyd$_set.prototype.__eq__ = function(other) {
-    var iterator, r;
-    if (!(other instanceof this.constructor)) {
-        return false;
-    }
-    if (other.size !== this.size) {
-        return false;
-    }
-    if (other.size === 0) {
-        return true;
-    }
-    iterator = other[_$rapyd$_iterator_symbol]();
-    r = iterator.next();
-    while (!r.done) {
-        if (!this.has(r.value)) {
+ρσ_set.prototype.__eq__ = (function() {
+    var ρσ_anonfunc = function (other) {
+        var iterator, r;
+        if (!(ρσ_instanceof(other, this.constructor))) {
             return false;
         }
+        if (other.size !== this.size) {
+            return false;
+        }
+        if (other.size === 0) {
+            return true;
+        }
+        iterator = other[ρσ_iterator_symbol]();
         r = iterator.next();
-    }
-    return true;
-};
-function _$rapyd$_set_wrap(x) {
+        while (!r.done) {
+            if (!this.has(r.value)) {
+                return false;
+            }
+            r = iterator.next();
+        }
+        return true;
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["other"]}
+    });
+    return ρσ_anonfunc;
+})();
+function ρσ_set_wrap(x) {
     var ans;
-    ans = new _$rapyd$_set();
+    ans = new ρσ_set;
     ans.jsset = x;
     return ans;
-}
-var set = _$rapyd$_set, set_wrap = _$rapyd$_set_wrap;
-var _$rapyd$_dict_implementation;
-function _$rapyd$_dict_polyfill() {
-    this._store = {};
-    this.size = 0;
-}
-_$rapyd$_dict_polyfill.prototype.set = function(x, value) {
-    var key;
-    key = _$rapyd$_set_keyfor(x);
-    if (!Object.hasOwnProperty.call(this._store, key)) {
-        this.size += 1;
-    }
-    this._store[key] = [x, value];
-    return this;
 };
-_$rapyd$_dict_polyfill.prototype.clear = function(x) {
+Object.defineProperties(ρσ_set_wrap, {
+    __argnames__ : {value: ["x"]}
+});
+
+var set = ρσ_set, set_wrap = ρσ_set_wrap;
+var ρσ_dict_implementation;
+function ρσ_dict_polyfill() {
     this._store = {};
     this.size = 0;
 };
-_$rapyd$_dict_polyfill.prototype.delete = function(x) {
-    var key;
-    key = _$rapyd$_set_keyfor(x);
-    if (Object.hasOwnProperty.call(this._store, key)) {
-        this.size -= 1;
-        delete this._store[key];
-        return true;
-    }
-    return false;
-};
-_$rapyd$_dict_polyfill.prototype.has = function(x) {
-    return Object.hasOwnProperty.call(this._store, _$rapyd$_set_keyfor(x));
-};
-_$rapyd$_dict_polyfill.prototype.get = function(x) {
-    try {
-        return this._store[_$rapyd$_set_keyfor(x)][1];
-    } catch (_$rapyd$_Exception) {
-        if (_$rapyd$_Exception instanceof TypeError) {
-            return undefined;
-        } else {
-            throw _$rapyd$_Exception;
+
+ρσ_dict_polyfill.prototype.set = (function() {
+    var ρσ_anonfunc = function (x, value) {
+        var key;
+        key = ρσ_set_keyfor(x);
+        if (!Object.prototype.hasOwnProperty.call(this._store, key)) {
+            this.size += 1;
         }
-    }
-};
-_$rapyd$_dict_polyfill.prototype.values = function(x) {
-    var keys, s;
-    keys = Object.keys(this._store);
-    s = this._store;
-    return (function(){
-        var _$rapyd$_d = {};
-        _$rapyd$_d["_keys"] = keys;
-        _$rapyd$_d["_i"] = -1;
-        _$rapyd$_d["_s"] = s;
-        _$rapyd$_d[_$rapyd$_iterator_symbol] = function() {
+        (ρσ_expr_temp = this._store)[(typeof key === "number" && key < 0) ? ρσ_expr_temp.length + key : key] = [x, value];
+        return this;
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["x", "value"]}
+    });
+    return ρσ_anonfunc;
+})();
+ρσ_dict_polyfill.prototype.clear = (function() {
+    var ρσ_anonfunc = function (x) {
+        this._store = {};
+        this.size = 0;
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["x"]}
+    });
+    return ρσ_anonfunc;
+})();
+ρσ_dict_polyfill.prototype.delete = (function() {
+    var ρσ_anonfunc = function (x) {
+        var key;
+        key = ρσ_set_keyfor(x);
+        if (Object.prototype.hasOwnProperty.call(this._store, key)) {
+            this.size -= 1;
+            delete this._store[key];
+            return true;
+        }
+        return false;
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["x"]}
+    });
+    return ρσ_anonfunc;
+})();
+ρσ_dict_polyfill.prototype.has = (function() {
+    var ρσ_anonfunc = function (x) {
+        return Object.prototype.hasOwnProperty.call(this._store, ρσ_set_keyfor(x));
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["x"]}
+    });
+    return ρσ_anonfunc;
+})();
+ρσ_dict_polyfill.prototype.get = (function() {
+    var ρσ_anonfunc = function (x) {
+        try {
+            return (ρσ_expr_temp = this._store)[ρσ_bound_index(ρσ_set_keyfor(x), ρσ_expr_temp)][1];
+        } catch (ρσ_Exception) {
+            ρσ_last_exception = ρσ_Exception;
+            if (ρσ_Exception instanceof TypeError) {
+                return undefined;
+            } else {
+                throw ρσ_Exception;
+            }
+        }
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["x"]}
+    });
+    return ρσ_anonfunc;
+})();
+ρσ_dict_polyfill.prototype.values = (function() {
+    var ρσ_anonfunc = function (x) {
+        var ans;
+        ans = {'_keys': Object.keys(this._store), '_i':-1, '_s':this._store};
+        ans[ρσ_iterator_symbol] = function () {
             return this;
         };
-        _$rapyd$_d["next"] = function() {
+        ans["next"] = function () {
             this._i += 1;
             if (this._i >= this._keys.length) {
-                return {
-                    "done": true
-                };
+                return {'done': true};
             }
-            return {
-                "done": false,
-                "value": s[this._keys[this._i]][1]
-            };
+            return {'done':false, 'value':this._s[this._keys[this._i]][1]};
         };
-        return _$rapyd$_d;
-    })();
-};
-_$rapyd$_dict_polyfill.prototype.keys = function(x) {
-    var keys, s;
-    keys = Object.keys(this._store);
-    s = this._store;
-    return (function(){
-        var _$rapyd$_d = {};
-        _$rapyd$_d["_keys"] = keys;
-        _$rapyd$_d["_i"] = -1;
-        _$rapyd$_d["_s"] = s;
-        _$rapyd$_d[_$rapyd$_iterator_symbol] = function() {
+        return ans;
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["x"]}
+    });
+    return ρσ_anonfunc;
+})();
+ρσ_dict_polyfill.prototype.keys = (function() {
+    var ρσ_anonfunc = function (x) {
+        var ans;
+        ans = {'_keys': Object.keys(this._store), '_i':-1, '_s':this._store};
+        ans[ρσ_iterator_symbol] = function () {
             return this;
         };
-        _$rapyd$_d["next"] = function() {
+        ans["next"] = function () {
             this._i += 1;
             if (this._i >= this._keys.length) {
-                return {
-                    "done": true
-                };
+                return {'done': true};
             }
-            return {
-                "done": false,
-                "value": s[this._keys[this._i]][0]
-            };
+            return {'done':false, 'value':this._s[this._keys[this._i]][0]};
         };
-        return _$rapyd$_d;
-    })();
-};
-_$rapyd$_dict_polyfill.prototype.entries = function(x) {
-    var keys, s;
-    keys = Object.keys(this._store);
-    s = this._store;
-    return (function(){
-        var _$rapyd$_d = {};
-        _$rapyd$_d["_keys"] = keys;
-        _$rapyd$_d["_i"] = -1;
-        _$rapyd$_d["_s"] = s;
-        _$rapyd$_d[_$rapyd$_iterator_symbol] = function() {
+        return ans;
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["x"]}
+    });
+    return ρσ_anonfunc;
+})();
+ρσ_dict_polyfill.prototype.entries = (function() {
+    var ρσ_anonfunc = function (x) {
+        var ans;
+        ans = {'_keys': Object.keys(this._store), '_i':-1, '_s':this._store};
+        ans[ρσ_iterator_symbol] = function () {
             return this;
         };
-        _$rapyd$_d["next"] = function() {
+        ans["next"] = function () {
             this._i += 1;
             if (this._i >= this._keys.length) {
-                return {
-                    "done": true
-                };
+                return {'done': true};
             }
-            return {
-                "done": false,
-                "value": s[this._keys[this._i]]
-            };
+            return {'done':false, 'value':this._s[this._keys[this._i]]};
         };
-        return _$rapyd$_d;
-    })();
-};
+        return ans;
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["x"]}
+    });
+    return ρσ_anonfunc;
+})();
 if (typeof Map !== "function" || typeof Map.prototype.delete !== "function") {
-    _$rapyd$_dict_implementation = _$rapyd$_dict_polyfill;
+    ρσ_dict_implementation = ρσ_dict_polyfill;
 } else {
-    _$rapyd$_dict_implementation = Map;
+    ρσ_dict_implementation = Map;
 }
-function _$rapyd$_dict(iterable) {
-    if (this instanceof _$rapyd$_dict) {
-        this.jsmap = new _$rapyd$_dict_implementation();
+function ρσ_dict(iterable) {
+    if (ρσ_instanceof(this, ρσ_dict)) {
+        this.jsmap = new ρσ_dict_implementation;
         if (iterable !== undefined) {
             this.update(iterable);
         }
         return this;
     } else {
-        return new _$rapyd$_dict(iterable);
+        return new ρσ_dict(iterable);
     }
-}
-_$rapyd$_dict.prototype.__name__ = "dict";
-Object.defineProperties(_$rapyd$_dict.prototype, {
-    "length": {
-        "get": function() {
-            return this.jsmap.size;
-        }
-    },
-    "size": {
-        "get": function() {
-            return this.jsmap.size;
-        }
-    }
+};
+Object.defineProperties(ρσ_dict, {
+    __argnames__ : {value: ["iterable"]}
 });
-_$rapyd$_dict.prototype.__len__ = function() {
+
+ρσ_dict.prototype.__name__ = "dict";
+Object.defineProperties(ρσ_dict.prototype, (function(){
+    var ρσ_d = {};
+    ρσ_d["length"] = (function(){
+        var ρσ_d = {};
+        ρσ_d["get"] = function () {
+            return this.jsmap.size;
+        };
+        return ρσ_d;
+    }).call(this);
+    ρσ_d["size"] = (function(){
+        var ρσ_d = {};
+        ρσ_d["get"] = function () {
+            return this.jsmap.size;
+        };
+        return ρσ_d;
+    }).call(this);
+    return ρσ_d;
+}).call(this));
+ρσ_dict.prototype.__len__ = function () {
     return this.jsmap.size;
 };
-_$rapyd$_chain_assign_temp = function(x) {
-    return this.jsmap.has(x);
-};
-_$rapyd$_dict.prototype.has = _$rapyd$_chain_assign_temp;
-_$rapyd$_dict.prototype.__contains__ = _$rapyd$_chain_assign_temp;
-;
-_$rapyd$_chain_assign_temp = function(key, value) {
-    this.jsmap.set(key, value);
-};
-_$rapyd$_dict.prototype.set = _$rapyd$_chain_assign_temp;
-_$rapyd$_dict.prototype.__setitem__ = _$rapyd$_chain_assign_temp;
-;
-_$rapyd$_dict.prototype.clear = function() {
+ρσ_dict.prototype.has = ρσ_dict.prototype.__contains__ = (function() {
+    var ρσ_anonfunc = function (x) {
+        return this.jsmap.has(x);
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["x"]}
+    });
+    return ρσ_anonfunc;
+})();
+ρσ_dict.prototype.set = ρσ_dict.prototype.__setitem__ = (function() {
+    var ρσ_anonfunc = function (key, value) {
+        this.jsmap.set(key, value);
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["key", "value"]}
+    });
+    return ρσ_anonfunc;
+})();
+ρσ_dict.prototype.__delitem__ = (function() {
+    var ρσ_anonfunc = function (key) {
+        this.jsmap.delete(key);
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["key"]}
+    });
+    return ρσ_anonfunc;
+})();
+ρσ_dict.prototype.clear = function () {
     this.jsmap.clear();
 };
-_$rapyd$_dict.prototype.copy = function() {
-    return _$rapyd$_dict(this);
+ρσ_dict.prototype.copy = function () {
+    return ρσ_dict(this);
 };
-_$rapyd$_dict.prototype.keys = function() {
+ρσ_dict.prototype.keys = function () {
     return this.jsmap.keys();
 };
-_$rapyd$_dict.prototype.values = function() {
+ρσ_dict.prototype.values = function () {
     return this.jsmap.values();
 };
-_$rapyd$_chain_assign_temp = function() {
+ρσ_dict.prototype.items = ρσ_dict.prototype.entries = function () {
     return this.jsmap.entries();
 };
-_$rapyd$_dict.prototype.items = _$rapyd$_chain_assign_temp;
-_$rapyd$_dict.prototype.entries = _$rapyd$_chain_assign_temp;
-;
-_$rapyd$_dict.prototype[_$rapyd$_iterator_symbol] = function() {
+ρσ_dict.prototype[ρσ_iterator_symbol] = function () {
     return this.jsmap.keys();
 };
-_$rapyd$_dict.prototype.__getitem__ = function(key) {
-    var ans;
-    ans = this.jsmap.get(key);
-    if (ans === undefined && !this.jsmap.has(key)) {
-        throw new KeyError(key + "");
-    }
-    return ans;
-};
-_$rapyd$_dict.prototype.get = function(key, defval) {
-    var ans;
-    ans = this.jsmap.get(key);
-    if (ans === undefined && !this.jsmap.has(key)) {
-        return (defval === undefined) ? null : defval;
-    }
-    return ans;
-};
-_$rapyd$_dict.prototype.set_default = function(key, defval) {
-    var j;
-    j = this.jsmap;
-    if (!j.has(key)) {
-        j.set(key, defval);
-        return defval;
-    }
-    return j.get(key);
-};
-_$rapyd$_chain_assign_temp = function() {
-    var iterable = ( 0 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [_$rapyd$_kwargs_symbol] === true) ? undefined : arguments[0];
-    var value = (arguments[1] === undefined || ( 1 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [_$rapyd$_kwargs_symbol] === true)) ? (null) : arguments[1];
-    var _$rapyd$_kwargs_obj = arguments[arguments.length-1];
-    if (_$rapyd$_kwargs_obj === null || typeof _$rapyd$_kwargs_obj !== "object" || _$rapyd$_kwargs_obj [_$rapyd$_kwargs_symbol] !== true) _$rapyd$_kwargs_obj = {};
-    if (Object.prototype.hasOwnProperty.call(_$rapyd$_kwargs_obj, "value")){
-        value = _$rapyd$_kwargs_obj.value;
-    }
-    var ans, iterator, r;
-    ans = _$rapyd$_dict();
-    iterator = iter(iterable);
-    r = iterator.next();
-    while (!r.done) {
-        ans.set(r.value, value);
-        r = iterator.next();
-    }
-    return ans;
-};
-_$rapyd$_dict.fromkeys = _$rapyd$_chain_assign_temp;
-_$rapyd$_dict.prototype.fromkeys = _$rapyd$_chain_assign_temp;
-;
-_$rapyd$_dict.prototype.pop = function(key, defval) {
-    var ans;
-    ans = this.jsmap.get(key);
-    if (ans === undefined && !this.jsmap.has(key)) {
-        if (defval === undefined) {
-            throw new KeyError(key);
+ρσ_dict.prototype.__getitem__ = (function() {
+    var ρσ_anonfunc = function (key) {
+        var ans;
+        ans = this.jsmap.get(key);
+        if (ans === undefined && !this.jsmap.has(key)) {
+            throw new KeyError(key + "");
         }
-        return defval;
-    }
-    this.jsmap.delete(key);
-    return ans;
-};
-_$rapyd$_dict.prototype.popitem = function() {
+        return ans;
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["key"]}
+    });
+    return ρσ_anonfunc;
+})();
+ρσ_dict.prototype.get = (function() {
+    var ρσ_anonfunc = function (key, defval) {
+        var ans;
+        ans = this.jsmap.get(key);
+        if (ans === undefined && !this.jsmap.has(key)) {
+            return (defval === undefined) ? null : defval;
+        }
+        return ans;
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["key", "defval"]}
+    });
+    return ρσ_anonfunc;
+})();
+ρσ_dict.prototype.set_default = (function() {
+    var ρσ_anonfunc = function (key, defval) {
+        var j;
+        j = this.jsmap;
+        if (!j.has(key)) {
+            j.set(key, defval);
+            return defval;
+        }
+        return j.get(key);
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["key", "defval"]}
+    });
+    return ρσ_anonfunc;
+})();
+ρσ_dict.fromkeys = ρσ_dict.prototype.fromkeys = (function() {
+    var ρσ_anonfunc = function () {
+        var iterable = ( 0 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true) ? undefined : arguments[0];
+        var value = (arguments[1] === undefined || ( 1 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true)) ? ρσ_anonfunc.__defaults__.value : arguments[1];
+        var ρσ_kwargs_obj = arguments[arguments.length-1];
+        if (ρσ_kwargs_obj === null || typeof ρσ_kwargs_obj !== "object" || ρσ_kwargs_obj [ρσ_kwargs_symbol] !== true) ρσ_kwargs_obj = {};
+        if (Object.prototype.hasOwnProperty.call(ρσ_kwargs_obj, "value")){
+            value = ρσ_kwargs_obj.value;
+        }
+        var ans, iterator, r;
+        ans = ρσ_dict();
+        iterator = iter(iterable);
+        r = iterator.next();
+        while (!r.done) {
+            ans.set(r.value, value);
+            r = iterator.next();
+        }
+        return ans;
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __defaults__ : {value: {value:null}},
+        __handles_kwarg_interpolation__ : {value: true},
+        __argnames__ : {value: ["iterable", "value"]}
+    });
+    return ρσ_anonfunc;
+})();
+ρσ_dict.prototype.pop = (function() {
+    var ρσ_anonfunc = function (key, defval) {
+        var ans;
+        ans = this.jsmap.get(key);
+        if (ans === undefined && !this.jsmap.has(key)) {
+            if (defval === undefined) {
+                throw new KeyError(key);
+            }
+            return defval;
+        }
+        this.jsmap.delete(key);
+        return ans;
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["key", "defval"]}
+    });
+    return ρσ_anonfunc;
+})();
+ρσ_dict.prototype.popitem = function () {
     var r;
     r = this.jsmap.entries().next();
     if (r.done) {
@@ -1673,7 +1526,7 @@ _$rapyd$_dict.prototype.popitem = function() {
     this.jsmap.delete(r.value[0]);
     return r.value;
 };
-_$rapyd$_dict.prototype.update = function() {
+ρσ_dict.prototype.update = function () {
     var m, iterable, iterator, result, keys;
     if (arguments.length === 0) {
         return;
@@ -1682,24 +1535,24 @@ _$rapyd$_dict.prototype.update = function() {
     iterable = arguments[0];
     if (Array.isArray(iterable)) {
         for (var i = 0; i < iterable.length; i++) {
-            m.set(iterable[i][0], iterable[i][1]);
+            m.set(iterable[(typeof i === "number" && i < 0) ? iterable.length + i : i][0], iterable[(typeof i === "number" && i < 0) ? iterable.length + i : i][1]);
         }
-    } else if (iterable instanceof _$rapyd$_dict) {
+    } else if (ρσ_instanceof(iterable, ρσ_dict)) {
         iterator = iterable.items();
         result = iterator.next();
         while (!result.done) {
             m.set(result.value[0], result.value[1]);
             result = iterator.next();
         }
-    } else if (typeof Map === "function" && iterable instanceof Map) {
+    } else if (typeof Map === "function" && ρσ_instanceof(iterable, Map)) {
         iterator = iterable.entries();
         result = iterator.next();
         while (!result.done) {
             m.set(result.value[0], result.value[1]);
             result = iterator.next();
         }
-    } else if (typeof iterable[_$rapyd$_iterator_symbol] === "function") {
-        iterator = iterable[_$rapyd$_iterator_symbol]();
+    } else if (typeof iterable[ρσ_iterator_symbol] === "function") {
+        iterator = iterable[ρσ_iterator_symbol]();
         result = iterator.next();
         while (!result.done) {
             m.set(result.value[0], result.value[1]);
@@ -1708,16 +1561,16 @@ _$rapyd$_dict.prototype.update = function() {
     } else {
         keys = Object.keys(iterable);
         for (var j=0; j < keys.length; j++) {
-            if (keys[j] !== _$rapyd$_iterator_symbol) {
-                m.set(keys[j], iterable[keys[j]]);
+            if (keys[(typeof j === "number" && j < 0) ? keys.length + j : j] !== ρσ_iterator_symbol) {
+                m.set(keys[(typeof j === "number" && j < 0) ? keys.length + j : j], iterable[ρσ_bound_index(keys[(typeof j === "number" && j < 0) ? keys.length + j : j], iterable)]);
             }
         }
     }
     if (arguments.length > 1) {
-        _$rapyd$_dict.prototype.update.call(this, arguments[1]);
+        ρσ_dict.prototype.update.call(this, arguments[1]);
     }
 };
-_$rapyd$_chain_assign_temp = function() {
+ρσ_dict.prototype.toString = ρσ_dict.prototype.inspect = function () {
     var entries, iterator, r;
     entries = [];
     iterator = this.jsmap.entries();
@@ -1728,90 +1581,215 @@ _$rapyd$_chain_assign_temp = function() {
     }
     return "{" + entries.join(", ") + "}";
 };
-_$rapyd$_dict.prototype.toString = _$rapyd$_chain_assign_temp;
-_$rapyd$_dict.prototype.inspect = _$rapyd$_chain_assign_temp;
-;
-_$rapyd$_dict.prototype.__eq__ = function(other) {
-    var iterator, r, x;
-    if (!(other instanceof this.constructor)) {
-        return false;
-    }
-    if (other.size !== this.size) {
-        return false;
-    }
-    if (other.size === 0) {
-        return true;
-    }
-    iterator = other.items();
-    r = iterator.next();
-    while (!r.done) {
-        x = this.jsmap.get(r.value[0]);
-        if (x === undefined && !this.jsmap.has(r.value[0]) || x !== r.value[1]) {
+ρσ_dict.prototype.__eq__ = (function() {
+    var ρσ_anonfunc = function (other) {
+        var iterator, r, x;
+        if (!(ρσ_instanceof(other, this.constructor))) {
             return false;
         }
+        if (other.size !== this.size) {
+            return false;
+        }
+        if (other.size === 0) {
+            return true;
+        }
+        iterator = other.items();
         r = iterator.next();
-    }
-    return true;
-};
-_$rapyd$_dict.prototype.as_object = function(other) {
-    var ans, iterator, r;
-    ans = {};
-    iterator = this.jsmap.entries();
-    r = iterator.next();
-    while (!r.done) {
-        ans[r.value[0]] = r.value[1];
+        while (!r.done) {
+            x = this.jsmap.get(r.value[0]);
+            if (x === undefined && !this.jsmap.has(r.value[0]) || x !== r.value[1]) {
+                return false;
+            }
+            r = iterator.next();
+        }
+        return true;
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["other"]}
+    });
+    return ρσ_anonfunc;
+})();
+ρσ_dict.prototype.as_object = (function() {
+    var ρσ_anonfunc = function (other) {
+        var ans, iterator, r;
+        ans = {};
+        iterator = this.jsmap.entries();
         r = iterator.next();
-    }
-    return ans;
-};
-function _$rapyd$_dict_wrap(x) {
+        while (!r.done) {
+            ans[ρσ_bound_index(r.value[0], ans)] = r.value[1];
+            r = iterator.next();
+        }
+        return ans;
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["other"]}
+    });
+    return ρσ_anonfunc;
+})();
+function ρσ_dict_wrap(x) {
     var ans;
-    ans = new _$rapyd$_dict();
+    ans = new ρσ_dict;
     ans.jsmap = x;
     return ans;
+};
+Object.defineProperties(ρσ_dict_wrap, {
+    __argnames__ : {value: ["x"]}
+});
+
+var dict = ρσ_dict, dict_wrap = ρσ_dict_wrap;var NameError;
+NameError = ReferenceError;
+function Exception() {
+    if (this.ρσ_object_id === undefined) Object.defineProperty(this, "ρσ_object_id", {"value":++ρσ_object_counter});
+    Exception.prototype.__init__.apply(this, arguments);
 }
-var dict = _$rapyd$_dict, dict_wrap = _$rapyd$_dict_wrap;;
-    function _$rapyd$_bool(val) {
-    return !!val;
+ρσ_extends(Exception, Error);
+Exception.prototype.__init__ = function __init__(message) {
+    var self = this;
+    self.message = message;
+    self.stack = (new Error).stack;
+    self.name = self.constructor.name;
+};
+Object.defineProperties(Exception.prototype.__init__, {
+    __argnames__ : {value: ["message"]}
+});
+Exception.__argnames__ = Exception.prototype.__init__.__argnames__;
+Exception.__handles_kwarg_interpolation__ = Exception.prototype.__init__.__handles_kwarg_interpolation__;
+Exception.prototype.__repr__ = function __repr__() {
+    var self = this;
+    return self.name + ": " + self.message;
+};
+Object.defineProperties(Exception.prototype.__repr__, {
+    __argnames__ : {value: []}
+});
+Exception.prototype.__str__ = function __str__ () {
+    if(Error.prototype.__str__) return Error.prototype.__str__.call(this);
+return this.__repr__();
+};
+Object.defineProperty(Exception.prototype, "__bases__", {value: [Error]});
+
+function AttributeError() {
+    if (this.ρσ_object_id === undefined) Object.defineProperty(this, "ρσ_object_id", {"value":++ρσ_object_counter});
+    AttributeError.prototype.__init__.apply(this, arguments);
 }
-function _$rapyd$_bind(fn, thisArg) {
-    var ret;
-    if (fn.orig) {
-        fn = fn.orig;
-    }
-    if (thisArg === false) {
-        return fn;
-    }
-    ret = function() {
-        return fn.apply(thisArg, arguments);
-    };
-    ret.orig = fn;
-    return ret;
+ρσ_extends(AttributeError, Exception);
+AttributeError.prototype.__init__ = function __init__ () {
+    Exception.prototype.__init__ && Exception.prototype.__init__.apply(this, arguments);
+};
+AttributeError.prototype.__repr__ = function __repr__ () {
+    if(Exception.prototype.__repr__) return Exception.prototype.__repr__.call(this);
+    return "<" + __name__ + "." + this.constructor.name + " #" + this.ρσ_object_id + ">";
+};
+AttributeError.prototype.__str__ = function __str__ () {
+    if(Exception.prototype.__str__) return Exception.prototype.__str__.call(this);
+return this.__repr__();
+};
+Object.defineProperty(AttributeError.prototype, "__bases__", {value: [Exception]});
+
+
+function IndexError() {
+    if (this.ρσ_object_id === undefined) Object.defineProperty(this, "ρσ_object_id", {"value":++ρσ_object_counter});
+    IndexError.prototype.__init__.apply(this, arguments);
 }
-function _$rapyd$_rebind_all(thisArg, rebind) {
-    if (typeof rebind === "undefined") {
-        rebind = true;
-    }
-    for (var p in thisArg) {
-        if (thisArg[p] && thisArg[p].orig) {
-            if (rebind) {
-                thisArg[p] = _$rapyd$_bind(thisArg[p], thisArg);
-            } else {
-                thisArg[p] = thisArg[p].orig;
-            }
-        }
-    }
+ρσ_extends(IndexError, Exception);
+IndexError.prototype.__init__ = function __init__ () {
+    Exception.prototype.__init__ && Exception.prototype.__init__.apply(this, arguments);
+};
+IndexError.prototype.__repr__ = function __repr__ () {
+    if(Exception.prototype.__repr__) return Exception.prototype.__repr__.call(this);
+    return "<" + __name__ + "." + this.constructor.name + " #" + this.ρσ_object_id + ">";
+};
+IndexError.prototype.__str__ = function __str__ () {
+    if(Exception.prototype.__str__) return Exception.prototype.__str__.call(this);
+return this.__repr__();
+};
+Object.defineProperty(IndexError.prototype, "__bases__", {value: [Exception]});
+
+
+function KeyError() {
+    if (this.ρσ_object_id === undefined) Object.defineProperty(this, "ρσ_object_id", {"value":++ρσ_object_counter});
+    KeyError.prototype.__init__.apply(this, arguments);
 }
-function _$rapyd$_eslice(arr, step, start, end) {
-    var isString;
-    arr = arr.slice(0);
-    if (typeof arr === "string" || arr instanceof String) {
-        isString = true;
+ρσ_extends(KeyError, Exception);
+KeyError.prototype.__init__ = function __init__ () {
+    Exception.prototype.__init__ && Exception.prototype.__init__.apply(this, arguments);
+};
+KeyError.prototype.__repr__ = function __repr__ () {
+    if(Exception.prototype.__repr__) return Exception.prototype.__repr__.call(this);
+    return "<" + __name__ + "." + this.constructor.name + " #" + this.ρσ_object_id + ">";
+};
+KeyError.prototype.__str__ = function __str__ () {
+    if(Exception.prototype.__str__) return Exception.prototype.__str__.call(this);
+return this.__repr__();
+};
+Object.defineProperty(KeyError.prototype, "__bases__", {value: [Exception]});
+
+
+function ValueError() {
+    if (this.ρσ_object_id === undefined) Object.defineProperty(this, "ρσ_object_id", {"value":++ρσ_object_counter});
+    ValueError.prototype.__init__.apply(this, arguments);
+}
+ρσ_extends(ValueError, Exception);
+ValueError.prototype.__init__ = function __init__ () {
+    Exception.prototype.__init__ && Exception.prototype.__init__.apply(this, arguments);
+};
+ValueError.prototype.__repr__ = function __repr__ () {
+    if(Exception.prototype.__repr__) return Exception.prototype.__repr__.call(this);
+    return "<" + __name__ + "." + this.constructor.name + " #" + this.ρσ_object_id + ">";
+};
+ValueError.prototype.__str__ = function __str__ () {
+    if(Exception.prototype.__str__) return Exception.prototype.__str__.call(this);
+return this.__repr__();
+};
+Object.defineProperty(ValueError.prototype, "__bases__", {value: [Exception]});
+
+
+function UnicodeDecodeError() {
+    if (this.ρσ_object_id === undefined) Object.defineProperty(this, "ρσ_object_id", {"value":++ρσ_object_counter});
+    UnicodeDecodeError.prototype.__init__.apply(this, arguments);
+}
+ρσ_extends(UnicodeDecodeError, Exception);
+UnicodeDecodeError.prototype.__init__ = function __init__ () {
+    Exception.prototype.__init__ && Exception.prototype.__init__.apply(this, arguments);
+};
+UnicodeDecodeError.prototype.__repr__ = function __repr__ () {
+    if(Exception.prototype.__repr__) return Exception.prototype.__repr__.call(this);
+    return "<" + __name__ + "." + this.constructor.name + " #" + this.ρσ_object_id + ">";
+};
+UnicodeDecodeError.prototype.__str__ = function __str__ () {
+    if(Exception.prototype.__str__) return Exception.prototype.__str__.call(this);
+return this.__repr__();
+};
+Object.defineProperty(UnicodeDecodeError.prototype, "__bases__", {value: [Exception]});
+
+
+function AssertionError() {
+    if (this.ρσ_object_id === undefined) Object.defineProperty(this, "ρσ_object_id", {"value":++ρσ_object_counter});
+    AssertionError.prototype.__init__.apply(this, arguments);
+}
+ρσ_extends(AssertionError, Exception);
+AssertionError.prototype.__init__ = function __init__ () {
+    Exception.prototype.__init__ && Exception.prototype.__init__.apply(this, arguments);
+};
+AssertionError.prototype.__repr__ = function __repr__ () {
+    if(Exception.prototype.__repr__) return Exception.prototype.__repr__.call(this);
+    return "<" + __name__ + "." + this.constructor.name + " #" + this.ρσ_object_id + ">";
+};
+AssertionError.prototype.__str__ = function __str__ () {
+    if(Exception.prototype.__str__) return Exception.prototype.__str__.call(this);
+return this.__repr__();
+};
+Object.defineProperty(AssertionError.prototype, "__bases__", {value: [Exception]});
+
+var ρσ_in, ρσ_desugar_kwargs, ρσ_exists;
+function ρσ_eslice(arr, step, start, end) {
+    var is_string;
+    if (typeof arr === "string" || ρσ_instanceof(arr, String)) {
+        is_string = true;
         arr = arr.split("");
     }
     if (step < 0) {
         step = -step;
-        arr.reverse();
+        arr = arr.slice().reverse();
         if (typeof start !== "undefined") {
             start = arr.length - start - 1;
         }
@@ -1825,90 +1803,572 @@ function _$rapyd$_eslice(arr, step, start, end) {
     if (typeof end === "undefined") {
         end = arr.length;
     }
-    arr = arr.slice(start, end).filter(function(e, i) {
-        return i % step === 0;
-    });
-    return (isString) ? arr.join("") : arr;
-}
-function _$rapyd$_mixin(target, source, overwrite) {
-    for (var i in source) {
-        if (source.hasOwnProperty(i) && overwrite || typeof target[i] === "undefined") {
-            target[i] = source[i];
+    arr = arr.slice(start, end).filter((function() {
+        var ρσ_anonfunc = function (e, i) {
+            return i % step === 0;
+        };
+        Object.defineProperties(ρσ_anonfunc, {
+            __argnames__ : {value: ["e", "i"]}
+        });
+        return ρσ_anonfunc;
+    })());
+    if (is_string) {
+        arr = arr.join("");
+    }
+    return arr;
+};
+Object.defineProperties(ρσ_eslice, {
+    __argnames__ : {value: ["arr", "step", "start", "end"]}
+});
+
+function ρσ_delslice(arr, step, start, end) {
+    var is_string, ρσ_unpack, indices;
+    if (typeof arr === "string" || ρσ_instanceof(arr, String)) {
+        is_string = true;
+        arr = arr.split("");
+    }
+    if (step < 0) {
+        if (typeof start === "undefined") {
+            start = arr.length;
+        }
+        if (typeof end === "undefined") {
+            end = 0;
+        }
+        ρσ_unpack = [end, start, -step];
+        start = ρσ_unpack[0];
+        end = ρσ_unpack[1];
+        step = ρσ_unpack[2];
+    }
+    if (typeof start === "undefined") {
+        start = 0;
+    }
+    if (typeof end === "undefined") {
+        end = arr.length;
+    }
+    if (step === 1) {
+        arr.splice(start, end - start);
+    } else {
+        if (end > start) {
+            indices = [];
+            for (var i = start; i < end; i += step) {
+                indices.push(i);
+            }
+            for (var i = indices.length - 1; i >= 0; i--) {
+                arr.splice(indices[(typeof i === "number" && i < 0) ? indices.length + i : i], 1);
+            }
         }
     }
-}
-function _$rapyd$_print() {
-    var parts;
-    if (typeof console === "object") {
-        parts = [];
+    if (is_string) {
+        arr = arr.join("");
+    }
+    return arr;
+};
+Object.defineProperties(ρσ_delslice, {
+    __argnames__ : {value: ["arr", "step", "start", "end"]}
+});
+
+function ρσ_flatten(arr) {
+    var ans, value;
+    ans = ρσ_list_decorate([]);
+    for (var i=0; i < arr.length; i++) {
+        value = arr[(typeof i === "number" && i < 0) ? arr.length + i : i];
+        if (Array.isArray(value)) {
+            ans = ans.concat(ρσ_flatten(value));
+        } else {
+            ans.push(value);
+        }
+    }
+    return ans;
+};
+Object.defineProperties(ρσ_flatten, {
+    __argnames__ : {value: ["arr"]}
+});
+
+function ρσ_extends(child, parent) {
+    child.prototype = Object.create(parent.prototype);
+    child.prototype.constructor = child;
+};
+Object.defineProperties(ρσ_extends, {
+    __argnames__ : {value: ["child", "parent"]}
+});
+
+ρσ_in = function () {
+    if (typeof Map === "function" && typeof Set === "function") {
+        return (function() {
+            var ρσ_anonfunc = function (val, arr) {
+                if (typeof arr === "string") {
+                    return arr.indexOf(val) !== -1;
+                }
+                if (typeof arr.__contains__ === "function") {
+                    return arr.__contains__(val);
+                }
+                if (ρσ_instanceof.apply(null, [arr, Map, Set])) {
+                    return arr.has(val);
+                }
+                if (ρσ_arraylike(arr)) {
+                    return ρσ_list_contains.call(arr, val);
+                }
+                return Object.prototype.hasOwnProperty.call(arr, val);
+            };
+            Object.defineProperties(ρσ_anonfunc, {
+                __argnames__ : {value: ["val", "arr"]}
+            });
+            return ρσ_anonfunc;
+        })();
+    }
+    return (function() {
+        var ρσ_anonfunc = function (val, arr) {
+            if (typeof arr === "string") {
+                return arr.indexOf(val) !== -1;
+            }
+            if (typeof arr.__contains__ === "function") {
+                return arr.__contains__(val);
+            }
+            if (ρσ_arraylike(arr)) {
+                return ρσ_list_contains.call(arr, val);
+            }
+            return Object.prototype.hasOwnProperty.call(arr, val);
+        };
+        Object.defineProperties(ρσ_anonfunc, {
+            __argnames__ : {value: ["val", "arr"]}
+        });
+        return ρσ_anonfunc;
+    })();
+}();
+function ρσ_Iterable(iterable) {
+    var iterator, ans, result;
+    if (ρσ_arraylike(iterable)) {
+        return iterable;
+    }
+    if (typeof iterable[ρσ_iterator_symbol] === "function") {
+        iterator = (typeof Map === "function" && ρσ_instanceof(iterable, Map)) ? iterable.keys() : iterable[ρσ_iterator_symbol]();
+        ans = ρσ_list_decorate([]);
+        result = iterator.next();
+        while (!result.done) {
+            ans.push(result.value);
+            result = iterator.next();
+        }
+        return ans;
+    }
+    return Object.keys(iterable);
+};
+Object.defineProperties(ρσ_Iterable, {
+    __argnames__ : {value: ["iterable"]}
+});
+
+ρσ_desugar_kwargs = function () {
+    if (typeof Object.assign === "function") {
+        return function () {
+            var ans;
+            ans = Object.create(null);
+            ans[ρσ_kwargs_symbol] = true;
+            for (var i = 0; i < arguments.length; i++) {
+                Object.assign(ans, arguments[(typeof i === "number" && i < 0) ? arguments.length + i : i]);
+            }
+            return ans;
+        };
+    }
+    return function () {
+        var ans, keys;
+        ans = Object.create(null);
+        ans[ρσ_kwargs_symbol] = true;
         for (var i = 0; i < arguments.length; i++) {
-            parts.push(_$rapyd$_str(arguments[i]));
+            keys = Object.keys(arguments[(typeof i === "number" && i < 0) ? arguments.length + i : i]);
+            for (var j = 0; j < keys.length; j++) {
+                ans[ρσ_bound_index(keys[(typeof j === "number" && j < 0) ? keys.length + j : j], ans)] = (ρσ_expr_temp = arguments[(typeof i === "number" && i < 0) ? arguments.length + i : i])[ρσ_bound_index(keys[(typeof j === "number" && j < 0) ? keys.length + j : j], ρσ_expr_temp)];
+            }
         }
-        console.log(parts.join(" "));
+        return ans;
+    };
+}();
+function ρσ_interpolate_kwargs(f, supplied_args) {
+    var has_prop, kwobj, args, prop;
+    if (!f.__argnames__) {
+        return f.apply(this, supplied_args);
     }
-}
-function _$rapyd$_int(val, base) {
-    var ans;
-    ans = parseInt(val, base || 10);
-    if (isNaN(ans)) {
-        throw new ValueError("Invalid literal for int with base " + (base || 10) + ": " + val);
+    has_prop = Object.prototype.hasOwnProperty;
+    kwobj = supplied_args.pop();
+    if (f.__handles_kwarg_interpolation__) {
+        args = new Array(Math.max(supplied_args.length, f.__argnames__.length) + 1);
+        args[args.length-1] = kwobj;
+        for (var i = 0; i < args.length - 1; i++) {
+            if (i < f.__argnames__.length) {
+                prop = (ρσ_expr_temp = f.__argnames__)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i];
+                if (has_prop.call(kwobj, prop)) {
+                    args[(typeof i === "number" && i < 0) ? args.length + i : i] = kwobj[(typeof prop === "number" && prop < 0) ? kwobj.length + prop : prop];
+                    delete kwobj[prop];
+                } else if (i < supplied_args.length) {
+                    args[(typeof i === "number" && i < 0) ? args.length + i : i] = supplied_args[(typeof i === "number" && i < 0) ? supplied_args.length + i : i];
+                }
+            } else {
+                args[(typeof i === "number" && i < 0) ? args.length + i : i] = supplied_args[(typeof i === "number" && i < 0) ? supplied_args.length + i : i];
+            }
+        }
+        return f.apply(this, args);
     }
-    return ans;
-}
-function _$rapyd$_float() {
-    var ans;
-    ans = parseFloat.apply(null, arguments);
-    if (isNaN(ans)) {
-        throw new ValueError("Could not convert string to float: " + arguments[0]);
+    for (var i = 0; i < f.__argnames__.length; i++) {
+        prop = (ρσ_expr_temp = f.__argnames__)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i];
+        if (has_prop.call(kwobj, prop)) {
+            supplied_args[(typeof i === "number" && i < 0) ? supplied_args.length + i : i] = kwobj[(typeof prop === "number" && prop < 0) ? kwobj.length + prop : prop];
+        }
     }
-    return ans;
-}
-function _$rapyd$_arraylike_creator() {
-    var names;
-    names = "Int8Array Uint8Array Uint8ClampedArray Int16Array Uint16Array Int32Array Uint32Array Float32Array Float64Array".split(" ");
-    if (typeof HTMLCollection === "function") {
-        names = names.concat("HTMLCollection NodeList NamedNodeMap".split(" "));
+    return f.apply(this, supplied_args);
+};
+Object.defineProperties(ρσ_interpolate_kwargs, {
+    __argnames__ : {value: ["f", "supplied_args"]}
+});
+
+function ρσ_interpolate_kwargs_constructor(apply, f, supplied_args) {
+    if (apply) {
+        f.apply(this, supplied_args);
+    } else {
+        ρσ_interpolate_kwargs.call(this, f, supplied_args);
     }
-    return function(x) {
-        if (Array.isArray(x) || typeof x === "string" || names.indexOf(Object.prototype.toString.call(x).slice(8, -1)) > -1) {
+    return this;
+};
+Object.defineProperties(ρσ_interpolate_kwargs_constructor, {
+    __argnames__ : {value: ["apply", "f", "supplied_args"]}
+});
+
+function ρσ_getitem(obj, key) {
+    if (obj.__getitem__) {
+        return obj.__getitem__(key);
+    }
+    if (typeof key === "number" && key < 0) {
+        key += obj.length;
+    }
+    return obj[(typeof key === "number" && key < 0) ? obj.length + key : key];
+};
+Object.defineProperties(ρσ_getitem, {
+    __argnames__ : {value: ["obj", "key"]}
+});
+
+function ρσ_setitem(obj, key, val) {
+    if (obj.__setitem__) {
+        obj.__setitem__(key, val);
+    } else {
+        if (typeof key === "number" && key < 0) {
+            key += obj.length;
+        }
+        obj[(typeof key === "number" && key < 0) ? obj.length + key : key] = val;
+    }
+};
+Object.defineProperties(ρσ_setitem, {
+    __argnames__ : {value: ["obj", "key", "val"]}
+});
+
+function ρσ_delitem(obj, key) {
+    if (obj.__delitem__) {
+        obj.__delitem__(key);
+    } else if (typeof obj.splice === "function") {
+        obj.splice(key, 1);
+    } else {
+        if (typeof key === "number" && key < 0) {
+            key += obj.length;
+        }
+        delete obj[key];
+    }
+};
+Object.defineProperties(ρσ_delitem, {
+    __argnames__ : {value: ["obj", "key"]}
+});
+
+function ρσ_bound_index(idx, arr) {
+    if (typeof idx === "number" && idx < 0) {
+        idx += arr.length;
+    }
+    return idx;
+};
+Object.defineProperties(ρσ_bound_index, {
+    __argnames__ : {value: ["idx", "arr"]}
+});
+
+ρσ_exists = (function(){
+    var ρσ_d = {};
+    ρσ_d["n"] = (function() {
+        var ρσ_anonfunc = function (expr) {
+            return expr !== undefined && expr !== null;
+        };
+        Object.defineProperties(ρσ_anonfunc, {
+            __argnames__ : {value: ["expr"]}
+        });
+        return ρσ_anonfunc;
+    })();
+    ρσ_d["d"] = (function() {
+        var ρσ_anonfunc = function (expr) {
+            if (expr === undefined || expr === null) {
+                return Object.create(null);
+            }
+            return expr;
+        };
+        Object.defineProperties(ρσ_anonfunc, {
+            __argnames__ : {value: ["expr"]}
+        });
+        return ρσ_anonfunc;
+    })();
+    ρσ_d["c"] = (function() {
+        var ρσ_anonfunc = function (expr) {
+            if (typeof expr === "function") {
+                return expr;
+            }
+            return function () {
+                return undefined;
+            };
+        };
+        Object.defineProperties(ρσ_anonfunc, {
+            __argnames__ : {value: ["expr"]}
+        });
+        return ρσ_anonfunc;
+    })();
+    ρσ_d["g"] = (function() {
+        var ρσ_anonfunc = function (expr) {
+            if (expr === undefined || expr === null || typeof expr.__getitem__ !== "function") {
+                return (function(){
+                    var ρσ_d = {};
+                    ρσ_d["__getitem__"] = function () {
+                        return undefined;
+                    };
+                    return ρσ_d;
+                }).call(this);
+            }
+        };
+        Object.defineProperties(ρσ_anonfunc, {
+            __argnames__ : {value: ["expr"]}
+        });
+        return ρσ_anonfunc;
+    })();
+    ρσ_d["e"] = (function() {
+        var ρσ_anonfunc = function (expr, alt) {
+            return (expr === undefined || expr === null) ? alt : expr;
+        };
+        Object.defineProperties(ρσ_anonfunc, {
+            __argnames__ : {value: ["expr", "alt"]}
+        });
+        return ρσ_anonfunc;
+    })();
+    return ρσ_d;
+}).call(this);
+function ρσ_mixin() {
+    var seen, resolved_props, p, target, props, name;
+    seen = Object.create(null);
+    seen.__argnames__ = seen.__handles_kwarg_interpolation__ = seen.__init__ = seen.__annotations__ = seen.__doc__ = seen.__bind_methods__ = seen.__bases__ = seen.constructor = seen.__class__ = true;
+    resolved_props = {};
+    p = target = arguments[0].prototype;
+    while (p && p !== Object.prototype) {
+        props = Object.getOwnPropertyNames(p);
+        for (var i = 0; i < props.length; i++) {
+            seen[ρσ_bound_index(props[(typeof i === "number" && i < 0) ? props.length + i : i], seen)] = true;
+        }
+        p = Object.getPrototypeOf(p);
+    }
+    for (var c = 1; c < arguments.length; c++) {
+        p = arguments[(typeof c === "number" && c < 0) ? arguments.length + c : c].prototype;
+        while (p && p !== Object.prototype) {
+            props = Object.getOwnPropertyNames(p);
+            for (var i = 0; i < props.length; i++) {
+                name = props[(typeof i === "number" && i < 0) ? props.length + i : i];
+                if (seen[(typeof name === "number" && name < 0) ? seen.length + name : name]) {
+                    continue;
+                }
+                seen[(typeof name === "number" && name < 0) ? seen.length + name : name] = true;
+                resolved_props[(typeof name === "number" && name < 0) ? resolved_props.length + name : name] = Object.getOwnPropertyDescriptor(p, name);
+            }
+            p = Object.getPrototypeOf(p);
+        }
+    }
+    Object.defineProperties(target, resolved_props);
+};
+
+function ρσ_instanceof() {
+    var obj, bases, q, cls, p;
+    obj = arguments[0];
+    bases = "";
+    if (obj && obj.constructor && obj.constructor.prototype) {
+        bases = obj.constructor.prototype.__bases__ || "";
+    }
+    for (var i = 1; i < arguments.length; i++) {
+        q = arguments[(typeof i === "number" && i < 0) ? arguments.length + i : i];
+        if (obj instanceof q) {
             return true;
         }
-        return false;
-    };
-}
-function options_object(f) {
-    return function() {
-        if (typeof arguments[arguments.length - 1] === "object") {
-            arguments[arguments.length - 1][_$rapyd$_kwargs_symbol] = true;
+        if ((q === Array || q === ρσ_list_constructor) && Array.isArray(obj)) {
+            return true;
         }
-        return f.apply(this, arguments);
+        if (q === ρσ_str && (typeof obj === "string" || obj instanceof String)) {
+            return true;
+        }
+        if (bases.length > 1) {
+            for (var c = 1; c < bases.length; c++) {
+                cls = bases[(typeof c === "number" && c < 0) ? bases.length + c : c];
+                while (cls) {
+                    if (q === cls) {
+                        return true;
+                    }
+                    p = Object.getPrototypeOf(cls.prototype);
+                    if (!p) {
+                        break;
+                    }
+                    cls = p.constructor;
+                }
+            }
+        }
+    }
+    return false;
+};
+function sum(iterable, start) {
+    var ans, iterator, r;
+    if (Array.isArray(iterable)) {
+        return iterable.reduce((function() {
+            var ρσ_anonfunc = function (prev, cur) {
+                return prev + cur;
+            };
+            Object.defineProperties(ρσ_anonfunc, {
+                __argnames__ : {value: ["prev", "cur"]}
+            });
+            return ρσ_anonfunc;
+        })(), start || 0);
+    }
+    ans = start || 0;
+    iterator = iter(iterable);
+    r = iterator.next();
+    while (!r.done) {
+        ans += r.value;
+        r = iterator.next();
+    }
+    return ans;
+};
+Object.defineProperties(sum, {
+    __argnames__ : {value: ["iterable", "start"]}
+});
+
+function map() {
+    var iterators, func, args, ans;
+    iterators = new Array(arguments.length - 1);
+    func = arguments[0];
+    args = new Array(arguments.length - 1);
+    for (var i = 1; i < arguments.length; i++) {
+        iterators[ρσ_bound_index(i - 1, iterators)] = iter(arguments[(typeof i === "number" && i < 0) ? arguments.length + i : i]);
+    }
+    ans = {'_func':func, '_iterators':iterators, '_args':args};
+    ans[ρσ_iterator_symbol] = function () {
+        return this;
     };
-}
-function _$rapyd$_id(x) {
-    return x._$rapyd$_object_id;
-}
-var bool = _$rapyd$_bool, bind = _$rapyd$_bind, rebind_all = _$rapyd$_rebind_all;
-var float = _$rapyd$_float, int = _$rapyd$_int, arraylike = _$rapyd$_arraylike_creator(), _$rapyd$_arraylike = arraylike;
-var mixin = _$rapyd$_mixin, print = _$rapyd$_print, eslice = _$rapyd$_eslice, id = _$rapyd$_id;;
-    function _$rapyd$_repr_js_builtin(x, as_array) {
+    ans["next"] = function () {
+        var r;
+        for (var i = 0; i < this._iterators.length; i++) {
+            r = (ρσ_expr_temp = this._iterators)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i].next();
+            if (r.done) {
+                return {'done':true};
+            }
+            (ρσ_expr_temp = this._args)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i] = r.value;
+        }
+        return {'done':false, 'value':this._func.apply(undefined, this._args)};
+    };
+    return ans;
+};
+
+function filter(func_or_none, iterable) {
+    var func, ans;
+    func = (func_or_none === null) ? ρσ_bool : func_or_none;
+    ans = {'_func':func, '_iterator':ρσ_iter(iterable)};
+    ans[ρσ_iterator_symbol] = function () {
+        return this;
+    };
+    ans["next"] = function () {
+        var r;
+        r = this._iterator.next();
+        while (!r.done) {
+            if (this._func(r.value)) {
+                return r;
+            }
+            r = this._iterator.next();
+        }
+        return {'done':true};
+    };
+    return ans;
+};
+Object.defineProperties(filter, {
+    __argnames__ : {value: ["func_or_none", "iterable"]}
+});
+
+function zip() {
+    var iterators, ans;
+    iterators = new Array(arguments.length);
+    for (var i = 0; i < arguments.length; i++) {
+        iterators[(typeof i === "number" && i < 0) ? iterators.length + i : i] = iter(arguments[(typeof i === "number" && i < 0) ? arguments.length + i : i]);
+    }
+    ans = {'_iterators':iterators};
+    ans[ρσ_iterator_symbol] = function () {
+        return this;
+    };
+    ans["next"] = function () {
+        var args, r;
+        args = new Array(this._iterators.length);
+        for (var i = 0; i < this._iterators.length; i++) {
+            r = (ρσ_expr_temp = this._iterators)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i].next();
+            if (r.done) {
+                return {'done':true};
+            }
+            args[(typeof i === "number" && i < 0) ? args.length + i : i] = r.value;
+        }
+        return {'done':false, 'value':args};
+    };
+    return ans;
+};
+
+function any(iterable) {
+    var i;
+    var ρσ_Iter0 = ρσ_Iterable(iterable);
+    for (var ρσ_Index0 = 0; ρσ_Index0 < ρσ_Iter0.length; ρσ_Index0++) {
+        i = ρσ_Iter0[ρσ_Index0];
+        if (i) {
+            return true;
+        }
+    }
+    return false;
+};
+Object.defineProperties(any, {
+    __argnames__ : {value: ["iterable"]}
+});
+
+function all(iterable) {
+    var i;
+    var ρσ_Iter1 = ρσ_Iterable(iterable);
+    for (var ρσ_Index1 = 0; ρσ_Index1 < ρσ_Iter1.length; ρσ_Index1++) {
+        i = ρσ_Iter1[ρσ_Index1];
+        if (!i) {
+            return false;
+        }
+    }
+    return true;
+};
+Object.defineProperties(all, {
+    __argnames__ : {value: ["iterable"]}
+});
+var define_str_func, ρσ_unpack, ρσ_orig_split, ρσ_orig_replace;
+function ρσ_repr_js_builtin(x, as_array) {
     var ans, b, keys, key;
     ans = [];
     b = "{}";
     if (as_array) {
         b = "[]";
         for (var i = 0; i < x.length; i++) {
-            ans.push(_$rapyd$_repr(x[i]));
+            ans.push(ρσ_repr(x[(typeof i === "number" && i < 0) ? x.length + i : i]));
         }
     } else {
         keys = Object.keys(x);
         for (var k = 0; k < keys.length; k++) {
-            key = keys[k];
-            ans.push(JSON.stringify(key) + ":" + _$rapyd$_repr(x[key]));
+            key = keys[(typeof k === "number" && k < 0) ? keys.length + k : k];
+            ans.push(JSON.stringify(key) + ":" + ρσ_repr(x[(typeof key === "number" && key < 0) ? x.length + key : key]));
         }
     }
     return b[0] + ans.join(", ") + b[1];
-}
-function _$rapyd$_repr(x) {
+};
+Object.defineProperties(ρσ_repr_js_builtin, {
+    __argnames__ : {value: ["x", "as_array"]}
+});
+
+function ρσ_repr(x) {
     var ans, name;
     if (x === null) {
         return "None";
@@ -1922,28 +2382,43 @@ function _$rapyd$_repr(x) {
     } else if (x === true || x === false) {
         ans = (x) ? "True" : "False";
     } else if (Array.isArray(x)) {
-        ans = _$rapyd$_repr_js_builtin(x, true);
+        ans = ρσ_repr_js_builtin(x, true);
     } else if (typeof x === "function") {
         ans = x.toString();
+    } else if (typeof x === "object" && !x.toString) {
+        ans = ρσ_repr_js_builtin(x);
     } else {
         name = Object.prototype.toString.call(x).slice(8, -1);
-        if (_$rapyd$_not_equals("Int8Array Uint8Array Uint8ClampedArray Int16Array Uint16Array Int32Array Uint32Array Float32Array Float64Array".indexOf(name), -1)) {
-            return name + "([" + x.map(function(i) {
-                return str.format("0x{:02x}", i);
-            }).join(", ") + "])";
+        if (ρσ_not_equals("Int8Array Uint8Array Uint8ClampedArray Int16Array Uint16Array Int32Array Uint32Array Float32Array Float64Array".indexOf(name), -1)) {
+            return name + "([" + x.map((function() {
+                var ρσ_anonfunc = function (i) {
+                    return str.format("0x{:02x}", i);
+                };
+                Object.defineProperties(ρσ_anonfunc, {
+                    __argnames__ : {value: ["i"]}
+                });
+                return ρσ_anonfunc;
+            })()).join(", ") + "])";
         }
         ans = (typeof x.toString === "function") ? x.toString() : x;
         if (ans === "[object Object]") {
-            return _$rapyd$_repr_js_builtin(x);
+            return ρσ_repr_js_builtin(x);
         }
         try {
             ans = JSON.stringify(x);
-        } catch (_$rapyd$_Exception) {
+        } catch (ρσ_Exception) {
+            ρσ_last_exception = ρσ_Exception;
+            {
+            } 
         }
     }
     return ans + "";
-}
-function _$rapyd$_str(x) {
+};
+Object.defineProperties(ρσ_repr, {
+    __argnames__ : {value: ["x"]}
+});
+
+function ρσ_str(x) {
     var ans, name;
     if (x === null) {
         return "None";
@@ -1959,92 +2434,138 @@ function _$rapyd$_str(x) {
     } else if (x === true || x === false) {
         ans = (x) ? "True" : "False";
     } else if (Array.isArray(x)) {
-        ans = _$rapyd$_repr_js_builtin(x, true);
+        ans = ρσ_repr_js_builtin(x, true);
     } else if (typeof x.toString === "function") {
         name = Object.prototype.toString.call(x).slice(8, -1);
-        if (_$rapyd$_not_equals("Int8Array Uint8Array Uint8ClampedArray Int16Array Uint16Array Int32Array Uint32Array Float32Array Float64Array".indexOf(name), -1)) {
-            return name + "([" + x.map(function(i) {
-                return str.format("0x{:02x}", i);
-            }).join(", ") + "])";
+        if (ρσ_not_equals("Int8Array Uint8Array Uint8ClampedArray Int16Array Uint16Array Int32Array Uint32Array Float32Array Float64Array".indexOf(name), -1)) {
+            return name + "([" + x.map((function() {
+                var ρσ_anonfunc = function (i) {
+                    return str.format("0x{:02x}", i);
+                };
+                Object.defineProperties(ρσ_anonfunc, {
+                    __argnames__ : {value: ["i"]}
+                });
+                return ρσ_anonfunc;
+            })()).join(", ") + "])";
         }
         ans = x.toString();
         if (ans === "[object Object]") {
-            ans = _$rapyd$_repr_js_builtin(x);
+            ans = ρσ_repr_js_builtin(x);
         }
+    } else if (typeof x === "object" && !x.toString) {
+        ans = ρσ_repr_js_builtin(x);
     }
     return ans + "";
-}
-_$rapyd$_str.format = function() {
-    var template, args, kwargs, explicit, implicit, _$rapyd$_chain_assign_temp, idx, ans, pos, in_brace, markup, ch;
-    template = arguments[0];
+};
+Object.defineProperties(ρσ_str, {
+    __argnames__ : {value: ["x"]}
+});
+
+define_str_func = (function() {
+    var ρσ_anonfunc = function (name, func) {
+        var f;
+        (ρσ_expr_temp = ρσ_str.prototype)[(typeof name === "number" && name < 0) ? ρσ_expr_temp.length + name : name] = func;
+        ρσ_str[(typeof name === "number" && name < 0) ? ρσ_str.length + name : name] = f = func.call.bind(func);
+        if (func.__argnames__) {
+            Object.defineProperty(f, "__argnames__", (function(){
+                var ρσ_d = {};
+                ρσ_d["value"] = ['string'].concat(func.__argnames__);
+                return ρσ_d;
+            }).call(this));
+        }
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["name", "func"]}
+    });
+    return ρσ_anonfunc;
+})();
+ρσ_unpack = [String.prototype.split.call.bind(String.prototype.split), String.prototype.replace.call.bind(String.prototype.replace)];
+ρσ_orig_split = ρσ_unpack[0];
+ρσ_orig_replace = ρσ_unpack[1];
+define_str_func("format", function () {
+    var template, args, kwargs, explicit, implicit, idx, split, ans, pos, in_brace, markup, ch;
+    template = this;
     if (template === undefined) {
         throw new TypeError("Template is required");
     }
-    args = Array.prototype.slice.call(arguments, 1);
+    args = Array.prototype.slice.call(arguments);
     kwargs = {};
-    if (args.length && args[args.length-1][_$rapyd$_kwargs_symbol] !== undefined) {
+    if (args[args.length-1] && args[args.length-1][ρσ_kwargs_symbol] !== undefined) {
         kwargs = args[args.length-1];
         args = args.slice(0, -1);
     }
-    _$rapyd$_chain_assign_temp = false;
-    explicit = _$rapyd$_chain_assign_temp;
-    implicit = _$rapyd$_chain_assign_temp;
-;
+    explicit = implicit = false;
     idx = 0;
-    if (_$rapyd$_str.format._template_resolve_pat === undefined) {
-        _$rapyd$_str.format._template_resolve_pat = /[.\[]/;
+    split = ρσ_orig_split;
+    if (ρσ_str.format._template_resolve_pat === undefined) {
+        ρσ_str.format._template_resolve_pat = /[.\[]/;
     }
     function resolve(arg, object) {
-        var _$rapyd$_unpack, first, key, rest, ans;
+        var ρσ_unpack, first, key, rest, ans;
         if (!arg) {
             return object;
         }
-        _$rapyd$_unpack = [arg[0], arg.slice(1)];
-        first = _$rapyd$_unpack[0];
-        arg = _$rapyd$_unpack[1];
-        key = arg.split(_$rapyd$_str.format._template_resolve_pat, 1)[0];
+        ρσ_unpack = [arg[0], arg.slice(1)];
+        first = ρσ_unpack[0];
+        arg = ρσ_unpack[1];
+        key = split(arg, ρσ_str.format._template_resolve_pat, 1)[0];
         rest = arg.slice(key.length);
-        ans = (first === "[") ? object[key.slice(0, -1)] : getattr(object, key);
+        ans = (first === "[") ? object[ρσ_bound_index(key.slice(0, -1), object)] : getattr(object, key);
         if (ans === undefined) {
             throw new KeyError((first === "[") ? key.slice(0, -1) : key);
         }
         return resolve(rest, ans);
-    }
+    };
+    Object.defineProperties(resolve, {
+        __argnames__ : {value: ["arg", "object"]}
+    });
+
     function resolve_format_spec(format_spec) {
-        if (_$rapyd$_str.format._template_resolve_fs_pat === undefined) {
-            _$rapyd$_str.format._template_resolve_fs_pat = /[{]([a-zA-Z0-9_]+)[}]/g;
+        if (ρσ_str.format._template_resolve_fs_pat === undefined) {
+            ρσ_str.format._template_resolve_fs_pat = /[{]([a-zA-Z0-9_]+)[}]/g;
         }
-        return format_spec.replace(_$rapyd$_str.format._template_resolve_fs_pat, function(match, key) {
-            if (!Object.prototype.hasOwnProperty.call(kwargs, key)) {
-                return "";
-            }
-            return "" + kwargs[key];
-        });
-    }
+        return format_spec.replace(ρσ_str.format._template_resolve_fs_pat, (function() {
+            var ρσ_anonfunc = function (match, key) {
+                if (!Object.prototype.hasOwnProperty.call(kwargs, key)) {
+                    return "";
+                }
+                return "" + kwargs[(typeof key === "number" && key < 0) ? kwargs.length + key : key];
+            };
+            Object.defineProperties(ρσ_anonfunc, {
+                __argnames__ : {value: ["match", "key"]}
+            });
+            return ρσ_anonfunc;
+        })());
+    };
+    Object.defineProperties(resolve_format_spec, {
+        __argnames__ : {value: ["format_spec"]}
+    });
+
     function apply_formatting(value, format_spec) {
-        var _$rapyd$_unpack, fill, align, sign, fhash, zeropad, width, comma, precision, ftype, is_numeric, is_int, lftype, code, exp, nval, is_positive, left, right;
+        var ρσ_unpack, fill, align, sign, fhash, zeropad, width, comma, precision, ftype, is_numeric, is_int, lftype, code, exp, nval, is_positive, left, right;
         if (format_spec.indexOf("{") !== -1) {
             format_spec = resolve_format_spec(format_spec);
         }
-        if (_$rapyd$_str.format._template_format_pat === undefined) {
-            _$rapyd$_str.format._template_format_pat = /([^{}](?=[<>=^]))?([<>=^])?([-+\x20])?(\#)?(0)?(\d+)?(,)?(?:\.(\d+))?([bcdeEfFgGnosxX%])?/;
+        if (ρσ_str.format._template_format_pat === undefined) {
+            ρσ_str.format._template_format_pat = /([^{}](?=[<>=^]))?([<>=^])?([-+\x20])?(\#)?(0)?(\d+)?(,)?(?:\.(\d+))?([bcdeEfFgGnosxX%])?/;
         }
         try {
-            _$rapyd$_unpack = format_spec.match(_$rapyd$_str.format._template_format_pat).slice(1);
-            fill = _$rapyd$_unpack[0];
-            align = _$rapyd$_unpack[1];
-            sign = _$rapyd$_unpack[2];
-            fhash = _$rapyd$_unpack[3];
-            zeropad = _$rapyd$_unpack[4];
-            width = _$rapyd$_unpack[5];
-            comma = _$rapyd$_unpack[6];
-            precision = _$rapyd$_unpack[7];
-            ftype = _$rapyd$_unpack[8];
-        } catch (_$rapyd$_Exception) {
-            if (_$rapyd$_Exception instanceof TypeError) {
+            ρσ_unpack = format_spec.match(ρσ_str.format._template_format_pat).slice(1);
+            fill = ρσ_unpack[0];
+            align = ρσ_unpack[1];
+            sign = ρσ_unpack[2];
+            fhash = ρσ_unpack[3];
+            zeropad = ρσ_unpack[4];
+            width = ρσ_unpack[5];
+            comma = ρσ_unpack[6];
+            precision = ρσ_unpack[7];
+            ftype = ρσ_unpack[8];
+        } catch (ρσ_Exception) {
+            ρσ_last_exception = ρσ_Exception;
+            if (ρσ_Exception instanceof TypeError) {
                 return value;
             } else {
-                throw _$rapyd$_Exception;
+                throw ρσ_Exception;
             }
         }
         if (zeropad) {
@@ -2120,7 +2641,7 @@ _$rapyd$_str.format = function() {
                     precision = 6;
                 }
                 precision = max(1, precision);
-                exp = parseInt(value.toExponential(precision - 1).toLowerCase().split("e")[1], 10);
+                exp = parseInt(split(value.toExponential(precision - 1).toLowerCase(), "e")[1], 10);
                 if (-4 <= exp && exp < precision) {
                     value = value.toFixed(precision - 1 - exp);
                 } else {
@@ -2150,12 +2671,16 @@ _$rapyd$_str.format = function() {
         }
         function repeat(char, num) {
             return (new Array(num+1)).join(char);
-        }
+        };
+        Object.defineProperties(repeat, {
+            __argnames__ : {value: ["char", "num"]}
+        });
+
         if (is_numeric && width && width[0] === "0") {
             width = width.slice(1);
-            _$rapyd$_unpack = ["0", "="];
-            fill = _$rapyd$_unpack[0];
-            align = _$rapyd$_unpack[1];
+            ρσ_unpack = ["0", "="];
+            fill = ρσ_unpack[0];
+            align = ρσ_unpack[1];
         }
         width = parseInt(width || "-1", 10);
         if (isNaN(width)) {
@@ -2171,7 +2696,7 @@ _$rapyd$_str.format = function() {
                 right = width - left - value.length;
                 value = repeat(fill, left) + value + repeat(fill, right);
             } else if (align === "=") {
-                if (_$rapyd$_in(value[0], "+- ")) {
+                if (ρσ_in(value[0], "+- ")) {
                     value = value[0] + repeat(fill, width - value.length) + value.slice(1);
                 } else {
                     value = repeat(fill, width - value.length) + value;
@@ -2181,18 +2706,18 @@ _$rapyd$_str.format = function() {
             }
         }
         return value;
-    }
+    };
+    Object.defineProperties(apply_formatting, {
+        __argnames__ : {value: ["value", "format_spec"]}
+    });
+
     function parse_markup(markup) {
-        var key, transformer, format_spec, _$rapyd$_chain_assign_temp, pos, state, ch;
-        _$rapyd$_chain_assign_temp = "";
-        key = _$rapyd$_chain_assign_temp;
-        transformer = _$rapyd$_chain_assign_temp;
-        format_spec = _$rapyd$_chain_assign_temp;
-;
+        var key, transformer, format_spec, pos, state, ch;
+        key = transformer = format_spec = "";
         pos = 0;
         state = 0;
         while (pos < markup.length) {
-            ch = markup[pos];
+            ch = markup[(typeof pos === "number" && pos < 0) ? markup.length + pos : pos];
             if (state === 0) {
                 if (ch === "!") {
                     state = 1;
@@ -2213,24 +2738,28 @@ _$rapyd$_str.format = function() {
             pos += 1;
         }
         return [key, transformer, format_spec];
-    }
+    };
+    Object.defineProperties(parse_markup, {
+        __argnames__ : {value: ["markup"]}
+    });
+
     function render_markup(markup) {
-        var _$rapyd$_unpack, key, transformer, format_spec, lkey, nvalue, object, ans;
-        _$rapyd$_unpack = parse_markup(markup);
-        key = _$rapyd$_unpack[0];
-        transformer = _$rapyd$_unpack[1];
-        format_spec = _$rapyd$_unpack[2];
+        var ρσ_unpack, key, transformer, format_spec, lkey, nvalue, object, ans;
+        ρσ_unpack = parse_markup(markup);
+        key = ρσ_unpack[0];
+        transformer = ρσ_unpack[1];
+        format_spec = ρσ_unpack[2];
         if (transformer && ['a', 'r', 's'].indexOf(transformer) === -1) {
             throw new ValueError("Unknown conversion specifier: " + transformer);
         }
-        lkey = key.length && key.split(/[.\[]/, 1)[0];
+        lkey = key.length && split(key, /[.\[]/, 1)[0];
         if (lkey) {
             explicit = true;
             if (implicit) {
                 throw new ValueError("cannot switch from automatic field numbering to manual field specification");
             }
             nvalue = parseInt(lkey);
-            object = (isNaN(nvalue)) ? kwargs[lkey] : args[nvalue];
+            object = (isNaN(nvalue)) ? kwargs[(typeof lkey === "number" && lkey < 0) ? kwargs.length + lkey : lkey] : args[(typeof nvalue === "number" && nvalue < 0) ? args.length + nvalue : nvalue];
             if (object === undefined) {
                 if (isNaN(nvalue)) {
                     throw new KeyError(lkey);
@@ -2246,7 +2775,7 @@ _$rapyd$_str.format = function() {
             if (idx >= args.length) {
                 throw new IndexError("Not enough arguments to match template: " + template);
             }
-            object = args[idx];
+            object = args[(typeof idx === "number" && idx < 0) ? args.length + idx : idx];
             idx += 1;
         }
         if (typeof object === "function") {
@@ -2257,13 +2786,17 @@ _$rapyd$_str.format = function() {
             ans = apply_formatting(ans, format_spec);
         }
         return ans;
-    }
+    };
+    Object.defineProperties(render_markup, {
+        __argnames__ : {value: ["markup"]}
+    });
+
     ans = "";
     pos = 0;
     in_brace = 0;
     markup = "";
     while (pos < template.length) {
-        ch = template[pos];
+        ch = template[(typeof pos === "number" && pos < 0) ? template.length + pos : pos];
         if (in_brace) {
             if (ch === "{") {
                 in_brace += 1;
@@ -2280,7 +2813,7 @@ _$rapyd$_str.format = function() {
             }
         } else {
             if (ch === "{") {
-                if (template[pos + 1] === "{") {
+                if (template[ρσ_bound_index(pos + 1, template)] === "{") {
                     pos += 1;
                     ans += "{";
                 } else {
@@ -2297,589 +2830,743 @@ _$rapyd$_str.format = function() {
         throw new ValueError("expected '}' before end of string");
     }
     return ans;
-};
-_$rapyd$_str.capitalize = function(string) {
+});
+define_str_func("capitalize", function () {
+    var string;
+    string = this;
     if (string) {
         string = string[0].toUpperCase() + string.slice(1).toLowerCase();
     }
     return string;
-};
-_$rapyd$_str.center = function(string, width, fill) {
-    var left, right;
-    left = Math.floor((width - string.length) / 2);
-    right = width - left - string.length;
-    fill = fill || " ";
-    return new Array(left+1).join(fill) + string + new Array(right+1).join(fill);
-};
-_$rapyd$_str.count = function(string, needle, start, end) {
-    var _$rapyd$_unpack, pos, step, ans;
-    start = start || 0;
-    end = end || string.length;
-    if (start < 0 || end < 0) {
-        string = string.slice(start, end);
-        _$rapyd$_unpack = [0, string.length];
-        start = _$rapyd$_unpack[0];
-        end = _$rapyd$_unpack[1];
-    }
-    pos = start;
-    step = needle.length;
-    ans = 0;
-    while (pos !== -1) {
-        pos = string.indexOf(needle, pos);
-        if (pos !== -1) {
-            ans += 1;
-            pos += step;
+});
+define_str_func("center", (function() {
+    var ρσ_anonfunc = function (width, fill) {
+        var left, right;
+        left = Math.floor((width - this.length) / 2);
+        right = width - left - this.length;
+        fill = fill || " ";
+        return new Array(left+1).join(fill) + this + new Array(right+1).join(fill);
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["width", "fill"]}
+    });
+    return ρσ_anonfunc;
+})());
+define_str_func("count", (function() {
+    var ρσ_anonfunc = function (needle, start, end) {
+        var string, ρσ_unpack, pos, step, ans;
+        string = this;
+        start = start || 0;
+        end = end || string.length;
+        if (start < 0 || end < 0) {
+            string = string.slice(start, end);
+            ρσ_unpack = [0, string.length];
+            start = ρσ_unpack[0];
+            end = ρσ_unpack[1];
         }
-    }
-    return ans;
-};
-_$rapyd$_str.endswith = function(string, suffixes, start, end) {
-    var q;
-    start = start || 0;
-    if (typeof suffixes === "string") {
-        suffixes = [suffixes];
-    }
-    if (end !== undefined) {
-        string = string.slice(0, end);
-    }
-    for (var i = 0; i < suffixes.length; i++) {
-        q = suffixes[i];
-        if (string.indexOf(q, Math.max(start, string.length - q.length)) !== -1) {
-            return true;
+        pos = start;
+        step = needle.length;
+        if (!step) {
+            return 0;
         }
-    }
-    return false;
-};
-_$rapyd$_str.startswith = function(string, prefixes, start, end) {
-    var prefix;
-    start = start || 0;
-    if (typeof prefixes === "string") {
-        prefixes = [prefixes];
-    }
-    for (var i = 0; i < prefixes.length; i++) {
-        prefix = prefixes[i];
-        end = (end === undefined) ? string.length : end;
-        if (end - start >= prefix.length && prefix === string.slice(start, start + prefix.length)) {
-            return true;
+        ans = 0;
+        while (pos !== -1) {
+            pos = string.indexOf(needle, pos);
+            if (pos !== -1) {
+                ans += 1;
+                pos += step;
+            }
         }
-    }
-    return false;
-};
-_$rapyd$_str.find = function(string, needle, start, end) {
-    var ans;
-    while (start < 0) {
-        start += string.length;
-    }
-    ans = string.indexOf(needle, start);
-    if (end !== undefined && ans !== -1) {
-        while (end < 0) {
-            end += string.length;
+        return ans;
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["needle", "start", "end"]}
+    });
+    return ρσ_anonfunc;
+})());
+define_str_func("endswith", (function() {
+    var ρσ_anonfunc = function (suffixes, start, end) {
+        var string, q;
+        string = this;
+        start = start || 0;
+        if (typeof suffixes === "string") {
+            suffixes = [suffixes];
         }
-        if (ans >= end - needle.length) {
-            return -1;
+        if (end !== undefined) {
+            string = string.slice(0, end);
         }
-    }
-    return ans;
-};
-_$rapyd$_str.rfind = function(string, needle, start, end) {
-    var ans;
-    while (end < 0) {
-        end += string.length;
-    }
-    ans = string.lastIndexOf(needle, end - 1);
-    if (start !== undefined && ans !== -1) {
+        for (var i = 0; i < suffixes.length; i++) {
+            q = suffixes[(typeof i === "number" && i < 0) ? suffixes.length + i : i];
+            if (string.indexOf(q, Math.max(start, string.length - q.length)) !== -1) {
+                return true;
+            }
+        }
+        return false;
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["suffixes", "start", "end"]}
+    });
+    return ρσ_anonfunc;
+})());
+define_str_func("startswith", (function() {
+    var ρσ_anonfunc = function (prefixes, start, end) {
+        var prefix;
+        start = start || 0;
+        if (typeof prefixes === "string") {
+            prefixes = [prefixes];
+        }
+        for (var i = 0; i < prefixes.length; i++) {
+            prefix = prefixes[(typeof i === "number" && i < 0) ? prefixes.length + i : i];
+            end = (end === undefined) ? this.length : end;
+            if (end - start >= prefix.length && prefix === this.slice(start, start + prefix.length)) {
+                return true;
+            }
+        }
+        return false;
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["prefixes", "start", "end"]}
+    });
+    return ρσ_anonfunc;
+})());
+define_str_func("find", (function() {
+    var ρσ_anonfunc = function (needle, start, end) {
+        var ans;
         while (start < 0) {
-            start += string.length;
+            start += this.length;
         }
-        if (ans < start) {
-            return -1;
+        ans = this.indexOf(needle, start);
+        if (end !== undefined && ans !== -1) {
+            while (end < 0) {
+                end += this.length;
+            }
+            if (ans >= end - needle.length) {
+                return -1;
+            }
         }
-    }
-    return ans;
-};
-_$rapyd$_str.index = function(string, needle, start, end) {
-    var ans;
-    ans = _$rapyd$_str.find.apply(null, arguments);
-    if (ans === -1) {
-        throw new ValueError("substring not found");
-    }
-    return ans;
-};
-_$rapyd$_str.rindex = function(string, needle, start, end) {
-    var ans;
-    ans = _$rapyd$_str.rfind.apply(null, arguments);
-    if (ans === -1) {
-        throw new ValueError("substring not found");
-    }
-    return ans;
-};
-_$rapyd$_str.islower = function(string) {
-    return string.length > 0 && string.toUpperCase() !== string;
-};
-_$rapyd$_str.isupper = function(string) {
-    return string.length > 0 && string.toLowerCase() !== string;
-};
-_$rapyd$_str.isspace = function(string) {
-    return string.length > 0 && /^\s+$/.test(string);
-};
-_$rapyd$_str.join = function(string, iterable) {
-    var ans, r;
-    if (Array.isArray(iterable)) {
-        return iterable.join(string);
-    }
-    ans = "";
-    r = iterable.next();
-    while (!r.done) {
-        if (ans) {
-            ans += string;
+        return ans;
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["needle", "start", "end"]}
+    });
+    return ρσ_anonfunc;
+})());
+define_str_func("rfind", (function() {
+    var ρσ_anonfunc = function (needle, start, end) {
+        var ans;
+        while (end < 0) {
+            end += this.length;
         }
-        ans += r.value;
+        ans = this.lastIndexOf(needle, end - 1);
+        if (start !== undefined && ans !== -1) {
+            while (start < 0) {
+                start += this.length;
+            }
+            if (ans < start) {
+                return -1;
+            }
+        }
+        return ans;
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["needle", "start", "end"]}
+    });
+    return ρσ_anonfunc;
+})());
+define_str_func("index", (function() {
+    var ρσ_anonfunc = function (needle, start, end) {
+        var ans;
+        ans = ρσ_str.prototype.find.apply(this, arguments);
+        if (ans === -1) {
+            throw new ValueError("substring not found");
+        }
+        return ans;
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["needle", "start", "end"]}
+    });
+    return ρσ_anonfunc;
+})());
+define_str_func("rindex", (function() {
+    var ρσ_anonfunc = function (needle, start, end) {
+        var ans;
+        ans = ρσ_str.prototype.rfind.apply(this, arguments);
+        if (ans === -1) {
+            throw new ValueError("substring not found");
+        }
+        return ans;
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["needle", "start", "end"]}
+    });
+    return ρσ_anonfunc;
+})());
+define_str_func("islower", function () {
+    return this.length > 0 && this.toUpperCase() !== this;
+});
+define_str_func("isupper", function () {
+    return this.length > 0 && this.toLowerCase() !== this;
+});
+define_str_func("isspace", function () {
+    return this.length > 0 && /^\s+$/.test(this);
+});
+define_str_func("join", (function() {
+    var ρσ_anonfunc = function (iterable) {
+        var ans, r;
+        if (Array.isArray(iterable)) {
+            return iterable.join(this);
+        }
+        ans = "";
         r = iterable.next();
-    }
-    return ans;
-};
-_$rapyd$_str.ljust = function(string, width, fill) {
-    if (width > string.length) {
-        fill = fill || " ";
-        string += new Array(width - string.length + 1).join(fill);
-    }
-    return string;
-};
-_$rapyd$_str.rjust = function(string, width, fill) {
-    if (width > string.length) {
-        fill = fill || " ";
-        string = new Array(width - string.length + 1).join(fill) + string;
-    }
-    return string;
-};
-_$rapyd$_str.lower = function(string) {
-    return string.toLowerCase();
-};
-_$rapyd$_str.upper = function(string) {
-    return string.toUpperCase();
-};
-_$rapyd$_str.lstrip = function(string, chars) {
-    var pos;
-    pos = 0;
-    chars = chars || _$rapyd$_str.whitespace;
-    while (chars.indexOf(string[pos]) !== -1) {
-        pos += 1;
-    }
-    if (pos) {
-        string = string.slice(pos);
-    }
-    return string;
-};
-_$rapyd$_str.rstrip = function(string, chars) {
-    var pos;
-    pos = string.length - 1;
-    chars = chars || _$rapyd$_str.whitespace;
-    while (chars.indexOf(string[pos]) !== -1) {
-        pos -= 1;
-    }
-    if (pos < string.length - 1) {
-        string = string.slice(0, pos + 1);
-    }
-    return string;
-};
-_$rapyd$_str.strip = function(string, chars) {
-    return _$rapyd$_str.lstrip(_$rapyd$_str.rstrip(string, chars), chars);
-};
-_$rapyd$_str.partition = function(string, sep) {
-    var idx;
-    idx = string.indexOf(sep);
-    if (idx === -1) {
-        return [string, "", ""];
-    }
-    return [string.slice(0, idx), sep, string.slice(idx + sep.length)];
-};
-_$rapyd$_str.rpartition = function(string, sep) {
-    var idx;
-    idx = string.lastIndexOf(sep);
-    if (idx === -1) {
-        return ["", "", string];
-    }
-    return [string.slice(0, idx), sep, string.slice(idx + sep.length)];
-};
-_$rapyd$_str.replace = function(string, old, repl, count) {
-    var pos, idx;
-    if (count === 1) {
-        return string.replace(old, repl);
-    }
-    if (count < 1) {
+        while (!r.done) {
+            if (ans) {
+                ans += this;
+            }
+            ans += r.value;
+            r = iterable.next();
+        }
+        return ans;
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["iterable"]}
+    });
+    return ρσ_anonfunc;
+})());
+define_str_func("ljust", (function() {
+    var ρσ_anonfunc = function (width, fill) {
+        var string;
+        string = this;
+        if (width > string.length) {
+            fill = fill || " ";
+            string += new Array(width - string.length + 1).join(fill);
+        }
         return string;
-    }
-    count = count || Number.MAX_VALUE;
-    pos = 0;
-    while (count > 0) {
-        count -= 1;
-        idx = string.indexOf(old, pos);
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["width", "fill"]}
+    });
+    return ρσ_anonfunc;
+})());
+define_str_func("rjust", (function() {
+    var ρσ_anonfunc = function (width, fill) {
+        var string;
+        string = this;
+        if (width > string.length) {
+            fill = fill || " ";
+            string = new Array(width - string.length + 1).join(fill) + string;
+        }
+        return string;
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["width", "fill"]}
+    });
+    return ρσ_anonfunc;
+})());
+define_str_func("lower", function () {
+    return this.toLowerCase();
+});
+define_str_func("upper", function () {
+    return this.toUpperCase();
+});
+define_str_func("lstrip", (function() {
+    var ρσ_anonfunc = function (chars) {
+        var string, pos;
+        string = this;
+        pos = 0;
+        chars = chars || ρσ_str.whitespace;
+        while (chars.indexOf(string[(typeof pos === "number" && pos < 0) ? string.length + pos : pos]) !== -1) {
+            pos += 1;
+        }
+        if (pos) {
+            string = string.slice(pos);
+        }
+        return string;
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["chars"]}
+    });
+    return ρσ_anonfunc;
+})());
+define_str_func("rstrip", (function() {
+    var ρσ_anonfunc = function (chars) {
+        var string, pos;
+        string = this;
+        pos = string.length - 1;
+        chars = chars || ρσ_str.whitespace;
+        while (chars.indexOf(string[(typeof pos === "number" && pos < 0) ? string.length + pos : pos]) !== -1) {
+            pos -= 1;
+        }
+        if (pos < string.length - 1) {
+            string = string.slice(0, pos + 1);
+        }
+        return string;
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["chars"]}
+    });
+    return ρσ_anonfunc;
+})());
+define_str_func("strip", (function() {
+    var ρσ_anonfunc = function (chars) {
+        return ρσ_str.prototype.lstrip.call(ρσ_str.prototype.rstrip.call(this, chars), chars);
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["chars"]}
+    });
+    return ρσ_anonfunc;
+})());
+define_str_func("partition", (function() {
+    var ρσ_anonfunc = function (sep) {
+        var idx;
+        idx = this.indexOf(sep);
         if (idx === -1) {
-            break;
+            return [this, "", ""];
         }
-        pos = idx + repl.length;
-        string = string.slice(0, idx) + repl + string.slice(idx + old.length);
-    }
-    return string;
-};
-_$rapyd$_str.split = function(string, sep, maxsplit) {
-    var ans, extra, parts;
-    if (maxsplit === 0) {
-        return _$rapyd$_list_decorate([ string ]);
-    }
-    if (sep === undefined || sep === null) {
-        if (maxsplit > 0) {
-            ans = string.split(/(\s+)/);
-            extra = "";
-            parts = [];
-            for (var i = 0; i < ans.length; i++) {
-                if (parts.length >= maxsplit + 1) {
-                    extra += ans[i];
-                } else if (i % 2 === 0) {
-                    parts.push(ans[i]);
-                }
-            }
-            parts[parts.length-1] += extra;
-            ans = parts;
-        } else {
-            ans = string.split(/\s+/);
+        return [this.slice(0, idx), sep, this.slice(idx + sep.length)];
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["sep"]}
+    });
+    return ρσ_anonfunc;
+})());
+define_str_func("rpartition", (function() {
+    var ρσ_anonfunc = function (sep) {
+        var idx;
+        idx = this.lastIndexOf(sep);
+        if (idx === -1) {
+            return ["", "", this];
         }
-    } else {
-        if (sep === "") {
-            throw new ValueError("empty separator");
+        return [this.slice(0, idx), sep, this.slice(idx + sep.length)];
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["sep"]}
+    });
+    return ρσ_anonfunc;
+})());
+define_str_func("replace", (function() {
+    var ρσ_anonfunc = function (old, repl, count) {
+        var string, pos, idx;
+        string = this;
+        if (count === 1) {
+            return ρσ_orig_replace(string, old, repl);
         }
-        ans = string.split(sep);
-        if (maxsplit > 0 && ans.length > maxsplit) {
-            extra = ans.slice(maxsplit).join(sep);
-            ans = ans.slice(0, maxsplit);
-            ans.push(extra);
+        if (count < 1) {
+            return string;
         }
-    }
-    return _$rapyd$_list_decorate(ans);
-};
-_$rapyd$_str.rsplit = function(string, sep, maxsplit) {
-    var ans, is_space, pos, current, spc, ch, end, _$rapyd$_chain_assign_temp, idx;
-    if (!maxsplit) {
-        return _$rapyd$_str.split.call(null, string, sep, maxsplit);
-    }
-    if (sep === undefined || sep === null) {
-        if (maxsplit > 0) {
-            ans = [];
-            is_space = /\s/;
-            pos = string.length - 1;
-            current = "";
-            while (pos > -1 && maxsplit > 0) {
-                spc = false;
-                ch = string[pos];
-                while (pos > -1 && is_space.test(ch)) {
-                    spc = true;
-                    ch = string[--pos];
-                }
-                if (spc) {
-                    if (current) {
-                        ans.push(current);
-                        maxsplit -= 1;
-                    }
-                    current = ch;
-                } else {
-                    current += ch;
-                }
-                pos -= 1;
-            }
-            ans.push(string.slice(0, pos + 1) + current);
-            ans.reverse();
-        } else {
-            ans = string.split(/\s+/);
-        }
-    } else {
-        if (sep === "") {
-            throw new ValueError("empty separator");
-        }
-        ans = [];
-        _$rapyd$_chain_assign_temp = string.length;
-        pos = _$rapyd$_chain_assign_temp;
-        end = _$rapyd$_chain_assign_temp;
-;
-        while (pos > -1 && maxsplit > 0) {
-            maxsplit -= 1;
-            idx = string.lastIndexOf(sep, pos);
+        count = count || Number.MAX_VALUE;
+        pos = 0;
+        while (count > 0) {
+            count -= 1;
+            idx = string.indexOf(old, pos);
             if (idx === -1) {
                 break;
             }
-            ans.push(string.slice(idx + sep.length, end));
-            pos = idx - 1;
-            end = idx;
+            pos = idx + repl.length;
+            string = string.slice(0, idx) + repl + string.slice(idx + old.length);
         }
-        ans.push(string.slice(0, end));
-        ans.reverse();
-    }
-    return _$rapyd$_list_decorate(ans);
-};
-_$rapyd$_str.splitlines = function(string, keepends) {
-    var parts, ans;
-    if (keepends) {
-        parts = string.split(/((?:\r?\n)|\r)/);
-        ans = [];
-        for (var i = 0; i < parts.length; i++) {
-            if (i % 2 === 0) {
-                ans.push(parts[i]);
+        return string;
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["old", "repl", "count"]}
+    });
+    return ρσ_anonfunc;
+})());
+define_str_func("split", (function() {
+    var ρσ_anonfunc = function (sep, maxsplit) {
+        var split, ans, extra, parts;
+        if (maxsplit === 0) {
+            return ρσ_list_decorate([ this ]);
+        }
+        split = ρσ_orig_split;
+        if (sep === undefined || sep === null) {
+            if (maxsplit > 0) {
+                ans = split(this, /(\s+)/);
+                extra = "";
+                parts = [];
+                for (var i = 0; i < ans.length; i++) {
+                    if (parts.length >= maxsplit + 1) {
+                        extra += ans[(typeof i === "number" && i < 0) ? ans.length + i : i];
+                    } else if (i % 2 === 0) {
+                        parts.push(ans[(typeof i === "number" && i < 0) ? ans.length + i : i]);
+                    }
+                }
+                parts[parts.length-1] += extra;
+                ans = parts;
             } else {
-                ans[ans.length-1] += parts[i];
+                ans = split(this, /\s+/);
+            }
+        } else {
+            if (sep === "") {
+                throw new ValueError("empty separator");
+            }
+            ans = split(this, sep);
+            if (maxsplit > 0 && ans.length > maxsplit) {
+                extra = ans.slice(maxsplit).join(sep);
+                ans = ans.slice(0, maxsplit);
+                ans.push(extra);
             }
         }
-    } else {
-        ans = string.split(/(?:\r?\n)|\r/);
-    }
-    return _$rapyd$_list_decorate(ans);
-};
-_$rapyd$_str.swapcase = function(string) {
+        return ρσ_list_decorate(ans);
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["sep", "maxsplit"]}
+    });
+    return ρσ_anonfunc;
+})());
+define_str_func("rsplit", (function() {
+    var ρσ_anonfunc = function (sep, maxsplit) {
+        var split, ans, is_space, pos, current, spc, ch, end, idx;
+        if (!maxsplit) {
+            return ρσ_str.prototype.split.call(this, sep);
+        }
+        split = ρσ_orig_split;
+        if (sep === undefined || sep === null) {
+            if (maxsplit > 0) {
+                ans = [];
+                is_space = /\s/;
+                pos = this.length - 1;
+                current = "";
+                while (pos > -1 && maxsplit > 0) {
+                    spc = false;
+                    ch = (ρσ_expr_temp = this)[(typeof pos === "number" && pos < 0) ? ρσ_expr_temp.length + pos : pos];
+                    while (pos > -1 && is_space.test(ch)) {
+                        spc = true;
+                        ch = this[--pos];
+                    }
+                    if (spc) {
+                        if (current) {
+                            ans.push(current);
+                            maxsplit -= 1;
+                        }
+                        current = ch;
+                    } else {
+                        current += ch;
+                    }
+                    pos -= 1;
+                }
+                ans.push(this.slice(0, pos + 1) + current);
+                ans.reverse();
+            } else {
+                ans = split(this, /\s+/);
+            }
+        } else {
+            if (sep === "") {
+                throw new ValueError("empty separator");
+            }
+            ans = [];
+            pos = end = this.length;
+            while (pos > -1 && maxsplit > 0) {
+                maxsplit -= 1;
+                idx = this.lastIndexOf(sep, pos);
+                if (idx === -1) {
+                    break;
+                }
+                ans.push(this.slice(idx + sep.length, end));
+                pos = idx - 1;
+                end = idx;
+            }
+            ans.push(this.slice(0, end));
+            ans.reverse();
+        }
+        return ρσ_list_decorate(ans);
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["sep", "maxsplit"]}
+    });
+    return ρσ_anonfunc;
+})());
+define_str_func("splitlines", (function() {
+    var ρσ_anonfunc = function (keepends) {
+        var split, parts, ans;
+        split = ρσ_orig_split;
+        if (keepends) {
+            parts = split(this, /((?:\r?\n)|\r)/);
+            ans = [];
+            for (var i = 0; i < parts.length; i++) {
+                if (i % 2 === 0) {
+                    ans.push(parts[(typeof i === "number" && i < 0) ? parts.length + i : i]);
+                } else {
+                    ans[ans.length-1] += parts[(typeof i === "number" && i < 0) ? parts.length + i : i];
+                }
+            }
+        } else {
+            ans = split(this, /(?:\r?\n)|\r/);
+        }
+        return ρσ_list_decorate(ans);
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["keepends"]}
+    });
+    return ρσ_anonfunc;
+})());
+define_str_func("swapcase", function () {
     var ans, a, b;
-    ans = new Array(string.length);
+    ans = new Array(this.length);
     for (var i = 0; i < ans.length; i++) {
-        a = string[i];
+        a = (ρσ_expr_temp = this)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i];
         b = a.toLowerCase();
         if (a === b) {
             b = a.toUpperCase();
         }
-        ans[i] = b;
+        ans[(typeof i === "number" && i < 0) ? ans.length + i : i] = b;
     }
     return ans.join("");
-};
-_$rapyd$_str.zfill = function(string, width) {
-    if (width > string.length) {
-        string = new Array(width - string.length + 1).join("0") + string;
-    }
-    return string;
-};
-_$rapyd$_str.uchrs = function(string, with_positions) {
-    return (function(){
-        var _$rapyd$_d = {};
-        _$rapyd$_d["_string"] = string;
-        _$rapyd$_d["_pos"] = 0;
-        _$rapyd$_d[_$rapyd$_iterator_symbol] = function() {
-            return this;
-        };
-        _$rapyd$_d["next"] = function() {
-            var length, pos, value, ans, extra;
-            length = this._string.length;
-            if (this._pos >= length) {
-                return {
-                    "done": true
-                };
-            }
-            pos = this._pos;
-            value = this._string.charCodeAt(this._pos++);
-            ans = "\ufffd";
-            if (55296 <= value && value <= 56319) {
-                if (this._pos < length) {
-                    extra = this._string.charCodeAt(this._pos++);
-                    if ((extra & 56320) === 56320) {
-                        ans = String.fromCharCode(value, extra);
-                    }
+});
+define_str_func("zfill", (function() {
+    var ρσ_anonfunc = function (width) {
+        var string;
+        string = this;
+        if (width > string.length) {
+            string = new Array(width - string.length + 1).join("0") + string;
+        }
+        return string;
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["width"]}
+    });
+    return ρσ_anonfunc;
+})());
+ρσ_str.uchrs = (function() {
+    var ρσ_anonfunc = function (string, with_positions) {
+        return (function(){
+            var ρσ_d = {};
+            ρσ_d["_string"] = string;
+            ρσ_d["_pos"] = 0;
+            ρσ_d[ρσ_iterator_symbol] = function () {
+                return this;
+            };
+            ρσ_d["next"] = function () {
+                var length, pos, value, ans, extra;
+                length = this._string.length;
+                if (this._pos >= length) {
+                    return (function(){
+                        var ρσ_d = {};
+                        ρσ_d["done"] = true;
+                        return ρσ_d;
+                    }).call(this);
                 }
-            } else if ((value & 56320) !== 56320) {
-                ans = String.fromCharCode(value);
-            }
-            if (with_positions) {
-                return {
-                    "done": false,
-                    "value": _$rapyd$_list_decorate([ pos, ans ])
-                };
-            } else {
-                return {
-                    "done": false,
-                    "value": ans
-                };
-            }
-        };
-        return _$rapyd$_d;
-    })();
-};
-_$rapyd$_str.uslice = function(string, start, end) {
-    var items, iterator, r;
-    items = [];
-    iterator = _$rapyd$_str.uchrs(string);
-    r = iterator.next();
-    while (!r.done) {
-        items.push(r.value);
-        r = iterator.next();
-    }
-    return items.slice(start || 0, (end === undefined) ? items.length : end).join("");
-};
-_$rapyd$_str.ulen = function(string) {
-    var iterator, r, ans;
-    iterator = _$rapyd$_str.uchrs(string);
-    r = iterator.next();
-    ans = 0;
-    while (!r.done) {
-        r = iterator.next();
-        ans += 1;
-    }
-    return ans;
-};
-_$rapyd$_str.ascii_lowercase = "abcdefghijklmnopqrstuvwxyz";
-_$rapyd$_str.ascii_uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-_$rapyd$_str.ascii_letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-_$rapyd$_str.digits = "0123456789";
-_$rapyd$_str.punctuation = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~";
-_$rapyd$_str.printable = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~ \t\n\r\u000b\f";
-_$rapyd$_str.whitespace = " \t\n\r\u000b\f";
-var str = _$rapyd$_str, repr = _$rapyd$_repr;;
-    var min = (function min() {
-            return Math.min;
-        })();
-    var max = (function max() {
-            return Math.max;
-        })();
-    function iter(iterable) {
-            var ans;
-            if (typeof iterable[_$rapyd$_iterator_symbol] === "function") {
-                return (typeof Map === "function" && iterable instanceof Map) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]();
-            }
-            if (_$rapyd$_arraylike(iterable)) {
-                ans = {
-                    "_i": -1,
-                    "next": function() {
-                        this._i += 1;
-                        if (this._i < iterable.length) {
-                            return {
-                                "done": false,
-                                "value": iterable[this._i]
-                            };
+                pos = this._pos;
+                value = this._string.charCodeAt(this._pos++);
+                ans = "\ufffd";
+                if (55296 <= value && value <= 56319) {
+                    if (this._pos < length) {
+                        extra = this._string.charCodeAt(this._pos++);
+                        if ((extra & 56320) === 56320) {
+                            ans = String.fromCharCode(value, extra);
                         }
-                        return {
-                            "done": true
-                        };
                     }
-                };
-                ans[_$rapyd$_iterator_symbol] = function() {
-                    return this;
-                };
-                return ans;
-            }
-            return iter(Object.keys(iterable));
-        };
-    function getattr(obj, name, defval) {
-            var ret;
-            try {
-                ret = obj[name];
-            } catch (_$rapyd$_Exception) {
-                if (_$rapyd$_Exception instanceof TypeError) {
-                    if (defval === undefined) {
-                        throw new AttributeError("The attribute " + name + " is not present");
-                    }
-                    return defval;
+                } else if ((value & 56320) !== 56320) {
+                    ans = String.fromCharCode(value);
+                }
+                if (with_positions) {
+                    return (function(){
+                        var ρσ_d = {};
+                        ρσ_d["done"] = false;
+                        ρσ_d["value"] = ρσ_list_decorate([ pos, ans ]);
+                        return ρσ_d;
+                    }).call(this);
                 } else {
-                    throw _$rapyd$_Exception;
+                    return (function(){
+                        var ρσ_d = {};
+                        ρσ_d["done"] = false;
+                        ρσ_d["value"] = ans;
+                        return ρσ_d;
+                    }).call(this);
                 }
-            }
-            if (ret === undefined && !(name in obj)) {
-                if (defval === undefined) {
-                    throw new AttributeError("The attribute " + name + " is not present");
-                }
-                ret = defval;
-            }
-            return ret;
-        };
-    var _$rapyd$_modules = {};
-    _$rapyd$_modules.aes = {};
-    _$rapyd$_modules.crypto = {};
-    _$rapyd$_modules.qt = {};
-    _$rapyd$_modules.frames = {};
-    _$rapyd$_modules.middle_click = {};
-    _$rapyd$_modules.focus = {};
-    _$rapyd$_modules.elementmaker = {};
-    _$rapyd$_modules.humanize = {};
-    _$rapyd$_modules.downloads = {};
-    _$rapyd$_modules.utils = {};
-    _$rapyd$_modules.links = {};
-    _$rapyd$_modules.follow_next = {};
-    _$rapyd$_modules.passwd = {};
+            };
+            return ρσ_d;
+        }).call(this);
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["string", "with_positions"]}
+    });
+    return ρσ_anonfunc;
+})();
+ρσ_str.uslice = (function() {
+    var ρσ_anonfunc = function (string, start, end) {
+        var items, iterator, r;
+        items = [];
+        iterator = ρσ_str.uchrs(string);
+        r = iterator.next();
+        while (!r.done) {
+            items.push(r.value);
+            r = iterator.next();
+        }
+        return items.slice(start || 0, (end === undefined) ? items.length : end).join("");
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["string", "start", "end"]}
+    });
+    return ρσ_anonfunc;
+})();
+ρσ_str.ulen = (function() {
+    var ρσ_anonfunc = function (string) {
+        var iterator, r, ans;
+        iterator = ρσ_str.uchrs(string);
+        r = iterator.next();
+        ans = 0;
+        while (!r.done) {
+            r = iterator.next();
+            ans += 1;
+        }
+        return ans;
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["string"]}
+    });
+    return ρσ_anonfunc;
+})();
+ρσ_str.ascii_lowercase = "abcdefghijklmnopqrstuvwxyz";
+ρσ_str.ascii_uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+ρσ_str.ascii_letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+ρσ_str.digits = "0123456789";
+ρσ_str.punctuation = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~";
+ρσ_str.printable = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~ \t\n\r\u000b\f";
+ρσ_str.whitespace = " \t\n\r\u000b\f";
+define_str_func = undefined;
+var str = ρσ_str, repr = ρσ_repr;;
+    var ρσ_modules = {};
+    ρσ_modules.aes = {};
+    ρσ_modules.crypto = {};
+    ρσ_modules.qt = {};
+    ρσ_modules.frames = {};
+    ρσ_modules.middle_click = {};
+    ρσ_modules.focus = {};
+    ρσ_modules.elementmaker = {};
+    ρσ_modules.humanize = {};
+    ρσ_modules.downloads = {};
+    ρσ_modules.utils = {};
+    ρσ_modules.links = {};
+    ρσ_modules.follow_next = {};
+    ρσ_modules.passwd = {};
 
     (function(){
         var __name__ = "aes";
-        var string_to_bytes, bytes_to_string, _$rapyd$_chain_assign_temp, number_of_rounds, rcon, S, Si, T1, T2, T3, T4, T5, T6, T7, T8, U1, U2, U3, U4, random_bytes, noderandom;
+        var string_to_bytes, bytes_to_string, number_of_rounds, rcon, S, Si, T1, T2, T3, T4, T5, T6, T7, T8, U1, U2, U3, U4, random_bytes, noderandom;
         function string_to_bytes_encoder(string) {
             return new TextEncoder("utf-8").encode(string + "");
-        }
+        };
+        Object.defineProperties(string_to_bytes_encoder, {
+            __argnames__ : {value: ["string"]}
+        });
+
         function string_to_bytes_slow(string) {
             var escstr, binstr, ua;
             escstr = encodeURIComponent(string);
-            binstr = escstr.replace(/%([0-9A-F]{2})/g, function(match, p1) {
-                return String.fromCharCode("0x" + p1);
-            });
+            binstr = escstr.replace(/%([0-9A-F]{2})/g, (function() {
+                var ρσ_anonfunc = function (match, p1) {
+                    return String.fromCharCode("0x" + p1);
+                };
+                Object.defineProperties(ρσ_anonfunc, {
+                    __argnames__ : {value: ["match", "p1"]}
+                });
+                return ρσ_anonfunc;
+            })());
             ua = new Uint8Array(binstr.length);
-            Array.prototype.forEach.call(binstr, function(ch, i) {
-                ua[i] = ch.charCodeAt(0);
-            });
+            Array.prototype.forEach.call(binstr, (function() {
+                var ρσ_anonfunc = function (ch, i) {
+                    ua[(typeof i === "number" && i < 0) ? ua.length + i : i] = ch.charCodeAt(0);
+                };
+                Object.defineProperties(ρσ_anonfunc, {
+                    __argnames__ : {value: ["ch", "i"]}
+                });
+                return ρσ_anonfunc;
+            })());
             return ua;
-        }
+        };
+        Object.defineProperties(string_to_bytes_slow, {
+            __argnames__ : {value: ["string"]}
+        });
+
         function as_hex() {
-            var array = ( 0 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [_$rapyd$_kwargs_symbol] === true) ? undefined : arguments[0];
-            var sep = (arguments[1] === undefined || ( 1 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [_$rapyd$_kwargs_symbol] === true)) ? ("") : arguments[1];
-            var _$rapyd$_kwargs_obj = arguments[arguments.length-1];
-            if (_$rapyd$_kwargs_obj === null || typeof _$rapyd$_kwargs_obj !== "object" || _$rapyd$_kwargs_obj [_$rapyd$_kwargs_symbol] !== true) _$rapyd$_kwargs_obj = {};
-            if (Object.prototype.hasOwnProperty.call(_$rapyd$_kwargs_obj, "sep")){
-                sep = _$rapyd$_kwargs_obj.sep;
+            var array = ( 0 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true) ? undefined : arguments[0];
+            var sep = (arguments[1] === undefined || ( 1 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true)) ? as_hex.__defaults__.sep : arguments[1];
+            var ρσ_kwargs_obj = arguments[arguments.length-1];
+            if (ρσ_kwargs_obj === null || typeof ρσ_kwargs_obj !== "object" || ρσ_kwargs_obj [ρσ_kwargs_symbol] !== true) ρσ_kwargs_obj = {};
+            if (Object.prototype.hasOwnProperty.call(ρσ_kwargs_obj, "sep")){
+                sep = ρσ_kwargs_obj.sep;
             }
             var num, fmt;
             num = array.BYTES_PER_ELEMENT || 1;
             fmt = "{:0" + num * 2 + "x}";
             return (function() {
-                var _$rapyd$_Iter = _$rapyd$_Iterable(array), _$rapyd$_Result = [], x;
-                for (var _$rapyd$_Index = 0; _$rapyd$_Index < _$rapyd$_Iter.length; _$rapyd$_Index++) {
-                    x = _$rapyd$_Iter[_$rapyd$_Index];
-                    _$rapyd$_Result.push(str.format(fmt, x));
+                var ρσ_Iter = array, ρσ_Result = [], x;
+                ρσ_Iter = ((typeof ρσ_Iter[Symbol.iterator] === "function") ? (ρσ_Iter instanceof Map ? ρσ_Iter.keys() : ρσ_Iter) : Object.keys(ρσ_Iter));
+                for (var ρσ_Index of ρσ_Iter) {
+                    x = ρσ_Index;
+                    ρσ_Result.push(str.format(fmt, x));
                 }
-                _$rapyd$_Result = _$rapyd$_list_constructor(_$rapyd$_Result);
-                return _$rapyd$_Result;
+                ρσ_Result = ρσ_list_constructor(ρσ_Result);
+                return ρσ_Result;
             })().join(sep);
-        }
+        };
+        Object.defineProperties(as_hex, {
+            __defaults__ : {value: {sep:""}},
+            __handles_kwarg_interpolation__ : {value: true},
+            __argnames__ : {value: ["array", "sep"]}
+        });
+
         function bytes_to_string_decoder(bytes, offset) {
             offset = offset || 0;
             if (offset) {
                 bytes = bytes.subarray(offset);
             }
             return new TextDecoder("utf-8").decode(bytes);
-        }
+        };
+        Object.defineProperties(bytes_to_string_decoder, {
+            __argnames__ : {value: ["bytes", "offset"]}
+        });
+
         function bytes_to_string_slow(bytes, offset) {
             var ans, i, c;
             ans = [];
             i = offset || 0;
             while (i < bytes.length) {
-                c = bytes[i];
+                c = bytes[(typeof i === "number" && i < 0) ? bytes.length + i : i];
                 if (c < 128) {
                     ans.push(String.fromCharCode(c));
                     i += 1;
                 } else if (191 < c && c < 224) {
-                    ans.push(String.fromCharCode((c & 31) << 6 | bytes[i + 1] & 63));
+                    ans.push(String.fromCharCode((c & 31) << 6 | bytes[ρσ_bound_index(i + 1, bytes)] & 63));
                     i += 2;
                 } else {
-                    ans.push(String.fromCharCode((c & 15) << 12 | (bytes[i + 1] & 63) << 6 | bytes[i + 2] & 63));
+                    ans.push(String.fromCharCode((c & 15) << 12 | (bytes[ρσ_bound_index(i + 1, bytes)] & 63) << 6 | bytes[ρσ_bound_index(i + 2, bytes)] & 63));
                     i += 3;
                 }
             }
             return ans.join("");
-        }
+        };
+        Object.defineProperties(bytes_to_string_slow, {
+            __argnames__ : {value: ["bytes", "offset"]}
+        });
+
         string_to_bytes = (typeof TextEncoder === "function") ? string_to_bytes_encoder : string_to_bytes_slow;
         bytes_to_string = (typeof TextDecoder === "function") ? bytes_to_string_decoder : bytes_to_string_slow;
         function increment_counter(c) {
             for (var i = 15; i >= 12; i--) {
-                if (c[i] === 255) {
-                    c[i] = 0;
+                if (c[(typeof i === "number" && i < 0) ? c.length + i : i] === 255) {
+                    c[(typeof i === "number" && i < 0) ? c.length + i : i] = 0;
                 } else {
-                    c[i] += 1;
+                    c[(typeof i === "number" && i < 0) ? c.length + i : i] += 1;
                     break;
                 }
             }
-        }
+        };
+        Object.defineProperties(increment_counter, {
+            __argnames__ : {value: ["c"]}
+        });
+
         function convert_to_int32(bytes, output, offset, length) {
             offset = offset || 0;
             length = length || bytes.length;
             for (var i = offset, j = 0; i < offset + length; i += 4, j++) {
-                output[j] = bytes[i] << 24 | bytes[i + 1] << 16 | bytes[i + 2] << 8 | bytes[i + 3];
+                output[(typeof j === "number" && j < 0) ? output.length + j : j] = bytes[(typeof i === "number" && i < 0) ? bytes.length + i : i] << 24 | bytes[ρσ_bound_index(i + 1, bytes)] << 16 | bytes[ρσ_bound_index(i + 2, bytes)] << 8 | bytes[ρσ_bound_index(i + 3, bytes)];
             }
-        }
+        };
+        Object.defineProperties(convert_to_int32, {
+            __argnames__ : {value: ["bytes", "output", "offset", "length"]}
+        });
+
         function convert_to_int32_pad(bytes) {
             var extra, t, ans;
             extra = bytes.length % 4;
@@ -2891,26 +3578,33 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             ans = new Uint32Array(bytes.length / 4);
             convert_to_int32(bytes, ans);
             return ans;
-        }
+        };
+        Object.defineProperties(convert_to_int32_pad, {
+            __argnames__ : {value: ["bytes"]}
+        });
+
         if (!Uint8Array.prototype.fill) {
-            _$rapyd$_chain_assign_temp = function(val, start, end) {
-                start = start || 0;
-                if (end === undefined) {
-                    end = this.length;
-                }
-                if (start < 0) {
-                    start += this.length;
-                }
-                if (end < 0) {
-                    end += this.length;
-                }
-                for (var i = start; i < end; i++) {
-                    this[i] = val;
-                }
-            };
-            Uint8Array.prototype.fill = _$rapyd$_chain_assign_temp;
-            Uint32Array.prototype.fill = _$rapyd$_chain_assign_temp;
-;
+            Uint8Array.prototype.fill = Uint32Array.prototype.fill = (function() {
+                var ρσ_anonfunc = function (val, start, end) {
+                    start = start || 0;
+                    if (end === undefined) {
+                        end = this.length;
+                    }
+                    if (start < 0) {
+                        start += this.length;
+                    }
+                    if (end < 0) {
+                        end += this.length;
+                    }
+                    for (var i = start; i < end; i++) {
+                        (ρσ_expr_temp = this)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i] = val;
+                    }
+                };
+                Object.defineProperties(ρσ_anonfunc, {
+                    __argnames__ : {value: ["val", "start", "end"]}
+                });
+                return ρσ_anonfunc;
+            })();
         }
         function from_64_to_32(num) {
             var ans;
@@ -2918,12 +3612,18 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             ans[0] = num / 4294967296 | 0;
             ans[1] = num & 4294967295;
             return ans;
-        }
-        number_of_rounds = {
-            16: 10,
-            24: 12,
-            32: 14
         };
+        Object.defineProperties(from_64_to_32, {
+            __argnames__ : {value: ["num"]}
+        });
+
+        number_of_rounds = (function(){
+            var ρσ_d = {};
+            ρσ_d[16] = 10;
+            ρσ_d[24] = 12;
+            ρσ_d[32] = 14;
+            return ρσ_d;
+        }).call(this);
         rcon = new Uint32Array([0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36, 0x6c, 0xd8, 0xab, 0x4d, 0x9a, 0x2f, 0x5e, 0xbc, 0x63, 0xc6, 0x97, 0x35, 0x6a, 0xd4, 0xb3, 0x7d, 0xfa, 0xef, 0xc5, 0x91]);
         S = new Uint32Array([0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76, 0xca, 0x82, 0xc9, 0x7d, 0xfa, 0x59, 0x47, 0xf0, 0xad, 0xd4, 0xa2, 0xaf, 0x9c, 0xa4, 0x72, 0xc0, 0xb7, 0xfd, 0x93, 0x26, 0x36, 0x3f, 0xf7, 0xcc, 0x34, 0xa5, 0xe5, 0xf1, 0x71, 0xd8, 0x31, 0x15, 0x04, 0xc7, 0x23, 0xc3, 0x18, 0x96, 0x05, 0x9a, 0x07, 0x12, 0x80, 0xe2, 0xeb, 0x27, 0xb2, 0x75, 0x09, 0x83, 0x2c, 0x1a, 0x1b, 0x6e, 0x5a, 0xa0, 0x52, 0x3b, 0xd6, 0xb3, 0x29, 0xe3, 0x2f, 0x84, 0x53, 0xd1, 0x00, 0xed, 0x20, 0xfc, 0xb1, 0x5b, 0x6a, 0xcb, 0xbe, 0x39, 0x4a, 0x4c, 0x58, 0xcf, 0xd0, 0xef, 0xaa, 0xfb, 0x43, 0x4d, 0x33, 0x85, 0x45, 0xf9, 0x02, 0x7f, 0x50, 0x3c, 0x9f, 0xa8, 0x51, 0xa3, 0x40, 0x8f, 0x92, 0x9d, 0x38, 0xf5, 0xbc, 0xb6, 0xda, 0x21, 0x10, 0xff, 0xf3, 0xd2, 0xcd, 0x0c, 0x13, 0xec, 0x5f, 0x97, 0x44, 0x17, 0xc4, 0xa7, 0x7e, 0x3d, 0x64, 0x5d, 0x19, 0x73, 0x60, 0x81, 0x4f, 0xdc, 0x22, 0x2a, 0x90, 0x88, 0x46, 0xee, 0xb8, 0x14, 0xde, 0x5e, 0x0b, 0xdb, 0xe0, 0x32, 0x3a, 0x0a, 0x49, 0x06, 0x24, 0x5c, 0xc2, 0xd3, 0xac, 0x62, 0x91, 0x95, 0xe4, 0x79, 0xe7, 0xc8, 0x37, 0x6d, 0x8d, 0xd5, 0x4e, 0xa9, 0x6c, 0x56, 0xf4, 0xea, 0x65, 0x7a, 0xae, 0x08, 0xba, 0x78, 0x25, 0x2e, 0x1c, 0xa6, 0xb4, 0xc6, 0xe8, 0xdd, 0x74, 0x1f, 0x4b, 0xbd, 0x8b, 0x8a, 0x70, 0x3e, 0xb5, 0x66, 0x48, 0x03, 0xf6, 0x0e, 0x61, 0x35, 0x57, 0xb9, 0x86, 0xc1, 0x1d, 0x9e, 0xe1, 0xf8, 0x98, 0x11, 0x69, 0xd9, 0x8e, 0x94, 0x9b, 0x1e, 0x87, 0xe9, 0xce, 0x55, 0x28, 0xdf, 0x8c, 0xa1, 0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68, 0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16]);
         Si = new Uint32Array([0x52, 0x09, 0x6a, 0xd5, 0x30, 0x36, 0xa5, 0x38, 0xbf, 0x40, 0xa3, 0x9e, 0x81, 0xf3, 0xd7, 0xfb, 0x7c, 0xe3, 0x39, 0x82, 0x9b, 0x2f, 0xff, 0x87, 0x34, 0x8e, 0x43, 0x44, 0xc4, 0xde, 0xe9, 0xcb, 0x54, 0x7b, 0x94, 0x32, 0xa6, 0xc2, 0x23, 0x3d, 0xee, 0x4c, 0x95, 0x0b, 0x42, 0xfa, 0xc3, 0x4e, 0x08, 0x2e, 0xa1, 0x66, 0x28, 0xd9, 0x24, 0xb2, 0x76, 0x5b, 0xa2, 0x49, 0x6d, 0x8b, 0xd1, 0x25, 0x72, 0xf8, 0xf6, 0x64, 0x86, 0x68, 0x98, 0x16, 0xd4, 0xa4, 0x5c, 0xcc, 0x5d, 0x65, 0xb6, 0x92, 0x6c, 0x70, 0x48, 0x50, 0xfd, 0xed, 0xb9, 0xda, 0x5e, 0x15, 0x46, 0x57, 0xa7, 0x8d, 0x9d, 0x84, 0x90, 0xd8, 0xab, 0x00, 0x8c, 0xbc, 0xd3, 0x0a, 0xf7, 0xe4, 0x58, 0x05, 0xb8, 0xb3, 0x45, 0x06, 0xd0, 0x2c, 0x1e, 0x8f, 0xca, 0x3f, 0x0f, 0x02, 0xc1, 0xaf, 0xbd, 0x03, 0x01, 0x13, 0x8a, 0x6b, 0x3a, 0x91, 0x11, 0x41, 0x4f, 0x67, 0xdc, 0xea, 0x97, 0xf2, 0xcf, 0xce, 0xf0, 0xb4, 0xe6, 0x73, 0x96, 0xac, 0x74, 0x22, 0xe7, 0xad, 0x35, 0x85, 0xe2, 0xf9, 0x37, 0xe8, 0x1c, 0x75, 0xdf, 0x6e, 0x47, 0xf1, 0x1a, 0x71, 0x1d, 0x29, 0xc5, 0x89, 0x6f, 0xb7, 0x62, 0x0e, 0xaa, 0x18, 0xbe, 0x1b, 0xfc, 0x56, 0x3e, 0x4b, 0xc6, 0xd2, 0x79, 0x20, 0x9a, 0xdb, 0xc0, 0xfe, 0x78, 0xcd, 0x5a, 0xf4, 0x1f, 0xdd, 0xa8, 0x33, 0x88, 0x07, 0xc7, 0x31, 0xb1, 0x12, 0x10, 0x59, 0x27, 0x80, 0xec, 0x5f, 0x60, 0x51, 0x7f, 0xa9, 0x19, 0xb5, 0x4a, 0x0d, 0x2d, 0xe5, 0x7a, 0x9f, 0x93, 0xc9, 0x9c, 0xef, 0xa0, 0xe0, 0x3b, 0x4d, 0xae, 0x2a, 0xf5, 0xb0, 0xc8, 0xeb, 0xbb, 0x3c, 0x83, 0x53, 0x99, 0x61, 0x17, 0x2b, 0x04, 0x7e, 0xba, 0x77, 0xd6, 0x26, 0xe1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0c, 0x7d]);
@@ -2940,14 +3640,14 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
         U3 = new Uint32Array([0x00000000, 0x0d0b0e09, 0x1a161c12, 0x171d121b, 0x342c3824, 0x3927362d, 0x2e3a2436, 0x23312a3f, 0x68587048, 0x65537e41, 0x724e6c5a, 0x7f456253, 0x5c74486c, 0x517f4665, 0x4662547e, 0x4b695a77, 0xd0b0e090, 0xddbbee99, 0xcaa6fc82, 0xc7adf28b, 0xe49cd8b4, 0xe997d6bd, 0xfe8ac4a6, 0xf381caaf, 0xb8e890d8, 0xb5e39ed1, 0xa2fe8cca, 0xaff582c3, 0x8cc4a8fc, 0x81cfa6f5, 0x96d2b4ee, 0x9bd9bae7, 0xbb7bdb3b, 0xb670d532, 0xa16dc729, 0xac66c920, 0x8f57e31f, 0x825ced16, 0x9541ff0d, 0x984af104, 0xd323ab73, 0xde28a57a, 0xc935b761, 0xc43eb968, 0xe70f9357, 0xea049d5e, 0xfd198f45, 0xf012814c, 0x6bcb3bab, 0x66c035a2, 0x71dd27b9, 0x7cd629b0, 0x5fe7038f, 0x52ec0d86, 0x45f11f9d, 0x48fa1194, 0x03934be3, 0x0e9845ea, 0x198557f1, 0x148e59f8, 0x37bf73c7, 0x3ab47dce, 0x2da96fd5, 0x20a261dc, 0x6df6ad76, 0x60fda37f, 0x77e0b164, 0x7aebbf6d, 0x59da9552, 0x54d19b5b, 0x43cc8940, 0x4ec78749, 0x05aedd3e, 0x08a5d337, 0x1fb8c12c, 0x12b3cf25, 0x3182e51a, 0x3c89eb13, 0x2b94f908, 0x269ff701, 0xbd464de6, 0xb04d43ef, 0xa75051f4, 0xaa5b5ffd, 0x896a75c2, 0x84617bcb, 0x937c69d0, 0x9e7767d9, 0xd51e3dae, 0xd81533a7, 0xcf0821bc, 0xc2032fb5, 0xe132058a, 0xec390b83, 0xfb241998, 0xf62f1791, 0xd68d764d, 0xdb867844, 0xcc9b6a5f, 0xc1906456, 0xe2a14e69, 0xefaa4060, 0xf8b7527b, 0xf5bc5c72, 0xbed50605, 0xb3de080c, 0xa4c31a17, 0xa9c8141e, 0x8af93e21, 0x87f23028, 0x90ef2233, 0x9de42c3a, 0x063d96dd, 0x0b3698d4, 0x1c2b8acf, 0x112084c6, 0x3211aef9, 0x3f1aa0f0, 0x2807b2eb, 0x250cbce2, 0x6e65e695, 0x636ee89c, 0x7473fa87, 0x7978f48e, 0x5a49deb1, 0x5742d0b8, 0x405fc2a3, 0x4d54ccaa, 0xdaf741ec, 0xd7fc4fe5, 0xc0e15dfe, 0xcdea53f7, 0xeedb79c8, 0xe3d077c1, 0xf4cd65da, 0xf9c66bd3, 0xb2af31a4, 0xbfa43fad, 0xa8b92db6, 0xa5b223bf, 0x86830980, 0x8b880789, 0x9c951592, 0x919e1b9b, 0x0a47a17c, 0x074caf75, 0x1051bd6e, 0x1d5ab367, 0x3e6b9958, 0x33609751, 0x247d854a, 0x29768b43, 0x621fd134, 0x6f14df3d, 0x7809cd26, 0x7502c32f, 0x5633e910, 0x5b38e719, 0x4c25f502, 0x412efb0b, 0x618c9ad7, 0x6c8794de, 0x7b9a86c5, 0x769188cc, 0x55a0a2f3, 0x58abacfa, 0x4fb6bee1, 0x42bdb0e8, 0x09d4ea9f, 0x04dfe496, 0x13c2f68d, 0x1ec9f884, 0x3df8d2bb, 0x30f3dcb2, 0x27eecea9, 0x2ae5c0a0, 0xb13c7a47, 0xbc37744e, 0xab2a6655, 0xa621685c, 0x85104263, 0x881b4c6a, 0x9f065e71, 0x920d5078, 0xd9640a0f, 0xd46f0406, 0xc372161d, 0xce791814, 0xed48322b, 0xe0433c22, 0xf75e2e39, 0xfa552030, 0xb701ec9a, 0xba0ae293, 0xad17f088, 0xa01cfe81, 0x832dd4be, 0x8e26dab7, 0x993bc8ac, 0x9430c6a5, 0xdf599cd2, 0xd25292db, 0xc54f80c0, 0xc8448ec9, 0xeb75a4f6, 0xe67eaaff, 0xf163b8e4, 0xfc68b6ed, 0x67b10c0a, 0x6aba0203, 0x7da71018, 0x70ac1e11, 0x539d342e, 0x5e963a27, 0x498b283c, 0x44802635, 0x0fe97c42, 0x02e2724b, 0x15ff6050, 0x18f46e59, 0x3bc54466, 0x36ce4a6f, 0x21d35874, 0x2cd8567d, 0x0c7a37a1, 0x017139a8, 0x166c2bb3, 0x1b6725ba, 0x38560f85, 0x355d018c, 0x22401397, 0x2f4b1d9e, 0x642247e9, 0x692949e0, 0x7e345bfb, 0x733f55f2, 0x500e7fcd, 0x5d0571c4, 0x4a1863df, 0x47136dd6, 0xdccad731, 0xd1c1d938, 0xc6dccb23, 0xcbd7c52a, 0xe8e6ef15, 0xe5ede11c, 0xf2f0f307, 0xfffbfd0e, 0xb492a779, 0xb999a970, 0xae84bb6b, 0xa38fb562, 0x80be9f5d, 0x8db59154, 0x9aa8834f, 0x97a38d46]);
         U4 = new Uint32Array([0x00000000, 0x090d0b0e, 0x121a161c, 0x1b171d12, 0x24342c38, 0x2d392736, 0x362e3a24, 0x3f23312a, 0x48685870, 0x4165537e, 0x5a724e6c, 0x537f4562, 0x6c5c7448, 0x65517f46, 0x7e466254, 0x774b695a, 0x90d0b0e0, 0x99ddbbee, 0x82caa6fc, 0x8bc7adf2, 0xb4e49cd8, 0xbde997d6, 0xa6fe8ac4, 0xaff381ca, 0xd8b8e890, 0xd1b5e39e, 0xcaa2fe8c, 0xc3aff582, 0xfc8cc4a8, 0xf581cfa6, 0xee96d2b4, 0xe79bd9ba, 0x3bbb7bdb, 0x32b670d5, 0x29a16dc7, 0x20ac66c9, 0x1f8f57e3, 0x16825ced, 0x0d9541ff, 0x04984af1, 0x73d323ab, 0x7ade28a5, 0x61c935b7, 0x68c43eb9, 0x57e70f93, 0x5eea049d, 0x45fd198f, 0x4cf01281, 0xab6bcb3b, 0xa266c035, 0xb971dd27, 0xb07cd629, 0x8f5fe703, 0x8652ec0d, 0x9d45f11f, 0x9448fa11, 0xe303934b, 0xea0e9845, 0xf1198557, 0xf8148e59, 0xc737bf73, 0xce3ab47d, 0xd52da96f, 0xdc20a261, 0x766df6ad, 0x7f60fda3, 0x6477e0b1, 0x6d7aebbf, 0x5259da95, 0x5b54d19b, 0x4043cc89, 0x494ec787, 0x3e05aedd, 0x3708a5d3, 0x2c1fb8c1, 0x2512b3cf, 0x1a3182e5, 0x133c89eb, 0x082b94f9, 0x01269ff7, 0xe6bd464d, 0xefb04d43, 0xf4a75051, 0xfdaa5b5f, 0xc2896a75, 0xcb84617b, 0xd0937c69, 0xd99e7767, 0xaed51e3d, 0xa7d81533, 0xbccf0821, 0xb5c2032f, 0x8ae13205, 0x83ec390b, 0x98fb2419, 0x91f62f17, 0x4dd68d76, 0x44db8678, 0x5fcc9b6a, 0x56c19064, 0x69e2a14e, 0x60efaa40, 0x7bf8b752, 0x72f5bc5c, 0x05bed506, 0x0cb3de08, 0x17a4c31a, 0x1ea9c814, 0x218af93e, 0x2887f230, 0x3390ef22, 0x3a9de42c, 0xdd063d96, 0xd40b3698, 0xcf1c2b8a, 0xc6112084, 0xf93211ae, 0xf03f1aa0, 0xeb2807b2, 0xe2250cbc, 0x956e65e6, 0x9c636ee8, 0x877473fa, 0x8e7978f4, 0xb15a49de, 0xb85742d0, 0xa3405fc2, 0xaa4d54cc, 0xecdaf741, 0xe5d7fc4f, 0xfec0e15d, 0xf7cdea53, 0xc8eedb79, 0xc1e3d077, 0xdaf4cd65, 0xd3f9c66b, 0xa4b2af31, 0xadbfa43f, 0xb6a8b92d, 0xbfa5b223, 0x80868309, 0x898b8807, 0x929c9515, 0x9b919e1b, 0x7c0a47a1, 0x75074caf, 0x6e1051bd, 0x671d5ab3, 0x583e6b99, 0x51336097, 0x4a247d85, 0x4329768b, 0x34621fd1, 0x3d6f14df, 0x267809cd, 0x2f7502c3, 0x105633e9, 0x195b38e7, 0x024c25f5, 0x0b412efb, 0xd7618c9a, 0xde6c8794, 0xc57b9a86, 0xcc769188, 0xf355a0a2, 0xfa58abac, 0xe14fb6be, 0xe842bdb0, 0x9f09d4ea, 0x9604dfe4, 0x8d13c2f6, 0x841ec9f8, 0xbb3df8d2, 0xb230f3dc, 0xa927eece, 0xa02ae5c0, 0x47b13c7a, 0x4ebc3774, 0x55ab2a66, 0x5ca62168, 0x63851042, 0x6a881b4c, 0x719f065e, 0x78920d50, 0x0fd9640a, 0x06d46f04, 0x1dc37216, 0x14ce7918, 0x2bed4832, 0x22e0433c, 0x39f75e2e, 0x30fa5520, 0x9ab701ec, 0x93ba0ae2, 0x88ad17f0, 0x81a01cfe, 0xbe832dd4, 0xb78e26da, 0xac993bc8, 0xa59430c6, 0xd2df599c, 0xdbd25292, 0xc0c54f80, 0xc9c8448e, 0xf6eb75a4, 0xffe67eaa, 0xe4f163b8, 0xedfc68b6, 0x0a67b10c, 0x036aba02, 0x187da710, 0x1170ac1e, 0x2e539d34, 0x275e963a, 0x3c498b28, 0x35448026, 0x420fe97c, 0x4b02e272, 0x5015ff60, 0x5918f46e, 0x663bc544, 0x6f36ce4a, 0x7421d358, 0x7d2cd856, 0xa10c7a37, 0xa8017139, 0xb3166c2b, 0xba1b6725, 0x8538560f, 0x8c355d01, 0x97224013, 0x9e2f4b1d, 0xe9642247, 0xe0692949, 0xfb7e345b, 0xf2733f55, 0xcd500e7f, 0xc45d0571, 0xdf4a1863, 0xd647136d, 0x31dccad7, 0x38d1c1d9, 0x23c6dccb, 0x2acbd7c5, 0x15e8e6ef, 0x1ce5ede1, 0x07f2f0f3, 0x0efffbfd, 0x79b492a7, 0x70b999a9, 0x6bae84bb, 0x62a38fb5, 0x5d80be9f, 0x548db591, 0x4f9aa883, 0x4697a38d]);
         function AES() {
-            if (this._$rapyd$_object_id === undefined) Object.defineProperty(this, "_$rapyd$_object_id", {"value":++_$rapyd$_object_counter});
+            if (this.ρσ_object_id === undefined) Object.defineProperty(this, "ρσ_object_id", {"value":++ρσ_object_counter});
             AES.prototype.__init__.apply(this, arguments);
         }
         AES.prototype.__init__ = function __init__(key) {
             var self = this;
             var rounds, round_key_count, KC, tk, index, rconpointer, t, tt, i, r, c;
-            self.working_mem = _$rapyd$_list_decorate([ new Uint32Array(4), new Uint32Array(4) ]);
-            rounds = number_of_rounds[key.length];
+            self.working_mem = ρσ_list_decorate([ new Uint32Array(4), new Uint32Array(4) ]);
+            rounds = number_of_rounds[ρσ_bound_index(key.length, number_of_rounds)];
             if (!rounds) {
                 throw new ValueError("invalid key size (must be length 16, 24 or 32)");
             }
@@ -2964,45 +3664,50 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             index = 0;
             for (var i = 0; i < KC; i++) {
                 index = i >> 2;
-                self._Ke[index][i % 4] = tk[i];
-                self._Kd[rounds - index][i % 4] = tk[i];
+                (ρσ_expr_temp = (ρσ_expr_temp = self._Ke)[(typeof index === "number" && index < 0) ? ρσ_expr_temp.length + index : index])[ρσ_bound_index(i % 4, ρσ_expr_temp)] = tk[(typeof i === "number" && i < 0) ? tk.length + i : i];
+                (ρσ_expr_temp = (ρσ_expr_temp = self._Kd)[ρσ_bound_index(rounds - index, ρσ_expr_temp)])[ρσ_bound_index(i % 4, ρσ_expr_temp)] = tk[(typeof i === "number" && i < 0) ? tk.length + i : i];
             }
             rconpointer = 0;
             t = KC;
             while (t < round_key_count) {
-                tt = tk[KC - 1];
-                tk[0] ^= S[tt >> 16 & 255] << 24 ^ S[tt >> 8 & 255] << 16 ^ S[tt & 255] << 8 ^ S[tt >> 24 & 255] ^ rcon[rconpointer] << 24;
+                tt = tk[ρσ_bound_index(KC - 1, tk)];
+                tk[0] ^= S[ρσ_bound_index(tt >> 16 & 255, S)] << 24 ^ S[ρσ_bound_index(tt >> 8 & 255, S)] << 16 ^ S[ρσ_bound_index(tt & 255, S)] << 8 ^ S[ρσ_bound_index(tt >> 24 & 255, S)] ^ rcon[(typeof rconpointer === "number" && rconpointer < 0) ? rcon.length + rconpointer : rconpointer] << 24;
                 rconpointer += 1;
-                if ((KC !== 8 && (typeof KC !== "object" || _$rapyd$_not_equals(KC, 8)))) {
+                if ((KC !== 8 && (typeof KC !== "object" || ρσ_not_equals(KC, 8)))) {
                     for (var i = 1; i < KC; i++) {
-                        tk[i] ^= tk[i - 1];
+                        tk[(typeof i === "number" && i < 0) ? tk.length + i : i] ^= tk[ρσ_bound_index(i - 1, tk)];
                     }
                 } else {
                     for (var i = 1; i < (KC / 2); i++) {
-                        tk[i] ^= tk[i - 1];
+                        tk[(typeof i === "number" && i < 0) ? tk.length + i : i] ^= tk[ρσ_bound_index(i - 1, tk)];
                     }
-                    tt = tk[KC / 2 - 1];
-                    tk[KC / 2] ^= S[tt & 255] ^ S[tt >> 8 & 255] << 8 ^ S[tt >> 16 & 255] << 16 ^ S[tt >> 24 & 255] << 24;
+                    tt = tk[ρσ_bound_index(KC / 2 - 1, tk)];
+                    tk[ρσ_bound_index(KC / 2, tk)] ^= S[ρσ_bound_index(tt & 255, S)] ^ S[ρσ_bound_index(tt >> 8 & 255, S)] << 8 ^ S[ρσ_bound_index(tt >> 16 & 255, S)] << 16 ^ S[ρσ_bound_index(tt >> 24 & 255, S)] << 24;
                     for (var i = (KC / 2) + 1; i < KC; i++) {
-                        tk[i] ^= tk[i - 1];
+                        tk[(typeof i === "number" && i < 0) ? tk.length + i : i] ^= tk[ρσ_bound_index(i - 1, tk)];
                     }
                 }
                 i = 0;
                 while (i < KC && t < round_key_count) {
                     r = t >> 2;
                     c = t % 4;
-                    self._Ke[r][c] = tk[i];
-                    self._Kd[rounds - r][c] = tk[i++];
+                    (ρσ_expr_temp = (ρσ_expr_temp = self._Ke)[(typeof r === "number" && r < 0) ? ρσ_expr_temp.length + r : r])[(typeof c === "number" && c < 0) ? ρσ_expr_temp.length + c : c] = tk[(typeof i === "number" && i < 0) ? tk.length + i : i];
+                    (ρσ_expr_temp = (ρσ_expr_temp = self._Kd)[ρσ_bound_index(rounds - r, ρσ_expr_temp)])[(typeof c === "number" && c < 0) ? ρσ_expr_temp.length + c : c] = tk[ρσ_bound_index(i++, tk)];
                     t += 1;
                 }
             }
             for (var r = 1; r < rounds; r++) {
                 for (var c = 0; c < 4; c++) {
-                    tt = self._Kd[r][c];
-                    self._Kd[r][c] = U1[tt >> 24 & 255] ^ U2[tt >> 16 & 255] ^ U3[tt >> 8 & 255] ^ U4[tt & 255];
+                    tt = (ρσ_expr_temp = (ρσ_expr_temp = self._Kd)[(typeof r === "number" && r < 0) ? ρσ_expr_temp.length + r : r])[(typeof c === "number" && c < 0) ? ρσ_expr_temp.length + c : c];
+                    (ρσ_expr_temp = (ρσ_expr_temp = self._Kd)[(typeof r === "number" && r < 0) ? ρσ_expr_temp.length + r : r])[(typeof c === "number" && c < 0) ? ρσ_expr_temp.length + c : c] = U1[ρσ_bound_index(tt >> 24 & 255, U1)] ^ U2[ρσ_bound_index(tt >> 16 & 255, U2)] ^ U3[ρσ_bound_index(tt >> 8 & 255, U3)] ^ U4[ρσ_bound_index(tt & 255, U4)];
                 }
             }
         };
+        Object.defineProperties(AES.prototype.__init__, {
+            __argnames__ : {value: ["key"]}
+        });
+        AES.__argnames__ = AES.prototype.__init__.__argnames__;
+        AES.__handles_kwarg_interpolation__ = AES.prototype.__init__.__handles_kwarg_interpolation__;
         AES.prototype._crypt = function _crypt(ciphertext, offset, encrypt) {
             var self = this;
             var R1, R2, R3, R4, o1, o3, SB, K, rounds, a, t, tt;
@@ -3029,76 +3734,109 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             a = self.working_mem[0];
             t = self.working_mem[1];
             for (var i = 0; i < 4; i++) {
-                t[i] ^= K[0][i];
+                t[(typeof i === "number" && i < 0) ? t.length + i : i] ^= (ρσ_expr_temp = K[0])[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i];
             }
             for (var r = 1; r < rounds; r++) {
                 for (var i = 0; i < 4; i++) {
-                    a[i] = R1[t[i] >> 24 & 255] ^ R2[t[(i + o1) % 4] >> 16 & 255] ^ R3[t[(i + 2) % 4] >> 8 & 255] ^ R4[t[(i + o3) % 4] & 255] ^ K[r][i];
+                    a[(typeof i === "number" && i < 0) ? a.length + i : i] = R1[ρσ_bound_index(t[(typeof i === "number" && i < 0) ? t.length + i : i] >> 24 & 255, R1)] ^ R2[ρσ_bound_index(t[ρσ_bound_index((i + o1) % 4, t)] >> 16 & 255, R2)] ^ R3[ρσ_bound_index(t[ρσ_bound_index((i + 2) % 4, t)] >> 8 & 255, R3)] ^ R4[ρσ_bound_index(t[ρσ_bound_index((i + o3) % 4, t)] & 255, R4)] ^ (ρσ_expr_temp = K[(typeof r === "number" && r < 0) ? K.length + r : r])[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i];
                 }
                 t.set(a);
             }
             for (var i = 0; i < 4; i++) {
-                tt = K[rounds][i];
-                ciphertext[offset + 4 * i] = (SB[t[i] >> 24 & 255] ^ tt >> 24) & 255;
-                ciphertext[offset + 4 * i + 1] = (SB[t[(i + o1) % 4] >> 16 & 255] ^ tt >> 16) & 255;
-                ciphertext[offset + 4 * i + 2] = (SB[t[(i + 2) % 4] >> 8 & 255] ^ tt >> 8) & 255;
-                ciphertext[offset + 4 * i + 3] = (SB[t[(i + o3) % 4] & 255] ^ tt) & 255;
+                tt = (ρσ_expr_temp = K[(typeof rounds === "number" && rounds < 0) ? K.length + rounds : rounds])[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i];
+                ciphertext[ρσ_bound_index(offset + 4 * i, ciphertext)] = (SB[ρσ_bound_index(t[(typeof i === "number" && i < 0) ? t.length + i : i] >> 24 & 255, SB)] ^ tt >> 24) & 255;
+                ciphertext[ρσ_bound_index(offset + 4 * i + 1, ciphertext)] = (SB[ρσ_bound_index(t[ρσ_bound_index((i + o1) % 4, t)] >> 16 & 255, SB)] ^ tt >> 16) & 255;
+                ciphertext[ρσ_bound_index(offset + 4 * i + 2, ciphertext)] = (SB[ρσ_bound_index(t[ρσ_bound_index((i + 2) % 4, t)] >> 8 & 255, SB)] ^ tt >> 8) & 255;
+                ciphertext[ρσ_bound_index(offset + 4 * i + 3, ciphertext)] = (SB[ρσ_bound_index(t[ρσ_bound_index((i + o3) % 4, t)] & 255, SB)] ^ tt) & 255;
             }
         };
+        Object.defineProperties(AES.prototype._crypt, {
+            __argnames__ : {value: ["ciphertext", "offset", "encrypt"]}
+        });
         AES.prototype.encrypt = function encrypt(plaintext, ciphertext, offset) {
             var self = this;
             convert_to_int32(plaintext, self.working_mem[1], offset, 16);
             return self._crypt(ciphertext, offset, true);
         };
+        Object.defineProperties(AES.prototype.encrypt, {
+            __argnames__ : {value: ["plaintext", "ciphertext", "offset"]}
+        });
         AES.prototype.encrypt32 = function encrypt32(plaintext, ciphertext, offset) {
             var self = this;
             self.working_mem[1].set(plaintext);
             return self._crypt(ciphertext, offset, true);
         };
+        Object.defineProperties(AES.prototype.encrypt32, {
+            __argnames__ : {value: ["plaintext", "ciphertext", "offset"]}
+        });
         AES.prototype.decrypt = function decrypt(ciphertext, plaintext, offset) {
             var self = this;
             convert_to_int32(ciphertext, self.working_mem[1], offset, 16);
             return self._crypt(plaintext, offset, false);
         };
+        Object.defineProperties(AES.prototype.decrypt, {
+            __argnames__ : {value: ["ciphertext", "plaintext", "offset"]}
+        });
         AES.prototype.decrypt32 = function decrypt32(ciphertext, plaintext, offset) {
             var self = this;
             self.working_mem[1].set(ciphertext);
             return self._crypt(plaintext, offset, false);
         };
+        Object.defineProperties(AES.prototype.decrypt32, {
+            __argnames__ : {value: ["ciphertext", "plaintext", "offset"]}
+        });
         AES.prototype.__repr__ = function __repr__ () {
-            return "<" + __name__ + "." + "AES" + " #" + this._$rapyd$_object_id + ">";
+                        return "<" + __name__ + "." + this.constructor.name + " #" + this.ρσ_object_id + ">";
         };
         AES.prototype.__str__ = function __str__ () {
             return this.__repr__();
         };
+        Object.defineProperty(AES.prototype, "__bases__", {value: []});
 
         function random_bytes_insecure(sz) {
             var ans;
             ans = new Uint8Array(sz);
             for (var i = 0; i < sz; i++) {
-                ans[i] = Math.floor(Math.random() * 256);
+                ans[(typeof i === "number" && i < 0) ? ans.length + i : i] = Math.floor(Math.random() * 256);
             }
             return ans;
-        }
+        };
+        Object.defineProperties(random_bytes_insecure, {
+            __argnames__ : {value: ["sz"]}
+        });
+
         function random_bytes_secure(sz) {
             var ans;
             ans = new Uint8Array(sz);
             crypto.getRandomValues(ans);
             return ans;
-        }
+        };
+        Object.defineProperties(random_bytes_secure, {
+            __argnames__ : {value: ["sz"]}
+        });
+
         random_bytes = (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") ? random_bytes_secure : random_bytes_insecure;
         if (random_bytes === random_bytes_insecure) {
             try {
                 noderandom = require("crypto").randomBytes;
-                random_bytes = function(sz) {
-                    return new Uint8Array(noderandom(sz));
-                };
-            } catch (_$rapyd$_Exception) {
-                print("WARNING: Using insecure RNG for AES");
+                random_bytes = (function() {
+                    var ρσ_anonfunc = function (sz) {
+                        return new Uint8Array(noderandom(sz));
+                    };
+                    Object.defineProperties(ρσ_anonfunc, {
+                        __argnames__ : {value: ["sz"]}
+                    });
+                    return ρσ_anonfunc;
+                })();
+            } catch (ρσ_Exception) {
+                ρσ_last_exception = ρσ_Exception;
+                {
+                    print("WARNING: Using insecure RNG for AES");
+                } 
             }
         }
         function ModeOfOperation() {
-            if (this._$rapyd$_object_id === undefined) Object.defineProperty(this, "_$rapyd$_object_id", {"value":++_$rapyd$_object_counter});
+            if (this.ρσ_object_id === undefined) Object.defineProperty(this, "ρσ_object_id", {"value":++ρσ_object_counter});
             ModeOfOperation.prototype.__init__.apply(this, arguments);
         }
         Object.defineProperties(ModeOfOperation.prototype,  {
@@ -3116,9 +3854,14 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             self.key = key || generate_key(32);
             self.aes = new AES(self.key);
         };
+        Object.defineProperties(ModeOfOperation.prototype.__init__, {
+            __argnames__ : {value: ["key"]}
+        });
+        ModeOfOperation.__argnames__ = ModeOfOperation.prototype.__init__.__argnames__;
+        ModeOfOperation.__handles_kwarg_interpolation__ = ModeOfOperation.prototype.__init__.__handles_kwarg_interpolation__;
         ModeOfOperation.prototype.tag_as_bytes = function tag_as_bytes(tag) {
             var self = this;
-            if (tag instanceof Uint8Array) {
+            if (ρσ_instanceof(tag, Uint8Array)) {
                 return tag;
             }
             if (!tag) {
@@ -3129,16 +3872,20 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             }
             throw new TypeError("Invalid tag, must be a string or a Uint8Array");
         };
+        Object.defineProperties(ModeOfOperation.prototype.tag_as_bytes, {
+            __argnames__ : {value: ["tag"]}
+        });
         ModeOfOperation.prototype.__repr__ = function __repr__ () {
-            return "<" + __name__ + "." + "ModeOfOperation" + " #" + this._$rapyd$_object_id + ">";
+                        return "<" + __name__ + "." + this.constructor.name + " #" + this.ρσ_object_id + ">";
         };
         ModeOfOperation.prototype.__str__ = function __str__ () {
             return this.__repr__();
         };
+        Object.defineProperty(ModeOfOperation.prototype, "__bases__", {value: []});
         
 
         function GaloisField() {
-            if (this._$rapyd$_object_id === undefined) Object.defineProperty(this, "_$rapyd$_object_id", {"value":++_$rapyd$_object_counter});
+            if (this.ρσ_object_id === undefined) Object.defineProperty(this, "ρσ_object_id", {"value":++ρσ_object_counter});
             GaloisField.prototype.__init__.apply(this, arguments);
         }
         GaloisField.prototype.__init__ = function __init__(sub_key) {
@@ -3149,25 +3896,33 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             self.m = self.generate_hash_table(k32);
             self.wmem = new Uint32Array(4);
         };
+        Object.defineProperties(GaloisField.prototype.__init__, {
+            __argnames__ : {value: ["sub_key"]}
+        });
+        GaloisField.__argnames__ = GaloisField.prototype.__init__.__argnames__;
+        GaloisField.__handles_kwarg_interpolation__ = GaloisField.prototype.__init__.__handles_kwarg_interpolation__;
         GaloisField.prototype.power = function power(x, out) {
             var self = this;
             var lsb;
             lsb = x[3] & 1;
             for (var i = 3; i > 0; --i) {
-                out[i] = x[i] >>> 1 | (x[i - 1] & 1) << 31;
+                out[(typeof i === "number" && i < 0) ? out.length + i : i] = x[(typeof i === "number" && i < 0) ? x.length + i : i] >>> 1 | (x[ρσ_bound_index(i - 1, x)] & 1) << 31;
             }
             out[0] = x[0] >>> 1;
             if (lsb) {
                 out[0] ^= 3774873600;
             }
         };
+        Object.defineProperties(GaloisField.prototype.power, {
+            __argnames__ : {value: ["x", "out"]}
+        });
         GaloisField.prototype.multiply = function multiply(x, y) {
             var self = this;
             var z_i, v_i, x_i;
             z_i = new Uint32Array(4);
             v_i = new Uint32Array(y);
             for (var i = 0; i < 128; ++i) {
-                x_i = x[i / 32 | 0] & 1 << 31 - i % 32;
+                x_i = x[ρσ_bound_index(i / 32 | 0, x)] & 1 << 31 - i % 32;
                 if (x_i) {
                     z_i[0] ^= v_i[0];
                     z_i[1] ^= v_i[1];
@@ -3178,48 +3933,48 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             }
             return z_i;
         };
+        Object.defineProperties(GaloisField.prototype.multiply, {
+            __argnames__ : {value: ["x", "y"]}
+        });
         GaloisField.prototype.generate_sub_hash_table = function generate_sub_hash_table(mid) {
             var self = this;
-            var bits, size, half, m, i, m_i, m_j, x, _$rapyd$_chain_assign_temp, y;
+            var bits, size, half, m, i, m_i, m_j, x, y;
             bits = mid.length;
             size = 1 << bits;
             half = size >>> 1;
             m = new Array(size);
-            m[half] = new Uint32Array(mid);
+            m[(typeof half === "number" && half < 0) ? m.length + half : half] = new Uint32Array(mid);
             i = half >>> 1;
             while (i > 0) {
-                m[i] = new Uint32Array(4);
-                self.power(m[2 * i], m[i]);
+                m[(typeof i === "number" && i < 0) ? m.length + i : i] = new Uint32Array(4);
+                self.power(m[ρσ_bound_index(2 * i, m)], m[(typeof i === "number" && i < 0) ? m.length + i : i]);
                 i >>= 1;
             }
             i = 2;
             while (i < half) {
                 for (var j = 1; j < i; ++j) {
-                    m_i = m[i];
-                    m_j = m[j];
-                    _$rapyd$_chain_assign_temp = new Uint32Array(4);
-                    m[i + j] = _$rapyd$_chain_assign_temp;
-                    x = _$rapyd$_chain_assign_temp;
-;
+                    m_i = m[(typeof i === "number" && i < 0) ? m.length + i : i];
+                    m_j = m[(typeof j === "number" && j < 0) ? m.length + j : j];
+                    m[ρσ_bound_index(i + j, m)] = x = new Uint32Array(4);
                     for (var c = 0; c < 4; c++) {
-                        x[c] = m_i[c] ^ m_j[c];
+                        x[(typeof c === "number" && c < 0) ? x.length + c : c] = m_i[(typeof c === "number" && c < 0) ? m_i.length + c : c] ^ m_j[(typeof c === "number" && c < 0) ? m_j.length + c : c];
                     }
                 }
                 i *= 2;
             }
             m[0] = new Uint32Array(4);
             for (i = half + 1; i < size; ++i) {
-                x = m[i ^ half];
-                _$rapyd$_chain_assign_temp = new Uint32Array(4);
-                m[i] = _$rapyd$_chain_assign_temp;
-                y = _$rapyd$_chain_assign_temp;
-;
+                x = m[ρσ_bound_index(i ^ half, m)];
+                m[(typeof i === "number" && i < 0) ? m.length + i : i] = y = new Uint32Array(4);
                 for (var c = 0; c < 4; c++) {
-                    y[c] = mid[c] ^ x[c];
+                    y[(typeof c === "number" && c < 0) ? y.length + c : c] = mid[(typeof c === "number" && c < 0) ? mid.length + c : c] ^ x[(typeof c === "number" && c < 0) ? x.length + c : c];
                 }
             }
             return m;
         };
+        Object.defineProperties(GaloisField.prototype.generate_sub_hash_table, {
+            __argnames__ : {value: ["mid"]}
+        });
         GaloisField.prototype.generate_hash_table = function generate_hash_table(key_as_int32_array) {
             var self = this;
             var bits, multiplier, per_int, size, ans, tmp, idx, shft;
@@ -3232,19 +3987,22 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 tmp = new Uint32Array(4);
                 idx = i / per_int | 0;
                 shft = (per_int - 1 - i % per_int) * bits;
-                tmp[idx] = 1 << bits - 1 << shft;
-                ans[i] = self.generate_sub_hash_table(self.multiply(tmp, key_as_int32_array));
+                tmp[(typeof idx === "number" && idx < 0) ? tmp.length + idx : idx] = 1 << bits - 1 << shft;
+                ans[(typeof i === "number" && i < 0) ? ans.length + i : i] = self.generate_sub_hash_table(self.multiply(tmp, key_as_int32_array));
             }
             return ans;
         };
+        Object.defineProperties(GaloisField.prototype.generate_hash_table, {
+            __argnames__ : {value: ["key_as_int32_array"]}
+        });
         GaloisField.prototype.table_multiply = function table_multiply(x) {
             var self = this;
             var z, idx, x_i, ah;
             z = new Uint32Array(4);
             for (var i = 0; i < 32; ++i) {
                 idx = i / 8 | 0;
-                x_i = x[idx] >>> (7 - i % 8) * 4 & 15;
-                ah = self.m[i][x_i];
+                x_i = x[(typeof idx === "number" && idx < 0) ? x.length + idx : idx] >>> (7 - i % 8) * 4 & 15;
+                ah = (ρσ_expr_temp = (ρσ_expr_temp = self.m)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i])[(typeof x_i === "number" && x_i < 0) ? ρσ_expr_temp.length + x_i : x_i];
                 z[0] ^= ah[0];
                 z[1] ^= ah[1];
                 z[2] ^= ah[2];
@@ -3252,6 +4010,9 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             }
             return z;
         };
+        Object.defineProperties(GaloisField.prototype.table_multiply, {
+            __argnames__ : {value: ["x"]}
+        });
         GaloisField.prototype.ghash = function ghash(x, y) {
             var self = this;
             var z;
@@ -3262,42 +4023,55 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             z[3] = y[3] ^ x[3];
             return self.table_multiply(z);
         };
+        Object.defineProperties(GaloisField.prototype.ghash, {
+            __argnames__ : {value: ["x", "y"]}
+        });
         GaloisField.prototype.__repr__ = function __repr__ () {
-            return "<" + __name__ + "." + "GaloisField" + " #" + this._$rapyd$_object_id + ">";
+                        return "<" + __name__ + "." + this.constructor.name + " #" + this.ρσ_object_id + ">";
         };
         GaloisField.prototype.__str__ = function __str__ () {
             return this.__repr__();
         };
+        Object.defineProperty(GaloisField.prototype, "__bases__", {value: []});
 
         function generate_key(sz) {
-            if (!number_of_rounds[sz]) {
+            if (!number_of_rounds[(typeof sz === "number" && sz < 0) ? number_of_rounds.length + sz : sz]) {
                 throw new ValueError("Invalid key size, must be: 16, 24 or 32");
             }
             return random_bytes(sz);
-        }
+        };
+        Object.defineProperties(generate_key, {
+            __argnames__ : {value: ["sz"]}
+        });
+
         function generate_tag(sz) {
             return random_bytes(sz || 32);
-        }
+        };
+        Object.defineProperties(generate_tag, {
+            __argnames__ : {value: ["sz"]}
+        });
+
         function typed_array_as_js(x) {
             var name;
             name = x.constructor.name || "Uint8Array";
             return "(new " + name + "(" + JSON.stringify(Array.prototype.slice.call(x)) + "))";
-        }
+        };
+        Object.defineProperties(typed_array_as_js, {
+            __argnames__ : {value: ["x"]}
+        });
+
         function CBC() {
-            if (this._$rapyd$_object_id === undefined) Object.defineProperty(this, "_$rapyd$_object_id", {"value":++_$rapyd$_object_counter});
+            if (this.ρσ_object_id === undefined) Object.defineProperty(this, "ρσ_object_id", {"value":++ρσ_object_counter});
             CBC.prototype.__init__.apply(this, arguments);
         }
-        _$rapyd$_extends(CBC, ModeOfOperation);
+        ρσ_extends(CBC, ModeOfOperation);
         CBC.prototype.__init__ = function __init__ () {
             ModeOfOperation.prototype.__init__ && ModeOfOperation.prototype.__init__.apply(this, arguments);
         };
         CBC.prototype.encrypt_bytes = function encrypt_bytes(bytes, tag_bytes, iv) {
             var self = this;
-            var first_iv, _$rapyd$_chain_assign_temp, mlen, padsz, inputbytes, offset, outputbytes, _$rapyd$_unpack;
-            _$rapyd$_chain_assign_temp = iv || random_bytes(16);
-            iv = _$rapyd$_chain_assign_temp;
-            first_iv = _$rapyd$_chain_assign_temp;
-;
+            var first_iv, mlen, padsz, inputbytes, offset, outputbytes, ρσ_unpack;
+            iv = first_iv = iv || random_bytes(16);
             mlen = bytes.length + tag_bytes.length;
             padsz = (16 - mlen % 16) % 16;
             inputbytes = new Uint8Array(mlen + padsz);
@@ -3309,76 +4083,98 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             outputbytes = new Uint8Array(inputbytes.length);
             for (var block = 0; block < inputbytes.length; block += 16) {
                 if (block > 0) {
-                    _$rapyd$_unpack = [outputbytes, block - 16];
-                    iv = _$rapyd$_unpack[0];
-                    offset = _$rapyd$_unpack[1];
+                    ρσ_unpack = [outputbytes, block - 16];
+                    iv = ρσ_unpack[0];
+                    offset = ρσ_unpack[1];
                 }
                 for (var i = 0; i < 16; i++) {
-                    inputbytes[block + i] ^= iv[offset + i];
+                    inputbytes[ρσ_bound_index(block + i, inputbytes)] ^= iv[ρσ_bound_index(offset + i, iv)];
                 }
                 self.aes.encrypt(inputbytes, outputbytes, block);
             }
-            return {
-                "iv": first_iv,
-                "cipherbytes": outputbytes
-            };
+            return (function(){
+                var ρσ_d = {};
+                ρσ_d["iv"] = first_iv;
+                ρσ_d["cipherbytes"] = outputbytes;
+                return ρσ_d;
+            }).call(this);
         };
+        Object.defineProperties(CBC.prototype.encrypt_bytes, {
+            __argnames__ : {value: ["bytes", "tag_bytes", "iv"]}
+        });
         CBC.prototype.encrypt = function encrypt(plaintext, tag) {
             var self = this;
             return self.encrypt_bytes(string_to_bytes(plaintext), self.tag_as_bytes(tag));
         };
+        Object.defineProperties(CBC.prototype.encrypt, {
+            __argnames__ : {value: ["plaintext", "tag"]}
+        });
         CBC.prototype.decrypt_bytes = function decrypt_bytes(inputbytes, tag_bytes, iv) {
             var self = this;
-            var offset, outputbytes, _$rapyd$_unpack;
+            var offset, outputbytes, ρσ_unpack;
             offset = 0;
             outputbytes = new Uint8Array(inputbytes.length);
             for (var block = 0; block < inputbytes.length; block += 16) {
                 self.aes.decrypt(inputbytes, outputbytes, block);
                 if (block > 0) {
-                    _$rapyd$_unpack = [inputbytes, block - 16];
-                    iv = _$rapyd$_unpack[0];
-                    offset = _$rapyd$_unpack[1];
+                    ρσ_unpack = [inputbytes, block - 16];
+                    iv = ρσ_unpack[0];
+                    offset = ρσ_unpack[1];
                 }
                 for (var i = 0; i < 16; i++) {
-                    outputbytes[block + i] ^= iv[offset + i];
+                    outputbytes[ρσ_bound_index(block + i, outputbytes)] ^= iv[ρσ_bound_index(offset + i, iv)];
                 }
             }
             for (var i = 0; i < tag_bytes.length; i++) {
-                if ((tag_bytes[i] !== outputbytes[i] && (typeof tag_bytes[i] !== "object" || _$rapyd$_not_equals(tag_bytes[i], outputbytes[i])))) {
+                if ((tag_bytes[(typeof i === "number" && i < 0) ? tag_bytes.length + i : i] !== outputbytes[(typeof i === "number" && i < 0) ? outputbytes.length + i : i] && (typeof tag_bytes[(typeof i === "number" && i < 0) ? tag_bytes.length + i : i] !== "object" || ρσ_not_equals(tag_bytes[(typeof i === "number" && i < 0) ? tag_bytes.length + i : i], outputbytes[(typeof i === "number" && i < 0) ? outputbytes.length + i : i])))) {
                     throw new ValueError("Corrupt message");
                 }
             }
             outputbytes = outputbytes.subarray(tag_bytes.length);
             return outputbytes;
         };
+        Object.defineProperties(CBC.prototype.decrypt_bytes, {
+            __argnames__ : {value: ["inputbytes", "tag_bytes", "iv"]}
+        });
         CBC.prototype.decrypt = function decrypt(output_from_encrypt, tag) {
             var self = this;
             var ans;
             ans = self.decrypt_bytes(output_from_encrypt.cipherbytes, self.tag_as_bytes(tag), output_from_encrypt.iv);
             return str.rstrip(bytes_to_string(ans), "\u0000");
         };
+        Object.defineProperties(CBC.prototype.decrypt, {
+            __argnames__ : {value: ["output_from_encrypt", "tag"]}
+        });
         CBC.prototype.__repr__ = function __repr__ () {
-            return "<" + __name__ + "." + "CBC" + " #" + this._$rapyd$_object_id + ">";
+            if(ModeOfOperation.prototype.__repr__) return ModeOfOperation.prototype.__repr__.call(this);
+            return "<" + __name__ + "." + this.constructor.name + " #" + this.ρσ_object_id + ">";
         };
         CBC.prototype.__str__ = function __str__ () {
-            return this.__repr__();
+            if(ModeOfOperation.prototype.__str__) return ModeOfOperation.prototype.__str__.call(this);
+return this.__repr__();
         };
+        Object.defineProperty(CBC.prototype, "__bases__", {value: [ModeOfOperation]});
 
         function CTR() {
-            if (this._$rapyd$_object_id === undefined) Object.defineProperty(this, "_$rapyd$_object_id", {"value":++_$rapyd$_object_counter});
+            if (this.ρσ_object_id === undefined) Object.defineProperty(this, "ρσ_object_id", {"value":++ρσ_object_counter});
             CTR.prototype.__init__.apply(this, arguments);
         }
-        _$rapyd$_extends(CTR, ModeOfOperation);
+        ρσ_extends(CTR, ModeOfOperation);
         CTR.prototype.__init__ = function __init__(key, iv) {
             var self = this;
             ModeOfOperation.prototype.constructor.call(self, key);
             self.wmem = new Uint8Array(16);
             self.counter_block = new Uint8Array(iv || 16);
-            if ((self.counter_block.length !== 16 && (typeof self.counter_block.length !== "object" || _$rapyd$_not_equals(self.counter_block.length, 16)))) {
+            if ((self.counter_block.length !== 16 && (typeof self.counter_block.length !== "object" || ρσ_not_equals(self.counter_block.length, 16)))) {
                 throw new ValueError("iv must be 16 bytes long");
             }
             self.counter_index = 16;
         };
+        Object.defineProperties(CTR.prototype.__init__, {
+            __argnames__ : {value: ["key", "iv"]}
+        });
+        CTR.__argnames__ = CTR.prototype.__init__.__argnames__;
+        CTR.__handles_kwarg_interpolation__ = CTR.prototype.__init__.__handles_kwarg_interpolation__;
         CTR.prototype._crypt = function _crypt(bytes) {
             var self = this;
             for (var i = 0; i < bytes.length; i++, self.counter_index++) {
@@ -3387,10 +4183,13 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                     self.aes.encrypt(self.counter_block, self.wmem, 0);
                     increment_counter(self.counter_block);
                 }
-                bytes[i] ^= self.wmem[self.counter_index];
+                bytes[(typeof i === "number" && i < 0) ? bytes.length + i : i] ^= (ρσ_expr_temp = self.wmem)[ρσ_bound_index(self.counter_index, ρσ_expr_temp)];
             }
             self.counter_index = 16;
         };
+        Object.defineProperties(CTR.prototype._crypt, {
+            __argnames__ : {value: ["bytes"]}
+        });
         CTR.prototype.encrypt = function encrypt(plaintext, tag) {
             var self = this;
             var outbytes, counterbytes, tag_bytes, t;
@@ -3404,28 +4203,39 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 outbytes = t;
             }
             self._crypt(outbytes);
-            return {
-                "cipherbytes": outbytes,
-                "counterbytes": counterbytes
-            };
+            return (function(){
+                var ρσ_d = {};
+                ρσ_d["cipherbytes"] = outbytes;
+                ρσ_d["counterbytes"] = counterbytes;
+                return ρσ_d;
+            }).call(this);
         };
+        Object.defineProperties(CTR.prototype.encrypt, {
+            __argnames__ : {value: ["plaintext", "tag"]}
+        });
         CTR.prototype.__enter__ = function __enter__() {
             var self = this;
             self.before_index = self.counter_index;
             self.before_counter = new Uint8Array(self.counter_block);
         };
+        Object.defineProperties(CTR.prototype.__enter__, {
+            __argnames__ : {value: []}
+        });
         CTR.prototype.__exit__ = function __exit__() {
             var self = this;
             self.counter_index = self.before_index;
             self.counter_block = self.before_counter;
         };
+        Object.defineProperties(CTR.prototype.__exit__, {
+            __argnames__ : {value: []}
+        });
         CTR.prototype.decrypt = function decrypt(output_from_encrypt, tag) {
             var self = this;
-            var b, _$rapyd$_with_exception, _$rapyd$_with_suppress, offset, tag_bytes;
+            var b, ρσ_with_exception, ρσ_with_suppress, offset, tag_bytes;
             b = new Uint8Array(output_from_encrypt.cipherbytes);
-            _$rapyd$_with_exception = undefined;
-            var _$rapyd$_with_clause_1 = self;
-            _$rapyd$_with_clause_1.__enter__();
+            ρσ_with_exception = undefined;
+            var ρσ_with_clause_1 = self;
+            ρσ_with_clause_1.__enter__();
             try {
                 {
                     self.counter_block = output_from_encrypt.counterbytes;
@@ -3433,20 +4243,20 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                     self._crypt(b);
                 }
             } catch(e){
-                _$rapyd$_with_exception = e;
+                ρσ_with_exception = e;
             }
-            if (_$rapyd$_with_exception === undefined){
-                _$rapyd$_with_clause_1.__exit__();
+            if (ρσ_with_exception === undefined){
+                ρσ_with_clause_1.__exit__();
             } else {
-                _$rapyd$_with_suppress = false;
-                _$rapyd$_with_suppress |= _$rapyd$_bool(_$rapyd$_with_clause_1.__exit__(_$rapyd$_with_exception.constructor, _$rapyd$_with_exception, _$rapyd$_with_exception.stack));
-                if (!_$rapyd$_with_suppress) throw _$rapyd$_with_exception;
+                ρσ_with_suppress = false;
+                ρσ_with_suppress |= ρσ_bool(ρσ_with_clause_1.__exit__(ρσ_with_exception.constructor, ρσ_with_exception, ρσ_with_exception.stack));
+                if (!ρσ_with_suppress) throw ρσ_with_exception;
             }
             offset = 0;
             if (tag) {
                 tag_bytes = self.tag_as_bytes(tag);
                 for (var i = 0; i < tag_bytes.length; i++) {
-                    if ((tag_bytes[i] !== b[i] && (typeof tag_bytes[i] !== "object" || _$rapyd$_not_equals(tag_bytes[i], b[i])))) {
+                    if ((tag_bytes[(typeof i === "number" && i < 0) ? tag_bytes.length + i : i] !== b[(typeof i === "number" && i < 0) ? b.length + i : i] && (typeof tag_bytes[(typeof i === "number" && i < 0) ? tag_bytes.length + i : i] !== "object" || ρσ_not_equals(tag_bytes[(typeof i === "number" && i < 0) ? tag_bytes.length + i : i], b[(typeof i === "number" && i < 0) ? b.length + i : i])))) {
                         throw new ValueError("Corrupted message");
                     }
                 }
@@ -3454,26 +4264,32 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             }
             return bytes_to_string(b, offset);
         };
+        Object.defineProperties(CTR.prototype.decrypt, {
+            __argnames__ : {value: ["output_from_encrypt", "tag"]}
+        });
         CTR.prototype.__repr__ = function __repr__ () {
-            return "<" + __name__ + "." + "CTR" + " #" + this._$rapyd$_object_id + ">";
+            if(ModeOfOperation.prototype.__repr__) return ModeOfOperation.prototype.__repr__.call(this);
+            return "<" + __name__ + "." + this.constructor.name + " #" + this.ρσ_object_id + ">";
         };
         CTR.prototype.__str__ = function __str__ () {
-            return this.__repr__();
+            if(ModeOfOperation.prototype.__str__) return ModeOfOperation.prototype.__str__.call(this);
+return this.__repr__();
         };
+        Object.defineProperty(CTR.prototype, "__bases__", {value: [ModeOfOperation]});
 
         function GCM() {
-            if (this._$rapyd$_object_id === undefined) Object.defineProperty(this, "_$rapyd$_object_id", {"value":++_$rapyd$_object_counter});
+            if (this.ρσ_object_id === undefined) Object.defineProperty(this, "ρσ_object_id", {"value":++ρσ_object_counter});
             GCM.prototype.__init__.apply(this, arguments);
         }
-        _$rapyd$_extends(GCM, ModeOfOperation);
+        ρσ_extends(GCM, ModeOfOperation);
         GCM.prototype.__init__ = function __init__() {
             var self = this;
-            var key = ( 0 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [_$rapyd$_kwargs_symbol] === true) ? undefined : arguments[0];
-            var random_iv = (arguments[1] === undefined || ( 1 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [_$rapyd$_kwargs_symbol] === true)) ? (false) : arguments[1];
-            var _$rapyd$_kwargs_obj = arguments[arguments.length-1];
-            if (_$rapyd$_kwargs_obj === null || typeof _$rapyd$_kwargs_obj !== "object" || _$rapyd$_kwargs_obj [_$rapyd$_kwargs_symbol] !== true) _$rapyd$_kwargs_obj = {};
-            if (Object.prototype.hasOwnProperty.call(_$rapyd$_kwargs_obj, "random_iv")){
-                random_iv = _$rapyd$_kwargs_obj.random_iv;
+            var key = ( 0 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true) ? undefined : arguments[0];
+            var random_iv = (arguments[1] === undefined || ( 1 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true)) ? __init__.__defaults__.random_iv : arguments[1];
+            var ρσ_kwargs_obj = arguments[arguments.length-1];
+            if (ρσ_kwargs_obj === null || typeof ρσ_kwargs_obj !== "object" || ρσ_kwargs_obj [ρσ_kwargs_symbol] !== true) ρσ_kwargs_obj = {};
+            if (Object.prototype.hasOwnProperty.call(ρσ_kwargs_obj, "random_iv")){
+                random_iv = ρσ_kwargs_obj.random_iv;
             }
             var H;
             ModeOfOperation.prototype.constructor.call(self, key);
@@ -3488,22 +4304,32 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             self.wmem = new Uint32Array(4);
             self.byte_block = new Uint8Array(16);
         };
+        Object.defineProperties(GCM.prototype.__init__, {
+            __defaults__ : {value: {random_iv:false}},
+            __handles_kwarg_interpolation__ : {value: true},
+            __argnames__ : {value: ["key", "random_iv"]}
+        });
+        GCM.__argnames__ = GCM.prototype.__init__.__argnames__;
+        GCM.__handles_kwarg_interpolation__ = GCM.prototype.__init__.__handles_kwarg_interpolation__;
         GCM.prototype.increment_iv = function increment_iv() {
             var self = this;
             var c;
             c = self.current_iv;
             for (var i = 11; i >=0; i--) {
-                if (c[i] === 255) {
+                if (c[(typeof i === "number" && i < 0) ? c.length + i : i] === 255) {
                     if (i === 0) {
                         throw new ValueError("The GCM IV space is exhausted, cannot encrypt anymore messages with this key as doing so would cause the IV to repeat");
                     }
-                    c[i] = 0;
+                    c[(typeof i === "number" && i < 0) ? c.length + i : i] = 0;
                 } else {
-                    c[i] += 1;
+                    c[(typeof i === "number" && i < 0) ? c.length + i : i] += 1;
                     break;
                 }
             }
         };
+        Object.defineProperties(GCM.prototype.increment_iv, {
+            __argnames__ : {value: []}
+        });
         GCM.prototype._create_j0 = function _create_j0(iv) {
             var self = this;
             var J0, tmp;
@@ -3524,6 +4350,9 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             }
             return J0;
         };
+        Object.defineProperties(GCM.prototype._create_j0, {
+            __argnames__ : {value: ["iv"]}
+        });
         GCM.prototype._start = function _start(iv, additional_data) {
             var self = this;
             var J0, in_block, S, overflow;
@@ -3544,6 +4373,9 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             }
             return [J0, in_block, S];
         };
+        Object.defineProperties(GCM.prototype._start, {
+            __argnames__ : {value: ["iv", "additional_data"]}
+        });
         GCM.prototype._finish = function _finish(iv, J0, adata_len, S, outbytes) {
             var self = this;
             var lengths, tag;
@@ -3555,23 +4387,28 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             convert_to_int32(self.byte_block, self.wmem);
             tag = new Uint32Array(4);
             for (var i = 0; i < S.length; i++) {
-                tag[i] = S[i] ^ self.wmem[i];
+                tag[(typeof i === "number" && i < 0) ? tag.length + i : i] = S[(typeof i === "number" && i < 0) ? S.length + i : i] ^ (ρσ_expr_temp = self.wmem)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i];
             }
-            return {
-                "iv": iv,
-                "cipherbytes": outbytes,
-                "tag": tag
-            };
+            return (function(){
+                var ρσ_d = {};
+                ρσ_d["iv"] = iv;
+                ρσ_d["cipherbytes"] = outbytes;
+                ρσ_d["tag"] = tag;
+                return ρσ_d;
+            }).call(this);
         };
+        Object.defineProperties(GCM.prototype._finish, {
+            __argnames__ : {value: ["iv", "J0", "adata_len", "S", "outbytes"]}
+        });
         GCM.prototype._crypt = function _crypt(iv, bytes, additional_data, decrypt) {
             var self = this;
-            var ghash, outbytes, _$rapyd$_unpack, J0, in_block, S, bb, enc, hash_bytes, counter_index, overflow;
+            var ghash, outbytes, ρσ_unpack, J0, in_block, S, bb, enc, hash_bytes, counter_index, overflow;
             ghash = self.galois.ghash.bind(self.galois);
             outbytes = new Uint8Array(bytes.length);
-            _$rapyd$_unpack = self._start(iv, additional_data);
-            J0 = _$rapyd$_unpack[0];
-            in_block = _$rapyd$_unpack[1];
-            S = _$rapyd$_unpack[2];
+            ρσ_unpack = self._start(iv, additional_data);
+            J0 = ρσ_unpack[0];
+            in_block = ρσ_unpack[1];
+            S = ρσ_unpack[2];
             bb = self.byte_block;
             enc = self.aes.encrypt32.bind(self.aes);
             hash_bytes = (decrypt) ? bytes : outbytes;
@@ -3581,7 +4418,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                     in_block[3] = in_block[3] + 1 & 4294967295;
                     counter_index = 0;
                 }
-                outbytes[i] = bytes[i] ^ bb[counter_index];
+                outbytes[(typeof i === "number" && i < 0) ? outbytes.length + i : i] = bytes[(typeof i === "number" && i < 0) ? bytes.length + i : i] ^ bb[(typeof counter_index === "number" && counter_index < 0) ? bb.length + counter_index : counter_index];
                 if (counter_index === 15) {
                     convert_to_int32(hash_bytes, self.wmem, i - 15, 16);
                     S = ghash(S, self.wmem);
@@ -3596,6 +4433,9 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             }
             return self._finish(iv, J0, additional_data.length, S, outbytes);
         };
+        Object.defineProperties(GCM.prototype._crypt, {
+            __argnames__ : {value: ["iv", "bytes", "additional_data", "decrypt"]}
+        });
         GCM.prototype.encrypt = function encrypt(plaintext, tag) {
             var self = this;
             var iv;
@@ -3607,98 +4447,118 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             }
             return self._crypt(iv, string_to_bytes(plaintext), self.tag_as_bytes(tag), false);
         };
+        Object.defineProperties(GCM.prototype.encrypt, {
+            __argnames__ : {value: ["plaintext", "tag"]}
+        });
         GCM.prototype.decrypt = function decrypt(output_from_encrypt, tag) {
             var self = this;
             var ans;
-            if ((output_from_encrypt.tag.length !== 4 && (typeof output_from_encrypt.tag.length !== "object" || _$rapyd$_not_equals(output_from_encrypt.tag.length, 4)))) {
+            if ((output_from_encrypt.tag.length !== 4 && (typeof output_from_encrypt.tag.length !== "object" || ρσ_not_equals(output_from_encrypt.tag.length, 4)))) {
                 throw new ValueError("Corrupted message");
             }
             ans = self._crypt(output_from_encrypt.iv, output_from_encrypt.cipherbytes, self.tag_as_bytes(tag), true);
-            if ((ans.tag !== output_from_encrypt.tag && (typeof ans.tag !== "object" || _$rapyd$_not_equals(ans.tag, output_from_encrypt.tag)))) {
+            if ((ans.tag !== output_from_encrypt.tag && (typeof ans.tag !== "object" || ρσ_not_equals(ans.tag, output_from_encrypt.tag)))) {
                 throw new ValueError("Corrupted message");
             }
             return bytes_to_string(ans.cipherbytes);
         };
+        Object.defineProperties(GCM.prototype.decrypt, {
+            __argnames__ : {value: ["output_from_encrypt", "tag"]}
+        });
         GCM.prototype.__repr__ = function __repr__ () {
-            return "<" + __name__ + "." + "GCM" + " #" + this._$rapyd$_object_id + ">";
+            if(ModeOfOperation.prototype.__repr__) return ModeOfOperation.prototype.__repr__.call(this);
+            return "<" + __name__ + "." + this.constructor.name + " #" + this.ρσ_object_id + ">";
         };
         GCM.prototype.__str__ = function __str__ () {
-            return this.__repr__();
+            if(ModeOfOperation.prototype.__str__) return ModeOfOperation.prototype.__str__.call(this);
+return this.__repr__();
         };
+        Object.defineProperty(GCM.prototype, "__bases__", {value: [ModeOfOperation]});
 
-        _$rapyd$_modules.aes.string_to_bytes = string_to_bytes;
-        _$rapyd$_modules.aes.bytes_to_string = bytes_to_string;
-        _$rapyd$_modules.aes._$rapyd$_chain_assign_temp = _$rapyd$_chain_assign_temp;
-        _$rapyd$_modules.aes.number_of_rounds = number_of_rounds;
-        _$rapyd$_modules.aes.rcon = rcon;
-        _$rapyd$_modules.aes.S = S;
-        _$rapyd$_modules.aes.Si = Si;
-        _$rapyd$_modules.aes.T1 = T1;
-        _$rapyd$_modules.aes.T2 = T2;
-        _$rapyd$_modules.aes.T3 = T3;
-        _$rapyd$_modules.aes.T4 = T4;
-        _$rapyd$_modules.aes.T5 = T5;
-        _$rapyd$_modules.aes.T6 = T6;
-        _$rapyd$_modules.aes.T7 = T7;
-        _$rapyd$_modules.aes.T8 = T8;
-        _$rapyd$_modules.aes.U1 = U1;
-        _$rapyd$_modules.aes.U2 = U2;
-        _$rapyd$_modules.aes.U3 = U3;
-        _$rapyd$_modules.aes.U4 = U4;
-        _$rapyd$_modules.aes.random_bytes = random_bytes;
-        _$rapyd$_modules.aes.noderandom = noderandom;
-        _$rapyd$_modules.aes.string_to_bytes_encoder = string_to_bytes_encoder;
-        _$rapyd$_modules.aes.string_to_bytes_slow = string_to_bytes_slow;
-        _$rapyd$_modules.aes.as_hex = as_hex;
-        _$rapyd$_modules.aes.bytes_to_string_decoder = bytes_to_string_decoder;
-        _$rapyd$_modules.aes.bytes_to_string_slow = bytes_to_string_slow;
-        _$rapyd$_modules.aes.increment_counter = increment_counter;
-        _$rapyd$_modules.aes.convert_to_int32 = convert_to_int32;
-        _$rapyd$_modules.aes.convert_to_int32_pad = convert_to_int32_pad;
-        _$rapyd$_modules.aes.from_64_to_32 = from_64_to_32;
-        _$rapyd$_modules.aes.AES = AES;
-        _$rapyd$_modules.aes.random_bytes_insecure = random_bytes_insecure;
-        _$rapyd$_modules.aes.random_bytes_secure = random_bytes_secure;
-        _$rapyd$_modules.aes.ModeOfOperation = ModeOfOperation;
-        _$rapyd$_modules.aes.GaloisField = GaloisField;
-        _$rapyd$_modules.aes.generate_key = generate_key;
-        _$rapyd$_modules.aes.generate_tag = generate_tag;
-        _$rapyd$_modules.aes.typed_array_as_js = typed_array_as_js;
-        _$rapyd$_modules.aes.CBC = CBC;
-        _$rapyd$_modules.aes.CTR = CTR;
-        _$rapyd$_modules.aes.GCM = GCM;
+        ρσ_modules.aes.string_to_bytes = string_to_bytes;
+        ρσ_modules.aes.bytes_to_string = bytes_to_string;
+        ρσ_modules.aes.number_of_rounds = number_of_rounds;
+        ρσ_modules.aes.rcon = rcon;
+        ρσ_modules.aes.S = S;
+        ρσ_modules.aes.Si = Si;
+        ρσ_modules.aes.T1 = T1;
+        ρσ_modules.aes.T2 = T2;
+        ρσ_modules.aes.T3 = T3;
+        ρσ_modules.aes.T4 = T4;
+        ρσ_modules.aes.T5 = T5;
+        ρσ_modules.aes.T6 = T6;
+        ρσ_modules.aes.T7 = T7;
+        ρσ_modules.aes.T8 = T8;
+        ρσ_modules.aes.U1 = U1;
+        ρσ_modules.aes.U2 = U2;
+        ρσ_modules.aes.U3 = U3;
+        ρσ_modules.aes.U4 = U4;
+        ρσ_modules.aes.random_bytes = random_bytes;
+        ρσ_modules.aes.noderandom = noderandom;
+        ρσ_modules.aes.string_to_bytes_encoder = string_to_bytes_encoder;
+        ρσ_modules.aes.string_to_bytes_slow = string_to_bytes_slow;
+        ρσ_modules.aes.as_hex = as_hex;
+        ρσ_modules.aes.bytes_to_string_decoder = bytes_to_string_decoder;
+        ρσ_modules.aes.bytes_to_string_slow = bytes_to_string_slow;
+        ρσ_modules.aes.increment_counter = increment_counter;
+        ρσ_modules.aes.convert_to_int32 = convert_to_int32;
+        ρσ_modules.aes.convert_to_int32_pad = convert_to_int32_pad;
+        ρσ_modules.aes.from_64_to_32 = from_64_to_32;
+        ρσ_modules.aes.AES = AES;
+        ρσ_modules.aes.random_bytes_insecure = random_bytes_insecure;
+        ρσ_modules.aes.random_bytes_secure = random_bytes_secure;
+        ρσ_modules.aes.ModeOfOperation = ModeOfOperation;
+        ρσ_modules.aes.GaloisField = GaloisField;
+        ρσ_modules.aes.generate_key = generate_key;
+        ρσ_modules.aes.generate_tag = generate_tag;
+        ρσ_modules.aes.typed_array_as_js = typed_array_as_js;
+        ρσ_modules.aes.CBC = CBC;
+        ρσ_modules.aes.CTR = CTR;
+        ρσ_modules.aes.GCM = GCM;
     })();
 
     (function(){
         var __name__ = "crypto";
         var secret_key, gcm;
-        var GCM = _$rapyd$_modules.aes.GCM;
-        
+        var GCM = ρσ_modules.aes.GCM;
+
         secret_key = "__SECRET_KEY__";
         gcm = null;
         function initialize(after) {
             var decoded;
-            if (_$rapyd$_in("_", secret_key)) {
+            if (ρσ_in("_", secret_key)) {
                 throw new Exception("secret key was not generated");
             }
             decoded = new Uint8Array(Math.floor(len(secret_key) / 2));
             for (var i = 0, j = 0; i < secret_key.length; i += 2, j++) {
-                decoded[j] = parseInt(secret_key[i] + secret_key[i + 1], 16);
+                decoded[(typeof j === "number" && j < 0) ? decoded.length + j : j] = parseInt(secret_key[(typeof i === "number" && i < 0) ? secret_key.length + i : i] + secret_key[ρσ_bound_index(i + 1, secret_key)], 16);
             }
-            gcm = new GCM(decoded, _$rapyd$_desugar_kwargs({random_iv: true}));
+            gcm = ρσ_interpolate_kwargs_constructor.call(Object.create(GCM.prototype), false, GCM, [decoded].concat([ρσ_desugar_kwargs({random_iv: true})]));
             after();
-        }
+        };
+        Object.defineProperties(initialize, {
+            __argnames__ : {value: ["after"]}
+        });
+
         function encrypt(text) {
             return gcm.encrypt(text);
-        }
+        };
+        Object.defineProperties(encrypt, {
+            __argnames__ : {value: ["text"]}
+        });
+
         function decrypt(output_from_encrypt) {
             return gcm.decrypt(output_from_encrypt);
-        }
-        _$rapyd$_modules.crypto.secret_key = secret_key;
-        _$rapyd$_modules.crypto.gcm = gcm;
-        _$rapyd$_modules.crypto.initialize = initialize;
-        _$rapyd$_modules.crypto.encrypt = encrypt;
-        _$rapyd$_modules.crypto.decrypt = decrypt;
+        };
+        Object.defineProperties(decrypt, {
+            __argnames__ : {value: ["output_from_encrypt"]}
+        });
+
+        ρσ_modules.crypto.secret_key = secret_key;
+        ρσ_modules.crypto.gcm = gcm;
+        ρσ_modules.crypto.initialize = initialize;
+        ρσ_modules.crypto.encrypt = encrypt;
+        ρσ_modules.crypto.decrypt = decrypt;
     })();
 
     (function(){
@@ -3708,7 +4568,8 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
         channel = null;
         function qt_bridge() {
             return bridge;
-        }
+        };
+
         function callback(name, data, console_err) {
             var bridge;
             bridge = qt_bridge();
@@ -3717,76 +4578,118 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             } else {
                 bridge.callback(name, JSON.stringify(data));
             }
-        }
+        };
+        Object.defineProperties(callback, {
+            __argnames__ : {value: ["name", "data", "console_err"]}
+        });
+
         function connect_signal(name, func) {
             var bridge, signal;
             bridge = qt_bridge();
             if (!bridge) {
                 console.error("Failed to connect signal: " + name + " as Qt bridge not available");
             } else {
-                signal = bridge[name];
+                signal = bridge[(typeof name === "number" && name < 0) ? bridge.length + name : name];
                 if (!signal) {
                     console.error("Failed to connect signal: " + name + " as no signal by that name exists");
                 } else {
                     signal.connect(func);
                 }
             }
-        }
+        };
+        Object.defineProperties(connect_signal, {
+            __argnames__ : {value: ["name", "func"]}
+        });
+
         function connect_bridge(proceed) {
             if (window.self !== window.top) {
                 proceed();
                 return;
             }
-            channel = new QWebChannel(qt.webChannelTransport, function(channel) {
-                bridge = channel.objects.bridge;
-                proceed();
-            });
-        }
-        _$rapyd$_modules.qt.bridge = bridge;
-        _$rapyd$_modules.qt.channel = channel;
-        _$rapyd$_modules.qt.qt_bridge = qt_bridge;
-        _$rapyd$_modules.qt.callback = callback;
-        _$rapyd$_modules.qt.connect_signal = connect_signal;
-        _$rapyd$_modules.qt.connect_bridge = connect_bridge;
+            channel = new QWebChannel(qt.webChannelTransport, (function() {
+                var ρσ_anonfunc = function (channel) {
+                    bridge = channel.objects.bridge;
+                    proceed();
+                };
+                Object.defineProperties(ρσ_anonfunc, {
+                    __argnames__ : {value: ["channel"]}
+                });
+                return ρσ_anonfunc;
+            })());
+        };
+        Object.defineProperties(connect_bridge, {
+            __argnames__ : {value: ["proceed"]}
+        });
+
+        ρσ_modules.qt.bridge = bridge;
+        ρσ_modules.qt.channel = channel;
+        ρσ_modules.qt.qt_bridge = qt_bridge;
+        ρσ_modules.qt.callback = callback;
+        ρσ_modules.qt.connect_signal = connect_signal;
+        ρσ_modules.qt.connect_bridge = connect_bridge;
     })();
 
     (function(){
         var __name__ = "frames";
-        var frame_count, frame_id, _$rapyd$_chain_assign_temp, registered, frame_map, handlers;
-        var encrypt = _$rapyd$_modules.crypto.encrypt;
-        var decrypt = _$rapyd$_modules.crypto.decrypt;
-        
-        _$rapyd$_chain_assign_temp = 0;
-        frame_count = _$rapyd$_chain_assign_temp;
-        frame_id = _$rapyd$_chain_assign_temp;
-;
+        var frame_count, frame_id, registered, frame_map, handlers;
+        var encrypt = ρσ_modules.crypto.encrypt;
+        var decrypt = ρσ_modules.crypto.decrypt;
+
+        frame_count = frame_id = 0;
         registered = false;
-        frame_map = new WeakMap();
+        frame_map = new WeakMap;
         function prepare_message(payload, cont) {
             var c;
             payload = JSON.stringify(payload);
             c = encrypt(payload);
-            cont({
-                "type": "ͻvise_frame_message",
-                "encrypted_payload": c,
-                "source_frame_id": frame_id
-            });
-        }
+            cont((function(){
+                var ρσ_d = {};
+                ρσ_d["type"] = "ͻvise_frame_message";
+                ρσ_d["encrypted_payload"] = c;
+                ρσ_d["source_frame_id"] = frame_id;
+                return ρσ_d;
+            }).call(this));
+        };
+        Object.defineProperties(prepare_message, {
+            __argnames__ : {value: ["payload", "cont"]}
+        });
+
         function post_message(win, payload) {
-            prepare_message(payload, function(msg) {
-                win.postMessage(msg, "*");
-            });
-        }
-        function broadcast_message(windows, payload) {
-            prepare_message(payload, function(msg) {
-                var win;
-                var _$rapyd$_Iter0 = _$rapyd$_Iterable(windows);
-                for (var _$rapyd$_Index0 = 0; _$rapyd$_Index0 < _$rapyd$_Iter0.length; _$rapyd$_Index0++) {
-                    win = _$rapyd$_Iter0[_$rapyd$_Index0];
+            prepare_message(payload, (function() {
+                var ρσ_anonfunc = function (msg) {
                     win.postMessage(msg, "*");
-                }
-            });
-        }
+                };
+                Object.defineProperties(ρσ_anonfunc, {
+                    __argnames__ : {value: ["msg"]}
+                });
+                return ρσ_anonfunc;
+            })());
+        };
+        Object.defineProperties(post_message, {
+            __argnames__ : {value: ["win", "payload"]}
+        });
+
+        function broadcast_message(windows, payload) {
+            prepare_message(payload, (function() {
+                var ρσ_anonfunc = function (msg) {
+                    var win;
+                    var ρσ_Iter0 = windows;
+                    ρσ_Iter0 = ((typeof ρσ_Iter0[Symbol.iterator] === "function") ? (ρσ_Iter0 instanceof Map ? ρσ_Iter0.keys() : ρσ_Iter0) : Object.keys(ρσ_Iter0));
+                    for (var ρσ_Index0 of ρσ_Iter0) {
+                        win = ρσ_Index0;
+                        win.postMessage(msg, "*");
+                    }
+                };
+                Object.defineProperties(ρσ_anonfunc, {
+                    __argnames__ : {value: ["msg"]}
+                });
+                return ρσ_anonfunc;
+            })());
+        };
+        Object.defineProperties(broadcast_message, {
+            __argnames__ : {value: ["windows", "payload"]}
+        });
+
         handlers = {};
         function handle_message_from_frame(source, source_id, data) {
             var action, f, args, kw;
@@ -3794,21 +4697,27 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             if (action === "*register") {
                 frame_count += 1;
                 frame_map.set(source, frame_count);
-                post_message(source, {
-                    "action": "*set_id",
-                    "value": frame_count
-                });
+                post_message(source, (function(){
+                    var ρσ_d = {};
+                    ρσ_d["action"] = "*set_id";
+                    ρσ_d["value"] = frame_count;
+                    return ρσ_d;
+                }).call(this));
             } else if (action === "*set_id") {
                 frame_id = data.value;
             } else {
-                f = handlers[action];
+                f = handlers[(typeof action === "number" && action < 0) ? handlers.length + action : action];
                 if (f) {
-                    args = data.args || _$rapyd$_list_decorate([]);
+                    args = data.args || ρσ_list_decorate([]);
                     kw = data.kwargs || {};
-                    f.apply(this, [frame_id, source_id, source].concat(args).concat([_$rapyd$_desugar_kwargs(kw)]));
+                    ρσ_interpolate_kwargs.call(this, f, [frame_id, source_id, source].concat(args).concat([ρσ_desugar_kwargs(kw)]));
                 }
             }
-        }
+        };
+        Object.defineProperties(handle_message_from_frame, {
+            __argnames__ : {value: ["source", "source_id", "data"]}
+        });
+
         function decode_message(event) {
             var raw, payload;
             if (!event.data || event.data.type !== "ͻvise_frame_message") {
@@ -3816,86 +4725,73 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             }
             try {
                 raw = decrypt(event.data.encrypted_payload);
-            } catch (_$rapyd$_Exception) {
-                if (_$rapyd$_Exception instanceof Exception) {
-                    var err = _$rapyd$_Exception;
+            } catch (ρσ_Exception) {
+                ρσ_last_exception = ρσ_Exception;
+                if (ρσ_Exception instanceof Error) {
+                    var err = ρσ_Exception;
                     console.error(err.stack);
                     console.error("Failed to decrypt frame message: " + err.message);
                     return;
                 } else {
-                    throw _$rapyd$_Exception;
+                    throw ρσ_Exception;
                 }
             }
             payload = JSON.parse(raw);
             handle_message_from_frame(event.source, event.data.source_frame_id, payload);
-        }
+        };
+        Object.defineProperties(decode_message, {
+            __argnames__ : {value: ["event"]}
+        });
+
         function frame_iter() {
-            var marked0$0 = [js_generator].map(_$rapyd$_regenerator.regeneratorRuntime.mark);
-            function js_generator() {
-                var win, filter_func, _$rapyd$_kwargs_obj, frame, i, _$rapyd$_Index0, args$1$0 = arguments;
-            
-                return _$rapyd$_regenerator.regeneratorRuntime.wrap(function js_generator$(context$1$0) {
-                    while (1) switch (context$1$0.prev = context$1$0.next) {
-                    case 0:
-                        win = ( 0 === args$1$0.length-1 && args$1$0[args$1$0.length-1] !== null && typeof args$1$0[args$1$0.length-1] === "object" && args$1$0[args$1$0.length-1] [_$rapyd$_kwargs_symbol] === true) ? undefined : args$1$0[0];
-                        filter_func = (args$1$0[1] === undefined || ( 1 === args$1$0.length-1 && args$1$0[args$1$0.length-1] !== null && typeof args$1$0[args$1$0.length-1] === "object" && args$1$0[args$1$0.length-1] [_$rapyd$_kwargs_symbol] === true)) ? (null) : args$1$0[1];
-                        _$rapyd$_kwargs_obj = args$1$0[args$1$0.length-1];
-                        if (_$rapyd$_kwargs_obj === null || typeof _$rapyd$_kwargs_obj !== "object" || _$rapyd$_kwargs_obj [_$rapyd$_kwargs_symbol] !== true) _$rapyd$_kwargs_obj = {};
-                        if (Object.prototype.hasOwnProperty.call(_$rapyd$_kwargs_obj, "filter_func")){
-                            filter_func = _$rapyd$_kwargs_obj.filter_func;
-                        }
-                        win = win || window.top;
-                        _$rapyd$_Index0 = 0;
-                    case 7:
-                        if (!(_$rapyd$_Index0 < win.frames.length)) {
-                            context$1$0.next = 17;
-                            break;
-                        }
-            
-                        i = _$rapyd$_Index0;
-                        frame = win.frames[i];
-            
-                        if (!(filter_func === null || filter_func(frame.frameElement))) {
-                            context$1$0.next = 13;
-                            break;
-                        }
-            
-                        context$1$0.next = 13;
-                        return frame;
-                    case 13:
-                        return context$1$0.delegateYield(
-                            frame_iter(frame, _$rapyd$_desugar_kwargs({filter_func: filter_func})),
-                            "t0",
-                            14
-                        );
-                    case 14:
-                        _$rapyd$_Index0++;
-                        context$1$0.next = 7;
-                        break;
-                    case 17:
-                    case "end":
-                        return context$1$0.stop();
+            function* js_generator() {
+                var win = ( 0 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true) ? undefined : arguments[0];
+                var filter_func = (arguments[1] === undefined || ( 1 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true)) ? frame_iter.__defaults__.filter_func : arguments[1];
+                var ρσ_kwargs_obj = arguments[arguments.length-1];
+                if (ρσ_kwargs_obj === null || typeof ρσ_kwargs_obj !== "object" || ρσ_kwargs_obj [ρσ_kwargs_symbol] !== true) ρσ_kwargs_obj = {};
+                if (Object.prototype.hasOwnProperty.call(ρσ_kwargs_obj, "filter_func")){
+                    filter_func = ρσ_kwargs_obj.filter_func;
+                }
+                var frame, i;
+                win = win || window.top;
+                for (var ρσ_Index1 = 0; ρσ_Index1 < win.frames.length; ρσ_Index1++) {
+                    i = ρσ_Index1;
+                    frame = (ρσ_expr_temp = win.frames)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i];
+                    if (filter_func === null || filter_func(frame.frameElement)) {
+                        yield frame;
                     }
-                }, marked0$0[0], this);
+                    yield* ρσ_interpolate_kwargs.call(this, frame_iter, [frame].concat([ρσ_desugar_kwargs({filter_func: filter_func})]));
+                }
             }
             var result = js_generator.apply(this, arguments);
             result.send = result.next;
             return result;
-        }
+        };
+        Object.defineProperties(frame_iter, {
+            __defaults__ : {value: {filter_func:null}},
+            __handles_kwarg_interpolation__ : {value: true},
+            __argnames__ : {value: ["win", "filter_func"]}
+        });
+
         function frame_for_id(frame_id) {
             var ans, frame;
             if (frame_id === 0) {
                 return window.top;
             }
-            var _$rapyd$_Iter1 = _$rapyd$_Iterable(frame_iter());
-            for (var _$rapyd$_Index1 = 0; _$rapyd$_Index1 < _$rapyd$_Iter1.length; _$rapyd$_Index1++) {
-                frame = _$rapyd$_Iter1[_$rapyd$_Index1];
+            var ρσ_Iter2 = frame_iter();
+            ρσ_Iter2 = ((typeof ρσ_Iter2[Symbol.iterator] === "function") ? (ρσ_Iter2 instanceof Map ? ρσ_Iter2.keys() : ρσ_Iter2) : Object.keys(ρσ_Iter2));
+            for (var ρσ_Index2 of ρσ_Iter2) {
+                frame = ρσ_Index2;
                 ans = frame_map.get(frame);
                 if (ans !== undefined && ans === frame_id) {
                     return frame;
                 }
             }
-        }
+        };
+        Object.defineProperties(frame_for_id, {
+            __argnames__ : {value: ["frame_id"]}
+        });
+
         function register_frames() {
             if (window.self !== window.top && window.location.href === "about:blank") {
                 return;
@@ -3904,67 +4800,89 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 registered = true;
                 window.addEventListener("message", decode_message, false);
                 if (window.self !== window.top) {
-                    post_message(window.top, {
-                        "action": "*register"
-                    });
+                    post_message(window.top, (function(){
+                        var ρσ_d = {};
+                        ρσ_d["action"] = "*register";
+                        return ρσ_d;
+                    }).call(this));
                 }
             }
-        }
+        };
+
         function register_handler(name, func) {
-            handlers[name] = func;
-        }
+            handlers[(typeof name === "number" && name < 0) ? handlers.length + name : name] = func;
+        };
+        Object.defineProperties(register_handler, {
+            __argnames__ : {value: ["name", "func"]}
+        });
+
         function prepare_action(name, args, kwargs) {
-            return {
-                "action": name,
-                "args": args,
-                "kwargs": kwargs
-            };
-        }
+            return (function(){
+                var ρσ_d = {};
+                ρσ_d["action"] = name;
+                ρσ_d["args"] = args;
+                ρσ_d["kwargs"] = kwargs;
+                return ρσ_d;
+            }).call(this);
+        };
+        Object.defineProperties(prepare_action, {
+            __argnames__ : {value: ["name", "args", "kwargs"]}
+        });
+
         function send_action() {
-            var win = ( 0 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [_$rapyd$_kwargs_symbol] === true) ? undefined : arguments[0];
-            var name = ( 1 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [_$rapyd$_kwargs_symbol] === true) ? undefined : arguments[1];
+            var win = ( 0 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true) ? undefined : arguments[0];
+            var name = ( 1 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true) ? undefined : arguments[1];
             var kwargs = arguments[arguments.length-1];
-            if (kwargs === null || typeof kwargs !== "object" || kwargs [_$rapyd$_kwargs_symbol] !== true) kwargs = {};
-            var args = Array.prototype.slice.call(arguments, 2 );
-            if (kwargs !== null && typeof kwargs === "object" && kwargs [_$rapyd$_kwargs_symbol] === true) args .pop();
+            if (kwargs === null || typeof kwargs !== "object" || kwargs [ρσ_kwargs_symbol] !== true) kwargs = {};
+            var args = Array.prototype.slice.call(arguments, 2);
+            if (kwargs !== null && typeof kwargs === "object" && kwargs [ρσ_kwargs_symbol] === true) args.pop();
             post_message(win, prepare_action(name, args, kwargs));
-        }
+        };
+        Object.defineProperties(send_action, {
+            __handles_kwarg_interpolation__ : {value: true},
+            __argnames__ : {value: ["win", "name"]}
+        });
+
         function broadcast_action() {
-            var windows = ( 0 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [_$rapyd$_kwargs_symbol] === true) ? undefined : arguments[0];
-            var name = ( 1 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [_$rapyd$_kwargs_symbol] === true) ? undefined : arguments[1];
+            var windows = ( 0 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true) ? undefined : arguments[0];
+            var name = ( 1 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true) ? undefined : arguments[1];
             var kwargs = arguments[arguments.length-1];
-            if (kwargs === null || typeof kwargs !== "object" || kwargs [_$rapyd$_kwargs_symbol] !== true) kwargs = {};
-            var args = Array.prototype.slice.call(arguments, 2 );
-            if (kwargs !== null && typeof kwargs === "object" && kwargs [_$rapyd$_kwargs_symbol] === true) args .pop();
+            if (kwargs === null || typeof kwargs !== "object" || kwargs [ρσ_kwargs_symbol] !== true) kwargs = {};
+            var args = Array.prototype.slice.call(arguments, 2);
+            if (kwargs !== null && typeof kwargs === "object" && kwargs [ρσ_kwargs_symbol] === true) args.pop();
             broadcast_message(windows, prepare_action(name, args, kwargs));
-        }
-        _$rapyd$_modules.frames.frame_count = frame_count;
-        _$rapyd$_modules.frames.frame_id = frame_id;
-        _$rapyd$_modules.frames._$rapyd$_chain_assign_temp = _$rapyd$_chain_assign_temp;
-        _$rapyd$_modules.frames.registered = registered;
-        _$rapyd$_modules.frames.frame_map = frame_map;
-        _$rapyd$_modules.frames.handlers = handlers;
-        _$rapyd$_modules.frames.prepare_message = prepare_message;
-        _$rapyd$_modules.frames.post_message = post_message;
-        _$rapyd$_modules.frames.broadcast_message = broadcast_message;
-        _$rapyd$_modules.frames.handle_message_from_frame = handle_message_from_frame;
-        _$rapyd$_modules.frames.decode_message = decode_message;
-        _$rapyd$_modules.frames.frame_iter = frame_iter;
-        _$rapyd$_modules.frames.frame_for_id = frame_for_id;
-        _$rapyd$_modules.frames.register_frames = register_frames;
-        _$rapyd$_modules.frames.register_handler = register_handler;
-        _$rapyd$_modules.frames.prepare_action = prepare_action;
-        _$rapyd$_modules.frames.send_action = send_action;
-        _$rapyd$_modules.frames.broadcast_action = broadcast_action;
+        };
+        Object.defineProperties(broadcast_action, {
+            __handles_kwarg_interpolation__ : {value: true},
+            __argnames__ : {value: ["windows", "name"]}
+        });
+
+        ρσ_modules.frames.frame_count = frame_count;
+        ρσ_modules.frames.frame_id = frame_id;
+        ρσ_modules.frames.registered = registered;
+        ρσ_modules.frames.frame_map = frame_map;
+        ρσ_modules.frames.handlers = handlers;
+        ρσ_modules.frames.prepare_message = prepare_message;
+        ρσ_modules.frames.post_message = post_message;
+        ρσ_modules.frames.broadcast_message = broadcast_message;
+        ρσ_modules.frames.handle_message_from_frame = handle_message_from_frame;
+        ρσ_modules.frames.decode_message = decode_message;
+        ρσ_modules.frames.frame_iter = frame_iter;
+        ρσ_modules.frames.frame_for_id = frame_for_id;
+        ρσ_modules.frames.register_frames = register_frames;
+        ρσ_modules.frames.register_handler = register_handler;
+        ρσ_modules.frames.prepare_action = prepare_action;
+        ρσ_modules.frames.send_action = send_action;
+        ρσ_modules.frames.broadcast_action = broadcast_action;
     })();
 
     (function(){
         var __name__ = "middle_click";
-        var qt_bridge = _$rapyd$_modules.qt.qt_bridge;
-        
-        var send_action = _$rapyd$_modules.frames.send_action;
-        var register_handler = _$rapyd$_modules.frames.register_handler;
-        
+        var qt_bridge = ρσ_modules.qt.qt_bridge;
+
+        var send_action = ρσ_modules.frames.send_action;
+        var register_handler = ρσ_modules.frames.register_handler;
+
         function find_link(node) {
             if (node && node.nodeType === Node.ELEMENT_NODE) {
                 if (node.nodeName.toUpperCase() === "A" && node.getAttribute("href")) {
@@ -3972,10 +4890,18 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 }
                 return find_link(node.parentElement);
             }
-        }
+        };
+        Object.defineProperties(find_link, {
+            __argnames__ : {value: ["node"]}
+        });
+
         function middle_clicked(current_frame_id, source_frame_id, source_frame, href) {
             qt_bridge().middle_clicked_link(href);
-        }
+        };
+        Object.defineProperties(middle_clicked, {
+            __argnames__ : {value: ["current_frame_id", "source_frame_id", "source_frame", "href"]}
+        });
+
         function handle_middle_click(ev) {
             var href;
             if (ev.button !== 1) {
@@ -3989,30 +4915,39 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             ev.preventDefault();
             ev.stopPropagation();
             return false;
-        }
+        };
+        Object.defineProperties(handle_middle_click, {
+            __argnames__ : {value: ["ev"]}
+        });
+
         function onload() {
             register_handler("middle_clicked", middle_clicked);
             document.addEventListener("click", handle_middle_click);
-        }
-        _$rapyd$_modules.middle_click.find_link = find_link;
-        _$rapyd$_modules.middle_click.middle_clicked = middle_clicked;
-        _$rapyd$_modules.middle_click.handle_middle_click = handle_middle_click;
-        _$rapyd$_modules.middle_click.onload = onload;
+        };
+
+        ρσ_modules.middle_click.find_link = find_link;
+        ρσ_modules.middle_click.middle_clicked = middle_clicked;
+        ρσ_modules.middle_click.handle_middle_click = handle_middle_click;
+        ρσ_modules.middle_click.onload = onload;
     })();
 
     (function(){
         var __name__ = "focus";
         var edit_counter;
-        var qt_bridge = _$rapyd$_modules.qt.qt_bridge;
-        var connect_signal = _$rapyd$_modules.qt.connect_signal;
-        
-        var send_action = _$rapyd$_modules.frames.send_action;
-        var register_handler = _$rapyd$_modules.frames.register_handler;
-        var frame_for_id = _$rapyd$_modules.frames.frame_for_id;
-        
+        var qt_bridge = ρσ_modules.qt.qt_bridge;
+        var connect_signal = ρσ_modules.qt.connect_signal;
+
+        var send_action = ρσ_modules.frames.send_action;
+        var register_handler = ρσ_modules.frames.register_handler;
+        var frame_for_id = ρσ_modules.frames.frame_for_id;
+
         function text_editing_allowed(node) {
             return !node.hasAttribute("readonly") && !node.hasAttribute("disabled");
-        }
+        };
+        Object.defineProperties(text_editing_allowed, {
+            __argnames__ : {value: ["node"]}
+        });
+
         function is_text_input_node(node) {
             var name, itype;
             if (node && node.nodeType === Node.ELEMENT_NODE) {
@@ -4022,8 +4957,8 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 }
                 if (name === "INPUT") {
                     itype = (node.getAttribute("type") || "").toLowerCase();
-                    if (!(_$rapyd$_in(itype, (function(){
-                        var s = _$rapyd$_set();
+                    if (!(ρσ_in(itype, (function(){
+                        var s = ρσ_set();
                         s.jsset.add("hidden");
                         s.jsset.add("image");
                         s.jsset.add("button");
@@ -4039,20 +4974,40 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 }
             }
             return false;
-        }
+        };
+        Object.defineProperties(is_text_input_node, {
+            __argnames__ : {value: ["node"]}
+        });
+
         function focus_event_received(current_frame_id, source_frame_id, source_frame, focussed) {
             qt_bridge().element_focused(focussed);
-        }
+        };
+        Object.defineProperties(focus_event_received, {
+            __argnames__ : {value: ["current_frame_id", "source_frame_id", "source_frame", "focussed"]}
+        });
+
         function handle_focus_in(ev) {
             send_action(window.top, "focus_event_received", is_text_input_node(document.activeElement));
-        }
+        };
+        Object.defineProperties(handle_focus_in, {
+            __argnames__ : {value: ["ev"]}
+        });
+
         function handle_focus_out(ev) {
             send_action(window.top, "focus_event_received", false);
-        }
+        };
+        Object.defineProperties(handle_focus_out, {
+            __argnames__ : {value: ["ev"]}
+        });
+
         edit_counter = 0;
         function export_edit_text_to_qt(current_frame_id, source_frame_id, source_frame, text, node_id) {
             qt_bridge().edit_text(text, source_frame_id, node_id);
-        }
+        };
+        Object.defineProperties(export_edit_text_to_qt, {
+            __argnames__ : {value: ["current_frame_id", "source_frame_id", "source_frame", "text", "node_id"]}
+        });
+
         function find_editable_text(current_frame_id, source_frame_id, source_frame) {
             var elem, text;
             elem = document.activeElement;
@@ -4064,7 +5019,11 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 elem.setAttribute("data-vise-edit-text", edit_counter + "");
                 send_action(window.top, "export_edit_text_to_qt", text || "", edit_counter + "");
             }
-        }
+        };
+        Object.defineProperties(find_editable_text, {
+            __argnames__ : {value: ["current_frame_id", "source_frame_id", "source_frame"]}
+        });
+
         function set_editable_text(text, frame_id, eid) {
             var win;
             win = frame_for_id(frame_id);
@@ -4073,46 +5032,58 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 return;
             }
             send_action(win, "set_edit_text", text, eid);
-        }
+        };
+        Object.defineProperties(set_editable_text, {
+            __argnames__ : {value: ["text", "frame_id", "eid"]}
+        });
+
         function set_edit_text(current_frame_id, source_frame_id, source_frame, text, eid) {
             var elem;
             elem = document.querySelector("[data-vise-edit-text=\"" + eid + "\"]");
             if (elem) {
                 elem.value = text;
             }
-        }
+        };
+        Object.defineProperties(set_edit_text, {
+            __argnames__ : {value: ["current_frame_id", "source_frame_id", "source_frame", "text", "eid"]}
+        });
+
         function onload() {
             document.addEventListener("focusin", handle_focus_in, true);
             document.addEventListener("focusout", handle_focus_out, true);
             if (window.self === window.top) {
                 register_handler("focus_event_received", focus_event_received);
                 register_handler("export_edit_text_to_qt", export_edit_text_to_qt);
-                connect_signal("get_editable_text", function() {
+                connect_signal("get_editable_text", function () {
                     send_action(window.top, "find_editable_text");
                 });
                 connect_signal("set_editable_text", set_editable_text);
             }
             register_handler("find_editable_text", find_editable_text);
             register_handler("set_edit_text", set_edit_text);
-        }
-        _$rapyd$_modules.focus.edit_counter = edit_counter;
-        _$rapyd$_modules.focus.text_editing_allowed = text_editing_allowed;
-        _$rapyd$_modules.focus.is_text_input_node = is_text_input_node;
-        _$rapyd$_modules.focus.focus_event_received = focus_event_received;
-        _$rapyd$_modules.focus.handle_focus_in = handle_focus_in;
-        _$rapyd$_modules.focus.handle_focus_out = handle_focus_out;
-        _$rapyd$_modules.focus.export_edit_text_to_qt = export_edit_text_to_qt;
-        _$rapyd$_modules.focus.find_editable_text = find_editable_text;
-        _$rapyd$_modules.focus.set_editable_text = set_editable_text;
-        _$rapyd$_modules.focus.set_edit_text = set_edit_text;
-        _$rapyd$_modules.focus.onload = onload;
+            if (is_text_input_node(document.activeElement)) {
+                handle_focus_in();
+            }
+        };
+
+        ρσ_modules.focus.edit_counter = edit_counter;
+        ρσ_modules.focus.text_editing_allowed = text_editing_allowed;
+        ρσ_modules.focus.is_text_input_node = is_text_input_node;
+        ρσ_modules.focus.focus_event_received = focus_event_received;
+        ρσ_modules.focus.handle_focus_in = handle_focus_in;
+        ρσ_modules.focus.handle_focus_out = handle_focus_out;
+        ρσ_modules.focus.export_edit_text_to_qt = export_edit_text_to_qt;
+        ρσ_modules.focus.find_editable_text = find_editable_text;
+        ρσ_modules.focus.set_editable_text = set_editable_text;
+        ρσ_modules.focus.set_edit_text = set_edit_text;
+        ρσ_modules.focus.onload = onload;
     })();
 
     (function(){
         var __name__ = "elementmaker";
         var html_elements, mathml_elements, svg_elements, html5_tags, E;
         html_elements = (function(){
-            var s = _$rapyd$_set();
+            var s = ρσ_set();
             s.jsset.add("a");
             s.jsset.add("abbr");
             s.jsset.add("acronym");
@@ -4218,7 +5189,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             return s;
         })();
         mathml_elements = (function(){
-            var s = _$rapyd$_set();
+            var s = ρσ_set();
             s.jsset.add("maction");
             s.jsset.add("math");
             s.jsset.add("merror");
@@ -4249,7 +5220,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             return s;
         })();
         svg_elements = (function(){
-            var s = _$rapyd$_set();
+            var s = ρσ_set();
             s.jsset.add("a");
             s.jsset.add("animate");
             s.jsset.add("animateColor");
@@ -4289,18 +5260,19 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
         })();
         html5_tags = html_elements.union(mathml_elements).union(svg_elements);
         function _makeelement() {
-            var tag = ( 0 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [_$rapyd$_kwargs_symbol] === true) ? undefined : arguments[0];
+            var tag = ( 0 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true) ? undefined : arguments[0];
             var kwargs = arguments[arguments.length-1];
-            if (kwargs === null || typeof kwargs !== "object" || kwargs [_$rapyd$_kwargs_symbol] !== true) kwargs = {};
-            var args = Array.prototype.slice.call(arguments, 1 );
-            if (kwargs !== null && typeof kwargs === "object" && kwargs [_$rapyd$_kwargs_symbol] === true) args .pop();
+            if (kwargs === null || typeof kwargs !== "object" || kwargs [ρσ_kwargs_symbol] !== true) kwargs = {};
+            var args = Array.prototype.slice.call(arguments, 1);
+            if (kwargs !== null && typeof kwargs === "object" && kwargs [ρσ_kwargs_symbol] === true) args.pop();
             var ans, vattr, val, attr, arg;
             ans = this.createElement(tag);
-            var _$rapyd$_Iter0 = _$rapyd$_Iterable(kwargs);
-            for (var _$rapyd$_Index0 = 0; _$rapyd$_Index0 < _$rapyd$_Iter0.length; _$rapyd$_Index0++) {
-                attr = _$rapyd$_Iter0[_$rapyd$_Index0];
+            var ρσ_Iter3 = kwargs;
+            ρσ_Iter3 = ((typeof ρσ_Iter3[Symbol.iterator] === "function") ? (ρσ_Iter3 instanceof Map ? ρσ_Iter3.keys() : ρσ_Iter3) : Object.keys(ρσ_Iter3));
+            for (var ρσ_Index3 of ρσ_Iter3) {
+                attr = ρσ_Index3;
                 vattr = str.replace(str.rstrip(attr, "_"), "_", "-");
-                val = kwargs[attr];
+                val = kwargs[(typeof attr === "number" && attr < 0) ? kwargs.length + attr : attr];
                 if (callable(val)) {
                     if (str.startswith(attr, "on")) {
                         attr = attr.slice(2);
@@ -4312,57 +5284,98 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                     ans.setAttribute(vattr, val);
                 }
             }
-            var _$rapyd$_Iter1 = _$rapyd$_Iterable(args);
-            for (var _$rapyd$_Index1 = 0; _$rapyd$_Index1 < _$rapyd$_Iter1.length; _$rapyd$_Index1++) {
-                arg = _$rapyd$_Iter1[_$rapyd$_Index1];
+            var ρσ_Iter4 = args;
+            ρσ_Iter4 = ((typeof ρσ_Iter4[Symbol.iterator] === "function") ? (ρσ_Iter4 instanceof Map ? ρσ_Iter4.keys() : ρσ_Iter4) : Object.keys(ρσ_Iter4));
+            for (var ρσ_Index4 of ρσ_Iter4) {
+                arg = ρσ_Index4;
                 if (typeof arg === "string") {
                     arg = this.createTextNode(arg);
                 }
                 ans.appendChild(arg);
             }
             return ans;
-        }
+        };
+        Object.defineProperties(_makeelement, {
+            __handles_kwarg_interpolation__ : {value: true},
+            __argnames__ : {value: ["tag"]}
+        });
+
         function maker_for_document(document) {
             var E, tag;
             E = _makeelement.bind(document);
-            var _$rapyd$_Iter2 = _$rapyd$_Iterable(html5_tags);
-            for (var _$rapyd$_Index2 = 0; _$rapyd$_Index2 < _$rapyd$_Iter2.length; _$rapyd$_Index2++) {
-                tag = _$rapyd$_Iter2[_$rapyd$_Index2];
-                Object.defineProperty(E, tag, {
-                    "value": _makeelement.bind(document, tag)
-                });
+            var ρσ_Iter5 = html5_tags;
+            ρσ_Iter5 = ((typeof ρσ_Iter5[Symbol.iterator] === "function") ? (ρσ_Iter5 instanceof Map ? ρσ_Iter5.keys() : ρσ_Iter5) : Object.keys(ρσ_Iter5));
+            for (var ρσ_Index5 of ρσ_Iter5) {
+                tag = ρσ_Index5;
+                Object.defineProperty(E, tag, (function(){
+                    var ρσ_d = {};
+                    ρσ_d["value"] = _makeelement.bind(document, tag);
+                    return ρσ_d;
+                }).call(this));
             }
             return E;
-        }
+        };
+        Object.defineProperties(maker_for_document, {
+            __argnames__ : {value: ["document"]}
+        });
+
         if (typeof document === "undefined") {
-            E = maker_for_document({
-                "createTextNode": function(value) {
-                    return value;
-                },
-                "createElement": function(name) {
-                    return {
-                        "name": name,
-                        "children": _$rapyd$_list_decorate([]),
-                        "attributes": {},
-                        "setAttribute": function(name, val) {
-                            this.attributes[name] = val;
-                        },
-                        "appendChild": function(child) {
-                            this.children.push(child);
-                        }
+            E = maker_for_document((function(){
+                var ρσ_d = {};
+                ρσ_d["createTextNode"] = (function() {
+                    var ρσ_anonfunc = function (value) {
+                        return value;
                     };
-                }
-            });
+                    Object.defineProperties(ρσ_anonfunc, {
+                        __argnames__ : {value: ["value"]}
+                    });
+                    return ρσ_anonfunc;
+                })();
+                ρσ_d["createElement"] = (function() {
+                    var ρσ_anonfunc = function (name) {
+                        return (function(){
+                            var ρσ_d = {};
+                            ρσ_d["name"] = name;
+                            ρσ_d["children"] = ρσ_list_decorate([]);
+                            ρσ_d["attributes"] = {};
+                            ρσ_d["setAttribute"] = (function() {
+                                var ρσ_anonfunc = function (name, val) {
+                                    (ρσ_expr_temp = this.attributes)[(typeof name === "number" && name < 0) ? ρσ_expr_temp.length + name : name] = val;
+                                };
+                                Object.defineProperties(ρσ_anonfunc, {
+                                    __argnames__ : {value: ["name", "val"]}
+                                });
+                                return ρσ_anonfunc;
+                            })();
+                            ρσ_d["appendChild"] = (function() {
+                                var ρσ_anonfunc = function (child) {
+                                    this.children.push(child);
+                                };
+                                Object.defineProperties(ρσ_anonfunc, {
+                                    __argnames__ : {value: ["child"]}
+                                });
+                                return ρσ_anonfunc;
+                            })();
+                            return ρσ_d;
+                        }).call(this);
+                    };
+                    Object.defineProperties(ρσ_anonfunc, {
+                        __argnames__ : {value: ["name"]}
+                    });
+                    return ρσ_anonfunc;
+                })();
+                return ρσ_d;
+            }).call(this));
         } else {
             E = maker_for_document(document);
         }
-        _$rapyd$_modules.elementmaker.html_elements = html_elements;
-        _$rapyd$_modules.elementmaker.mathml_elements = mathml_elements;
-        _$rapyd$_modules.elementmaker.svg_elements = svg_elements;
-        _$rapyd$_modules.elementmaker.html5_tags = html5_tags;
-        _$rapyd$_modules.elementmaker.E = E;
-        _$rapyd$_modules.elementmaker._makeelement = _makeelement;
-        _$rapyd$_modules.elementmaker.maker_for_document = maker_for_document;
+        ρσ_modules.elementmaker.html_elements = html_elements;
+        ρσ_modules.elementmaker.mathml_elements = mathml_elements;
+        ρσ_modules.elementmaker.svg_elements = svg_elements;
+        ρσ_modules.elementmaker.html5_tags = html5_tags;
+        ρσ_modules.elementmaker.E = E;
+        ρσ_modules.elementmaker._makeelement = _makeelement;
+        ρσ_modules.elementmaker.maker_for_document = maker_for_document;
     })();
 
     (function(){
@@ -4371,13 +5384,21 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
         function normalize_precision(value, base) {
             value = Math.round(Math.abs(value));
             return (isNaN(value)) ? base : value;
-        }
+        };
+        Object.defineProperties(normalize_precision, {
+            __argnames__ : {value: ["value", "base"]}
+        });
+
         function to_fixed(value, precision) {
             var power;
             precision = precision || normalize_precision(precision, 0);
             power = Math.pow(10, precision);
             return (Math.round(value * power) / power).toFixed(precision);
-        }
+        };
+        Object.defineProperties(to_fixed, {
+            __argnames__ : {value: ["value", "precision"]}
+        });
+
         function humanize_number(number, precision, thousand, decimal) {
             var use_precision, negative, base, mod;
             precision = precision || 0;
@@ -4385,27 +5406,44 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             decimal = decimal || ".";
             function first_comma(number, position) {
                 return (position) ? number.substr(0, position) + thousand : "";
-            }
+            };
+            Object.defineProperties(first_comma, {
+                __argnames__ : {value: ["number", "position"]}
+            });
+
             function commas(number, position) {
                 return number.substr(position).replace(/(\d{3})(?=\d)/g, "$1" + thousand);
-            }
+            };
+            Object.defineProperties(commas, {
+                __argnames__ : {value: ["number", "position"]}
+            });
+
             function decimals(number, use_precision) {
                 return (use_precision) ? decimal + to_fixed(Math.abs(number), use_precision).split(".")[1] : "";
-            }
+            };
+            Object.defineProperties(decimals, {
+                __argnames__ : {value: ["number", "use_precision"]}
+            });
+
             use_precision = normalize_precision(precision);
             negative = (number < 0) ? "-" : "";
             base = parseInt(to_fixed(Math.abs(number || 0), use_precision), 10) + "";
             mod = (base.length > 3) ? base.length % 3 : 0;
             return negative + first_comma(base, mod) + commas(base, mod) + decimals(number, use_precision);
-        }
-        LABELS = _$rapyd$_list_decorate([ _$rapyd$_list_decorate([ "P", Math.pow(2, 50) ]), _$rapyd$_list_decorate([ "T", Math.pow(2, 40) ]), _$rapyd$_list_decorate([ "G", 1 << 30 ]), _$rapyd$_list_decorate([ "M", 1 << 20 ]) ]);
+        };
+        Object.defineProperties(humanize_number, {
+            __argnames__ : {value: ["number", "precision", "thousand", "decimal"]}
+        });
+
+        LABELS = ρσ_list_decorate([ ρσ_list_decorate([ "P", Math.pow(2, 50) ]), ρσ_list_decorate([ "T", Math.pow(2, 40) ]), ρσ_list_decorate([ "G", 1 << 30 ]), ρσ_list_decorate([ "M", 1 << 20 ]) ]);
         function humanize_size(size) {
-            var _$rapyd$_unpack, label, minnum;
-            var _$rapyd$_Iter2 = _$rapyd$_Iterable(LABELS);
-            for (var _$rapyd$_Index2 = 0; _$rapyd$_Index2 < _$rapyd$_Iter2.length; _$rapyd$_Index2++) {
-                _$rapyd$_unpack = _$rapyd$_Iter2[_$rapyd$_Index2];
-                label = _$rapyd$_unpack[0];
-                minnum = _$rapyd$_unpack[1];
+            var ρσ_unpack, label, minnum;
+            var ρσ_Iter6 = LABELS;
+            ρσ_Iter6 = ((typeof ρσ_Iter6[Symbol.iterator] === "function") ? (ρσ_Iter6 instanceof Map ? ρσ_Iter6.keys() : ρσ_Iter6) : Object.keys(ρσ_Iter6));
+            for (var ρσ_Index6 of ρσ_Iter6) {
+                ρσ_unpack = ρσ_Index6;
+                label = ρσ_unpack[0];
+                minnum = ρσ_unpack[1];
                 if (size >= minnum) {
                     return humanize_number(size / minnum, 2, "") + " " + label + "B";
                 }
@@ -4414,14 +5452,18 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 return humanize_number(size / 1024, 0) + " KB";
             }
             return humanize_number(size, 0) + " B";
-        }
+        };
+        Object.defineProperties(humanize_size, {
+            __argnames__ : {value: ["size"]}
+        });
+
         function relative_time(timestamp) {
             var current_time, time_diff, days2, days29, days60, cur_years, ts_years, cur_months, ts_months, month_diff, year_diff;
             timestamp = timestamp || Date.now();
             current_time = Date.now() / 1e3;
             time_diff = current_time - timestamp / 1e3;
             if (time_diff < 2 && time_diff > -2) {
-                return ((time_diff >= 0) ? "just " : "") + "now";
+                return ((time_diff >= 0) ? "just" : "") + "now";
             }
             if (time_diff < 60 && time_diff > -60) {
                 return (time_diff >= 0) ? Math.floor(time_diff) + " seconds ago" : "in " + Math.floor(-time_diff) + " seconds";
@@ -4463,47 +5505,67 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 return (year_diff >= 0) ? "a year ago" : "in a year";
             }
             return (year_diff >= 0) ? year_diff + " years ago" : "in " + -year_diff + " years";
-        }
-        _$rapyd$_modules.humanize.LABELS = LABELS;
-        _$rapyd$_modules.humanize.normalize_precision = normalize_precision;
-        _$rapyd$_modules.humanize.to_fixed = to_fixed;
-        _$rapyd$_modules.humanize.humanize_number = humanize_number;
-        _$rapyd$_modules.humanize.humanize_size = humanize_size;
-        _$rapyd$_modules.humanize.relative_time = relative_time;
+        };
+        Object.defineProperties(relative_time, {
+            __argnames__ : {value: ["timestamp"]}
+        });
+
+        ρσ_modules.humanize.LABELS = LABELS;
+        ρσ_modules.humanize.normalize_precision = normalize_precision;
+        ρσ_modules.humanize.to_fixed = to_fixed;
+        ρσ_modules.humanize.humanize_number = humanize_number;
+        ρσ_modules.humanize.humanize_size = humanize_size;
+        ρσ_modules.humanize.relative_time = relative_time;
     })();
 
     (function(){
         var __name__ = "downloads";
-        var E = _$rapyd$_modules.elementmaker.E;
-        
-        var humanize_size = _$rapyd$_modules.humanize.humanize_size;
-        var relative_time = _$rapyd$_modules.humanize.relative_time;
-        
-        var callback = _$rapyd$_modules.qt.callback;
-        
+        var E = ρσ_modules.elementmaker.E;
+
+        var humanize_size = ρσ_modules.humanize.humanize_size;
+        var relative_time = ρσ_modules.humanize.relative_time;
+
+        var callback = ρσ_modules.qt.callback;
+
         function cancel_download(dl_id) {
-            callback("downloads", {
-                "id": int(dl_id),
-                "cmd": "cancel"
-            });
-        }
+            callback("downloads", (function(){
+                var ρσ_d = {};
+                ρσ_d["id"] = int(dl_id);
+                ρσ_d["cmd"] = "cancel";
+                return ρσ_d;
+            }).call(this));
+        };
+        Object.defineProperties(cancel_download, {
+            __argnames__ : {value: ["dl_id"]}
+        });
+
         function open_download(dl_id) {
-            callback("downloads", {
-                "id": int(dl_id),
-                "cmd": "open"
-            });
-        }
+            callback("downloads", (function(){
+                var ρσ_d = {};
+                ρσ_d["id"] = int(dl_id);
+                ρσ_d["cmd"] = "open";
+                return ρσ_d;
+            }).call(this));
+        };
+        Object.defineProperties(open_download, {
+            __argnames__ : {value: ["dl_id"]}
+        });
+
         function create_download(dl_id, fname, mime_type, icon_url, hostname) {
             var div, stop;
             document.getElementById("init").style.display = "none";
-            div = E.div(E.img(_$rapyd$_desugar_kwargs({src: icon_url, alt: fname, style: "width: 64px; height: 64px; margin-right: 1em; float:left; display:table-cell"})), E.div(E.p(E.b(fname, _$rapyd$_desugar_kwargs({id: "fname" + dl_id})), E.br(), E.span("...", _$rapyd$_desugar_kwargs({id: "status" + dl_id, style: "color:gray", data_hostname: hostname, data_created: Date.now() + ""}))), _$rapyd$_desugar_kwargs({style: "float:left; display:table-cell"})), E.div(E.br(), E.span("✖ ", _$rapyd$_desugar_kwargs({class_: "stop", style: "font-size: x-large; cursor:pointer", title: "Stop download"})), _$rapyd$_desugar_kwargs({id: "stop" + dl_id, style: "float:right;"})), _$rapyd$_desugar_kwargs({style: "padding: 3ex; display: table; width: 90%; border-bottom: solid 1px currentColor"}));
+            div = ρσ_interpolate_kwargs.call(E, E.div, [ρσ_interpolate_kwargs.call(E, E.img, [ρσ_desugar_kwargs({src: icon_url, alt: fname, style: "width: 64px; height: 64px; margin-right: 1em; float:left; display:table-cell"})]), ρσ_interpolate_kwargs.call(E, E.div, [E.p(ρσ_interpolate_kwargs.call(E, E.b, [fname].concat([ρσ_desugar_kwargs({id: "fname" + dl_id})])), E.br(), ρσ_interpolate_kwargs.call(E, E.span, ["..."].concat([ρσ_desugar_kwargs({id: "status" + dl_id, style: "color:gray", data_hostname: hostname, data_created: Date.now() + ""})])))].concat([ρσ_desugar_kwargs({style: "float:left; display:table-cell"})])), ρσ_interpolate_kwargs.call(E, E.div, [E.br(), ρσ_interpolate_kwargs.call(E, E.span, ["✖ "].concat([ρσ_desugar_kwargs({class_: "stop", style: "font-size: x-large; cursor:pointer", title: "Stop download"})]))].concat([ρσ_desugar_kwargs({id: "stop" + dl_id, style: "float:right;"})]))].concat([ρσ_desugar_kwargs({style: "padding: 3ex; display: table; width: 90%; border-bottom: solid 1px currentColor"})]));
             document.body.insertBefore(div, document.body.firstChild);
             update_download(dl_id, "running", -1, -1, 0, 0);
             stop = document.getElementById("stop" + dl_id);
-            stop.addEventListener("click", function() {
+            stop.addEventListener("click", function () {
                 cancel_download(dl_id);
             });
-        }
+        };
+        Object.defineProperties(create_download, {
+            __argnames__ : {value: ["dl_id", "fname", "mime_type", "icon_url", "hostname"]}
+        });
+
         function update_download(dl_id, state, received, total, rate, avg_rate) {
             var status, h, left, fname, text, stop;
             status = document.getElementById("status" + dl_id);
@@ -4512,10 +5574,10 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 if (received > -1 && total > -1) {
                     if (rate > 0) {
                         left = relative_time(Date.now() + 1e3 * ((total - received) / avg_rate));
-                        status.innerText = str.format("{recv} of {total} at {rate}/s — Will finish {left}", _$rapyd$_desugar_kwargs({recv: h(received), total: h(total), rate: h(rate), left: left}));
+                        status.innerText = ρσ_interpolate_kwargs.call(str, str.format, ["{recv} of {total} at {rate}/s — Will finish {left}"].concat([ρσ_desugar_kwargs({recv: h(received), total: h(total), rate: h(rate), left: left})]));
                     } else {
                         left = (rate < 0) ? "Estimating time remaining" : "Stalled";
-                        status.innerText = str.format("{recv} of {total} — {left}", _$rapyd$_desugar_kwargs({recv: h(received), total: h(total), left: left}));
+                        status.innerText = ρσ_interpolate_kwargs.call(str, str.format, ["{recv} of {total} — {left}"].concat([ρσ_desugar_kwargs({recv: h(received), total: h(total), left: left})]));
                     }
                 } else {
                     status.innerText = "Downloading, please wait...";
@@ -4524,7 +5586,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 fname = document.getElementById("fname" + dl_id);
                 if (fname) {
                     if (!fname.getAttribute("class")) {
-                        fname.addEventListener("click", function() {
+                        fname.addEventListener("click", function () {
                             open_download(dl_id);
                         });
                     }
@@ -4549,90 +5611,65 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             }
             stop = document.getElementById("stop" + dl_id);
             stop.style.display = (state === "running") ? "block" : "none";
-        }
+        };
+        Object.defineProperties(update_download, {
+            __argnames__ : {value: ["dl_id", "state", "received", "total", "rate", "avg_rate"]}
+        });
+
         function main() {
             window.create_download = create_download;
             window.update_download = update_download;
             document.getElementsByTagName("style")[0].innerText = "\n    body { color: black; background-color: #eee; }\n    .stop:hover { color: red }\n    .fname { cursor: pointer }\n    .fname:hover { color: red; font-style: italic }\n    ";
-            callback("downloads", {
-                "cmd": "inited"
-            });
-        }
-        _$rapyd$_modules.downloads.cancel_download = cancel_download;
-        _$rapyd$_modules.downloads.open_download = open_download;
-        _$rapyd$_modules.downloads.create_download = create_download;
-        _$rapyd$_modules.downloads.update_download = update_download;
-        _$rapyd$_modules.downloads.main = main;
+            callback("downloads", (function(){
+                var ρσ_d = {};
+                ρσ_d["cmd"] = "inited";
+                return ρσ_d;
+            }).call(this));
+        };
+
+        ρσ_modules.downloads.cancel_download = cancel_download;
+        ρσ_modules.downloads.open_download = open_download;
+        ρσ_modules.downloads.create_download = create_download;
+        ρσ_modules.downloads.update_download = update_download;
+        ρσ_modules.downloads.main = main;
     })();
 
     (function(){
         var __name__ = "utils";
         function all_frames() {
-            var marked0$0 = [js_generator].map(_$rapyd$_regenerator.regeneratorRuntime.mark);
-            function js_generator(doc) {
-                var stack, document, win, frame, i, _$rapyd$_Index0, e;
-            
-                return _$rapyd$_regenerator.regeneratorRuntime.wrap(function js_generator$(context$1$0) {
-                    while (1) switch (context$1$0.prev = context$1$0.next) {
-                    case 0:
-                        stack = [doc || window.document];
-                    case 1:
-                        if (!(stack.length > 0)) {
-                            context$1$0.next = 26;
-                            break;
+            function* js_generator(doc) {
+                var stack, document, win, frame, i;
+                stack = [doc || window.document];
+                while (stack.length > 0) {
+                    document = stack.pop();
+                    win = document.defaultView;
+                    yield win;
+                    for (var ρσ_Index7 = 0; ρσ_Index7 < win.frames.length; ρσ_Index7++) {
+                        i = ρσ_Index7;
+                        try {
+                            frame = (ρσ_expr_temp = win.frames)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i];
+                            if (frame.document !== document) {
+                                stack.push(frame.document);
+                            }
+                        } catch (ρσ_Exception) {
+                            ρσ_last_exception = ρσ_Exception;
+                            if (ρσ_Exception instanceof DOMException) {
+                                var e = ρσ_Exception;
+                            } else {
+                                throw ρσ_Exception;
+                            }
                         }
-            
-                        document = stack.pop();
-                        win = document.defaultView;
-                        context$1$0.next = 6;
-                        return win;
-                    case 6:
-                        _$rapyd$_Index0 = 0;
-                    case 7:
-                        if (!(_$rapyd$_Index0 < win.frames.length)) {
-                            context$1$0.next = 24;
-                            break;
-                        }
-            
-                        i = _$rapyd$_Index0;
-                        context$1$0.prev = 9;
-                        frame = win.frames[i];
-                        if (frame.document !== document) {
-                            stack.push(frame.document);
-                        }
-                        context$1$0.next = 21;
-                        break;
-                    case 14:
-                        context$1$0.prev = 14;
-                        context$1$0.t0 = context$1$0["catch"](9);
-            
-                        if (!(context$1$0.t0 instanceof DOMException)) {
-                            context$1$0.next = 20;
-                            break;
-                        }
-            
-                        e = context$1$0.t0;
-                        context$1$0.next = 21;
-                        break;
-                    case 20:
-                        throw context$1$0.t0;
-                    case 21:
-                        _$rapyd$_Index0++;
-                        context$1$0.next = 7;
-                        break;
-                    case 24:
-                        context$1$0.next = 1;
-                        break;
-                    case 26:
-                    case "end":
-                        return context$1$0.stop();
                     }
-                }, marked0$0[0], this, [[9, 14]]);
+                }
             }
             var result = js_generator.apply(this, arguments);
             result.send = result.next;
             return result;
-        }
+        };
+        Object.defineProperties(all_frames, {
+            __argnames__ : {value: ["doc"]}
+        });
+
         function is_visible(elem) {
             var win, rect, child, s;
             if (!elem || !elem.ownerDocument) {
@@ -4644,9 +5681,10 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 return false;
             }
             if (!rect.width || !rect.height) {
-                var _$rapyd$_Iter3 = _$rapyd$_Iterable(elem.childNodes);
-                for (var _$rapyd$_Index3 = 0; _$rapyd$_Index3 < _$rapyd$_Iter3.length; _$rapyd$_Index3++) {
-                    child = _$rapyd$_Iter3[_$rapyd$_Index3];
+                var ρσ_Iter8 = elem.childNodes;
+                ρσ_Iter8 = ((typeof ρσ_Iter8[Symbol.iterator] === "function") ? (ρσ_Iter8 instanceof Map ? ρσ_Iter8.keys() : ρσ_Iter8) : Object.keys(ρσ_Iter8));
+                for (var ρσ_Index8 of ρσ_Iter8) {
+                    child = ρσ_Index8;
                     if (child.nodeType === child.ELEMENT_NODE && win.getComputedStyle(child).float !== "none" && is_visible(child)) {
                         return true;
                     }
@@ -4658,294 +5696,221 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 return false;
             }
             return true;
-        }
+        };
+        Object.defineProperties(is_visible, {
+            __argnames__ : {value: ["elem"]}
+        });
+
         function follow_link() {
-            var elem = ( 0 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [_$rapyd$_kwargs_symbol] === true) ? undefined : arguments[0];
-            var mouse_button = (arguments[1] === undefined || ( 1 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [_$rapyd$_kwargs_symbol] === true)) ? (0) : arguments[1];
-            var _$rapyd$_kwargs_obj = arguments[arguments.length-1];
-            if (_$rapyd$_kwargs_obj === null || typeof _$rapyd$_kwargs_obj !== "object" || _$rapyd$_kwargs_obj [_$rapyd$_kwargs_symbol] !== true) _$rapyd$_kwargs_obj = {};
-            if (Object.prototype.hasOwnProperty.call(_$rapyd$_kwargs_obj, "mouse_button")){
-                mouse_button = _$rapyd$_kwargs_obj.mouse_button;
+            var elem = ( 0 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true) ? undefined : arguments[0];
+            var mouse_button = (arguments[1] === undefined || ( 1 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true)) ? follow_link.__defaults__.mouse_button : arguments[1];
+            var ρσ_kwargs_obj = arguments[arguments.length-1];
+            if (ρσ_kwargs_obj === null || typeof ρσ_kwargs_obj !== "object" || ρσ_kwargs_obj [ρσ_kwargs_symbol] !== true) ρσ_kwargs_obj = {};
+            if (Object.prototype.hasOwnProperty.call(ρσ_kwargs_obj, "mouse_button")){
+                mouse_button = ρσ_kwargs_obj.mouse_button;
             }
-            var rect, left, top, _$rapyd$_chain_assign_temp, _$rapyd$_unpack, ev;
+            var rect, left, top, ρσ_unpack, ev;
             elem.focus();
             rect = elem.getBoundingClientRect();
-            _$rapyd$_chain_assign_temp = 0;
-            left = _$rapyd$_chain_assign_temp;
-            top = _$rapyd$_chain_assign_temp;
-;
+            left = top = 0;
             if (rect) {
-                _$rapyd$_unpack = [rect.left, rect.top];
-                left = _$rapyd$_unpack[0];
-                top = _$rapyd$_unpack[1];
+                ρσ_unpack = [rect.left, rect.top];
+                left = ρσ_unpack[0];
+                top = ρσ_unpack[1];
             }
-            ev = new MouseEvent("click", {
-                "view": elem.ownerDocument.defaultView || window,
-                "button": mouse_button,
-                "screenX": left,
-                "screenY": top,
-                "bubbles": true,
-                "cancelable": true
-            });
+            ev = new MouseEvent("click", (function(){
+                var ρσ_d = {};
+                ρσ_d["view"] = elem.ownerDocument.defaultView || window;
+                ρσ_d["button"] = mouse_button;
+                ρσ_d["screenX"] = left;
+                ρσ_d["screenY"] = top;
+                ρσ_d["bubbles"] = true;
+                ρσ_d["cancelable"] = true;
+                return ρσ_d;
+            }).call(this));
             elem.dispatchEvent(ev);
-        }
-        _$rapyd$_modules.utils.all_frames = all_frames;
-        _$rapyd$_modules.utils.is_visible = is_visible;
-        _$rapyd$_modules.utils.follow_link = follow_link;
+        };
+        Object.defineProperties(follow_link, {
+            __defaults__ : {value: {mouse_button:0}},
+            __handles_kwarg_interpolation__ : {value: true},
+            __argnames__ : {value: ["elem", "mouse_button"]}
+        });
+
+        ρσ_modules.utils.all_frames = all_frames;
+        ρσ_modules.utils.is_visible = is_visible;
+        ρσ_modules.utils.follow_link = follow_link;
     })();
 
     (function(){
         var __name__ = "links";
-        var is_visible = _$rapyd$_modules.utils.is_visible;
-        
+        var is_visible = ρσ_modules.utils.is_visible;
+
         function iter_links() {
-            var marked0$0 = [js_generator].map(_$rapyd$_regenerator.regeneratorRuntime.mark);
-            function js_generator() {
-                var win, regexps, rel, selector, filter_func, _$rapyd$_kwargs_obj, pat, matches, child, regexp, elem, _$rapyd$_Iter0, _$rapyd$_Index0, _$rapyd$_Iter1, _$rapyd$_Index1, _$rapyd$_Iter2, _$rapyd$_Index2, _$rapyd$_Iter3, _$rapyd$_Index3, args$1$0 = arguments;
-            
-                return _$rapyd$_regenerator.regeneratorRuntime.wrap(function js_generator$(context$1$0) {
-                    while (1) switch (context$1$0.prev = context$1$0.next) {
-                    case 0:
-                        win = ( 0 === args$1$0.length-1 && args$1$0[args$1$0.length-1] !== null && typeof args$1$0[args$1$0.length-1] === "object" && args$1$0[args$1$0.length-1] [_$rapyd$_kwargs_symbol] === true) ? undefined : args$1$0[0];
-                        regexps = (args$1$0[1] === undefined || ( 1 === args$1$0.length-1 && args$1$0[args$1$0.length-1] !== null && typeof args$1$0[args$1$0.length-1] === "object" && args$1$0[args$1$0.length-1] [_$rapyd$_kwargs_symbol] === true)) ? (null) : args$1$0[1];
-                        rel = (args$1$0[2] === undefined || ( 2 === args$1$0.length-1 && args$1$0[args$1$0.length-1] !== null && typeof args$1$0[args$1$0.length-1] === "object" && args$1$0[args$1$0.length-1] [_$rapyd$_kwargs_symbol] === true)) ? (null) : args$1$0[2];
-                        selector = (args$1$0[3] === undefined || ( 3 === args$1$0.length-1 && args$1$0[args$1$0.length-1] !== null && typeof args$1$0[args$1$0.length-1] === "object" && args$1$0[args$1$0.length-1] [_$rapyd$_kwargs_symbol] === true)) ? (null) : args$1$0[3];
-                        filter_func = (args$1$0[4] === undefined || ( 4 === args$1$0.length-1 && args$1$0[args$1$0.length-1] !== null && typeof args$1$0[args$1$0.length-1] === "object" && args$1$0[args$1$0.length-1] [_$rapyd$_kwargs_symbol] === true)) ? (null) : args$1$0[4];
-                        _$rapyd$_kwargs_obj = args$1$0[args$1$0.length-1];
-                        if (_$rapyd$_kwargs_obj === null || typeof _$rapyd$_kwargs_obj !== "object" || _$rapyd$_kwargs_obj [_$rapyd$_kwargs_symbol] !== true) _$rapyd$_kwargs_obj = {};
-                        if (Object.prototype.hasOwnProperty.call(_$rapyd$_kwargs_obj, "regexps")){
-                            regexps = _$rapyd$_kwargs_obj.regexps;
+            function* js_generator() {
+                var win = ( 0 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true) ? undefined : arguments[0];
+                var regexps = (arguments[1] === undefined || ( 1 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true)) ? iter_links.__defaults__.regexps : arguments[1];
+                var rel = (arguments[2] === undefined || ( 2 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true)) ? iter_links.__defaults__.rel : arguments[2];
+                var selector = (arguments[3] === undefined || ( 3 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true)) ? iter_links.__defaults__.selector : arguments[3];
+                var filter_func = (arguments[4] === undefined || ( 4 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true)) ? iter_links.__defaults__.filter_func : arguments[4];
+                var ρσ_kwargs_obj = arguments[arguments.length-1];
+                if (ρσ_kwargs_obj === null || typeof ρσ_kwargs_obj !== "object" || ρσ_kwargs_obj [ρσ_kwargs_symbol] !== true) ρσ_kwargs_obj = {};
+                if (Object.prototype.hasOwnProperty.call(ρσ_kwargs_obj, "regexps")){
+                    regexps = ρσ_kwargs_obj.regexps;
+                }
+                if (Object.prototype.hasOwnProperty.call(ρσ_kwargs_obj, "rel")){
+                    rel = ρσ_kwargs_obj.rel;
+                }
+                if (Object.prototype.hasOwnProperty.call(ρσ_kwargs_obj, "selector")){
+                    selector = ρσ_kwargs_obj.selector;
+                }
+                if (Object.prototype.hasOwnProperty.call(ρσ_kwargs_obj, "filter_func")){
+                    filter_func = ρσ_kwargs_obj.filter_func;
+                }
+                var pat, matches, child, regexp, elem;
+                selector = selector || ":-webkit-any-link, area, button, iframe, input:not([type=hidden]):not([disabled]), label[for], select, textarea, [onclick], [onmouseover], [onmousedown], [onmouseup], [oncommand], [tabindex], [role=link], [role=button], [contenteditable=true]";
+                win = win || window;
+                if (regexps !== null) {
+                    regexps = (function() {
+                        var ρσ_Iter = regexps, ρσ_Result = [], pat;
+                        ρσ_Iter = ((typeof ρσ_Iter[Symbol.iterator] === "function") ? (ρσ_Iter instanceof Map ? ρσ_Iter.keys() : ρσ_Iter) : Object.keys(ρσ_Iter));
+                        for (var ρσ_Index of ρσ_Iter) {
+                            pat = ρσ_Index;
+                            ρσ_Result.push((typeof pat === "string") ? new RegExp(pat, "i") : pat);
                         }
-                        if (Object.prototype.hasOwnProperty.call(_$rapyd$_kwargs_obj, "rel")){
-                            rel = _$rapyd$_kwargs_obj.rel;
-                        }
-                        if (Object.prototype.hasOwnProperty.call(_$rapyd$_kwargs_obj, "selector")){
-                            selector = _$rapyd$_kwargs_obj.selector;
-                        }
-                        if (Object.prototype.hasOwnProperty.call(_$rapyd$_kwargs_obj, "filter_func")){
-                            filter_func = _$rapyd$_kwargs_obj.filter_func;
-                        }
-                        selector = selector || ":-webkit-any-link, area, button, iframe, input:not([type=hidden]):not([disabled]), label[for], select, textarea, [onclick], [onmouseover], [onmousedown], [onmouseup], [oncommand], [tabindex], [role=link], [role=button], [contenteditable=true]";
-                        win = win || window;
-                        if (regexps !== null) {
-                            regexps = (function() {
-                                var _$rapyd$_Iter = _$rapyd$_Iterable(regexps), _$rapyd$_Result = [], pat;
-                                for (var _$rapyd$_Index = 0; _$rapyd$_Index < _$rapyd$_Iter.length; _$rapyd$_Index++) {
-                                    pat = _$rapyd$_Iter[_$rapyd$_Index];
-                                    _$rapyd$_Result.push((typeof pat === "string") ? new RegExp(pat, "i") : pat);
+                        ρσ_Result = ρσ_list_constructor(ρσ_Result);
+                        return ρσ_Result;
+                    })();
+                }
+                var ρσ_Iter9 = win.document.querySelectorAll(selector);
+                ρσ_Iter9 = ((typeof ρσ_Iter9[Symbol.iterator] === "function") ? (ρσ_Iter9 instanceof Map ? ρσ_Iter9.keys() : ρσ_Iter9) : Object.keys(ρσ_Iter9));
+                for (var ρσ_Index9 of ρσ_Iter9) {
+                    elem = ρσ_Index9;
+                    if (filter_func !== null && !filter_func(elem)) {
+                        continue;
+                    }
+                    matches = false;
+                    if (rel !== null && elem.getAttribute("rel") === rel) {
+                        matches = true;
+                    } else {
+                        if (regexps === null) {
+                            matches = true;
+                        } else {
+                            var ρσ_Iter10 = regexps;
+                            ρσ_Iter10 = ((typeof ρσ_Iter10[Symbol.iterator] === "function") ? (ρσ_Iter10 instanceof Map ? ρσ_Iter10.keys() : ρσ_Iter10) : Object.keys(ρσ_Iter10));
+                            for (var ρσ_Index10 of ρσ_Iter10) {
+                                regexp = ρσ_Index10;
+                                if (regexp.test(elem.textContent)) {
+                                    matches = true;
+                                    break;
                                 }
-                                _$rapyd$_Result = _$rapyd$_list_constructor(_$rapyd$_Result);
-                                return _$rapyd$_Result;
-                            })();
+                                var ρσ_Iter11 = elem.childNodes;
+                                ρσ_Iter11 = ((typeof ρσ_Iter11[Symbol.iterator] === "function") ? (ρσ_Iter11 instanceof Map ? ρσ_Iter11.keys() : ρσ_Iter11) : Object.keys(ρσ_Iter11));
+                                for (var ρσ_Index11 of ρσ_Iter11) {
+                                    child = ρσ_Index11;
+                                    if (regexp.test(child.alt)) {
+                                        matches = true;
+                                        break;
+                                    }
+                                }
+                                if (matches) {
+                                    break;
+                                }
+                            }
+                            if (!matches) {
+                                var ρσ_Iter12 = regexps;
+                                ρσ_Iter12 = ((typeof ρσ_Iter12[Symbol.iterator] === "function") ? (ρσ_Iter12 instanceof Map ? ρσ_Iter12.keys() : ρσ_Iter12) : Object.keys(ρσ_Iter12));
+                                for (var ρσ_Index12 of ρσ_Iter12) {
+                                    regexp = ρσ_Index12;
+                                    if (regexp.test(elem.title)) {
+                                        matches = true;
+                                        break;
+                                    }
+                                }
+                            }
                         }
-                        _$rapyd$_Iter0 = _$rapyd$_Iterable(win.document.querySelectorAll(selector));
-                        _$rapyd$_Index0 = 0;
-                    case 16:
-                        if (!(_$rapyd$_Index0 < _$rapyd$_Iter0.length)) {
-                            context$1$0.next = 68;
-                            break;
-                        }
-            
-                        elem = _$rapyd$_Iter0[_$rapyd$_Index0];
-            
-                        if (!(filter_func !== null && !filter_func(elem))) {
-                            context$1$0.next = 20;
-                            break;
-                        }
-            
-                        return context$1$0.abrupt("continue", 65);
-                    case 20:
-                        matches = false;
-            
-                        if (!(rel !== null && elem.getAttribute("rel") === rel)) {
-                            context$1$0.next = 25;
-                            break;
-                        }
-            
-                        matches = true;
-                        context$1$0.next = 62;
-                        break;
-                    case 25:
-                        if (!(regexps === null)) {
-                            context$1$0.next = 29;
-                            break;
-                        }
-            
-                        matches = true;
-                        context$1$0.next = 62;
-                        break;
-                    case 29:
-                        _$rapyd$_Iter1 = _$rapyd$_Iterable(regexps);
-                        _$rapyd$_Index1 = 0;
-                    case 31:
-                        if (!(_$rapyd$_Index1 < _$rapyd$_Iter1.length)) {
-                            context$1$0.next = 51;
-                            break;
-                        }
-            
-                        regexp = _$rapyd$_Iter1[_$rapyd$_Index1];
-            
-                        if (!regexp.test(elem.textContent)) {
-                            context$1$0.next = 36;
-                            break;
-                        }
-            
-                        matches = true;
-                        return context$1$0.abrupt("break", 51);
-                    case 36:
-                        _$rapyd$_Iter2 = _$rapyd$_Iterable(elem.childNodes);
-                        _$rapyd$_Index2 = 0;
-                    case 38:
-                        if (!(_$rapyd$_Index2 < _$rapyd$_Iter2.length)) {
-                            context$1$0.next = 46;
-                            break;
-                        }
-            
-                        child = _$rapyd$_Iter2[_$rapyd$_Index2];
-            
-                        if (!regexp.test(child.alt)) {
-                            context$1$0.next = 43;
-                            break;
-                        }
-            
-                        matches = true;
-                        return context$1$0.abrupt("break", 46);
-                    case 43:
-                        _$rapyd$_Index2++;
-                        context$1$0.next = 38;
-                        break;
-                    case 46:
-                        if (!matches) {
-                            context$1$0.next = 48;
-                            break;
-                        }
-            
-                        return context$1$0.abrupt("break", 51);
-                    case 48:
-                        _$rapyd$_Index1++;
-                        context$1$0.next = 31;
-                        break;
-                    case 51:
-                        if (matches) {
-                            context$1$0.next = 62;
-                            break;
-                        }
-            
-                        _$rapyd$_Iter3 = _$rapyd$_Iterable(regexps);
-                        _$rapyd$_Index3 = 0;
-                    case 54:
-                        if (!(_$rapyd$_Index3 < _$rapyd$_Iter3.length)) {
-                            context$1$0.next = 62;
-                            break;
-                        }
-            
-                        regexp = _$rapyd$_Iter3[_$rapyd$_Index3];
-            
-                        if (!regexp.test(elem.title)) {
-                            context$1$0.next = 59;
-                            break;
-                        }
-            
-                        matches = true;
-                        return context$1$0.abrupt("break", 62);
-                    case 59:
-                        _$rapyd$_Index3++;
-                        context$1$0.next = 54;
-                        break;
-                    case 62:
-                        if (!matches) {
-                            context$1$0.next = 65;
-                            break;
-                        }
-            
-                        context$1$0.next = 65;
-                        return elem;
-                    case 65:
-                        _$rapyd$_Index0++;
-                        context$1$0.next = 16;
-                        break;
-                    case 68:
-                    case "end":
-                        return context$1$0.stop();
                     }
-                }, marked0$0[0], this);
+                    if (matches) {
+                        yield elem;
+                    }
+                }
             }
             var result = js_generator.apply(this, arguments);
             result.send = result.next;
             return result;
-        }
+        };
+        Object.defineProperties(iter_links, {
+            __defaults__ : {value: {regexps:null, rel:null, selector:null, filter_func:null}},
+            __handles_kwarg_interpolation__ : {value: true},
+            __argnames__ : {value: ["win", "regexps", "rel", "selector", "filter_func"]}
+        });
+
         function iter_visible_links() {
-            var marked0$0 = [js_generator].map(_$rapyd$_regenerator.regeneratorRuntime.mark);
-            function js_generator() {
-                var win, regexps, rel, selector, _$rapyd$_kwargs_obj, args$1$0 = arguments;
-            
-                return _$rapyd$_regenerator.regeneratorRuntime.wrap(function js_generator$(context$1$0) {
-                    while (1) switch (context$1$0.prev = context$1$0.next) {
-                    case 0:
-                        win = ( 0 === args$1$0.length-1 && args$1$0[args$1$0.length-1] !== null && typeof args$1$0[args$1$0.length-1] === "object" && args$1$0[args$1$0.length-1] [_$rapyd$_kwargs_symbol] === true) ? undefined : args$1$0[0];
-                        regexps = (args$1$0[1] === undefined || ( 1 === args$1$0.length-1 && args$1$0[args$1$0.length-1] !== null && typeof args$1$0[args$1$0.length-1] === "object" && args$1$0[args$1$0.length-1] [_$rapyd$_kwargs_symbol] === true)) ? (null) : args$1$0[1];
-                        rel = (args$1$0[2] === undefined || ( 2 === args$1$0.length-1 && args$1$0[args$1$0.length-1] !== null && typeof args$1$0[args$1$0.length-1] === "object" && args$1$0[args$1$0.length-1] [_$rapyd$_kwargs_symbol] === true)) ? (null) : args$1$0[2];
-                        selector = (args$1$0[3] === undefined || ( 3 === args$1$0.length-1 && args$1$0[args$1$0.length-1] !== null && typeof args$1$0[args$1$0.length-1] === "object" && args$1$0[args$1$0.length-1] [_$rapyd$_kwargs_symbol] === true)) ? (null) : args$1$0[3];
-                        _$rapyd$_kwargs_obj = args$1$0[args$1$0.length-1];
-                        if (_$rapyd$_kwargs_obj === null || typeof _$rapyd$_kwargs_obj !== "object" || _$rapyd$_kwargs_obj [_$rapyd$_kwargs_symbol] !== true) _$rapyd$_kwargs_obj = {};
-                        if (Object.prototype.hasOwnProperty.call(_$rapyd$_kwargs_obj, "regexps")){
-                            regexps = _$rapyd$_kwargs_obj.regexps;
-                        }
-                        if (Object.prototype.hasOwnProperty.call(_$rapyd$_kwargs_obj, "rel")){
-                            rel = _$rapyd$_kwargs_obj.rel;
-                        }
-                        if (Object.prototype.hasOwnProperty.call(_$rapyd$_kwargs_obj, "selector")){
-                            selector = _$rapyd$_kwargs_obj.selector;
-                        }
-            
-                        return context$1$0.delegateYield(
-                            iter_links(win, _$rapyd$_desugar_kwargs({regexps: regexps, selector: selector, rel: rel, filter_func: is_visible})),
-                            "t0",
-                            10
-                        );
-                    case 10:
-                    case "end":
-                        return context$1$0.stop();
-                    }
-                }, marked0$0[0], this);
+            function* js_generator() {
+                var win = ( 0 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true) ? undefined : arguments[0];
+                var regexps = (arguments[1] === undefined || ( 1 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true)) ? iter_visible_links.__defaults__.regexps : arguments[1];
+                var rel = (arguments[2] === undefined || ( 2 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true)) ? iter_visible_links.__defaults__.rel : arguments[2];
+                var selector = (arguments[3] === undefined || ( 3 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true)) ? iter_visible_links.__defaults__.selector : arguments[3];
+                var ρσ_kwargs_obj = arguments[arguments.length-1];
+                if (ρσ_kwargs_obj === null || typeof ρσ_kwargs_obj !== "object" || ρσ_kwargs_obj [ρσ_kwargs_symbol] !== true) ρσ_kwargs_obj = {};
+                if (Object.prototype.hasOwnProperty.call(ρσ_kwargs_obj, "regexps")){
+                    regexps = ρσ_kwargs_obj.regexps;
+                }
+                if (Object.prototype.hasOwnProperty.call(ρσ_kwargs_obj, "rel")){
+                    rel = ρσ_kwargs_obj.rel;
+                }
+                if (Object.prototype.hasOwnProperty.call(ρσ_kwargs_obj, "selector")){
+                    selector = ρσ_kwargs_obj.selector;
+                }
+                yield* ρσ_interpolate_kwargs.call(this, iter_links, [win].concat([ρσ_desugar_kwargs({regexps: regexps, selector: selector, rel: rel, filter_func: is_visible})]));
             }
             var result = js_generator.apply(this, arguments);
             result.send = result.next;
             return result;
-        }
-        _$rapyd$_modules.links.iter_links = iter_links;
-        _$rapyd$_modules.links.iter_visible_links = iter_visible_links;
+        };
+        Object.defineProperties(iter_visible_links, {
+            __defaults__ : {value: {regexps:null, rel:null, selector:null}},
+            __handles_kwarg_interpolation__ : {value: true},
+            __argnames__ : {value: ["win", "regexps", "rel", "selector"]}
+        });
+
+        ρσ_modules.links.iter_links = iter_links;
+        ρσ_modules.links.iter_visible_links = iter_visible_links;
     })();
 
     (function(){
         var __name__ = "follow_next";
         var next_regexps, prev_regexps, request_id, request_serviced, current_follow_next_candidate;
-        var connect_signal = _$rapyd$_modules.qt.connect_signal;
-        
-        var frame_iter = _$rapyd$_modules.frames.frame_iter;
-        var broadcast_action = _$rapyd$_modules.frames.broadcast_action;
-        var send_action = _$rapyd$_modules.frames.send_action;
-        var register_handler = _$rapyd$_modules.frames.register_handler;
-        
-        var iter_visible_links = _$rapyd$_modules.links.iter_visible_links;
-        
-        var follow_link = _$rapyd$_modules.utils.follow_link;
-        var is_visible = _$rapyd$_modules.utils.is_visible;
-        
-        next_regexps = _$rapyd$_list_decorate([ /^\s*Next Page\s*$/i, /^\s*Next [>»]/i, /\bNext\b/i, /^>$/, /^(>>|»)$/, /^(>|»)/, /(>|»)$/, /\bMore\b/i ]);
-        prev_regexps = _$rapyd$_list_decorate([ /^\s*Prev(ious)? Page\s*$/i, /[<«] Prev\s*$/i, /\bprev(ious)?\b/i, /^<$/, /^(<<|«)$/, /^(<|«)/, /(<|«)$/ ]);
+        var connect_signal = ρσ_modules.qt.connect_signal;
+
+        var frame_iter = ρσ_modules.frames.frame_iter;
+        var broadcast_action = ρσ_modules.frames.broadcast_action;
+        var send_action = ρσ_modules.frames.send_action;
+        var register_handler = ρσ_modules.frames.register_handler;
+
+        var iter_visible_links = ρσ_modules.links.iter_visible_links;
+
+        var follow_link = ρσ_modules.utils.follow_link;
+        var is_visible = ρσ_modules.utils.is_visible;
+
+        next_regexps = ρσ_list_decorate([ /^\s*Next Page\s*$/i, /^\s*Next [>»]/i, /\bNext\b/i, /^>$/, /^(>>|»)$/, /^(>|»)/, /(>|»)$/, /\bMore\b/i ]);
+        prev_regexps = ρσ_list_decorate([ /^\s*Prev(ious)? Page\s*$/i, /[<«] Prev\s*$/i, /\bprev(ious)?\b/i, /^<$/, /^(<<|«)$/, /^(<|«)/, /(<|«)$/ ]);
         request_id = 0;
         request_serviced = false;
         function find_link_in_win(win, forward) {
             var regexps, rel, elem;
             regexps = (forward) ? next_regexps : prev_regexps;
             rel = (forward) ? "next" : "prev";
-            var _$rapyd$_Iter4 = _$rapyd$_Iterable(iter_visible_links(win, regexps, rel));
-            for (var _$rapyd$_Index4 = 0; _$rapyd$_Index4 < _$rapyd$_Iter4.length; _$rapyd$_Index4++) {
-                elem = _$rapyd$_Iter4[_$rapyd$_Index4];
+            var ρσ_Iter13 = iter_visible_links(win, regexps, rel);
+            ρσ_Iter13 = ((typeof ρσ_Iter13[Symbol.iterator] === "function") ? (ρσ_Iter13 instanceof Map ? ρσ_Iter13.keys() : ρσ_Iter13) : Object.keys(ρσ_Iter13));
+            for (var ρσ_Index13 of ρσ_Iter13) {
+                elem = ρσ_Index13;
                 return elem;
             }
-        }
+        };
+        Object.defineProperties(find_link_in_win, {
+            __argnames__ : {value: ["win", "forward"]}
+        });
+
         function follow_next(forward) {
             var elem;
             elem = find_link_in_win(window.self, forward);
@@ -4956,7 +5921,11 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 request_serviced = false;
                 broadcast_action(frame_iter(window.self, is_visible), "follow_next_search", request_id, forward);
             }
-        }
+        };
+        Object.defineProperties(follow_next, {
+            __argnames__ : {value: ["forward"]}
+        });
+
         function follow_next_found(current_frame_id, source_frame_id, source_frame, remote_request_id, was_found) {
             var do_it;
             if (!was_found) {
@@ -4967,7 +5936,11 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             if (do_it) {
                 request_serviced = true;
             }
-        }
+        };
+        Object.defineProperties(follow_next_found, {
+            __argnames__ : {value: ["current_frame_id", "source_frame_id", "source_frame", "remote_request_id", "was_found"]}
+        });
+
         current_follow_next_candidate = null;
         function follow_next_search(current_frame_id, source_frame_id, source_frame, request_id, forward) {
             var elem;
@@ -4976,19 +5949,27 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 current_follow_next_candidate = [elem, request_id];
             }
             send_action(source_frame, "follow_next_found", request_id, bool(elem));
-        }
+        };
+        Object.defineProperties(follow_next_search, {
+            __argnames__ : {value: ["current_frame_id", "source_frame_id", "source_frame", "request_id", "forward"]}
+        });
+
         function follow_next_execute(current_frame_id, source_frame_id, source_frame, request_id, do_it) {
-            var _$rapyd$_unpack, elem, rid;
+            var ρσ_unpack, elem, rid;
             if (current_follow_next_candidate) {
-                _$rapyd$_unpack = current_follow_next_candidate;
-                elem = _$rapyd$_unpack[0];
-                rid = _$rapyd$_unpack[1];
+                ρσ_unpack = current_follow_next_candidate;
+                elem = ρσ_unpack[0];
+                rid = ρσ_unpack[1];
                 current_follow_next_candidate = null;
                 if (do_it && rid === request_id) {
                     follow_link(elem);
                 }
             }
-        }
+        };
+        Object.defineProperties(follow_next_execute, {
+            __argnames__ : {value: ["current_frame_id", "source_frame_id", "source_frame", "request_id", "do_it"]}
+        });
+
         function onload() {
             if (window.self === window.top) {
                 connect_signal("follow_next", follow_next);
@@ -4997,40 +5978,41 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 register_handler("follow_next_search", follow_next_search);
                 register_handler("follow_next_execute", follow_next_execute);
             }
-        }
-        _$rapyd$_modules.follow_next.next_regexps = next_regexps;
-        _$rapyd$_modules.follow_next.prev_regexps = prev_regexps;
-        _$rapyd$_modules.follow_next.request_id = request_id;
-        _$rapyd$_modules.follow_next.request_serviced = request_serviced;
-        _$rapyd$_modules.follow_next.current_follow_next_candidate = current_follow_next_candidate;
-        _$rapyd$_modules.follow_next.find_link_in_win = find_link_in_win;
-        _$rapyd$_modules.follow_next.follow_next = follow_next;
-        _$rapyd$_modules.follow_next.follow_next_found = follow_next_found;
-        _$rapyd$_modules.follow_next.follow_next_search = follow_next_search;
-        _$rapyd$_modules.follow_next.follow_next_execute = follow_next_execute;
-        _$rapyd$_modules.follow_next.onload = onload;
+        };
+
+        ρσ_modules.follow_next.next_regexps = next_regexps;
+        ρσ_modules.follow_next.prev_regexps = prev_regexps;
+        ρσ_modules.follow_next.request_id = request_id;
+        ρσ_modules.follow_next.request_serviced = request_serviced;
+        ρσ_modules.follow_next.current_follow_next_candidate = current_follow_next_candidate;
+        ρσ_modules.follow_next.find_link_in_win = find_link_in_win;
+        ρσ_modules.follow_next.follow_next = follow_next;
+        ρσ_modules.follow_next.follow_next_found = follow_next_found;
+        ρσ_modules.follow_next.follow_next_search = follow_next_search;
+        ρσ_modules.follow_next.follow_next_execute = follow_next_execute;
+        ρσ_modules.follow_next.onload = onload;
     })();
 
     (function(){
         var __name__ = "passwd";
         var input_types, username_names, current_login_form_request_id;
-        var send_action = _$rapyd$_modules.frames.send_action;
-        var register_handler = _$rapyd$_modules.frames.register_handler;
-        var broadcast_action = _$rapyd$_modules.frames.broadcast_action;
-        var frame_iter = _$rapyd$_modules.frames.frame_iter;
-        
-        var qt_bridge = _$rapyd$_modules.qt.qt_bridge;
-        var connect_signal = _$rapyd$_modules.qt.connect_signal;
-        
+        var send_action = ρσ_modules.frames.send_action;
+        var register_handler = ρσ_modules.frames.register_handler;
+        var broadcast_action = ρσ_modules.frames.broadcast_action;
+        var frame_iter = ρσ_modules.frames.frame_iter;
+
+        var qt_bridge = ρσ_modules.qt.qt_bridge;
+        var connect_signal = ρσ_modules.qt.connect_signal;
+
         input_types = (function(){
-            var s = _$rapyd$_set();
+            var s = ρσ_set();
             s.jsset.add("text");
             s.jsset.add("email");
             s.jsset.add("tel");
             return s;
         })();
         username_names = (function(){
-            var s = _$rapyd$_set();
+            var s = ρσ_set();
             s.jsset.add("login");
             s.jsset.add("user");
             s.jsset.add("mail");
@@ -5040,11 +6022,11 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             return s;
         })();
         function form_submitted(ev) {
-            var form, _$rapyd$_unpack, username, password;
+            var form, ρσ_unpack, username, password;
             form = ev.target;
-            _$rapyd$_unpack = get_login_inputs(form);
-            username = _$rapyd$_unpack[0];
-            password = _$rapyd$_unpack[1];
+            ρσ_unpack = get_login_inputs(form);
+            username = ρσ_unpack[0];
+            password = ρσ_unpack[1];
             if (username !== null) {
                 username = username.value;
             }
@@ -5052,31 +6034,37 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 password = password.value;
             }
             send_action(window.top, "login_form_submitted", document.location.href, username, password);
-        }
+        };
+        Object.defineProperties(form_submitted, {
+            __argnames__ : {value: ["ev"]}
+        });
+
         function get_login_inputs(form) {
-            var username, password, _$rapyd$_chain_assign_temp, itype, name, inp;
-            _$rapyd$_chain_assign_temp = null;
-            username = _$rapyd$_chain_assign_temp;
-            password = _$rapyd$_chain_assign_temp;
-;
-            var _$rapyd$_Iter5 = _$rapyd$_Iterable(form.querySelectorAll("input"));
-            for (var _$rapyd$_Index5 = 0; _$rapyd$_Index5 < _$rapyd$_Iter5.length; _$rapyd$_Index5++) {
-                inp = _$rapyd$_Iter5[_$rapyd$_Index5];
+            var username, password, itype, name, inp;
+            username = password = null;
+            var ρσ_Iter14 = form.querySelectorAll("input");
+            ρσ_Iter14 = ((typeof ρσ_Iter14[Symbol.iterator] === "function") ? (ρσ_Iter14 instanceof Map ? ρσ_Iter14.keys() : ρσ_Iter14) : Object.keys(ρσ_Iter14));
+            for (var ρσ_Index14 of ρσ_Iter14) {
+                inp = ρσ_Index14;
                 if (username !== null && password !== null) {
                     break;
                 }
                 itype = str.lower(inp.getAttribute("type") || "");
                 if (itype === "password") {
                     password = inp;
-                } else if (_$rapyd$_in(itype, input_types)) {
+                } else if (ρσ_in(itype, input_types)) {
                     name = str.lower(inp.name || inp.id || "");
-                    if (_$rapyd$_in(name, username_names)) {
+                    if (ρσ_in(name, username_names)) {
                         username = inp;
                     }
                 }
             }
             return [username, password];
-        }
+        };
+        Object.defineProperties(get_login_inputs, {
+            __argnames__ : {value: ["form"]}
+        });
+
         function submit_form(form) {
             var buttons;
             buttons = list(form.querySelectorAll("button[type=submit]"));
@@ -5085,30 +6073,54 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             } else {
                 form.submit();
             }
-        }
+        };
+        Object.defineProperties(submit_form, {
+            __argnames__ : {value: ["form"]}
+        });
+
         function is_login_form(form) {
-            var _$rapyd$_unpack, un, pw;
-            _$rapyd$_unpack = get_login_inputs(form);
-            un = _$rapyd$_unpack[0];
-            pw = _$rapyd$_unpack[1];
+            var ρσ_unpack, un, pw;
+            ρσ_unpack = get_login_inputs(form);
+            un = ρσ_unpack[0];
+            pw = ρσ_unpack[1];
             return un !== null || pw !== null;
-        }
+        };
+        Object.defineProperties(is_login_form, {
+            __argnames__ : {value: ["form"]}
+        });
+
         function login_form_found(current_frame_id, source_frame_id, source_frame, url) {
             qt_bridge().login_form_found_in_page(url);
-        }
+        };
+        Object.defineProperties(login_form_found, {
+            __argnames__ : {value: ["current_frame_id", "source_frame_id", "source_frame", "url"]}
+        });
+
         function login_form_submitted(current_frame_id, source_frame_id, source_frame, url, username, password) {
             qt_bridge().login_form_submitted_in_page(url, username, password);
-        }
+        };
+        Object.defineProperties(login_form_submitted, {
+            __argnames__ : {value: ["current_frame_id", "source_frame_id", "source_frame", "url", "username", "password"]}
+        });
+
         function on_autofill_login_form(url, username, password, autosubmit, is_current_form) {
             if (!do_autofill(url, username, password, autosubmit, is_current_form)) {
                 broadcast_action(frame_iter(window.self), "autofill_login_form", url, username, password, autosubmit, is_current_form);
             }
-        }
+        };
+        Object.defineProperties(on_autofill_login_form, {
+            __argnames__ : {value: ["url", "username", "password", "autosubmit", "is_current_form"]}
+        });
+
         function autofill_login_form(current_frame_id, source_frame_id, source_frame, url, username, password, autosubmit, is_current_form) {
             do_autofill(url, username, password, autosubmit, is_current_form);
-        }
+        };
+        Object.defineProperties(autofill_login_form, {
+            __argnames__ : {value: ["current_frame_id", "source_frame_id", "source_frame", "url", "username", "password", "autosubmit", "is_current_form"]}
+        });
+
         function do_autofill(url, username, password, autosubmit, is_current_form) {
-            var found_form, c, form, _$rapyd$_unpack, un, pw;
+            var found_form, c, form, ρσ_unpack, un, pw;
             if (url === document.location.href) {
                 found_form = null;
                 if (is_current_form) {
@@ -5123,9 +6135,10 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                         }
                     }
                 } else {
-                    var _$rapyd$_Iter6 = _$rapyd$_Iterable(document.querySelectorAll("form"));
-                    for (var _$rapyd$_Index6 = 0; _$rapyd$_Index6 < _$rapyd$_Iter6.length; _$rapyd$_Index6++) {
-                        form = _$rapyd$_Iter6[_$rapyd$_Index6];
+                    var ρσ_Iter15 = document.querySelectorAll("form");
+                    ρσ_Iter15 = ((typeof ρσ_Iter15[Symbol.iterator] === "function") ? (ρσ_Iter15 instanceof Map ? ρσ_Iter15.keys() : ρσ_Iter15) : Object.keys(ρσ_Iter15));
+                    for (var ρσ_Index15 of ρσ_Iter15) {
+                        form = ρσ_Index15;
                         if (is_login_form(form)) {
                             found_form = form;
                             break;
@@ -5133,9 +6146,9 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                     }
                 }
                 if (found_form !== null) {
-                    _$rapyd$_unpack = get_login_inputs(found_form);
-                    un = _$rapyd$_unpack[0];
-                    pw = _$rapyd$_unpack[1];
+                    ρσ_unpack = get_login_inputs(found_form);
+                    un = ρσ_unpack[0];
+                    pw = ρσ_unpack[1];
                     if (un !== null && username) {
                         un.value = username;
                     }
@@ -5149,7 +6162,11 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 }
             }
             return false;
-        }
+        };
+        Object.defineProperties(do_autofill, {
+            __argnames__ : {value: ["url", "username", "password", "autosubmit", "is_current_form"]}
+        });
+
         current_login_form_request_id = 0;
         function on_get_url_for_current_login_form() {
             current_login_form_request_id += 1;
@@ -5158,18 +6175,27 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             } else {
                 broadcast_action(frame_iter(window.self), "get_url_for_current_login_form_in_subframe", current_login_form_request_id);
             }
-        }
+        };
+
         function get_url_for_current_login_form_in_subframe(current_frame_id, source_frame_id, source_frame, request_id) {
             if (document.activeElement && str.lower(document.activeElement.tagName) === "input") {
                 send_action(window.top, "send_url_for_current_login_form", request_id, document.location.href);
             }
-        }
+        };
+        Object.defineProperties(get_url_for_current_login_form_in_subframe, {
+            __argnames__ : {value: ["current_frame_id", "source_frame_id", "source_frame", "request_id"]}
+        });
+
         function send_url_for_current_login_form(current_frame_id, source_frame_id, source_frame, request_id, url) {
             if (request_id === current_login_form_request_id) {
                 current_login_form_request_id += 1;
                 qt_bridge().url_for_current_login_form(url);
             }
-        }
+        };
+        Object.defineProperties(send_url_for_current_login_form, {
+            __argnames__ : {value: ["current_frame_id", "source_frame_id", "source_frame", "request_id", "url"]}
+        });
+
         function onload() {
             var login_forms_found, form;
             if (window === window.top) {
@@ -5183,9 +6209,10 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 register_handler("get_url_for_current_login_form_in_subframe", get_url_for_current_login_form_in_subframe);
             }
             login_forms_found = false;
-            var _$rapyd$_Iter7 = _$rapyd$_Iterable(document.querySelectorAll("form"));
-            for (var _$rapyd$_Index7 = 0; _$rapyd$_Index7 < _$rapyd$_Iter7.length; _$rapyd$_Index7++) {
-                form = _$rapyd$_Iter7[_$rapyd$_Index7];
+            var ρσ_Iter16 = document.querySelectorAll("form");
+            ρσ_Iter16 = ((typeof ρσ_Iter16[Symbol.iterator] === "function") ? (ρσ_Iter16 instanceof Map ? ρσ_Iter16.keys() : ρσ_Iter16) : Object.keys(ρσ_Iter16));
+            for (var ρσ_Index16 of ρσ_Iter16) {
+                form = ρσ_Index16;
                 if (is_login_form(form)) {
                     form.addEventListener("submit", form_submitted);
                     login_forms_found = true;
@@ -5194,23 +6221,24 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             if (login_forms_found) {
                 send_action(window.top, "login_form_found", document.location.href);
             }
-        }
-        _$rapyd$_modules.passwd.input_types = input_types;
-        _$rapyd$_modules.passwd.username_names = username_names;
-        _$rapyd$_modules.passwd.current_login_form_request_id = current_login_form_request_id;
-        _$rapyd$_modules.passwd.form_submitted = form_submitted;
-        _$rapyd$_modules.passwd.get_login_inputs = get_login_inputs;
-        _$rapyd$_modules.passwd.submit_form = submit_form;
-        _$rapyd$_modules.passwd.is_login_form = is_login_form;
-        _$rapyd$_modules.passwd.login_form_found = login_form_found;
-        _$rapyd$_modules.passwd.login_form_submitted = login_form_submitted;
-        _$rapyd$_modules.passwd.on_autofill_login_form = on_autofill_login_form;
-        _$rapyd$_modules.passwd.autofill_login_form = autofill_login_form;
-        _$rapyd$_modules.passwd.do_autofill = do_autofill;
-        _$rapyd$_modules.passwd.on_get_url_for_current_login_form = on_get_url_for_current_login_form;
-        _$rapyd$_modules.passwd.get_url_for_current_login_form_in_subframe = get_url_for_current_login_form_in_subframe;
-        _$rapyd$_modules.passwd.send_url_for_current_login_form = send_url_for_current_login_form;
-        _$rapyd$_modules.passwd.onload = onload;
+        };
+
+        ρσ_modules.passwd.input_types = input_types;
+        ρσ_modules.passwd.username_names = username_names;
+        ρσ_modules.passwd.current_login_form_request_id = current_login_form_request_id;
+        ρσ_modules.passwd.form_submitted = form_submitted;
+        ρσ_modules.passwd.get_login_inputs = get_login_inputs;
+        ρσ_modules.passwd.submit_form = submit_form;
+        ρσ_modules.passwd.is_login_form = is_login_form;
+        ρσ_modules.passwd.login_form_found = login_form_found;
+        ρσ_modules.passwd.login_form_submitted = login_form_submitted;
+        ρσ_modules.passwd.on_autofill_login_form = on_autofill_login_form;
+        ρσ_modules.passwd.autofill_login_form = autofill_login_form;
+        ρσ_modules.passwd.do_autofill = do_autofill;
+        ρσ_modules.passwd.on_get_url_for_current_login_form = on_get_url_for_current_login_form;
+        ρσ_modules.passwd.get_url_for_current_login_form_in_subframe = get_url_for_current_login_form_in_subframe;
+        ρσ_modules.passwd.send_url_for_current_login_form = send_url_for_current_login_form;
+        ρσ_modules.passwd.onload = onload;
     })();
 
     (function(){
@@ -5218,24 +6246,24 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
         var __name__ = "__main__";
 
 
-        var init_crypto = _$rapyd$_modules.crypto.initialize;
-        
-        var connect_bridge = _$rapyd$_modules.qt.connect_bridge;
-        
-        var register_frames = _$rapyd$_modules.frames.register_frames;
-        
-        var mc_onload = _$rapyd$_modules.middle_click.onload;
-        
-        var focus_onload = _$rapyd$_modules.focus.onload;
-        
-        var downloads = _$rapyd$_modules.downloads.main;
-        
-        var fn_onload = _$rapyd$_modules.follow_next.onload;
-        
-        var passwd_onload = _$rapyd$_modules.passwd.onload;
-        
+        var init_crypto = ρσ_modules.crypto.initialize;
+
+        var connect_bridge = ρσ_modules.qt.connect_bridge;
+
+        var register_frames = ρσ_modules.frames.register_frames;
+
+        var mc_onload = ρσ_modules.middle_click.onload;
+
+        var focus_onload = ρσ_modules.focus.onload;
+
+        var downloads = ρσ_modules.downloads.main;
+
+        var fn_onload = ρσ_modules.follow_next.onload;
+
+        var passwd_onload = ρσ_modules.passwd.onload;
+
         function on_document_loaded() {
-            connect_bridge(function() {
+            connect_bridge(function () {
                 if (document.location.href === "__DOWNLOADS_URL__") {
                     downloads();
                 } else {
@@ -5245,7 +6273,8 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                     passwd_onload();
                 }
             });
-        }
+        };
+
         init_crypto(register_frames);
         document.addEventListener("DOMContentLoaded", on_document_loaded);
     })();
