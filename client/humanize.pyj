@@ -52,42 +52,42 @@ def relative_time(timestamp):
 
     # within 2 seconds
     if time_diff < 2 and time_diff > -2:
-        return (time_diff >= 0 ? 'just ' : '') + 'now'
+        return ('just' if time_diff >= 0 else '') + 'now'
 
     # within a minute
     if time_diff < 60 and time_diff > -60:
-        return time_diff >= 0 ? Math.floor(time_diff) + ' seconds ago' : 'in ' + Math.floor(-time_diff) + ' seconds'
+        return (Math.floor(time_diff) + ' seconds ago') if time_diff >= 0 else ('in ' + Math.floor(-time_diff) + ' seconds')
 
     # within 2 minutes
     if time_diff < 120 and time_diff > -120:
-        return time_diff >= 0 ? 'about a minute ago' : 'in about a minute'
+        return 'about a minute ago' if time_diff >= 0 else 'in about a minute'
 
     # within an hour
     if time_diff < 3600 and time_diff > -3600:
-        return time_diff >= 0 ? Math.floor(time_diff / 60) + ' minutes ago' : 'in ' + Math.floor(-time_diff / 60) + ' minutes'
+        return (Math.floor(time_diff / 60) + ' minutes ago') if time_diff >= 0 else ('in ' + Math.floor(-time_diff / 60) + ' minutes')
 
     # within 2 hours
     if time_diff < 7200 and time_diff > -7200:
-        return time_diff >= 0 ? 'about an hour ago' : 'in about an hour'
+        return 'about an hour ago' if time_diff >= 0 else 'in about an hour'
 
     # within 24 hours
     if time_diff < 86400 and time_diff > -86400:
-        return time_diff >= 0 ? Math.floor(time_diff / 3600) + ' hours ago' : 'in ' + Math.floor(-time_diff / 3600) + ' hours'
+        return (Math.floor(time_diff / 3600) + ' hours ago') if time_diff >= 0 else ('in ' + Math.floor(-time_diff / 3600) + ' hours')
 
     # within 2 days
     days2 = 2 * 86400
     if time_diff < days2 and time_diff > -days2:
-        return time_diff >= 0 ? '1 day ago' : 'in 1 day'
+        return '1 day ago' if time_diff >= 0 else 'in 1 day'
 
     # within 29 days
     days29 = 29 * 86400
     if time_diff < days29 and time_diff > -days29:
-        return time_diff >= 0 ? Math.floor(time_diff / 86400) + ' days ago' : 'in ' + Math.floor(-time_diff / 86400) + ' days'
+        return (Math.floor(time_diff / 86400) + ' days ago') if time_diff >= 0 else ('in ' + Math.floor(-time_diff / 86400) + ' days')
 
     # within 60 days
     days60 = 60 * 86400
     if time_diff < days60 and time_diff > -days60:
-        return time_diff >= 0 ? 'about a month ago' : 'in about a month'
+        return 'about a month ago' if time_diff >= 0 else 'in about a month'
 
     cur_years = new Date(current_time * 1000).getFullYear()
     ts_years = new Date(timestamp).getFullYear()
@@ -97,10 +97,10 @@ def relative_time(timestamp):
     # within a year
     month_diff = cur_months - ts_months
     if month_diff < 12 and month_diff > -12:
-        return (month_diff >= 0 ? month_diff + ' months ago' : 'in ' + (-month_diff) + ' months')
+        return (month_diff + ' months ago') if month_diff >= 0 else ('in ' + (-month_diff) + ' months')
 
     year_diff = cur_years - ts_years
     if year_diff < 2 and year_diff > -2:
-        return (year_diff >= 0 ? 'a year ago' : 'in a year')
+        return 'a year ago' if year_diff >= 0 else 'in a year'
 
-    return year_diff >= 0 ? year_diff + ' years ago' : 'in ' + (-year_diff) + ' years'
+    return (year_diff + ' years ago') if year_diff >= 0 else ('in ' + (-year_diff) + ' years')
