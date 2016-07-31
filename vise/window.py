@@ -17,7 +17,7 @@ from .ask import Ask
 from .cmd import run_command
 from .constants import appname
 from .downloads import Indicator
-from .resources import get_data_as_file, get_icon
+from .resources import get_icon
 from .settings import gprefs, profile, create_profile, quickmarks
 from .tab_tree import TabTree
 from .view import WebView
@@ -214,7 +214,7 @@ class MainWindow(QMainWindow):
         a.setVisible(False), a.run_command.connect(self.run_command)
         self.profile = create_profile(private=True) if is_private else profile()
 
-        self.show_html(get_data_as_file('welcome.html').read())
+        self.open_url(QUrl('vise:welcome'))
 
         self.restore_state()
         self.current_tab_changed()
