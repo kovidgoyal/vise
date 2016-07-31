@@ -42,7 +42,7 @@ class Bridge:
         self.reconnect()
 
     def reconnect(self):
-        self.socket = v"new WebSocket('ws://127.0.0.1:__WEBSOCKET_PORT__')"
+        self.socket = v"new WebSocket('ws://localhost:__WEBSOCKET_PORT__')"
         self.socket.onmessage = self.onmessage
         self.socket.onclose = self.onclose
         self.socket.onopen = self.onopen
