@@ -214,13 +214,39 @@ def icon_to_data(icon, w=64, h=64):
     return pixmap_to_data(icon.pixmap(w, h))
 
 
+def setup_gi():
+    'GTK is the stupidest toolkit on the planet'
+    if setup_gi.done is not None:
+        return setup_gi.done
+    try:
+        import gi
+    except ImportError:
+        setup_gi.done = False
+        return False
+    for num in range(10, 2, -1):
+        try:
+            gi.require_version('Gtk', '%d.0' % num)
+        except ValueError:
+            if num == 3:
+                setup_gi.done = False
+                return False
+    try:
+        from gi.repository import Gtk, Gio  # noqa
+    except ImportError:
+        setup_gi.done = False
+        return False
+    setup_gi.done = True
+    return True
+
+setup_gi.done = None
+
+
 @lru_cache()
 def get_content_type_icon(mime_type, size=64, as_data=False):
     if mime_type:
-        try:
-            from gi.repository import Gtk, Gio
-        except ImportError:
+        if not setup_gi():
             return b'' if as_data else QIcon()
+        from gi.repository import Gtk, Gio
         icon_theme = Gtk.IconTheme.get_default()
         if icon_theme:
             icon = Gio.content_type_get_icon(mime_type)
@@ -238,10 +264,9 @@ def get_content_type_icon(mime_type, size=64, as_data=False):
 
 @lru_cache()
 def get_theme_icon(name, size=64, as_data=False):
-    try:
-        from gi.repository import Gtk
-    except ImportError:
+    if not setup_gi():
         return b'' if as_data else QIcon()
+    from gi.repository import Gtk
     icon_theme = Gtk.IconTheme.get_default()
     if icon_theme:
         icon_info = icon_theme.choose_icon([name], size, 0)
