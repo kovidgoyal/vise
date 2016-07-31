@@ -5,3 +5,9 @@ let g:ycm_python_binary_path = 'python3'
 set wildignore+==template.py
 set wildignore+==tags
 set wildignore+=*.pyj-cached
+
+python <<endpython
+import sys
+sys.path.insert(0, os.path.abspath('.'))
+import vise
+endpython
