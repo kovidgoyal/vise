@@ -18,16 +18,17 @@ def form_submitted(ev):
 
 def get_login_inputs(form):
     username = password = None
-    for inp in form.querySelectorAll('input'):
-        if username is not None and password is not None:
-            break
-        itype = str.lower(inp.getAttribute('type') or '')
-        if itype is 'password':
-            password = inp
-        elif itype in input_types:
-            name = str.lower(inp.name or inp.id or '')
-            if name in username_names:
-                username = inp
+    if form.querySelectorAll:
+        for inp in form.querySelectorAll('input'):
+            if username is not None and password is not None:
+                break
+            itype = str.lower(inp.getAttribute('type') or '')
+            if itype is 'password':
+                password = inp
+            elif itype in input_types:
+                name = str.lower(inp.name or inp.id or '')
+                if name in username_names:
+                    username = inp
     return username, password
 
 def submit_form(form):
