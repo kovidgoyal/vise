@@ -42,6 +42,8 @@ def option_parser():
         'Run python code in the vise context'))
     parser.add_argument('--pw-from-stdin', action='store_true', default=False, help=_(
         'Read the master password for the password manager from stdin'))
+    parser.add_argument('--new-instance', action='store_true', default=False, help=_(
+        'Do not try to connect to an already running instance'))
     parser.add_argument('urls', metavar='URL', nargs='*', help='urls to open')
     return parser
 
@@ -58,7 +60,7 @@ class Application(QApplication):
     password_loaded = pyqtSignal(object, object)
     remove_window_later = pyqtSignal(object)
 
-    def __init__(self, args, master_password=None):
+    def __init__(self, args, master_password=None, urls=(), new_instance=False):
         QApplication.__init__(self, [])
         if not QSslSocket.supportsSsl():
             raise SystemExit('Qt has been compiled without SSL support!')
@@ -66,7 +68,7 @@ class Application(QApplication):
         if master_password is not None:
             password_db.start_load(master_password, self.password_loaded.emit)
 
-        self.run_local_server(args)
+        self.run_local_server(urls, new_instance)
         sys.excepthook = self.on_unhandled_error
         self.windows = []
         self.remove_window_later.connect(self.remove_window, type=Qt.QueuedConnection)
@@ -113,15 +115,17 @@ class Application(QApplication):
         key = key_from_url(url)
         password_db.add_account(key, username, password)
 
-    def run_local_server(self, args):
+    def run_local_server(self, urls, new_instance):
         prefix = r'\\.\pipe' if iswindows else tempfile.gettempdir().rstrip('/')
         server_name = prefix + os.sep + appname + '-local-server'
         s = QLocalSocket()
         s.connectToServer(server_name)
         if s.waitForConnected(500):
+            if new_instance:
+                return
             stream = QTextStream(s)
             stream.setCodec('UTF-8')
-            cargs = json.dumps({'open': args.urls}, ensure_ascii=False)
+            cargs = json.dumps({'open': urls}, ensure_ascii=False)
             stream << cargs
             stream.flush()
             s.waitForBytesWritten()
@@ -215,19 +219,21 @@ class Application(QApplication):
         # Reset excepthook otherwise we get a segfault on exit, since the application object is deleted
         # before we exit
         sys.excepthook = sys.__excepthook__
-        self.local_server.close()
+        if hasattr(self, 'local_server'):
+            self.local_server.close()
+            del self.local_server
         self.downloads.break_cycles()
         for w in self.windows:
             w.break_cycles()
             w.deleteLater()
         for s in (self.password_loaded, self.remove_window_later):
             s.disconnect()
-        del self.windows, self.network_access_manager, self.local_server
+        del self.windows, self.network_access_manager
 
 
-def run_app(urls=(), callback=None, callback_wait=0, master_password=None):
+def run_app(urls=(), callback=None, callback_wait=0, master_password=None, new_instance=False):
     env = os.environ.copy()
-    app = Application([], master_password=master_password)
+    app = Application([], master_password=master_password, urls=urls, new_instance=new_instance)
     if False:
         # This is disabled because it is insecure, see
         # https://bugreports.qt.io/browse/QTBUG-50725
@@ -273,4 +279,4 @@ def main():
 
     pw = sys.stdin.read().rstrip() if args.pw_from_stdin else None
 
-    run_app(args.urls, master_password=pw)
+    run_app(args.urls, master_password=pw, new_instance=args.new_instance)
