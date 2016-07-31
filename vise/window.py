@@ -6,6 +6,7 @@ import os
 from functools import partial
 from gettext import gettext as _
 
+import sip
 from PyQt5.Qt import (
     QMainWindow, Qt, QSplitter, QApplication, QStackedWidget, QUrl, QLabel,
     QToolButton, QFrame, QKeySequence, QLineEdit, pyqtSignal, QWidget,
@@ -285,9 +286,10 @@ class MainWindow(QMainWindow):
 
     def break_cycles(self):
         for tab in self.tabs:
-            self.stack.removeWidget(tab)
-            tab.break_cycles()
-            tab.deleteLater()
+            if not sip.isdeleted(tab):
+                self.stack.removeWidget(tab)
+                tab.break_cycles()
+                tab.deleteLater()
         self.tabs = []
 
     def url_changed(self):
