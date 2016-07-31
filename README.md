@@ -31,7 +31,7 @@ Ad blocking
 
 While it was originally my plan to add integrated ad-blocking to vise, I
 decided against it, since a better solution is to use either a system-wide (or
-netter network-wide) hosts blacklist, for example:
+better network-wide) hosts blacklist, for example:
 https://github.com/StevenBlack/hosts or use a system-wide privacy enabled
 proxy, such a privoxy. These solutions have the advantage of working across all
 applications, not just the browser.
