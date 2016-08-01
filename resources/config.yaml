@@ -85,6 +85,9 @@ fonts:
 colors:
     tab tree background: darkGray
     tab tree foreground: black
+    tab tree hover gradient start: "#e7effd"
+    tab tree hover gradient end: "#cbdaf1"
+    tab tree hover border: "#bfcde4"
     status bar background: black
     status bar foreground: white
 

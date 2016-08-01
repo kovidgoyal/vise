@@ -210,8 +210,8 @@ class TabTree(QTreeWidget):
                 }
 
                 QTreeView::item:hover {
-                    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #e7effd, stop: 1 #cbdaf1);
-                    border: 1px solid #bfcde4;
+                    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 GS, stop: 1 GE);
+                    border: 1px solid BC;
                     border-radius: 6px;
                 }
 
@@ -230,7 +230,10 @@ class TabTree(QTreeWidget):
             'CLOSED', get_data_as_path('images/tree-closed.svg')).replace(
             'OPEN', get_data_as_path('images/tree-open.svg')).replace(
             'BG', color('tab tree background', 'palette(window)')).replace(
-            'FG', color('tab tree foreground', 'palette(window-text)'))
+            'FG', color('tab tree foreground', 'palette(window-text)')).replace(
+            'GS', color('tab tree hover gradient start', '#e7effd')).replace(
+            'GE', color('tab tree hover gradient end', '#cbdaf1')).replace(
+            'BC', color('tab tree hover border', '#bfcde4'))
         )
         self.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
         self.setAutoScrollMargin(ICON_SIZE * 2)
