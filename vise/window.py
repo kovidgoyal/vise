@@ -275,6 +275,9 @@ class MainWindow(QMainWindow):
     def close_tab(self, tab=None):
         tab = tab or self.current_tab
         if tab is not None:
+            idx = self.stack.indexOf(tab)
+            idx = idx - 1 if idx > 0 else idx + 1
+            self.stack.setCurrentIndex(idx)
             self.tab_tree.remove_tab(tab)
             tab.break_cycles()
             self.tabs.remove(tab)
