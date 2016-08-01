@@ -8,6 +8,7 @@ from PyQt5.Qt import (
 
 from . import actions
 from .ask import Ask
+from .config import load_config
 
 modifiers_mask = int(Qt.ShiftModifier | Qt.ControlModifier | Qt.AltModifier | Qt.MetaModifier)
 
@@ -29,56 +30,35 @@ def key_to_string(key):
 normal_key_map, input_key_map = {}, {}
 
 
-def read_key_map(which, raw):
-    for line in raw.splitlines():
-        line = line.strip()
-        if line:
-            key, action = (x.strip() for x in line.partition(' ')[::2])
-            key = QKeySequence.fromString(key)[0]
+def read_key_map(mode='normal'):
+    km = mode + ' mode keys'
+    dkm, ukm = load_config(user=False)[km], load_config(user=True).get(km) or {}
+
+    def get_keys(x):
+        if isinstance(x, str):
+            x = [x]
+        for k in x:
+            if isinstance(k, str):
+                yield QKeySequence.fromString(k)[0]
+
+    key_map = {}
+    for action, x in ukm.items():
+        if isinstance(action, str):
+            try:
+                action = getattr(actions, action)
+            except AttributeError:
+                continue
+            key_map.update(dict.fromkeys(get_keys(x), action))
+    for action, x in dkm.items():
+        if isinstance(action, str):
             action = getattr(actions, action)
-            which[key] = action
+            for k in get_keys(x):
+                if k not in key_map:
+                    key_map[k] = action
+    return key_map
 
-
-read_key_map(normal_key_map, '''\
-Alt+Right                   forward
-Alt+Left                    back
-Shift+Down                  next_tab
-Shift+Up                    prev_tab
-D                           close_tab
-/                           search_forward
-?                           search_back
-Shift+?                     search_back
-N                           next_match
-Shift+N                     prev_match
-Ctrl+Z                      set_passthrough_mode
-G                           quickmark
-Shift+G                     quickmark_newtab
-J                           scroll_line_down
-K                           scroll_line_up
-H                           scroll_line_left
-L                           scroll_line_right
-Y                           copy_url
-P                           paste_and_go
-Shift+P                     paste_and_go_newtab
-;                           ask
-:                           ask
-Shift+;                     ask
-Shift+:                     ask
-O                           ask_open
-Shift+O                     ask_tabopen
-R                           reload
-Shift+R                     hard_reload
-T                           choose_tab
-]                           follow_next
-[                           follow_previous
-''')
-
-
-read_key_map(input_key_map, '''\
-Escape                     exit_text_input
-Ctrl+I                     edit_text
-Ctrl+L                     fill_login_form
-''')
+normal_key_map = read_key_map()
+input_key_map = read_key_map('insert')
 
 
 class KeyFilter(QObject):

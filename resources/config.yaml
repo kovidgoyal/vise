@@ -1,0 +1,38 @@
+normal mode keys:
+    forward: Alt+Right
+    back: Alt+Left
+    next_tab: Shift+Down
+    prev_tab: Shift+Up
+    ask:
+        - ';'
+        - ':'
+        - 'Shift+:'
+        - 'Shift+;'
+    ask_open: O
+    ask_tabopen: Shift+O
+    search_forward: /
+    search_back: 
+        - '?'
+        - 'Shift+?'
+    next_match: N
+    prev_match: Shift:N
+    set_passthrough_mode: Ctrl+Z
+    quickmark: G
+    quickmark_newtab: Shift+G
+    scroll_line_down: J
+    scroll_line_up: K
+    scroll_line_left: H
+    scroll_line_right: L
+    copy_url: Y
+    paste_and_go: P
+    paste_and_go_newtab: Shift+P
+    reload: R
+    hard_reload: Shift+R
+    choose_tab: T
+    follow_next: ']'
+    follow_previous: '['
+
+insert mode keys:
+    exit_text_input: Escape
+    edit_text: Ctrl+I
+    fill_login_form: Ctrl+L
