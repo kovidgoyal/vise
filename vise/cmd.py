@@ -37,10 +37,15 @@ class PasswordManager(Command):
 
 def init_commands():
     all_commands = set()
-    for group in (open_commands, tab_commands):
-        for name, val in vars(group).items():
+
+    def process_dict(d):
+        for name, val in d.items():
             if type(val) is type and issubclass(val, Command) and val is not Command:
                 all_commands.add(val)
+
+    for group in (open_commands, tab_commands):
+        process_dict(vars(group))
+    process_dict(globals())
     return {c() for c in all_commands}
 
 
