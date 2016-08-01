@@ -1,3 +1,5 @@
 Add a keyboard usage mnemonic table to the welcome page
 
 Implement keyboard based link following
+
+Implement undoing of tab closes and a restart command/session saving that preserves tabs
