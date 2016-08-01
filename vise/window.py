@@ -275,8 +275,11 @@ class MainWindow(QMainWindow):
     def close_tab(self, tab=None):
         tab = tab or self.current_tab
         if tab is not None:
-            self.tab_tree.next_tab()
-            self.tab_tree.remove_tab(tab)
+            children_to_close = self.tab_tree.remove_tab(tab)
+            tab.break_cycles()
+            self.tabs.remove(tab)
+            self.stack.removeWidget(tab)
+        for tab in children_to_close:
             tab.break_cycles()
             self.tabs.remove(tab)
             self.stack.removeWidget(tab)

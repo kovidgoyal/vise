@@ -257,9 +257,17 @@ class TabTree(QTreeWidget):
 
     def remove_tab(self, tab):
         item = self.item_for_tab(tab)
+        children_to_close = ()
         if item is not None:
             p = item.parent() or self.invisibleRootItem()
+            if item.isExpanded():
+                self.next_tab()
+                p.insertChildren(p.indexOfChild(item), item.takeChildren())
+            else:
+                children_to_close = tuple(i.tab for i in item.takeChildren())
+                self.next_tab()
             p.removeChild(item)
+        return children_to_close
 
     def loading_status_changed(self, item, loading):
         if loading:
