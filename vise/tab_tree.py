@@ -150,6 +150,14 @@ class TabItem(QTreeWidgetItem):
     def tab(self):
         return self.tabref()
 
+    @property
+    def current_title(self):
+        return self.data(0, DISPLAY_ROLE)
+
+    @property
+    def current_icon(self):
+        return self.data(0, DECORATION_ROLE)
+
     def __iter__(self):
         for i in range(self.childCount()):
             child = self.child(i)
@@ -380,7 +388,7 @@ class TabTree(QTreeWidget):
         text = text.strip()
         for item in self:
             tab = item.tab
-            if tab is not None and item.text(0).strip() == text:
+            if tab is not None and item.data(0, DISPLAY_ROLE).strip() == text:
                 return item
 
     def activate_tab(self, text):

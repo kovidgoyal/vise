@@ -25,7 +25,7 @@ class CompletionCandidate:
                     ans |= set(range(idx, idx + len(ss)))
             return sorted(ans)
 
-        text = tab_item.text(0)
+        text = tab_item.current_title
         self.text = make_highlighted_text(text, get_positions(text))
 
     @property
@@ -33,14 +33,14 @@ class CompletionCandidate:
         t = self.tabref()
         if t is None:
             return ''
-        return t.text(0)
+        return t.current_title
 
     @property
     def icon(self):
         t = self.tabref()
         if t is None:
             return QIcon()
-        return t.data(0, Qt.DecorationRole)
+        return t.current_icon or QIcon()
 
     def adjust_size_hint(self, option, ans):
         ans.setHeight(max(option.decorationSize.height() + 6, ans.height()))
@@ -59,7 +59,7 @@ class CompletionCandidate:
 
 
 def tab_matches(item, substrings):
-    text = item.text(0).lower()
+    text = item.current_title.lower()
     for ss in substrings:
         if ss.lower() not in text:
             return False
