@@ -166,7 +166,7 @@ class Application(QApplication):
             return
         urls = [x for x in urls if isinstance(x, str)]
         if urls:
-            self.open_urls(urls, in_current_tab=False)
+            self.open_urls(urls, in_current_tab=False, switch_to_tab=True)
 
     def new_window(self, is_private=False):
         w = MainWindow(is_private=is_private)
@@ -180,12 +180,12 @@ class Application(QApplication):
         except ValueError:
             pass
 
-    def open_urls(self, urls, in_current_tab=True):
+    def open_urls(self, urls, in_current_tab=True, switch_to_tab=False):
         if not self.windows:
             self.new_window().show()
         w = self.activeWindow() or self.windows[0]
         for i, url in enumerate(urls):
-            w.open_url(parse_url(url), in_current_tab=in_current_tab and i == 0)
+            w.open_url(parse_url(url), in_current_tab=in_current_tab and i == 0, switch_to_tab=switch_to_tab and i == 0)
 
     def error(self, *args, **kwargs):
         kwargs['file'] = sys.stderr
