@@ -237,8 +237,6 @@ def run_app(urls=(), callback=None, callback_wait=0, master_password=None, new_i
     if False:
         # This is disabled because it is insecure, see
         # https://bugreports.qt.io/browse/QTBUG-50725
-        # Also it causes the process to segfault on exit.
-        # https://bugreports.qt.io/browse/QTBUG-50797
         # Note that you can get a list of inspectable pages
         # by fetching the /json URL from the debugging server.
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
