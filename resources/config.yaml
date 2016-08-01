@@ -56,3 +56,8 @@ fonts:
         minimum-logical: default
         default-size: default
         default-monospace-size: default
+
+
+colors:
+    tab tree background: darkGray
+    tab tree foreground: black

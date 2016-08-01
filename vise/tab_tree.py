@@ -14,6 +14,7 @@ from PyQt5.Qt import (
     QStyle, QEvent, QColor, QMenu
 )
 
+from .config import color
 from .downloads import DOWNLOADS_URL, downloads_icon
 from .resources import get_data_as_path
 from .utils import elided_text, draw_snake_spinner
@@ -197,8 +198,8 @@ class TabTree(QTreeWidget):
         self.setPalette(pal)
         self.setStyleSheet('''
                 QTreeView {
-                    background: darkGray;
-                    color: black;
+                    background: BG;
+                    color: FG;
                     border: none;
                 }
 
@@ -227,8 +228,10 @@ class TabTree(QTreeWidget):
                 }
         '''.replace(
             'CLOSED', get_data_as_path('images/tree-closed.svg')).replace(
-            'OPEN', get_data_as_path('images/tree-open.svg')
-        ))
+            'OPEN', get_data_as_path('images/tree-open.svg')).replace(
+            'BG', color('tab tree background', 'palette(window)')).replace(
+            'FG', color('tab tree foreground', 'palette(window-text)'))
+        )
         self.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
         self.setAutoScrollMargin(ICON_SIZE * 2)
         self.setAnimated(True)

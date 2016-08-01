@@ -79,3 +79,19 @@ def font_sizes():
                 sizes[ftype] = val
 
     return sizes
+
+
+@lru_cache()
+def colors():
+    uc = load_config(user=True).get('colors') or {}
+    dc = load_config(user=False)['colors']
+    ans = dc.copy()
+    ans.update(uc)
+    return ans
+
+
+def color(key, default):
+    ans = colors().get(key)
+    if not ans or ans == 'default':
+        ans = default
+    return ans
