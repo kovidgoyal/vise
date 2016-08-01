@@ -86,7 +86,7 @@ class SwitchToTab(Command):
 
 class CloseOtherTabs(SwitchToTab):
 
-    names = {'tabonly'}
+    names = {'tabonly', 'tonly'}
 
     def __call__(self, cmd, rest, window):
         if not rest.strip():
