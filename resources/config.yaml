@@ -68,6 +68,11 @@ fonts:
         # default-size: 16
         # A value of "default" means to use the default values from the desktop environment
         # Note that default-size also sets the font size for the fonts used in the interface
+        # You can also specify hostname specific font sizes, like this:
+        # default-size:
+        #     mycomputer1: 14
+        #     mycomputer2: 20
+        #     *: 16
         minimum: default
         minimum-logical: default
         default-size: default

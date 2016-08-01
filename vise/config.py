@@ -64,7 +64,7 @@ def font_sizes():
 
     def get_ff(x):
         if isinstance(x, dict):
-            return conv(x.get(hostname))
+            return conv(x.get(hostname) or x.get('*'))
         return conv(x)
 
     for ftype, val in uff.items():
