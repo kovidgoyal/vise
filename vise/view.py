@@ -7,16 +7,15 @@ import json
 import weakref
 import subprocess
 import shlex
-from contextlib import closing
 from tempfile import NamedTemporaryFile
 from threading import Thread
 from gettext import gettext as _
 from functools import partial
 
 from PyQt5.Qt import (
-    QWebEngineView, QWebEnginePage, QSize, QNetworkRequest, QIcon,
-    QApplication, QPixmap, pyqtSignal, pyqtSlot, QObject,
-    QGridLayout, QCheckBox, QLabel, Qt, QWebEngineScript, pyqtBoundSignal
+    QWebEngineView, QWebEnginePage, QSize, QApplication, pyqtSignal, pyqtSlot,
+    QObject, QGridLayout, QCheckBox, QLabel, Qt, QWebEngineScript,
+    pyqtBoundSignal
 )
 
 from .auth import get_http_auth_credentials, get_proxy_auth_credentials
@@ -24,7 +23,6 @@ from .certs import cert_exceptions
 from .message_box import question_dialog
 from .places import places
 from .popup import Popup
-from .resources import get_icon
 from .utils import Dialog, safe_disconnect
 from .passwd.db import password_db, key_from_url, password_exclusions
 from .settings import gprefs
@@ -264,9 +262,7 @@ class WebView(QWebEngineView):
         self.create_page(profile)
         self.view_id = view_id
         view_id += 1
-        self.iconUrlChanged.connect(self.icon_url_changed)
-        self._icon_reply = None
-        self.icon = QIcon()
+        self.iconChanged.connect(self.icon_changed.emit)
         self._page.bridge.js_to_python.middle_clicked.connect(self.open_in_new_tab.emit)
         self._page.bridge.js_to_python.focus_changed.connect(self.on_focus_change)
         self._page.bridge.js_to_python.login_form_submitted.connect(self.on_login_form_submit)
@@ -284,10 +280,6 @@ class WebView(QWebEngineView):
         self.titleChanged.connect(self.on_title_change)
 
     def load_finished(self):
-        from .downloads import DOWNLOADS_URL
-        if self.url() == DOWNLOADS_URL:
-            self.icon = get_icon('emblem-downloads.png')
-            self.icon_changed.emit(self.icon)
         self.loading_status_changed.emit(False)
 
     def on_title_change(self, title):
@@ -345,7 +337,7 @@ class WebView(QWebEngineView):
     def break_cycles(self):
         self.popup.break_cycles()
         self._page.break_cycles()
-        for s in ('resized moved icon_changed open_in_new_tab loading_status_changed link_hovered'
+        for s in ('resized moved icon_changed open_in_new_tab loading_status_changed link_hovered urlChanged'
                   ' loadStarted loadFinished window_close_requested focus_changed passthrough_changed').split():
             safe_disconnect(getattr(self, s))
 
@@ -355,46 +347,6 @@ class WebView(QWebEngineView):
 
     def sizeHint(self):
         return QSize(800, 600)
-
-    def icon_url_changed(self, qurl):
-        if qurl.isEmpty():
-            self.icon_loaded()
-            return
-        try:
-            places.on_favicon_change(self.url(), qurl)
-        except Exception:
-            import traceback
-            traceback.print_exc()
-        self.icon = QIcon()
-        f = QApplication.instance().disk_cache.data(qurl)
-        if f is not None:
-            with closing(f):
-                raw = bytes(f.readAll())
-                p = QPixmap()
-                p.loadFromData(raw)
-                if not p.isNull():
-                    self.icon.addPixmap(p)
-
-        req = QNetworkRequest(qurl)
-        self._icon_reply = QApplication.instance().network_access_manager.get(req)
-        self._icon_reply.setParent(self)
-        self._icon_reply.finished.connect(self.icon_loaded)
-        self.icon_changed.emit(self.icon)
-
-    def icon_loaded(self):
-        self.icon = QIcon()
-        if self._icon_reply is not None:
-            if self._icon_reply.error() == self._icon_reply.NoError:
-                data = self._icon_reply.readAll()
-                pixmap = QPixmap()
-                pixmap.loadFromData(data)
-                self.icon.addPixmap(pixmap)
-                self._icon_reply.deleteLater()
-                self._icon_reply = None
-            else:
-                QApplication.instance().error('Failed to download favicon from %s with error: %s' % (
-                    self._icon_reply.url().toString(), self._icon_reply.errorString()))
-        self.icon_changed.emit(self.icon)
 
     def raise_tab(self):
         self.main_window.raise_tab(self)

@@ -14,6 +14,7 @@ from PyQt5.Qt import (
     QStyle, QEvent, QColor, QMenu
 )
 
+from .downloads import DOWNLOADS_URL, downloads_icon
 from .resources import get_data_as_path
 from .utils import elided_text, draw_snake_spinner
 
@@ -24,6 +25,7 @@ CLOSE_HOVER_ROLE = HOVER_ROLE + 1
 MARK_ROLE = CLOSE_HOVER_ROLE + 1
 DISPLAY_ROLE = MARK_ROLE + 1
 DECORATION_ROLE = DISPLAY_ROLE + 1
+URL_ROLE = DECORATION_ROLE + 1
 ICON_SIZE = 24
 
 
@@ -110,7 +112,7 @@ class TabDelegate(QStyledItemDelegate):
                     traceback.print_exc()
                     self.errored_out = True
         else:
-            icon = index.data(DECORATION_ROLE)
+            icon = downloads_icon() if index.data(URL_ROLE) == DOWNLOADS_URL else index.data(DECORATION_ROLE)
             icon.paint(painter, icon_rect)
         painter.restore()
 
@@ -131,10 +133,12 @@ class TabItem(QTreeWidgetItem):
         self.set_data(DECORATION_ROLE, missing_icon())
         self.set_data(ANGLE_ROLE, 0)
         self.set_data(HOVER_ROLE, False)
+        self.set_data(URL_ROLE, '')
         self.tabref = weakref.ref(tab)
         tab.title_changed.connect(partial(self.set_data, DISPLAY_ROLE))
         tab.icon_changed.connect(self.icon_changed)
         tab.loading_status_changed.connect(self._loading_status_changed)
+        tab.urlChanged.connect(partial(self.set_data, URL_ROLE))
 
     def _loading_status_changed(self, loading):
         self.set_data(ANGLE_ROLE, 0)

@@ -33,6 +33,12 @@ open_after = DynamicPrefs('open-after')
 DOWNLOADS_URL = QUrl(DU)
 
 
+def downloads_icon():
+    if not hasattr(downloads_icon, 'icon'):
+        downloads_icon.icon = get_icon('emblem-downloads.png')
+    return downloads_icon.icon
+
+
 @lru_cache(maxsize=50)
 def mimetype_icon_data(mime_type):
     raw = get_content_type_icon(mime_type, as_data=True) or get_data('images/blank.png')
@@ -133,7 +139,7 @@ class Indicator(QWidget):  # {{{
             r = self.rect()
             painter = QPainter(self)
             painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
-            icon = get_icon('emblem-downloads.png')
+            icon = downloads_icon()
             pmap = icon.pixmap(r.width(), r.height())
             x = (r.width() - self.minimumWidth()) // 2
             y = (r.height() - self.minimumWidth()) // 2
