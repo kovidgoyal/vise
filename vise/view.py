@@ -337,7 +337,7 @@ class WebView(QWebEngineView):
     def break_cycles(self):
         self.popup.break_cycles()
         self._page.break_cycles()
-        for s in ('resized moved icon_changed open_in_new_tab loading_status_changed link_hovered urlChanged'
+        for s in ('resized moved icon_changed open_in_new_tab loading_status_changed link_hovered urlChanged iconChanged'
                   ' loadStarted loadFinished window_close_requested focus_changed passthrough_changed').split():
             safe_disconnect(getattr(self, s))
 
