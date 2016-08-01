@@ -11,8 +11,7 @@ from collections import defaultdict
 from functools import lru_cache
 
 from PyQt5.Qt import (
-    QWebEngineProfile, QApplication, QWebEngineScript, QFile, QIODevice,
-    QKeySequence, QByteArray
+    QWebEngineProfile, QApplication, QWebEngineScript, QKeySequence, QByteArray
 )
 
 from .constants import config_dir, appname, cache_dir, str_version, DOWNLOADS_URL
@@ -115,11 +114,6 @@ class DynamicPrefs:
         self.buffer_commits = False
 
 gprefs = DynamicPrefs('gui-dynamic')
-qwebchannel_js = QFile(':/qtwebchannel/qwebchannel.js')
-if not qwebchannel_js.open(QIODevice.ReadOnly):
-    raise SystemExit('Failed to load qwebchannel.js with error: %s' % qwebchannel_js.errorString())
-qwebchannel_js = bytes(qwebchannel_js.readAll()).decode('utf-8')
-# qwebchannel_js = open('/usr/src/qt5/qtwebchannel/src/webchannel/qwebchannel.js').read()
 
 
 def safe_makedirs(path):
