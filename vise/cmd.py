@@ -6,8 +6,8 @@ from gettext import gettext as _
 
 
 from .commands import Command
-from .commands.open import Open  # noqa
-from .commands.tab import SwitchToTab, CloseOtherTabs, CloseToBottom # noqa
+import vise.commands.open as open_commands
+import vise.commands.tab as tab_commands
 
 
 class Close(Command):
@@ -35,16 +35,28 @@ class PasswordManager(Command):
             d.exec_()
 
 
-all_commands = {x() for x in locals().values() if x is not Command and type(x) is type and issubclass(x, Command)}
-command_map = {}
-all_command_names = set()
-for cmd in all_commands:
-    all_command_names |= cmd.names
-    for name in cmd.names:
-        if name in command_map:
-            raise ValueError('The command name %r is used twice' % name)
-        command_map[name] = cmd
-del cmd, name
+def init_commands():
+    all_commands = set()
+    for group in (open_commands, tab_commands):
+        for name, val in vars(group).items():
+            if type(val) is type and issubclass(val, Command) and val is not Command:
+                all_commands.add(val)
+    return {c() for c in all_commands}
+
+
+def read_command_names():
+    command_map = {}
+    all_command_names = set()
+    for cmd in all_commands:
+        all_command_names |= cmd.names
+        for name in cmd.names:
+            if name in command_map:
+                raise ValueError('The command name %r is used twice' % name)
+            command_map[name] = cmd
+    return all_command_names, command_map
+
+all_commands = init_commands()
+all_command_names, command_map = read_command_names()
 
 
 def run_command(window, text):
