@@ -206,6 +206,7 @@ class MainWindow(QMainWindow):
         self.tab_tree = tt = TabTree(self)
         tt.tab_activated.connect(self.show_tab)
         tt.tab_close_requested.connect(self.close_tab)
+        tt.delete_tabs.connect(self.delete_removed_tabs)
         w.addWidget(tt)
         self.stack = s = StackedWidget(self)
         s.currentChanged.connect(self.current_tab_changed)
@@ -272,17 +273,20 @@ class MainWindow(QMainWindow):
     def raise_tab(self, tab):
         self.stack.setCurrentWidget(tab)
 
+    def delete_removed_tabs(self, tabs):
+        # Delete tabs that have already been removed from the tab tree
+        for tab in tabs:
+            tab.break_cycles()
+            try:
+                self.tabs.remove(tab)
+            except ValueError:
+                pass
+            self.stack.removeWidget(tab)
+
     def close_tab(self, tab=None):
         tab = tab or self.current_tab
         if tab is not None:
-            children_to_close = self.tab_tree.remove_tab(tab)
-            tab.break_cycles()
-            self.tabs.remove(tab)
-            self.stack.removeWidget(tab)
-        for tab in children_to_close:
-            tab.break_cycles()
-            self.tabs.remove(tab)
-            self.stack.removeWidget(tab)
+            self.delete_removed_tabs(self.tab_tree.remove_tab(tab))
         if not self.tabs:
             self.update_window_title()
 

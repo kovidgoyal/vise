@@ -11,9 +11,10 @@ from collections import OrderedDict
 from PyQt5.Qt import (
     QTreeWidget, QTreeWidgetItem, Qt, pyqtSignal, QSize, QFont, QPen, QRect,
     QApplication, QPainter, QPixmap, QIcon, QTimer, QStyledItemDelegate,
-    QStyle, QEvent, QColor
+    QStyle, QEvent, QColor, QMenu
 )
 
+from .resources import get_data_as_path
 from .utils import elided_text, draw_snake_spinner
 
 LOADING_ROLE = Qt.UserRole
@@ -161,11 +162,20 @@ class TabItem(QTreeWidgetItem):
     def __hash__(self):
         return self.uid
 
+    def has_ancestor(self, a):
+        p = self.parent()
+        while p:
+            if p is a:
+                return True
+            p = p.parent()
+        return False
+
 
 class TabTree(QTreeWidget):
 
     tab_activated = pyqtSignal(object)
     tab_close_requested = pyqtSignal(object)
+    delete_tabs = pyqtSignal(object)
 
     def __init__(self, parent):
         QTreeWidget.__init__(self, parent)
@@ -173,6 +183,40 @@ class TabTree(QTreeWidget):
         pal.setColor(pal.Highlight, pal.color(pal.Base))
         pal.setColor(pal.HighlightedText, pal.color(pal.Text))
         self.setPalette(pal)
+        self.setStyleSheet('''
+                QTreeView {
+                    background: darkGray;
+                    color: black;
+                    border: none;
+                }
+
+                QTreeView::item {
+                    border: 1px solid transparent;
+                    padding-top:0.5ex;
+                    padding-bottom:0.5ex;
+                }
+
+                QTreeView::item:hover {
+                    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #e7effd, stop: 1 #cbdaf1);
+                    border: 1px solid #bfcde4;
+                    border-radius: 6px;
+                }
+
+                QTreeView::branch {
+                    background: darkGray;
+                }
+
+                QTreeView::branch:has-children:!has-siblings:closed, QTreeView::branch:closed:has-children:has-siblings {
+                    image: url(CLOSED);
+                }
+
+                QTreeView::branch:open:has-children:!has-siblings, QTreeView::branch:open:has-children:has-siblings  {
+                    image: url(OPEN);
+                }
+        '''.replace(
+            'CLOSED', get_data_as_path('images/tree-closed.svg')).replace(
+            'OPEN', get_data_as_path('images/tree-open.svg')
+        ))
         self.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
         self.setAutoScrollMargin(ICON_SIZE * 2)
         self.setAnimated(True)
@@ -200,6 +244,43 @@ class TabTree(QTreeWidget):
         self.itemEntered.connect(lambda item, col: item.set_data(HOVER_ROLE, True))
         self.setCursor(Qt.PointingHandCursor)
         self.viewport().installEventFilter(self)
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.show_context_menu)
+
+    def show_context_menu(self, pos):
+        item = self.itemAt(pos)
+        if not item:
+            return
+        m = QMenu(self)
+        m.addAction(_('Close tabs to the bottom'), partial(self.close_tabs_to_bottom, item))
+        m.addAction(_('Close other tabs'), partial(self.close_other_tabs, item))
+        m.exec_(self.mapToGlobal(pos))
+
+    def close_tabs_to_bottom(self, item_or_tab):
+        item = item_or_tab if isinstance(item_or_tab, TabItem) else self.item_for_tab(item_or_tab)
+        if item:
+            tabs_to_delete = []
+            found_self = False
+            for i in tuple(self):
+                found_self = found_self or i is item
+                if found_self:
+                    (i.parent() or self.invisibleRootItem()).removeChild(i)
+                    tabs_to_delete.append(i.tab)
+            self.delete_tabs.emit(tuple(filter(None, tabs_to_delete)))
+
+    def close_other_tabs(self, item_or_tab):
+        item = item_or_tab if isinstance(item_or_tab, TabItem) else self.item_for_tab(item_or_tab)
+        if item:
+            tabs_to_delete = []
+            keep_children = not item.isExpanded()
+            for i in tuple(self):
+                if i is not item and (not keep_children or not i.has_ancestor(item)):
+                    p = i.parent() or self.invisibleRootItem()
+                    p.removeChild(i)
+                    tabs_to_delete.append(i.tab)
+            (item.parent() or self.invisibleRootItem()).removeChild(item)
+            self.addTopLevelItem(item)
+            self.delete_tabs.emit(tuple(filter(None, tabs_to_delete)))
 
     def eventFilter(self, widget, event):
         if widget is self.viewport():
@@ -267,7 +348,7 @@ class TabTree(QTreeWidget):
                 children_to_close = tuple(i.tab for i in item.takeChildren())
                 self.next_tab()
             p.removeChild(item)
-        return children_to_close
+        return children_to_close + (tab,)
 
     def loading_status_changed(self, item, loading):
         if loading:
@@ -295,13 +376,18 @@ class TabTree(QTreeWidget):
         if expand and not item.isExpanded():
             item.setExpanded(True)
 
-    def activate_tab(self, text):
+    def item_for_text(self, text):
         text = text.strip()
         for item in self:
             tab = item.tab
             if tab is not None and item.text(0).strip() == text:
-                self._activate_item(item, tab)
-                return True
+                return item
+
+    def activate_tab(self, text):
+        item = self.item_for_text(text)
+        if item is not None:
+            self._activate_item(item, item.tab)
+            return True
 
     def next_tab(self, forward=True):
         tabs = self if forward else reversed(tuple(self))

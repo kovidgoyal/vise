@@ -58,6 +58,14 @@ class CompletionCandidate:
         painter.drawStaticText(QPoint(x, y), self.text)
 
 
+def tab_matches(item, substrings):
+    text = item.text(0).lower()
+    for ss in substrings:
+        if ss.lower() not in text:
+            return False
+    return True
+
+
 class SwitchToTab(Command):
 
     names = {'tab'}
@@ -65,19 +73,30 @@ class SwitchToTab(Command):
     def completions(self, cmd, prefix):
         tt = QApplication.instance().activeWindow().tab_tree
         substrings = prefix.split(' ')
-
-        def matches(item):
-            text = item.text(0).lower()
-            for ss in substrings:
-                if ss.lower() not in text:
-                    return False
-            return True
-        items = [CompletionCandidate(item, substrings) for item in tt if matches(item)]
+        items = [CompletionCandidate(item, substrings) for item in tt if tab_matches(item, substrings)]
         return items
 
     def __call__(self, cmd, rest, window):
         if not rest.strip():
             return
-        tt = QApplication.instance().activeWindow().tab_tree
+        tt = window.tab_tree
         if not tt.activate_tab(rest.strip()):
             window.statusBar().showMessage(_('No tab matching: ') + rest.strip(), 5000)
+
+
+class CloseOtherTabs(SwitchToTab):
+
+    names = {'tabonly'}
+
+    def __call__(self, cmd, rest, window):
+        if not rest.strip():
+            ct = window.current_tab
+            if ct:
+                window.tab_tree.close_other_tabs(ct)
+            return
+        tt = window.tab_tree
+        item = tt.item_for_text(rest.strip())
+        if item is None:
+            window.statusBar().showMessage(_('No tab matching: ') + rest.strip(), 5000)
+        else:
+            tt.close_other_tabs(item)

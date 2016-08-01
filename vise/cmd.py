@@ -7,7 +7,7 @@ from gettext import gettext as _
 
 from .commands import Command
 from .commands.open import Open  # noqa
-from .commands.tab import SwitchToTab  # noqa
+from .commands.tab import SwitchToTab, CloseOtherTabs # noqa
 
 
 class Close(Command):

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="1792"
+   height="1792"
+   viewBox="0 0 1792 1792"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="tree-open.svg">
+  <metadata
+     id="metadata10">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs8" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1920"
+     inkscape:window-height="1058"
+     id="namedview6"
+     showgrid="false"
+     inkscape:zoom="0.13169643"
+     inkscape:cx="-3113.2204"
+     inkscape:cy="896.00002"
+     inkscape:window-x="0"
+     inkscape:window-y="22"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg2" />
+  <path
+     d="M 867.74564,1252.3633 401.86195,722.46038 q -11.92979,-13.56895 -11.92979,-32.13697 0,-18.56802 11.92979,-32.13696 L 506.0893,539.63674 q 11.92957,-13.56893 28.25437,-13.56893 16.3248,0 28.25437,13.56893 l 333.402,379.21622 333.40196,-379.21622 q 11.9297,-13.56893 28.2544,-13.56893 16.3248,0 28.2544,13.56893 l 104.2274,118.54971 q 11.9296,13.56894 11.9296,32.13696 0,18.56802 -11.9296,32.13697 L 924.25445,1252.3633 q -11.92963,13.5689 -28.25441,13.5689 -16.32476,0 -28.2544,-13.5689 z"
+     id="path4"
+     inkscape:connector-curvature="0" />
+</svg>

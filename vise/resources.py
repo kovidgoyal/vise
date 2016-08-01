@@ -6,9 +6,13 @@ import os
 from PyQt5.Qt import QIcon, QPixmap
 
 
-def get_data_as_file(name):
+def get_data_as_path(name):
     base = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'resources')
-    return open(os.path.join(base, name), 'rb')
+    return os.path.join(base, name)
+
+
+def get_data_as_file(name):
+    return open(get_data_as_path(name), 'rb')
 
 
 def get_data(name):
