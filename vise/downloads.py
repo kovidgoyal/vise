@@ -267,7 +267,7 @@ class Downloads(QObject):
     def create_item(self, tab, download_item):
         tab.js_func('window.create_download',
                     download_item.id(), download_item.fname, download_item.mime_type,
-                    'vise:mimetype-icon/' + download_item.mime_type,
+                    'vise:mimetype-icon/' + (download_item.mime_type or 'application/octet-stream'),
                     download_item.url().host() or 'localhost')
 
     def update_item(self, tab, download_item):
