@@ -1,4 +1,11 @@
-normal mode keys:
+# The various options for vise. To override these settings, simply create
+# ~/.config/vise/config.yaml and copy over whichever settings you want
+# to override from here.
+
+
+##################### Keyboard shortcuts ############################
+
+normal mode keys:  # The keys used in normal mode
     forward: Alt+Right
     back: Alt+Left
     next_tab: Shift+Down
@@ -36,14 +43,19 @@ normal mode keys:
     toggle_full_screen: F11
 
 
-insert mode keys:
+insert mode keys:  # The keys used in insert mode (i.e. when the cursor is in a text input field)
     exit_text_input: Escape
     edit_text: Ctrl+I
     fill_login_form: Ctrl+L
 
+##################### Fonts ############################
 
 fonts:
     families:
+        # These define the font families used on websites that do not specify their own fonts. For example:
+        # sans-serif: Liberation Sans
+        # A value of "default" means to use the desktop environment font setting.
+        # Note that the value of sans-serif is used as the general font for the interface
         standard: default
         fixed: default
         serif: default
@@ -52,11 +64,18 @@ fonts:
         fantasy: default
         pictograph: default
     sizes:
+        # Control the sizes of fonts. Should be numbers, in pixels. For example:
+        # default-size: 16
+        # A value of "default" means to use the default values from the desktop environment
+        # Note that default-size also sets the font size for the fonts used in the interface
         minimum: default
         minimum-logical: default
         default-size: default
         default-monospace-size: default
 
+##################### Colors ############################
+#
+# A value of "default" means use the colors specified by the desktop environment color scheme.
 
 colors:
     tab tree background: darkGray
