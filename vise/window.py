@@ -410,12 +410,13 @@ class MainWindow(QMainWindow):
 
     def do_search(self, text=None, forward=True):
         if self.current_tab is not None:
-            if text is None:
-                text = self.status_msg.current_search_text
-            # For the moment we cannot use a callback to get the result of the
-            # search because of a bug in PyQt
-            self.current_tab.findText(
-                text, QWebEnginePage.FindFlags(0) if forward else QWebEnginePage.FindBackward)
+            text = self.status_msg.current_search_text if text is None else text
+            self.current_tab.find_text(text, self.search_done)
+
+    def search_done(self, text, found):
+        if text:
+            msg = _('%s found') % text if found else _('%s not found!') % text
+            self.statusBar().showMessage(msg, 1000 if found else 2000)
 
     def clear_search_highlighting(self):
         self.current_tab.findText('', QWebEnginePage.FindFlags(0))

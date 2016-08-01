@@ -15,7 +15,7 @@ from functools import partial
 from PyQt5.Qt import (
     QWebEngineView, QWebEnginePage, QSize, QApplication, pyqtSignal, pyqtSlot,
     QObject, QGridLayout, QCheckBox, QLabel, Qt, QWebEngineScript,
-    pyqtBoundSignal
+    pyqtBoundSignal, QTimer
 )
 
 from .auth import get_http_auth_credentials, get_proxy_auth_credentials
@@ -282,6 +282,9 @@ class WebView(QWebEngineView):
         self.text_input_focused = False
         self._force_passthrough = False
         self.titleChanged.connect(self.on_title_change)
+        self.find_debounce_timer = t = QTimer(self)
+        t.setInterval(100), t.setSingleShot(True)
+        t.timeout.connect(self.find_text_done)
 
     def load_finished(self):
         self.loading_status_changed.emit(False)
@@ -430,3 +433,17 @@ class WebView(QWebEngineView):
             if accounts:
                 ac = accounts[0]
                 self._page.bridge.autofill_login_form.emit(url, ac['username'], ac['password'], ac['autologin'], is_current_form)
+
+    def find_text(self, text, callback=None, forward=True):
+        def cb(found):
+            if callback is not None:
+                self.find_text_data = (text, found, callback)
+                self.find_debounce_timer.start()
+
+        self._page.findText(
+            text, QWebEnginePage.FindFlags(0) if forward else QWebEnginePage.FindBackward, cb)
+
+    def find_text_done(self):
+        text, found, callback = self.find_text_data
+        del self.find_text_data
+        callback(text, found)
