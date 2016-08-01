@@ -288,7 +288,7 @@ class MainWindow(QMainWindow):
         if tab is not None:
             self.delete_removed_tabs(self.tab_tree.remove_tab(tab))
         if not self.tabs:
-            self.update_window_title()
+            self.open_url(QUrl('vise:welcome'), switch_to_tab=True)
 
     def break_cycles(self):
         for tab in self.tabs:
