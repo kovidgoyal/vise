@@ -15,6 +15,7 @@ from PyQt5.Qt import (
 
 from .ask import Ask
 from .cmd import run_command
+from .config import color
 from .constants import appname
 from .downloads import Indicator
 from .resources import get_icon
@@ -198,6 +199,13 @@ class MainWindow(QMainWindow):
         self.statusBar().addPermanentWidget(self.downloads_indicator)
         addsep()
         self.statusBar().addPermanentWidget(self.passthrough_button)
+        self.statusBar().setStyleSheet('''
+        QStatusBar { color: FG; background: BG; }
+        QStatusBar QLabel { color: FG; background: BG; }
+        '''.replace(
+            'FG', color('status bar foreground', 'palette(window-text)')).replace(
+            'BG', color('status bar background', 'palette(window)'))
+        )
 
         self.main_splitter = w = QSplitter(self)
         self.setCentralWidget(w)

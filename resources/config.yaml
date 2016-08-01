@@ -61,3 +61,5 @@ fonts:
 colors:
     tab tree background: darkGray
     tab tree foreground: black
+    status bar background: black
+    status bar foreground: white
