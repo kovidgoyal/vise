@@ -181,6 +181,9 @@ def create_profile(parent=None, private=False):
         raise
     ans.url_handler = UrlSchemeHandler(ans)
     ans.installUrlSchemeHandler(QByteArray(b'vise'), ans.url_handler)
+    s = ans.settings()
+    s.setDefaultTextEncoding('utf-8')
+    s.setAttribute(s.FullScreenSupportEnabled, True)
     return ans
 
 _profile = None
