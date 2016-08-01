@@ -10,7 +10,7 @@ import sip
 from PyQt5.Qt import (
     QMainWindow, Qt, QSplitter, QApplication, QStackedWidget, QUrl, QLabel,
     QToolButton, QFrame, QKeySequence, QLineEdit, pyqtSignal, QWidget,
-    QHBoxLayout, QWebEnginePage,
+    QHBoxLayout, QWebEnginePage, QTimer
 )
 
 from .ask import Ask
@@ -312,6 +312,7 @@ class MainWindow(QMainWindow):
             self.delete_removed_tabs(self.tab_tree.remove_tab(tab))
         if not self.tabs:
             self.open_url(QUrl('vise:welcome'), switch_to_tab=True)
+            QTimer.singleShot(0, self.current_tab_changed)
 
     def break_cycles(self):
         for tab in self.tabs:
