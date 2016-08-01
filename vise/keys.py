@@ -42,8 +42,8 @@ def read_key_map(which, raw):
 read_key_map(normal_key_map, '''\
 Alt+Right                   forward
 Alt+Left                    back
-Shift+Right                 next_tab
-Shift+Left                  prev_tab
+Shift+Down                  next_tab
+Shift+Up                    prev_tab
 D                           close_tab
 /                           search_forward
 ?                           search_back
