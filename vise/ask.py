@@ -13,6 +13,8 @@ from PyQt5.Qt import (
 from .cmd import command_map, all_command_names
 from .utils import make_highlighted_text
 
+sorted_command_names = sorted(all_command_names)
+
 
 class Completions(QAbstractListModel):
 
@@ -144,7 +146,7 @@ class Ask(QWidget):
     def command_completions(self, prefix):
         return [
             Candidate(cmd, [i for i in range(len(prefix))])
-            for cmd in all_command_names if cmd.startswith(prefix)
+            for cmd in sorted_command_names if cmd.startswith(prefix)
         ]
 
     def keyPressEvent(self, ev):
