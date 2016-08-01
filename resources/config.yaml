@@ -3,6 +3,7 @@ normal mode keys:
     back: Alt+Left
     next_tab: Shift+Down
     prev_tab: Shift+Up
+    close_tab: D
     ask:
         - ';'
         - ':'
