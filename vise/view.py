@@ -23,9 +23,10 @@ from .certs import cert_exceptions
 from .message_box import question_dialog
 from .places import places
 from .popup import Popup
-from .utils import Dialog, safe_disconnect
+from .utils import Dialog, safe_disconnect, ascii_lowercase
 from .passwd.db import password_db, key_from_url, password_exclusions
 from .settings import gprefs
+from .site_permissions import site_permissions
 
 view_id = 0
 
@@ -332,9 +333,23 @@ class WebView(QWebEngineView):
         self._page.triggerAction(self._page.ExitFullScreen)
 
     def full_screen_requested(self, req):
-        # TODO: Ask user for permission, as is done in feature_permission_requested above
-        req.accept()
-        self.toggle_full_screen.emit(req.toggleOn())
+        if True or site_permissions.has_permission(req.origin(), 'full_screen'):
+            # Asking the user is disabled because of: https://bugreports.qt.io/browse/QTBUG-55064
+            req.accept()
+            self.toggle_full_screen.emit(req.toggleOn())
+        else:
+            callback = partial(self.on_full_screen_decision, req)
+            self.popup(_('Allow %s to switch to full screen?') % ascii_lowercase(req.origin().host()),
+                       callback, extra_buttons={_('Always'): 'permanent'})
+
+    def on_full_screen_decision(self, req, ok, during_shutdown):
+        if ok:
+            site_permissions.add_permission(req.origin(), 'full_screen', permanent=ok == 'permanent')
+            req.accept()
+            if not during_shutdown:
+                self.toggle_full_screen.emit(req.toggleOn())
+        else:
+            req.reject()
 
     def resizeEvent(self, ev):
         self.resized.emit()

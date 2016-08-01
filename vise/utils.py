@@ -4,6 +4,7 @@
 
 import os
 import re
+import string
 import subprocess
 import shutil
 import sys
@@ -421,3 +422,7 @@ def choose_files(name, parent=None, title=None, filters=(), all_files=False, sel
     if not select_only_single_file:
         ans = tuple(ans)
     return ans
+
+
+def ascii_lowercase(val):
+    return re.sub('[%s]' % string.ascii_uppercase, lambda m: m.group().lower(), val)

@@ -2,8 +2,6 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-import string
-import re
 import os
 from collections import defaultdict
 from gettext import gettext as _
@@ -16,11 +14,7 @@ from PyQt5.Qt import (
 from .constants import config_dir
 from .message_box import error_dialog
 from .settings import gprefs
-from .utils import Dialog
-
-
-def ascii_lowercase(val):
-    return re.sub('[%s]' % string.ascii_uppercase, lambda m: m.group().lower(), val)
+from .utils import Dialog, ascii_lowercase
 
 
 class Ask(Dialog):
