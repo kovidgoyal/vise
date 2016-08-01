@@ -184,6 +184,20 @@ def create_profile(parent=None, private=False):
     s = ans.settings()
     s.setDefaultTextEncoding('utf-8')
     s.setAttribute(s.FullScreenSupportEnabled, True)
+    from .config import font_families, font_sizes
+    for ftype, family in font_families().items():
+        if ftype != 'default' and family:
+            ftype = ftype.replace('-', '').capitalize().replace('serif', 'Serif') + 'Font'
+            ftype = getattr(s, ftype, None)
+            if ftype:
+                s.setFontFamily(ftype, family)
+
+    for ftype, sz in font_sizes().items():
+        if sz > 0:
+            ftype = {'minimum': 'Minimum', 'minimum-logical': 'MinimumLogical', 'default-size': 'Default', 'default-monospace-size': 'DefaultFixed'}.get(ftype)
+            if ftype:
+                ftype = getattr(s, ftype + 'FontSize')
+                s.setFontSize(ftype, sz)
     return ans
 
 _profile = None

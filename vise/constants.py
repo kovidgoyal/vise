@@ -4,6 +4,7 @@
 
 import sys
 import os
+import socket
 
 from PyQt5.Qt import QStandardPaths
 
@@ -21,6 +22,7 @@ isdragonflybsd = 'dragonfly' in _plat
 isbsd = isfreebsd or isnetbsd or isdragonflybsd
 islinux = not(iswindows or isosx or isbsd)
 DOWNLOADS_URL = 'vise:downloads'
+hostname = socket.gethostname()
 
 
 def _get_cache_dir():

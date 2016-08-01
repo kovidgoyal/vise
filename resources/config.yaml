@@ -35,7 +35,24 @@ normal mode keys:
     exit_full_screen: Escape
     toggle_full_screen: F11
 
+
 insert mode keys:
     exit_text_input: Escape
     edit_text: Ctrl+I
     fill_login_form: Ctrl+L
+
+
+fonts:
+    families:
+        standard: default
+        fixed: default
+        serif: default
+        sans-serif: default
+        cursive: default
+        fantasy: default
+        pictograph: default
+    sizes:
+        minimum: default
+        minimum-logical: default
+        default-size: default
+        default-monospace-size: default
