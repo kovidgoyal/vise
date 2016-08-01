@@ -256,9 +256,10 @@ def get_content_type_icon(mime_type, size=64, as_data=False):
                     fname = icon_info.get_filename()
                     if fname:
                         ans = QIcon(fname)
-                        if as_data:
-                            ans = icon_to_data(ans, size, size)
-                        return ans
+                        if not ans.isNull():
+                            if as_data:
+                                ans = icon_to_data(ans, size, size)
+                            return ans
     return b'' if as_data else QIcon()
 
 
