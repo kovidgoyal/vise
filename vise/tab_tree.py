@@ -418,7 +418,7 @@ class TabTree(QTreeWidget):
             tabs = reversed(tuple(self)) if forward else self
         for item in tabs:
             tab = item.tab
-            if tab is not None:
+            if tab is not None and item is not self.current_item:
                 self._activate_item(item, tab)
                 return True
         return False
