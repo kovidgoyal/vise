@@ -20,6 +20,7 @@ from PyQt5.Qt import (
 
 from .auth import get_http_auth_credentials, get_proxy_auth_credentials
 from .certs import cert_exceptions
+from .config import misc_config
 from .message_box import question_dialog
 from .places import places
 from .popup import Popup
@@ -61,7 +62,7 @@ class Alert(Dialog):  # {{{
 
 
 def edit_text(bridgeref, text, frame_id, eid):  # {{{
-    editor = shlex.split(os.environ.get('EDITOR', 'gvim -f'))
+    editor = shlex.split(misc_config('editor', default=os.environ.get('EDITOR', 'gvim -f')))
     with NamedTemporaryFile(suffix='.txt') as f:
         f.write(text.encode('utf-8'))
         f.flush()

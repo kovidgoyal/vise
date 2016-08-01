@@ -95,3 +95,11 @@ def color(key, default):
     if not ans or ans == 'default':
         ans = default
     return ans
+
+
+@lru_cache()
+def misc_config(key, default=None):
+    u = load_config(user=True).get(key) or load_config(user=False).get(key)
+    if not u or u == 'default':
+        u = default
+    return u

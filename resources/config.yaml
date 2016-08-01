@@ -87,3 +87,10 @@ colors:
     tab tree foreground: black
     status bar background: black
     status bar foreground: white
+
+
+##################### Misc ############################
+
+# The editor to use to edit text fields. A value of "default" means use the
+# environment variable EDITOR.
+editor: default
