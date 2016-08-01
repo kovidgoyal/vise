@@ -350,11 +350,11 @@ class TabTree(QTreeWidget):
         if item is not None:
             p = item.parent() or self.invisibleRootItem()
             if item.isExpanded():
-                self.next_tab()
+                self.next_tab(wrap=False)
                 p.insertChildren(p.indexOfChild(item), item.takeChildren())
             else:
                 children_to_close = tuple(i.tab for i in item.takeChildren())
-                self.next_tab()
+                self.next_tab(wrap=False)
             p.removeChild(item)
         return children_to_close + (tab,)
 
@@ -397,7 +397,7 @@ class TabTree(QTreeWidget):
             self._activate_item(item, item.tab)
             return True
 
-    def next_tab(self, forward=True):
+    def next_tab(self, forward=True, wrap=True):
         tabs = self if forward else reversed(tuple(self))
         found = self.current_item is None
         item = None
@@ -408,7 +408,10 @@ class TabTree(QTreeWidget):
                 return True
             if self.current_item == item:
                 found = True
-        tabs = self if forward else reversed(tuple(self))
+        if wrap:
+            tabs = self if forward else reversed(tuple(self))
+        else:
+            tabs = reversed(tuple(self)) if forward else self
         for item in tabs:
             tab = item.tab
             if tab is not None:
