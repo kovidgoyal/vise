@@ -32,6 +32,8 @@ normal mode keys:
     choose_tab: T
     follow_next: ']'
     follow_previous: '['
+    exit_full_screen: Escape
+    toggle_full_screen: F11
 
 insert mode keys:
     exit_text_input: Escape

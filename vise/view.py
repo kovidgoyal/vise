@@ -230,7 +230,7 @@ class WebPage(QWebEnginePage):
         self.bridge.break_cycles()
         self.callbacks.clear()
         for s in ('authenticationRequired proxyAuthenticationRequired linkHovered featurePermissionRequested'
-                  ' featurePermissionRequestCanceled windowCloseRequested poll_for_messages').split():
+                  ' featurePermissionRequestCanceled fullScreenRequested windowCloseRequested poll_for_messages').split():
             safe_disconnect(getattr(self, s))
 
     def acceptNavigationRequest(self, qurl, navtype, is_main_frame):
@@ -254,6 +254,7 @@ class WebView(QWebEngineView):
     moved = pyqtSignal()
     passthrough_changed = pyqtSignal(object, object)
     title_changed = pyqtSignal(object)
+    toggle_full_screen = pyqtSignal(object)
 
     def __init__(self, profile, main_window):
         global view_id
@@ -274,6 +275,7 @@ class WebView(QWebEngineView):
         self.popup = Popup(self)
         self._page.featurePermissionRequested.connect(self.feature_permission_requested)
         self._page.featurePermissionRequestCanceled.connect(self.feature_permission_request_canceled)
+        self._page.fullScreenRequested.connect(self.full_screen_requested)
         self.feature_permission_map = {}
         self.text_input_focused = False
         self._force_passthrough = False
@@ -326,6 +328,14 @@ class WebView(QWebEngineView):
         if qid is not None:
             self.popup.abort_question(qid)
 
+    def exit_full_screen(self):
+        self._page.triggerAction(self._page.ExitFullScreen)
+
+    def full_screen_requested(self, req):
+        # TODO: Ask user for permission, as is done in feature_permission_requested above
+        req.accept()
+        self.toggle_full_screen.emit(req.toggleOn())
+
     def resizeEvent(self, ev):
         self.resized.emit()
         return QWebEngineView.resizeEvent(self, ev)
@@ -338,7 +348,7 @@ class WebView(QWebEngineView):
         self.popup.break_cycles()
         self._page.break_cycles()
         for s in ('resized moved icon_changed open_in_new_tab loading_status_changed link_hovered urlChanged iconChanged'
-                  ' loadStarted loadFinished window_close_requested focus_changed passthrough_changed').split():
+                  ' loadStarted loadFinished window_close_requested focus_changed passthrough_changed toggle_full_screen').split():
             safe_disconnect(getattr(self, s))
 
     def create_page(self, profile):

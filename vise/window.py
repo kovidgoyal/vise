@@ -268,7 +268,22 @@ class MainWindow(QMainWindow):
         ans.focus_changed.connect(self.mode_label.update_mode)
         ans.passthrough_changed.connect(self.mode_label.update_mode)
         ans.passthrough_changed.connect(self.passthrough_button.update_state)
+        ans.toggle_full_screen.connect(self.toggle_full_screen)
         return ans
+
+    def toggle_full_screen(self, on):
+        if self.isFullScreen() == on:
+            return
+        if on:
+            self.tab_tree.setVisible(False)
+            self.statusBar().setVisible(False)
+            self.showFullScreen()
+        else:
+            self.tab_tree.setVisible(True)
+            self.statusBar().setVisible(True)
+            self.showNormal()
+            for tab in self.tabs:
+                tab.exit_full_screen()
 
     def raise_tab(self, tab):
         self.stack.setCurrentWidget(tab)

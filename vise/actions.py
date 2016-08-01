@@ -28,6 +28,16 @@ def close_tab(window, *args, **kwargs):
         return True
 
 
+def exit_full_screen(window, *args, **kw):
+    if window.isFullScreen():
+        window.toggle_full_screen(False)
+        return True
+
+
+def toggle_full_screen(window, *args, **kw):
+    window.toggle_full_screen(not window.isFullScreen())
+
+
 def exit_text_input(window, *args, **kwargs):
     if window.current_tab is not None:
         window.current_tab.page().runJavaScript('document.activeElement.blur()')
