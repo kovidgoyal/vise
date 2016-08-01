@@ -280,6 +280,7 @@ class MainWindow(QMainWindow):
             tab.break_cycles()
             self.tabs.remove(tab)
             self.stack.removeWidget(tab)
+        self.update_window_title()
 
     def break_cycles(self):
         for tab in self.tabs:
