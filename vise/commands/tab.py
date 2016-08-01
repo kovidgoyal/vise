@@ -100,3 +100,21 @@ class CloseOtherTabs(SwitchToTab):
             window.statusBar().showMessage(_('No tab matching: ') + rest.strip(), 5000)
         else:
             tt.close_other_tabs(item)
+
+
+class CloseToBottom(CloseOtherTabs):
+
+    names = {'closetobottom'}
+
+    def __call__(self, cmd, rest, window):
+        if not rest.strip():
+            ct = window.current_tab
+            if ct:
+                window.tab_tree.close_tabs_to_bottom(ct)
+            return
+        tt = window.tab_tree
+        item = tt.item_for_text(rest.strip())
+        if item is None:
+            window.statusBar().showMessage(_('No tab matching: ') + rest.strip(), 5000)
+        else:
+            tt.close_tabs_to_bottom(item)
