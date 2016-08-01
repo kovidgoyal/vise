@@ -45,13 +45,19 @@ def update_download(dl_id, state, received, total, rate, avg_rate):
     if state is 'running':
         if received > -1 and total > -1:
             if rate > 0:
-                left = relative_time(Date.now() + 1000 * ((total - received) / avg_rate))
-                status.innerText = str.format('{recv} of {total} at {rate}/s — Will finish {left}',
-                    recv=h(received), total=h(total), rate=h(rate), left=left)
+                if total > 0:
+                    left = relative_time(Date.now() + 1000 * ((total - received) / avg_rate))
+                    status.innerText = str.format('{recv} of {total} at {rate}/s — Will finish {left}',
+                        recv=h(received), total=h(total), rate=h(rate), left=left)
+                else:
+                    status.innerText = str.format('{recv} at {rate}/s', recv=h(received), rate=h(rate))
             else:
-                left = 'Estimating time remaining' if rate < 0 else 'Stalled'
-                status.innerText = str.format('{recv} of {total} — {left}',
-                    recv=h(received), total=h(total), left=left)
+                if total > 0:
+                    left = 'Estimating time remaining'
+                    status.innerText = str.format('{recv} of {total} — {left}',
+                        recv=h(received), total=h(total), left=left)
+                else:
+                    status.innerText = h(received)
         else:
             status.innerText = 'Downloading, please wait...'
     elif state is 'completed':
@@ -62,6 +68,8 @@ def update_download(dl_id, state, received, total, rate, avg_rate):
             fname.setAttribute('class', 'fname')
             fname.setAttribute('title', 'Click to open')
         text = ''
+        if total is 0:
+            total = received
         if total > -1:
             text += h(total) + ' — '
         text += status.getAttribute('data-hostname') + ' — '
