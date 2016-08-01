@@ -172,6 +172,8 @@ class StackedWidget(QStackedWidget):
 
 class MainWindow(QMainWindow):
 
+    start_search_signal = pyqtSignal(bool)
+
     def __init__(self, is_private=False):
         global _window_id
         QMainWindow.__init__(self)
@@ -182,7 +184,8 @@ class MainWindow(QMainWindow):
         self.is_private = is_private
         self.setAttribute(Qt.WA_DeleteOnClose, True)
         self.status_msg = Status(self)
-        self.start_search = self.status_msg.show_search
+        self.start_search_signal.connect(self.status_msg.show_search, type=Qt.QueuedConnection)
+        self.start_search = lambda forward=True: self.start_search_signal.emit(forward)
         self.status_msg.search.edit.do_search.connect(self.do_search)
         self.statusBar().addWidget(self.status_msg)
         self.mode_label = ml = ModeLabel(self)
