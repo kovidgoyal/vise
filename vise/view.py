@@ -339,7 +339,10 @@ class WebView(QWebEngineView):
             self.toggle_full_screen.emit(req.toggleOn())
         else:
             callback = partial(self.on_full_screen_decision, req)
-            self.popup(_('Allow %s to switch to full screen?') % ascii_lowercase(req.origin().host()),
+            q = _('Allow %s to switch to full screen?')
+            if not req.toggleOn():
+                q = _('Allow %s to switch out of full screen?')
+            self.popup(q % ascii_lowercase(req.origin().host()),
                        callback, extra_buttons={_('Always'): 'permanent'})
 
     def on_full_screen_decision(self, req, ok, during_shutdown):
