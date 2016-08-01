@@ -284,7 +284,7 @@ class WebView(QWebEngineView):
         self.titleChanged.connect(self.on_title_change)
         self.find_debounce_timer = t = QTimer(self)
         t.setInterval(100), t.setSingleShot(True)
-        t.timeout.connect(self.find_text_done)
+        t.timeout.connect(self._find_text_done)
 
     def load_finished(self):
         self.loading_status_changed.emit(False)
@@ -435,15 +435,18 @@ class WebView(QWebEngineView):
                 self._page.bridge.autofill_login_form.emit(url, ac['username'], ac['password'], ac['autologin'], is_current_form)
 
     def find_text(self, text, callback=None, forward=True):
-        def cb(found):
-            if callback is not None:
-                self.find_text_data = (text, found, callback)
-                self.find_debounce_timer.start()
+        flags = QWebEnginePage.FindFlags(0) if forward else QWebEnginePage.FindBackward
+        self.find_text_data = [text, False, callback]
+        if callback is None:
+            self._page.findText(text, flags)
+        else:
+            self._page.findText(text, flags, self._find_text_intermediate)
 
-        self._page.findText(
-            text, QWebEnginePage.FindFlags(0) if forward else QWebEnginePage.FindBackward, cb)
+    def _find_text_intermediate(self, found):
+        self.find_text_data[1] = found
+        self.find_debounce_timer.start()
 
-    def find_text_done(self):
+    def _find_text_done(self):
         text, found, callback = self.find_text_data
-        del self.find_text_data
+        self.find_text_data[2] = None
         callback(text, found)
