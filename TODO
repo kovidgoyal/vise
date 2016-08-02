@@ -5,6 +5,3 @@ Implement keyboard based link following
 Implement undoing of tab closes and a restart command/session saving that preserves tabs
 
 Add a cookie browser, see http://doc.qt.io/qt-5/qtwebengine-webenginewidgets-cookiebrowser-example.html for an example
-
-Highlight error message in status bar
-
