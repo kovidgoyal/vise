@@ -3,7 +3,8 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 from PyQt5.Qt import (
-    Qt, QObject, QEvent, QApplication, QMainWindow, QKeySequence, QOpenGLWidget, QLineEdit
+    Qt, QObject, QEvent, QApplication, QMainWindow, QKeySequence,
+    QOpenGLWidget, QLineEdit, QLabel
 )
 
 from . import actions
@@ -98,7 +99,7 @@ class KeyFilter(QObject):
                     fw.parent().keyPressEvent(event)
                     return True
 
-            if isinstance(window, QMainWindow) and (fw is None or isinstance(fw, QOpenGLWidget)):
+            if isinstance(window, QMainWindow) and (fw is None or isinstance(fw, (QOpenGLWidget, QLabel))):
                 key = key_from_event(event)
 
                 if window.quickmark_pending:
