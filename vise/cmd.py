@@ -81,6 +81,6 @@ def run_command(window, text):
         if len(common) == 1:
             obj = command_map[common[0]]
         else:
-            window.statusBar().showMessage(_('Unknown command: ') + cmd, 5000)
+            window.show_status_message(_('Unknown command: ') + cmd, 5, 'error')
             return
     obj(cmd, rest, window)

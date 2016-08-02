@@ -110,7 +110,7 @@ def copy_url(window, *args, **kwargs):
         qurl = window.current_tab.url()
         if not qurl.isEmpty():
             QApplication.clipboard().setText(qurl.toString())
-            window.statusBar().showMessage(_('Copied: ') + qurl.toString(), 2000)
+            window.show_status_message(_('Copied: ') + qurl.toString(), 2, 'success')
         window.statusBar()
 
 
@@ -124,7 +124,7 @@ def _paste_and_go(window, in_current_tab=True):
                 if qurl.isValid() and not qurl.isEmpty():
                     window.open_url(qurl, in_current_tab=in_current_tab)
                     return
-    window.statusBar().showMessage(_('No URL in clipboard'))
+    window.show_status_message(_('No URL in clipboard'), 2, 'success')
 
 
 def paste_and_go(window, *args, **kwargs):

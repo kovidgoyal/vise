@@ -81,7 +81,7 @@ class SwitchToTab(Command):
             return
         tt = window.tab_tree
         if not tt.activate_tab(rest.strip()):
-            window.statusBar().showMessage(_('No tab matching: ') + rest.strip(), 5000)
+            window.show_status_message(_('No tab matching: ') + rest.strip(), 5, 'error')
 
 
 class CloseOtherTabs(SwitchToTab):
@@ -97,7 +97,7 @@ class CloseOtherTabs(SwitchToTab):
         tt = window.tab_tree
         item = tt.item_for_text(rest.strip())
         if item is None:
-            window.statusBar().showMessage(_('No tab matching: ') + rest.strip(), 5000)
+            window.show_status_message(_('No tab matching: ') + rest.strip(), 5, 'error')
         else:
             tt.close_other_tabs(item)
 
@@ -115,6 +115,6 @@ class CloseToBottom(CloseOtherTabs):
         tt = window.tab_tree
         item = tt.item_for_text(rest.strip())
         if item is None:
-            window.statusBar().showMessage(_('No tab matching: ') + rest.strip(), 5000)
+            window.show_status_message(_('No tab matching: ') + rest.strip(), 5, 'error')
         else:
             tt.close_tabs_to_bottom(item)

@@ -229,6 +229,9 @@ class MainWindow(QMainWindow):
         self.restore_state()
         self.current_tab_changed()
 
+    def show_status_message(self, msg, timeout=1, message_type='info'):
+        self.statusBar().showMessage(msg, int(timeout*1000))
+
     def ask(self, prefix):
         self.ask(prefix)
 
@@ -333,7 +336,7 @@ class MainWindow(QMainWindow):
 
     def link_hovered(self, tab, href):
         if tab is self.current_tab:
-            self.statusBar().showMessage(href, 10000)
+            self.show_status_message(href, 10)
 
     def get_tab_for_load(self, in_current_tab=True):
         in_current_tab = self.current_tab is not None and in_current_tab
@@ -394,7 +397,7 @@ class MainWindow(QMainWindow):
         if url is None:
             if not key & Qt.Key_Escape:
                 key = QKeySequence(key).toString()
-                self.statusBar().showMessage(_('Quickmark %s is not defined!') % key, 5000)
+                self.show_status_message(_('Quickmark %s is not defined!') % key, 5, 'error')
             return
         self.open_url(url, in_current_tab=in_current_tab, switch_to_tab=True)
 
@@ -403,7 +406,7 @@ class MainWindow(QMainWindow):
         if not self.tab_tree.activate_marked_tab(key):
             if not key & Qt.Key_Escape:
                 key = QKeySequence(key).toString()
-                self.statusBar().showMessage(_('No tab with mark: %s') % key, 5000)
+                self.show_status_message(_('No tab with mark: %s') % key, 5, 'error')
         self.tab_tree.mark_tabs(unmark=True)
 
     def do_search(self, text=None, forward=True):
@@ -414,7 +417,7 @@ class MainWindow(QMainWindow):
     def search_done(self, text, found):
         if text:
             msg = _('%s found') % text if found else _('%s not found!') % text
-            self.statusBar().showMessage(msg, 1000 if found else 2000)
+            self.show_status_message(msg, 1 if found else 3, 'success' if found else 'error')
 
     def follow_next(self, forward=True):
         if self.current_tab is not None:
