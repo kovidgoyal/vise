@@ -129,8 +129,7 @@ class Application(QApplication):
         if data:
             signals = struct.unpack('%uB' % len(data), data)
             if signal.SIGINT in signals or signal.SIGTERM in signals:
-                for w in self.windows:
-                    w.close()
+                self.shutdown()
 
     def show_password_load_error(self, error, tb, parent=None):
         error_dialog(parent or (self.windows[0] if self.windows else None), _('Failed to load password database'), _(
