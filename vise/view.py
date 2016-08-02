@@ -451,8 +451,16 @@ class WebView(QWebEngineView):
         sz = self._page.contentsSize()
         return {
             'x': pos.x(), 'y': pos.y(),
-            'zoom_factor': self._page.zoomFactor(),
+            'zoom_factor': self.zoom_factor,
             'url': self._page.url().toString(),
             'width': sz.width(), 'height': sz.height(),
             'audio_muted': self._page.isAudioMuted(),
         }
+
+    @property
+    def zoom_factor(self):
+        return self.zoomFactor()
+
+    @zoom_factor.setter
+    def zoom_factor(self, val):
+        self.setZoomFactor(max(0.25, min(val, 5.0)))

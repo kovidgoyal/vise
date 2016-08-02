@@ -114,6 +114,24 @@ def copy_url(window, *args, **kwargs):
         window.statusBar()
 
 
+def increase_zoom(window, *args, **kw):
+    if window.current_tab is not None:
+        window.current_tab.zoom_factor += 0.25
+        return True
+
+
+def decrease_zoom(window, *args, **kw):
+    if window.current_tab is not None:
+        window.current_tab.zoom_factor -= 0.25
+        return True
+
+
+def reset_zoom(window, *args, **kw):
+    if window.current_tab is not None:
+        window.current_tab.zoom_factor = 1.0
+        return True
+
+
 def _paste_and_go(window, in_current_tab=True):
     c = QApplication.clipboard()
     for mode in c.Clipboard, c.Selection:

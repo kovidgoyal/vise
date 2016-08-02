@@ -41,6 +41,12 @@ normal mode keys:  # The keys used in normal mode
     follow_previous: '['
     exit_full_screen: Escape
     toggle_full_screen: F11
+    reset_zoom: '='
+    increase_zoom: 
+        - '+'
+        - 'Shift++'
+        - 'Shift+='
+    decrease_zoom: '-'
 
 
 insert mode keys:  # The keys used in insert mode (i.e. when the cursor is in a text input field)
