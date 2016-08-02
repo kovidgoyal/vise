@@ -42,10 +42,7 @@ class Search(QLineEdit):
             return
         if k in (Qt.Key_Enter, Qt.Key_Return):
             text = self.text()
-            if text:
-                self.do_search.emit(text, self.search_forward)
-            else:
-                self.abort_search.emit()
+            self.do_search.emit(text, self.search_forward)
             return
         return QLineEdit.keyPressEvent(self, ev)
 
