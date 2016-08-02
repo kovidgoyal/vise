@@ -61,9 +61,10 @@ class SearchPanel(QWidget):
 
 class Status(QStackedWidget):
 
+    hidden = pyqtSignal()
+
     def __init__(self, parent):
         QStackedWidget.__init__(self, parent)
-        self.main_window = parent
         self.msg = QLabel('')
         self.msg.setFocusPolicy(Qt.NoFocus)
         self.addWidget(self.msg)
@@ -84,7 +85,7 @@ class Status(QStackedWidget):
     def hide_search(self):
         self.setCurrentIndex(0)
         self.search.hide_search()
-        self.main_window.refocus()
+        self.hidden.emit()
 
     @property
     def current_search_text(self):

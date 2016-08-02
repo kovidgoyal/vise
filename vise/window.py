@@ -49,6 +49,7 @@ class MainWindow(QMainWindow):
         self.is_private = is_private
         self.setAttribute(Qt.WA_DeleteOnClose, True)
         self.status_msg = Status(self)
+        self.status_msg.hidden.connect(self.refocus)
         self.start_search_signal.connect(self.status_msg.show_search, type=Qt.QueuedConnection)
         self.start_search = lambda forward=True: self.start_search_signal.emit(forward)
         self.status_msg.search.edit.do_search.connect(self.do_search)
