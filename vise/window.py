@@ -8,17 +8,16 @@ from gettext import gettext as _
 
 import sip
 from PyQt5.Qt import (
-    QMainWindow, Qt, QSplitter, QApplication, QStackedWidget, QUrl, QFrame,
+    QMainWindow, Qt, QSplitter, QApplication, QStackedWidget, QUrl,
     QKeySequence, pyqtSignal, QTimer
 )
 
 from .ask import Ask
 from .cmd import run_command
-from .config import color
 from .constants import appname
 from .downloads import Indicator
 from .settings import gprefs, profile, create_profile, quickmarks
-from .status_bar import Status, ModeLabel, PassthroughButton
+from .status_bar import StatusBar
 from .tab_tree import TabTree
 from .view import WebView
 
@@ -48,33 +47,15 @@ class MainWindow(QMainWindow):
         self.window_id = _window_id
         self.is_private = is_private
         self.setAttribute(Qt.WA_DeleteOnClose, True)
-        self.status_msg = Status(self)
-        self.status_msg.hidden.connect(self.refocus)
-        self.start_search_signal.connect(self.status_msg.show_search, type=Qt.QueuedConnection)
-        self.start_search = lambda forward=True: self.start_search_signal.emit(forward)
-        self.status_msg.search.edit.do_search.connect(self.do_search)
-        self.statusBar().addWidget(self.status_msg)
-        self.mode_label = ml = ModeLabel(self)
-        self.passthrough_button = PassthroughButton(self)
-        self.downloads_indicator = Indicator(self)
 
-        def addsep():
-            f = QFrame(self)
-            f.setFrameShape(f.VLine)
-            self.statusBar().addPermanentWidget(f)
-        addsep()
-        self.statusBar().addPermanentWidget(ml)
-        addsep()
-        self.statusBar().addPermanentWidget(self.downloads_indicator)
-        addsep()
-        self.statusBar().addPermanentWidget(self.passthrough_button)
-        self.statusBar().setStyleSheet('''
-        QStatusBar { color: FG; background: BG; }
-        QStatusBar QLabel { color: FG; background: BG; }
-        '''.replace(
-            'FG', color('status bar foreground', 'palette(window-text)')).replace(
-            'BG', color('status bar background', 'palette(window)'))
-        )
+        self.downloads_indicator = Indicator(self)
+        self.status_bar = StatusBar(self.downloads_indicator, self)
+        self.start_search_signal.connect(self.status_bar.show_search, type=Qt.QueuedConnection)
+        self.start_search = lambda forward=True: self.start_search_signal.emit(forward)
+        self.status_bar.do_search.connect(self.do_search)
+        self.status_bar.search_bar_hidden.connect(self.refocus)
+        self.status_bar.change_passthrough.connect(self.change_passthrough)
+        self.setStatusBar(self.status_bar)
 
         self.main_splitter = w = QSplitter(self)
         self.setCentralWidget(w)
@@ -99,7 +80,7 @@ class MainWindow(QMainWindow):
         self.current_tab_changed()
 
     def show_status_message(self, msg, timeout=1, message_type='info'):
-        self.statusBar().showMessage(msg, int(timeout * 1000))
+        self.status_bar.show_message(msg, timeout, message_type)
 
     def ask(self, prefix):
         self.ask(prefix)
@@ -146,11 +127,31 @@ class MainWindow(QMainWindow):
         ans.urlChanged.connect(self.url_changed)
         ans.link_hovered.connect(partial(self.link_hovered, ans))
         ans.window_close_requested.connect(self.close_tab)
-        ans.focus_changed.connect(self.mode_label.update_mode)
-        ans.passthrough_changed.connect(self.mode_label.update_mode)
-        ans.passthrough_changed.connect(self.passthrough_button.update_state)
+        ans.focus_changed.connect(self.update_mode)
+        ans.passthrough_changed.connect(self.update_mode)
+        ans.passthrough_changed.connect(self.update_passthrough_state)
         ans.toggle_full_screen.connect(self.toggle_full_screen)
         return ans
+
+    def update_mode(self):
+        tab = self.current_tab
+        text = ''
+        if tab is not None:
+            if tab.force_passthrough:
+                text = '-- %s --' % _('PASSTHROUGH')
+            elif tab.text_input_focused:
+                text = '-- %s --' % _('INSERT')
+        self.status_bar.update_mode(text)
+
+    def update_passthrough_state(self):
+        tab = self.current_tab
+        passthrough = getattr(tab, 'force_passthrough', False)
+        self.status_bar.update_passthrough_state(passthrough)
+
+    def change_passthrough(self, passthrough):
+        tab = self.current_tab
+        if tab is not None:
+            tab.force_passthrough = passthrough
 
     def toggle_full_screen(self, on):
         if self.isFullScreen() == on:
@@ -197,11 +198,11 @@ class MainWindow(QMainWindow):
 
     def url_changed(self):
         if self.current_tab is None:
-            self.status_msg('')
+            self.status_bar.set_permanent_message('')
         else:
             qurl = self.current_tab.url()
             val = qurl.toDisplayString()
-            self.status_msg(val)
+            self.status_bar.set_permanent_message(val)
 
     def link_hovered(self, tab, href):
         if tab is self.current_tab:
@@ -244,7 +245,7 @@ class MainWindow(QMainWindow):
         self.update_window_title()
         self.current_tab = self.stack.currentWidget()
         self.tab_tree.current_changed(self.current_tab)
-        self.passthrough_button.update_state()
+        self.update_passthrough_state()
         self.url_changed()
 
     def show_tab(self, tab):
@@ -280,7 +281,7 @@ class MainWindow(QMainWindow):
 
     def do_search(self, text=None, forward=True):
         if self.current_tab is not None:
-            text = self.status_msg.current_search_text if text is None else text
+            text = self.status_bar.current_search_text if text is None else text
             self.current_tab.find_text(text, self.search_done)
 
     def search_done(self, text, found):

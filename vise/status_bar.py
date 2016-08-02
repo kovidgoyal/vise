@@ -2,11 +2,15 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
+from collections import namedtuple
+from time import monotonic
 from gettext import gettext as _
 
 from PyQt5.Qt import (
     QLineEdit, pyqtSignal, Qt, QStackedWidget, QLabel, QWidget, QHBoxLayout,
-    QToolButton)
+    QToolButton, QTimer, QStatusBar, QFrame)
+
+from .config import color
 from .resources import get_icon
 
 
@@ -58,6 +62,8 @@ class SearchPanel(QWidget):
     def hide_search(self):
         pass
 
+TemporaryMessage = namedtuple('TemporaryMessage', 'timeout text type start_time')
+
 
 class Status(QStackedWidget):
 
@@ -65,6 +71,8 @@ class Status(QStackedWidget):
 
     def __init__(self, parent):
         QStackedWidget.__init__(self, parent)
+        self.permanent_message = ''
+        self.temporary_message = TemporaryMessage(1, '', 'info', monotonic())
         self.msg = QLabel('')
         self.msg.setFocusPolicy(Qt.NoFocus)
         self.addWidget(self.msg)
@@ -74,9 +82,31 @@ class Status(QStackedWidget):
         self.search.edit.abort_search.connect(self.hide_search)
         self.search.edit.do_search.connect(self.hide_search)
         self.addWidget(self.search)
+        self.update_timer = t = QTimer(self)
+        t.setSingleShot(True), t.setInterval(100), t.timeout.connect(self.update_message)
 
     def __call__(self, text=''):
-        self.msg.setText('<b>' + text)
+        self.permanent_message = text
+        self.update_message()
+
+    def update_message(self):
+        tm = self.temporary_message
+        style = ''
+        if tm.text and (tm.timeout == 0 or monotonic() - tm.start_time < tm.timeout):
+            self.msg.setText(tm.text)
+            if tm.type == 'error':
+                style = 'QLabel { color:red; font-weight: bold }'
+            elif tm.type == 'success':
+                style = 'QLabel { color:green; font-weight: bold }'
+            self.update_timer.start()
+        else:
+            self.msg.setText(self.permanent_message)
+            self.update_timer.stop()
+        self.msg.setStyleSheet(style)
+
+    def show_message(self, msg, timeout=1, message_type='info'):
+        self.temporary_message = TemporaryMessage(timeout, msg, message_type, monotonic())
+        self.update_message()
 
     def show_search(self, forward=True):
         self.setCurrentIndex(1)
@@ -94,43 +124,73 @@ class Status(QStackedWidget):
 
 class ModeLabel(QLabel):
 
-    def __init__(self, main_window):
+    def __init__(self):
         QLabel.__init__(self, '')
-        self.main_window = main_window
         self.setFocusPolicy(Qt.NoFocus)
 
-    def update_mode(self):
-        tab = self.main_window.current_tab
-        text = ''
-        if tab is not None:
-            if tab.force_passthrough:
-                text = '-- %s --' % _('PASSTHROUGH')
-            elif tab.text_input_focused:
-                text = '-- %s --' % _('INSERT')
+    def update_mode(self, text):
         self.setText(text)
 
 
 class PassthroughButton(QToolButton):
 
-    def __init__(self, main_window):
-        QToolButton.__init__(self, main_window)
+    def __init__(self, parent):
+        QToolButton.__init__(self, parent)
         self.setFocusPolicy(Qt.NoFocus)
         self.setCursor(Qt.PointingHandCursor)
-        self.main_window = main_window
         self.setCheckable(True)
         self.setIcon(get_icon('passthrough.png'))
-        self.toggled.connect(self.change_passthrough)
-        self.update_state()
+        self.update_state(False)
 
-    def update_state(self):
+    def update_state(self, passthrough):
         self.blockSignals(True)
-        tab = self.main_window.current_tab
-        self.setChecked(getattr(tab, 'force_passthrough', False))
+        self.setChecked(passthrough)
         self.setToolTip(_('Disable passthrough mode') if self.isChecked() else _(
             'Enable passthrough mode'))
         self.blockSignals(False)
 
-    def change_passthrough(self):
-        tab = self.main_window.current_tab
-        if tab is not None:
-            tab.force_passthrough = self.isChecked()
+
+class StatusBar(QStatusBar):
+
+    search_bar_hidden = pyqtSignal()
+    do_search = pyqtSignal(object, object)
+    change_passthrough = pyqtSignal(bool)
+
+    def __init__(self, downloads_indicator, parent=None):
+        QStatusBar.__init__(self, parent)
+        self.status_msg = Status(self)
+        self.status_msg.hidden.connect(self.search_bar_hidden)
+        self.status_msg.search.edit.do_search.connect(self.do_search)
+        self.show_search = self.status_msg.show_search
+        self.show_message = self.status_msg.show_message
+        self.set_permanent_message = self.status_msg
+        self.addWidget(self.status_msg)
+
+        self.mode_label = ModeLabel()
+        self.update_mode = self.mode_label.update_mode
+
+        self.passthrough_button = PassthroughButton(self)
+        self.passthrough_button.toggled.connect(self.change_passthrough)
+        self.update_passthrough_state = self.passthrough_button.update_state
+
+        def addsep():
+            f = QFrame(self)
+            f.setFrameShape(f.VLine)
+            self.addPermanentWidget(f)
+        addsep()
+        self.addPermanentWidget(self.mode_label)
+        addsep()
+        self.addPermanentWidget(downloads_indicator)
+        addsep()
+        self.addPermanentWidget(self.passthrough_button)
+        self.setStyleSheet('''
+        QStatusBar { color: FG; background: BG; }
+        QStatusBar QLabel { color: FG; background: BG; }
+        '''.replace(
+            'FG', color('status bar foreground', 'palette(window-text)')).replace(
+            'BG', color('status bar background', 'palette(window)'))
+        )
+
+    @property
+    def current_search_text(self):
+        return self.status_msg.current_search_text
