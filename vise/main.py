@@ -10,6 +10,8 @@ import traceback
 import json
 import tempfile
 import socket
+import signal
+import struct
 from datetime import datetime
 from gettext import gettext as _
 
@@ -17,7 +19,7 @@ import sip
 from PyQt5.Qt import (
     QApplication, QFontDatabase, QNetworkAccessManager, QNetworkDiskCache,
     QLocalSocket, QLocalServer, QSslSocket, QTextStream, QAbstractSocket,
-    QTimer, QDialog, Qt, pyqtSignal
+    QTimer, QDialog, Qt, pyqtSignal, QSocketNotifier
 )
 
 from .constants import appname, str_version, cache_dir, iswindows
@@ -64,6 +66,7 @@ class Application(QApplication):
 
     def __init__(self, args, master_password=None, urls=(), new_instance=False, shutdown=False):
         QApplication.__init__(self, [])
+        self.handle_unix_signals()
         if not QSslSocket.supportsSsl():
             raise SystemExit('Qt has been compiled without SSL support!')
         from .config import font_families, font_sizes
@@ -100,6 +103,34 @@ class Application(QApplication):
         nam.setCache(c)
         self.key_filter = KeyFilter(self)
         self.installEventFilter(self.key_filter)
+
+    def handle_unix_signals(self):
+        if iswindows:
+            # TODO: test this on windows
+            self.signal_read_socket, self.signal_write_socket = socket.socketpair()
+            self.signal_read_socket.setblocking(False)
+            self.signal_write_socket.setblocking(False)
+            read_fd, write_fd = self.signal_read_socket.fileno(), self.signal_write_socket.fileno()
+        else:
+            read_fd, write_fd = os.pipe2(os.O_NONBLOCK | os.O_CLOEXEC)
+        for sig in (signal.SIGINT, signal.SIGTERM):
+            signal.signal(sig, lambda x, y: None)
+            signal.siginterrupt(sig, False)
+        signal.set_wakeup_fd(write_fd)
+        self.signal_notifier = QSocketNotifier(read_fd, QSocketNotifier.Read, self)
+        self.signal_notifier.setEnabled(True)
+        self.signal_notifier.activated.connect(self.signal_received, type=Qt.QueuedConnection)
+
+    def signal_received(self, read_fd):
+        try:
+            data = self.signal_read_socket.recv(1024) if iswindows else os.read(read_fd, 1024)
+        except BlockingIOError:
+            return
+        if data:
+            signals = struct.unpack('%uB' % len(data), data)
+            if signal.SIGINT in signals or signal.SIGTERM in signals:
+                for w in self.windows:
+                    w.close()
 
     def show_password_load_error(self, error, tb, parent=None):
         error_dialog(parent or (self.windows[0] if self.windows else None), _('Failed to load password database'), _(
