@@ -444,3 +444,15 @@ class WebView(QWebEngineView):
         text, callback = self.find_text_data
         self.find_text_data = [None, None]
         callback(text, found)
+
+    @property
+    def serialized_state(self):
+        pos = self._page.scrollPosition()
+        sz = self._page.contentsSize()
+        return {
+            'x': pos.x(), 'y': pos.y(),
+            'zoom_factor': self._page.zoomFactor(),
+            'url': self._page.url().toString(),
+            'width': sz.width(), 'height': sz.height(),
+            'audio_muted': self._page.isAudioMuted(),
+        }
