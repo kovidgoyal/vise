@@ -188,6 +188,10 @@ class StatusBar(QStatusBar):
 
     def __init__(self, downloads_indicator, parent=None):
         QStatusBar.__init__(self, parent)
+        if parent:
+            f = parent.font()
+            f.setPixelSize(int(f.pixelSize() * 0.8))
+            self.setFont(f)
         self.status_msg = Status(self)
         self.status_msg.hidden.connect(self.search_bar_hidden)
         self.status_msg.search.edit.do_search.connect(self.do_search)
