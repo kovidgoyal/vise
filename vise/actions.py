@@ -88,6 +88,11 @@ def prev_match(window, *args, **kwargs):
     window.do_search(forward=False)
 
 
+def clear_search_highlighting(window, *args, **kwargs):
+    if window.current_tab is not None:
+        window.do_search('')
+
+
 def show_downloads(window, *args, **kwargs):
     from .downloads import DOWNLOADS_URL
     tab = window.get_tab_for_load(in_current_tab=False)

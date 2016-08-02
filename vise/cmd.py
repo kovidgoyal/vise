@@ -35,6 +35,15 @@ class PasswordManager(Command):
             d.exec_()
 
 
+class ClearSearchHighlighting(Command):
+
+    names = {'nohlsearch'}
+
+    def __call__(self, cmd, rest, window):
+        from .actions import clear_search_highlighting
+        clear_search_highlighting(window)
+
+
 def init_commands():
     all_commands = set()
 

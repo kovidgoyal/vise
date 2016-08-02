@@ -10,7 +10,7 @@ import sip
 from PyQt5.Qt import (
     QMainWindow, Qt, QSplitter, QApplication, QStackedWidget, QUrl, QLabel,
     QToolButton, QFrame, QKeySequence, QLineEdit, pyqtSignal, QWidget,
-    QHBoxLayout, QWebEnginePage, QTimer
+    QHBoxLayout, QTimer
 )
 
 from .ask import Ask
@@ -414,9 +414,6 @@ class MainWindow(QMainWindow):
         if text:
             msg = _('%s found') % text if found else _('%s not found!') % text
             self.statusBar().showMessage(msg, 1000 if found else 2000)
-
-    def clear_search_highlighting(self):
-        self.current_tab.findText('', QWebEnginePage.FindFlags(0))
 
     def follow_next(self, forward=True):
         if self.current_tab is not None:
