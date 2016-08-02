@@ -15,7 +15,7 @@ from functools import partial
 from PyQt5.Qt import (
     QWebEngineView, QWebEnginePage, QSize, QApplication, pyqtSignal, pyqtSlot,
     QObject, QGridLayout, QCheckBox, QLabel, Qt, QWebEngineScript,
-    pyqtBoundSignal, QTimer
+    pyqtBoundSignal
 )
 
 from .auth import get_http_auth_credentials, get_proxy_auth_credentials
@@ -282,9 +282,6 @@ class WebView(QWebEngineView):
         self.text_input_focused = False
         self._force_passthrough = False
         self.titleChanged.connect(self.on_title_change)
-        self.find_debounce_timer = t = QTimer(self)
-        t.setInterval(100), t.setSingleShot(True)
-        t.timeout.connect(self._find_text_done)
 
     def load_finished(self):
         self.loading_status_changed.emit(False)
@@ -436,17 +433,13 @@ class WebView(QWebEngineView):
 
     def find_text(self, text, callback=None, forward=True):
         flags = QWebEnginePage.FindFlags(0) if forward else QWebEnginePage.FindBackward
-        self.find_text_data = [text, False, callback]
+        self.find_text_data = [text, callback]
         if callback is None:
             self._page.findText(text, flags)
         else:
             self._page.findText(text, flags, self._find_text_intermediate)
 
     def _find_text_intermediate(self, found):
-        self.find_text_data[1] = found
-        self.find_debounce_timer.start()
-
-    def _find_text_done(self):
-        text, found, callback = self.find_text_data
-        self.find_text_data[2] = None
+        text, callback = self.find_text_data
+        self.find_text_data = [None, None]
         callback(text, found)

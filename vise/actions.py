@@ -74,23 +74,28 @@ def quickmark_newtab(window, *args, **kwargs):
 
 def search_forward(window, *args, **kwargs):
     window.start_search(forward=True)
+    return True
 
 
 def search_back(window, *args, **kwargs):
     window.start_search(forward=False)
+    return True
 
 
 def next_match(window, *args, **kwargs):
     window.do_search()
+    return True
 
 
 def prev_match(window, *args, **kwargs):
     window.do_search(forward=False)
+    return True
 
 
 def clear_search_highlighting(window, *args, **kwargs):
     if window.current_tab is not None:
         window.do_search('')
+    return True
 
 
 def show_downloads(window, *args, **kwargs):
@@ -124,10 +129,12 @@ def _paste_and_go(window, in_current_tab=True):
 
 def paste_and_go(window, *args, **kwargs):
     _paste_and_go(window)
+    return True
 
 
 def paste_and_go_newtab(window, *args, **kwargs):
     _paste_and_go(window, in_current_tab=False)
+    return True
 
 
 def scroll_line(key, window, focus_widget, key_filter, *args, **kwargs):
