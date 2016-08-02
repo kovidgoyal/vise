@@ -236,9 +236,9 @@ class MainWindow(QMainWindow):
 
     def refocus(self):
         if self.current_tab is not None:
-            self.current_tab.setFocus(Qt.OtherFocusReason)
+            self.current_tab.setFocus(Qt.TabFocusReason)
         else:
-            self.stack.setFocus(Qt.OtherFocusReason)
+            self.stack.setFocus(Qt.TabFocusReason)
 
     def sizeHint(self):
         rect = QApplication.desktop().screenGeometry(self)

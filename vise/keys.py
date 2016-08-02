@@ -81,6 +81,12 @@ class KeyFilter(QObject):
         if self.disabled:
             return False
         etype = event.type()
+        if etype == QEvent.FocusIn:
+            if event.reason() == Qt.TabFocusReason and isinstance(QApplication.instance().focusWidget(), QOpenGLWidget):
+                # We do this otherwise closing the search bar or the ask dialog
+                # causes a focus event to be delivered to the page, which can
+                # cause an input box to get fox or the page to scroll
+                return True
         if etype == QEvent.KeyPress:
             app = QApplication.instance()
             window, fw = app.activeWindow(), app.focusWidget()
