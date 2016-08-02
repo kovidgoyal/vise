@@ -184,6 +184,7 @@ def create_profile(parent=None, private=False):
     s = ans.settings()
     s.setDefaultTextEncoding('utf-8')
     s.setAttribute(s.FullScreenSupportEnabled, True)
+    s.setAttribute(s.LinksIncludedInFocusChain, False)
     from .config import font_families, font_sizes
     for ftype, family in font_families().items():
         if ftype != 'default' and family:
