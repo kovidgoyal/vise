@@ -1,0 +1,9 @@
+apsw
+PyQt >= 5.7
+libsodium
+
+# Build time dependency
+rapydscript-ng
+
+# Optional dependency
+Python gtk bindings
