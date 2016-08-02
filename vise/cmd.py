@@ -37,7 +37,7 @@ class PasswordManager(Command):
 
 class ClearSearchHighlighting(Command):
 
-    names = {'nohlsearch'}
+    names = {'nohlsearch', 'nohl'}
 
     def __call__(self, cmd, rest, window):
         from .actions import clear_search_highlighting
