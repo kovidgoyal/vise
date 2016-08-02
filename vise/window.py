@@ -179,6 +179,7 @@ class MainWindow(QMainWindow):
             except ValueError:
                 pass
             self.stack.removeWidget(tab)
+            tab.close()
 
     def close_tab(self, tab=None):
         tab = tab or self.current_tab
