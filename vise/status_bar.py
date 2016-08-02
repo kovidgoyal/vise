@@ -8,7 +8,8 @@ from gettext import gettext as _
 
 from PyQt5.Qt import (
     QLineEdit, pyqtSignal, Qt, QStackedWidget, QLabel, QWidget, QHBoxLayout,
-    QToolButton, QTimer, QStatusBar, QFrame, QPainter, QColor)
+    QToolButton, QTimer, QStatusBar, QFrame, QPainter, QColor, QLinearGradient,
+    QPen, QBrush)
 
 from .config import color
 from .resources import get_icon
@@ -88,7 +89,19 @@ class Message(QWidget):
         if self.color:
             p.setPen(self.color)
         p.setRenderHint(p.TextAntialiasing)
-        p.drawText(self.rect(), Qt.AlignLeft | Qt.AlignVCenter | Qt.TextSingleLine, self.text)
+        # If text is too long too fit, fade it out at the end
+        flags = Qt.AlignLeft | Qt.AlignVCenter | Qt.TextSingleLine
+        r = self.rect()
+        r.setWidth(r.width() * 2)
+        br = p.boundingRect(r, flags, self.text)
+        if br.width() > self.rect().width():
+            g = QLinearGradient(self.rect().topLeft(), self.rect().topRight())
+            g.setColorAt(0.8, self.color or self.palette().color(self.palette().WindowText))
+            g.setColorAt(1.0, QColor(1, 1, 1, 0))
+            pen = QPen()
+            pen.setBrush(QBrush(g))
+            p.setPen(pen)
+        p.drawText(self.rect(), flags, self.text)
         p.end()
 
 
