@@ -8,8 +8,8 @@
 normal mode keys:  # The keys used in normal mode
     forward: Alt+Right
     back: Alt+Left
-    next_tab: Shift+Down
-    prev_tab: Shift+Up
+    next_tab: Alt+Down
+    prev_tab: Alt+Up
     close_tab: D
     ask:
         - ';'
