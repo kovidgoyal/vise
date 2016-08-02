@@ -272,6 +272,7 @@ class TabTree(QTreeWidget):
         m = QMenu(self)
         m.addAction(_('Close tabs to the bottom'), partial(self.close_tabs_to_bottom, item))
         m.addAction(_('Close other tabs'), partial(self.close_other_tabs, item))
+        m.addAction(_('Close this tree'), partial(self.close_tree, item))
         m.exec_(self.mapToGlobal(pos))
 
     def close_tabs_to_bottom(self, item_or_tab):
@@ -298,6 +299,17 @@ class TabTree(QTreeWidget):
                     tabs_to_delete.append(i.tab)
             (item.parent() or self.invisibleRootItem()).removeChild(item)
             self.addTopLevelItem(item)
+            self.delete_tabs.emit(tuple(filter(None, tabs_to_delete)))
+
+    def close_tree(self, item_or_tab):
+        item = item_or_tab if isinstance(item_or_tab, TabItem) else self.item_for_tab(item_or_tab)
+        if item:
+            (item.parent() or self.invisibleRootItem()).removeChild(item)
+            tabs_to_delete = [item.tab]
+            for i in tuple(item):
+                p = i.parent()
+                p.removeChild(i)
+                tabs_to_delete.append(i.tab)
             self.delete_tabs.emit(tuple(filter(None, tabs_to_delete)))
 
     def eventFilter(self, widget, event):
