@@ -263,6 +263,7 @@ class WebView(QWebEngineView):
         global view_id
         QWebEngineView.__init__(self, main_window)
         self.setAttribute(Qt.WA_DeleteOnClose)  # needed otherwise object is not deleted on close which means, it keeps running
+        self.setMinimumWidth(300)
         self.setFocusPolicy(Qt.ClickFocus | Qt.WheelFocus)
         self.main_window = main_window
         self.create_page(profile)

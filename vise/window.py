@@ -58,6 +58,7 @@ class MainWindow(QMainWindow):
         self.setStatusBar(self.status_bar)
 
         self.main_splitter = w = QSplitter(self)
+        w.setChildrenCollapsible(False)
         self.setCentralWidget(w)
 
         self.tabs = []
@@ -68,7 +69,8 @@ class MainWindow(QMainWindow):
         w.addWidget(tt)
         self.stack = s = StackedWidget(self)
         s.currentChanged.connect(self.current_tab_changed)
-        w.addWidget(s), w.setCollapsible(1, False)
+        w.addWidget(s)
+        w.setCollapsible(0, True), w.setCollapsible(1, False)
         self.ask = a = Ask(s)
         a.hidden.connect(self.refocus)
         a.setVisible(False), a.run_command.connect(self.run_command)
