@@ -7,10 +7,11 @@ from gettext import gettext as _
 from PyQt5.Qt import (
     QWidget, QVBoxLayout, QLineEdit, QListView, QAbstractListModel,
     QModelIndex, Qt, QStyledItemDelegate, QStringListModel, QApplication,
-    QPoint, QColor, QSize, pyqtSignal
+    QPoint, QColor, QSize, pyqtSignal, QPainter, QFrame
 )
 
 from .cmd import command_map, all_command_names
+from .config import color
 from .utils import make_highlighted_text
 
 sorted_command_names = sorted(all_command_names)
@@ -97,13 +98,16 @@ class Ask(QWidget):
         e.textEdited.connect(self.update_completions)
         e.setPlaceholderText(_('Enter command'))
         self.candidates = c = QListView(self)
+        c.setFrameStyle(QFrame.NoFrame)
+        c.viewport().setAutoFillBackground(False)
         c.setIconSize(QSize(16, 16))
         c.setSpacing(2)
         c.currentChanged = self.current_changed
         c.setFocusPolicy(Qt.NoFocus)
         pal = c.palette()
-        pal.setColor(pal.HighlightedText, pal.color(pal.Text))
-        pal.setColor(pal.Highlight, QColor('#ffffaa'))
+        fc = color('tab tree foreground', None)
+        if fc:
+            pal.setColor(pal.Text, QColor(fc))
         c.setPalette(pal)
         self.model = m = Completions(self)
         self.delegate = d = Delegate(c)
@@ -188,6 +192,14 @@ class Ask(QWidget):
         if item is not None:
             text = self.edit.text()[:self.complete_pos] + item.value
             self.edit.setText(text)
+
+    def paintEvent(self, ev):
+        p = QPainter(self)
+        c = color('tab tree background', None)
+        if c:
+            p.fillRect(ev.rect(), QColor(c))
+        p.end()
+        QWidget.paintEvent(self, ev)
 
 
 def develop():
