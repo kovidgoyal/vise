@@ -8,7 +8,7 @@ from gettext import gettext as _
 
 from PyQt5.Qt import (
     QLineEdit, pyqtSignal, Qt, QStackedWidget, QLabel, QWidget, QHBoxLayout,
-    QToolButton, QTimer, QStatusBar, QFrame)
+    QToolButton, QTimer, QStatusBar, QFrame, QPainter, QColor)
 
 from .config import color
 from .resources import get_icon
@@ -65,6 +65,33 @@ class SearchPanel(QWidget):
 TemporaryMessage = namedtuple('TemporaryMessage', 'timeout text type start_time')
 
 
+class Message(QWidget):
+
+    def __init__(self, parent=None):
+        QWidget.__init__(self, parent)
+        self.text = ''
+        self.bold = False
+        self.setFocusPolicy(Qt.NoFocus)
+
+    def set_message(self, text, color, bold=False):
+        self.text, self.color, self.bold = text, color, bold
+        self.update()
+
+    def paintEvent(self, ev):
+        if not self.text:
+            return
+        p = QPainter(self)
+        if self.bold:
+            f = self.font()
+            f.setBold(True)
+            p.setFont(f)
+        if self.color:
+            p.setPen(self.color)
+        p.setRenderHint(p.TextAntialiasing)
+        p.drawText(self.rect(), Qt.AlignLeft | Qt.AlignVCenter | Qt.TextSingleLine, self.text)
+        p.end()
+
+
 class Status(QStackedWidget):
 
     hidden = pyqtSignal()
@@ -73,8 +100,7 @@ class Status(QStackedWidget):
         QStackedWidget.__init__(self, parent)
         self.permanent_message = ''
         self.temporary_message = TemporaryMessage(1, '', 'info', monotonic())
-        self.msg = QLabel('')
-        self.msg.setFocusPolicy(Qt.NoFocus)
+        self.msg = Message(self)
         self.addWidget(self.msg)
         self.setFocusPolicy(Qt.NoFocus)
         self.msg.setFocusPolicy(Qt.NoFocus)
@@ -83,6 +109,9 @@ class Status(QStackedWidget):
         self.search.edit.do_search.connect(self.hide_search)
         self.addWidget(self.search)
         self.update_timer = t = QTimer(self)
+        self.fg_color = color('status bar foreground', None)
+        if self.fg_color:
+            self.fg_color = QColor(self.fg_color)
         t.setSingleShot(True), t.setInterval(100), t.timeout.connect(self.update_message)
 
     def __call__(self, text=''):
@@ -91,18 +120,19 @@ class Status(QStackedWidget):
 
     def update_message(self):
         tm = self.temporary_message
-        style = ''
+        col = self.fg_color
+        bold = False
         if tm.text and (tm.timeout == 0 or monotonic() - tm.start_time < tm.timeout):
-            self.msg.setText(tm.text)
+            text = tm.text
             if tm.type == 'error':
-                style = 'QLabel { color:red; font-weight: bold }'
+                col, bold = QColor('red'), True
             elif tm.type == 'success':
-                style = 'QLabel { color:green; font-weight: bold }'
+                col, bold = QColor('green'), True
             self.update_timer.start()
         else:
-            self.msg.setText(self.permanent_message)
+            text = self.permanent_message
             self.update_timer.stop()
-        self.msg.setStyleSheet(style)
+        self.msg.set_message(text, col, bold)
 
     def show_message(self, msg, timeout=1, message_type='info'):
         self.temporary_message = TemporaryMessage(timeout, msg, message_type, monotonic())
