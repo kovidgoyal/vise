@@ -97,14 +97,14 @@ class CertExceptions:
     def ask(self, odomain, code, error_string, parent=None):
         domain = ascii_lowercase(odomain)
         if code == QWebEngineCertificateError.CertificateAuthorityInvalid:
-            msg = _('The SSL certificate for {0} has an unknown certificate authority'
+            msg = _('The TLS certificate for <i>{0}</i> has an unknown certificate authority'
                     ' (could be a self signed certificate) do you want to trust it nevertheless?')
         elif code == QWebEngineCertificateError.CertificateWeakSignatureAlgorithm:
-            msg = _('The SSL certificate for {0} uses a weak signature algorithm,'
+            msg = _('The TLS certificate for <i>{0}</i> uses a weak signature algorithm,'
                     ' do you want to trust it nevertheless?')
         else:
-            self.show_error(odomain, error_string, parent)
-            return False
+            msg = _('The TLS certificate used by <i>{0}</i> is not valid, do you want to trust it anyway? Error: <b>{1}</b>').format(
+                odomain, error_string)
         msg = msg.format('<i>%s</i>' % domain)
         d = Ask(msg, parent=parent)
         if d.exec_() == d.Accepted:
