@@ -7,6 +7,7 @@ import json
 import weakref
 import subprocess
 import shlex
+from base64 import standard_b64encode
 from tempfile import NamedTemporaryFile
 from threading import Thread
 from gettext import gettext as _
@@ -15,7 +16,7 @@ from functools import partial
 from PyQt5.Qt import (
     QWebEngineView, QWebEnginePage, QSize, QApplication, pyqtSignal, pyqtSlot,
     QObject, QGridLayout, QCheckBox, QLabel, Qt, QWebEngineScript,
-    pyqtBoundSignal
+    pyqtBoundSignal, QByteArray, QBuffer
 )
 
 from .auth import get_http_auth_credentials, get_proxy_auth_credentials
@@ -445,17 +446,29 @@ class WebView(QWebEngineView):
         self.find_text_data = [None, None]
         callback(text, found)
 
-    @property
-    def serialized_state(self):
+    def serialize_state(self, include_favicon=False):
         pos = self._page.scrollPosition()
         sz = self._page.contentsSize()
-        return {
+        ans = {
             'x': pos.x(), 'y': pos.y(),
-            'zoom_factor': self.zoom_factor,
-            'url': self._page.url().toString(),
             'width': sz.width(), 'height': sz.height(),
+            'zoom_factor': self.zoom_factor,
+            'title': self.title(),
+            'url': self._page.url().toString(),
             'audio_muted': self._page.isAudioMuted(),
         }
+        if include_favicon:
+            ic = self.icon()
+            if not ic.isNull():
+                p = ic.pixmap(32, 32)
+                if not p.isNull():
+                    ba = QByteArray()
+                    buf = QBuffer(ba)
+                    buf.open(QBuffer.WriteOnly)
+                    p.save(buf, b'PNG')
+                    ans['favicon'] = 'data:image/png;base64,' + standard_b64encode(ba.data()).decode('ascii')
+
+        return ans
 
     @property
     def zoom_factor(self):
