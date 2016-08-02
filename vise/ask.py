@@ -87,6 +87,7 @@ class Candidate:
 class Ask(QWidget):
 
     run_command = pyqtSignal(object)
+    hidden = pyqtSignal()
 
     def __init__(self, parent=None):
         self.complete_pos = 0
@@ -167,6 +168,10 @@ class Ask(QWidget):
             self.close() if self.parent() is None else self.hide()
             self.run_command.emit(self.edit.text())
         return QWidget.keyPressEvent(self, ev)
+
+    def hide(self):
+        QWidget.hide(self)
+        self.hidden.emit()
 
     def next_completion(self, forward=True):
         if self.model.rowCount() == 0:

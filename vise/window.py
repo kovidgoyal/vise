@@ -220,6 +220,7 @@ class MainWindow(QMainWindow):
         s.currentChanged.connect(self.current_tab_changed)
         w.addWidget(s), w.setCollapsible(1, False)
         self.ask = a = Ask(s)
+        a.hidden.connect(self.refocus)
         a.setVisible(False), a.run_command.connect(self.run_command)
         self.profile = create_profile(private=True) if is_private else profile()
 
