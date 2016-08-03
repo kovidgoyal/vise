@@ -39,6 +39,7 @@ normal mode keys:  # The keys used in normal mode
     paste_and_go_newtab: Shift+P
     reload: R
     hard_reload: Shift+R
+    restart: Ctrl+R
     choose_tab: T
     follow_next: ']'
     follow_previous: '['

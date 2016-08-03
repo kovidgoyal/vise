@@ -44,6 +44,15 @@ class ClearSearchHighlighting(Command):
         clear_search_highlighting(window)
 
 
+class Restart(Command):
+
+    names = {'restart'}
+
+    def __call__(self, cmd, rest, window):
+        from .actions import restart
+        restart(window)
+
+
 def init_commands():
     all_commands = set()
 

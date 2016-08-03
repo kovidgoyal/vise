@@ -502,3 +502,18 @@ class TabTree(QTreeWidget):
                     self._activate_item(item, tab)
                     return True
         return False
+
+    def serialize_state(self):
+        ans = {'children': []}
+
+        def process_node(node, sparent=ans):
+            for child in (node.child(i) for i in range(node.childCount())):
+                view_id = child.view_id
+                if view_id > -1:
+                    sparent['children'].append({'view_id': view_id, 'is_expanded': child.isExpanded(), 'children': []})
+                    process_node(child, sparent['children'][-1])
+        process_node(self.invisibleRootItem())
+        return ans
+
+    def unserialize_state(self, state, tab):
+        self.item_for_tab(tab).setExpanded(state['is_expanded'])

@@ -6,6 +6,7 @@ import os
 from functools import partial
 from gettext import gettext as _
 from collections import deque
+from itertools import count
 
 import sip
 from PyQt5.Qt import (
@@ -23,7 +24,7 @@ from .tab_tree import TabTree
 from .view import WebView
 
 
-_window_id = 0
+window_id = count()
 
 
 class StackedWidget(QStackedWidget):
@@ -39,13 +40,11 @@ class MainWindow(QMainWindow):
 
     start_search_signal = pyqtSignal(bool)
 
-    def __init__(self, is_private=False):
-        global _window_id
+    def __init__(self, is_private=False, restart_state=None):
         QMainWindow.__init__(self)
         self.current_tab = None
         self.quickmark_pending = self.choose_tab_pending = None
-        _window_id += 1
-        self.window_id = _window_id
+        self.window_id = next(window_id)
         self.is_private = is_private
         self.deleted_tabs_cache = deque(maxlen=200)
         self.setAttribute(Qt.WA_DeleteOnClose, True)
@@ -78,7 +77,10 @@ class MainWindow(QMainWindow):
         a.setVisible(False), a.run_command.connect(self.run_command)
         self.profile = create_profile(private=True) if is_private else profile()
 
-        self.open_url(QUrl('vise:welcome'))
+        if restart_state is None:
+            self.open_url(QUrl('vise:welcome'))
+        else:
+            self.unserialize_state(restart_state)
 
         self.restore_state()
         self.current_tab_changed()
@@ -224,13 +226,13 @@ class MainWindow(QMainWindow):
         if tab is self.current_tab:
             self.show_status_message(href, 10)
 
-    def get_tab_for_load(self, in_current_tab=True):
+    def get_tab_for_load(self, in_current_tab=True, parent=None):
         in_current_tab = self.current_tab is not None and in_current_tab
         if in_current_tab:
             tab = self.current_tab
         else:
             tab = self.create_new_tab()
-            self.tab_tree.add_tab(tab)
+            self.tab_tree.add_tab(tab, parent=parent)
             if self.current_tab is None:
                 self.current_tab = tab
         return tab
@@ -309,3 +311,33 @@ class MainWindow(QMainWindow):
     def follow_next(self, forward=True):
         if self.current_tab is not None:
             self.current_tab.follow_next(forward)
+
+    def serialize_state(self, include_favicons=False):
+        ans = {'window_id': self.window_id, 'is_private': self.is_private}
+        tab_map = ans['tab_map'] = {}
+        for tab in self.tabs:
+            s = tab.serialize_state(include_favicon=include_favicons)
+            tab_map[s['view_id']] = s
+        if self.current_tab is not None:
+            ans['current_tab'] = self.current_tab.view_id
+        ans['tab_tree'] = self.tab_tree.serialize_state()
+        return ans
+
+    def unserialize_state(self, state):
+        tab_map = state['tab_map']
+        current_tab_id = state.get('current_tab')
+        current_tab = None
+
+        def process_node(node, parent=None):
+            nonlocal current_tab
+            for child in node['children']:
+                tab = self.get_tab_for_load(in_current_tab=False, parent=parent)
+                tab.unserialize_state(tab_map[child['view_id']])
+                if child['view_id'] == current_tab_id:
+                    current_tab = tab
+                process_node(child, tab)
+                self.tab_tree.unserialize_state(child, tab)
+
+        process_node(state['tab_tree'])
+        if current_tab is not None:
+            self.show_tab(current_tab)

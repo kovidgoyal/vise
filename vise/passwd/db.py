@@ -39,7 +39,7 @@ class PasswordStore:  # {{{
             traceback.print_exc()
             return False
 
-    def __init__(self, password, dirpath=None):
+    def __init__(self, password, dirpath=None, pw_is_key=False):
         dirpath = os.path.realpath(dirpath or os.path.join(config_dir, 'passwd'))
         self.root = dirpath
         if isinstance(password, str):
@@ -58,8 +58,13 @@ class PasswordStore:  # {{{
                 'version': 1,
                 'salt': hexlify(generate_salt_v1()).decode('ascii')
             }
-        self.password = password
-        self.run_derive()
+        if pw_is_key:
+            self.password = self.key_error = None
+            self.key = password
+            lock_python_bytes(self.key)
+        else:
+            self.password = password
+            self.run_derive()
 
     def run_derive(self):
         self.key = self.key_error = None
@@ -75,6 +80,7 @@ class PasswordStore:  # {{{
         pw, self.password = self.password, None
         try:
             self.key = derive_key_v1(pw, unhexlify(self.metadata['salt']))[0]
+            lock_python_bytes(self.key)
             if 'sentinel' not in self.metadata:
                 cipher, nonce = encrypt_v1(b'sentinel', self.key)
                 self.metadata['sentinel'] = (hexlify(nonce).decode('ascii'), hexlify(cipher).decode('ascii'))
@@ -94,7 +100,8 @@ class PasswordStore:  # {{{
         return hashlib.sha1(key).hexdigest()
 
     def join(self):
-        self.derive_worker.join()
+        if hasattr(self, 'derive_worker'):
+            self.derive_worker.join()
         if self.key_error is not None:
             raise self.key_error
 
@@ -212,8 +219,8 @@ class PasswordDB:
     def has_password(cls, path=None):
         return PasswordStore.has_password(path)
 
-    def __init__(self, password, path=None):
-        self.store = PasswordStore(password, path)
+    def __init__(self, password, path=None, pw_is_key=False):
+        self.store = PasswordStore(password, path, pw_is_key=pw_is_key)
 
     def __getitem__(self, key):
         data = self.store.get_data(key)
@@ -285,14 +292,14 @@ class DelayLoadedPasswordDB(PasswordDB):
         self.error = (None, None)
         self.loader = None
 
-    def start_load(self, password, callback=None):
+    def start_load(self, password, callback=None, pw_is_key=False):
         if self.loader is not None:
             return
         self.error = (None, None)
 
         def loadpw():
             try:
-                self.store = PasswordStore(password)
+                self.store = PasswordStore(password, pw_is_key=pw_is_key)
                 self.store.join()
             except Exception as e:
                 import traceback
@@ -313,6 +320,14 @@ class DelayLoadedPasswordDB(PasswordDB):
     @property
     def is_loaded(self):
         return self.store is not None
+
+    @property
+    def key(self):
+        return getattr(self.store, 'key', None)
+
+    @property
+    def key_error(self):
+        return getattr(self.store, 'key_error', None)
 
 
 password_db = DelayLoadedPasswordDB()

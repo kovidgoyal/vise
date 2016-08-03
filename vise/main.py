@@ -17,9 +17,9 @@ from gettext import gettext as _
 
 import sip
 from PyQt5.Qt import (
-    QApplication, QFontDatabase, QNetworkAccessManager, QNetworkDiskCache,
-    QLocalSocket, QLocalServer, QSslSocket, QTextStream, QAbstractSocket,
-    QTimer, Qt, pyqtSignal, QSocketNotifier
+    QApplication, QFontDatabase, QNetworkDiskCache, QLocalSocket, QLocalServer,
+    QSslSocket, QTextStream, QAbstractSocket, QTimer, Qt, pyqtSignal,
+    QSocketNotifier
 )
 
 from .constants import appname, str_version, cache_dir, iswindows
@@ -29,7 +29,6 @@ from .message_box import error_dialog
 from .settings import delete_profile
 from .window import MainWindow
 from .utils import parse_url, BusyCursor
-from .certs import handle_qt_ssl_error
 from .places import places
 from .passwd.db import password_db, key_from_url
 
@@ -64,7 +63,7 @@ class Application(QApplication):
     password_loaded = pyqtSignal(object, object)
     remove_window_later = pyqtSignal(object)
 
-    def __init__(self, args, master_password=None, urls=(), new_instance=False, shutdown=False):
+    def __init__(self, args, master_password=None, urls=(), new_instance=False, shutdown=False, restart_state=None):
         QApplication.__init__(self, [])
         self.handle_unix_signals()
         if not QSslSocket.supportsSsl():
@@ -85,6 +84,8 @@ class Application(QApplication):
         self.password_loaded.connect(self.on_password_load, type=Qt.QueuedConnection)
         if master_password is not None:
             password_db.start_load(master_password, self.password_loaded.emit)
+        elif restart_state and 'key' in restart_state:
+            password_db.start_load(restart_state.pop('key'), self.password_loaded.emit, pw_is_key=True)
 
         self.run_local_server(urls, new_instance, shutdown)
         sys.excepthook = self.on_unhandled_error
@@ -96,11 +97,8 @@ class Application(QApplication):
             if 'Ubuntu' in QFontDatabase().families():
                 f.setFamily('Ubuntu')
             self.setFont(f)
-        self.network_access_manager = nam = QNetworkAccessManager(self)
         self.downloads = Downloads(self)
-        nam.sslErrors.connect(handle_qt_ssl_error)
-        self.disk_cache = c = create_favicon_cache()
-        nam.setCache(c)
+        self.disk_cache = create_favicon_cache()
         self.key_filter = KeyFilter(self)
         self.installEventFilter(self.key_filter)
 
@@ -228,8 +226,8 @@ class Application(QApplication):
         for w in self.windows:
             w.close()
 
-    def new_window(self, is_private=False):
-        w = MainWindow(is_private=is_private)
+    def new_window(self, is_private=False, restart_state=None):
+        w = MainWindow(is_private=is_private, restart_state=restart_state)
         self.windows.append(w)
         return w
 
@@ -287,12 +285,50 @@ class Application(QApplication):
             w.deleteLater()
         for s in (self.password_loaded, self.remove_window_later):
             s.disconnect()
-        del self.windows, self.network_access_manager
+        del self.windows
+
+    def serialize_state(self, include_favicons=False, include_key=False):
+        ans = {'windows': [w.serialize_state(include_favicons) for w in self.windows]}
+        w = self.activeWindow()
+        if getattr(w, 'window_id', None) is not None:
+            ans['active_window'] = w.window_id
+        if include_key and password_db.is_loaded and password_db.key and not password_db.key_error:
+            ans['key'] = password_db.key
+        return ans
+
+    def unserialize_state(self, state):
+        active_window = state.get('active_window')
+        for wstate in state['windows']:
+            w = self.new_window(restart_state=wstate, is_private=wstate['is_private'])
+            w.show()
+            if wstate['window_id'] == active_window:
+                active_window = w
+        if hasattr(active_window, 'raise_') and self.activeWindow() != active_window and len(self.windows) > 1:
+            w.raise_()
+
+    def restart_app(self):
+        import pickle
+        password_db.join()
+        state = self.serialize_state(include_key=True)
+        self.restart_state = pickle.dumps(state, pickle.HIGHEST_PROTOCOL)
+        self.shutdown()
 
 
-def run_app(urls=(), callback=None, callback_wait=0, master_password=None, new_instance=False, shutdown=False):
+def restart(state, env):
+    import subprocess
+    import shlex
+    env['IS_VISE_RESTART'] = '1'
+    cmd = [sys.executable, sys.argv[0]]
+    if '--new-instance' in sys.argv:
+        cmd.append('--new-instance')
+    print('Restarting with command:', *map(shlex.quote, cmd))
+    p = subprocess.Popen(cmd, env=env, stdin=subprocess.PIPE)
+    p.stdin.write(state), p.stdin.flush(), p.stdin.close()
+
+
+def run_app(urls=(), callback=None, callback_wait=0, master_password=None, new_instance=False, shutdown=False, restart_state=None):
     env = os.environ.copy()
-    app = Application([], master_password=master_password, urls=urls, new_instance=new_instance, shutdown=shutdown)
+    app = Application([], master_password=master_password, urls=urls, new_instance=new_instance, shutdown=shutdown, restart_state=restart_state)
     if False:
         # This is disabled because it is insecure, see
         # https://bugreports.qt.io/browse/QTBUG-50725
@@ -309,7 +345,10 @@ def run_app(urls=(), callback=None, callback_wait=0, master_password=None, new_i
     app.setApplicationVersion(str_version)
     app.original_env = env
     try:
-        app.open_urls(urls)
+        if restart_state is None:
+            app.open_urls(urls)
+        else:
+            app.unserialize_state(restart_state)
         if callback is not None:
             QTimer.singleShot(callback_wait, callback)
         app.exec_()
@@ -318,9 +357,13 @@ def run_app(urls=(), callback=None, callback_wait=0, master_password=None, new_i
         delete_profile()
         places.close()
         app.sendPostedEvents()
+        restart_state = getattr(app, 'restart_state', None)
+        original_env = app.original_env
         sip.delete(app)
         del app
         gc.collect(), gc.collect(), gc.collect()
+        if restart_state is not None:
+            restart(restart_state, original_env)
 
 
 def main():
@@ -335,5 +378,9 @@ def main():
         raise SystemExit(0)
 
     pw = sys.stdin.read().rstrip() if args.pw_from_stdin else None
+    restart_state = None
+    if os.environ.pop('IS_VISE_RESTART', None) == '1':
+        import pickle
+        restart_state = pickle.loads(sys.stdin.buffer.read())
 
-    run_app(args.urls, master_password=pw, new_instance=args.new_instance, shutdown=args.shutdown)
+    run_app(args.urls, master_password=pw, new_instance=args.new_instance, shutdown=args.shutdown, restart_state=restart_state)

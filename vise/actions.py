@@ -233,6 +233,11 @@ def hard_reload(window, *args, **kwargs):
         return True
 
 
+def restart(window, *a, **k):
+    QApplication.instance().restart_app()
+    return True
+
+
 def choose_tab(window, *args, **kwargs):
     window.choose_tab_pending = True
     window.tab_tree.mark_tabs()

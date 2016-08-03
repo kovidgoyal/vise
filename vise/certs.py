@@ -113,16 +113,3 @@ class CertExceptions:
         return False
 
 cert_exceptions = CertExceptions()
-
-
-def handle_qt_ssl_error(reply, errors):
-    domain = reply.url().host()
-    for e in errors:
-        err = e.error()
-        if (
-                err in (e.SelfSignedCertificate, e.SelfSignedCertificateInChain, e.UnableToGetLocalIssuerCertificate, e.UnableToVerifyFirstCertificate) and
-                cert_exceptions.has_exception(domain, QWebEngineCertificateError.CertificateAuthorityInvalid)
-        ):
-            continue
-        return
-    reply.ignoreSslErrors()
