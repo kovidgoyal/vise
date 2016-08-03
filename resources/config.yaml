@@ -96,6 +96,7 @@ colors:
     tab tree hover border: "#bfcde4"
     status bar background: black
     status bar foreground: white
+    ask bar highlight: "#22000000"
 
 
 ##################### Misc ############################

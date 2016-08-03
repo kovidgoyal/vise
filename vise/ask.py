@@ -108,6 +108,9 @@ class Ask(QWidget):
         fc = color('tab tree foreground', None)
         if fc:
             pal.setColor(pal.Text, QColor(fc))
+        hc = color('ask bar highlight', None)
+        if hc:
+            pal.setColor(pal.Highlight, QColor(hc))
         c.setPalette(pal)
         self.model = m = Completions(self)
         self.delegate = d = Delegate(c)
