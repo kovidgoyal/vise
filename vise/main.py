@@ -19,7 +19,7 @@ import sip
 from PyQt5.Qt import (
     QApplication, QFontDatabase, QNetworkDiskCache, QLocalSocket, QLocalServer,
     QSslSocket, QTextStream, QAbstractSocket, QTimer, Qt, pyqtSignal,
-    QSocketNotifier
+    QSocketNotifier, QNetworkCacheMetaData
 )
 
 from .constants import appname, str_version, cache_dir, iswindows
@@ -28,7 +28,7 @@ from .keys import KeyFilter
 from .message_box import error_dialog
 from .settings import delete_profile
 from .window import MainWindow
-from .utils import parse_url, BusyCursor
+from .utils import parse_url, BusyCursor, icon_to_data
 from .places import places
 from .passwd.db import password_db, key_from_url
 
@@ -54,7 +54,7 @@ def option_parser():
 def create_favicon_cache():
     c = QNetworkDiskCache()
     c.setCacheDirectory(os.path.join(cache_dir, 'favicons'))
-    c.setMaximumCacheSize(10 * 1024 * 1024)
+    c.setMaximumCacheSize(25 * 1024 * 1024)
     return c
 
 
@@ -221,6 +221,16 @@ class Application(QApplication):
         urls = [x for x in urls if isinstance(x, str)]
         if urls:
             self.open_urls(urls, in_current_tab=False, switch_to_tab=True)
+
+    def save_favicon_in_cache(self, icon, qurl):
+        ic = icon_to_data(icon, w=None)
+        if ic:
+            md = QNetworkCacheMetaData()
+            md.setUrl(qurl)
+            md.setSaveToDisk(True)
+            dio = self.disk_cache.prepare(md)
+            dio.write(ic)
+            self.disk_cache.insert(dio)
 
     def shutdown(self):
         for w in self.windows:

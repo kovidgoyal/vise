@@ -4,7 +4,7 @@
 
 from contextlib import closing
 
-from PyQt5.Qt import QPoint, QApplication, QIcon, QPixmap, QUrl, Qt, QUrlQuery
+from PyQt5.Qt import QPoint, QApplication, QIcon, QPixmap, QUrl, Qt, QUrlQuery, QBuffer
 
 from . import Command
 from ..places import places
@@ -47,14 +47,14 @@ class CompletionCandidate:
             self._icon = QIcon()
             url = places.favicon_url(self.place_id)
             if url is not None:
-                f = QApplication.instance().disk_cache.data(QUrl(str(url)))  # Bug in PyQt neccessitates call to str()
-                if f is not None:
+                f = QApplication.instance().disk_cache.data(QUrl(url))
+                if isinstance(f, QBuffer):
                     with closing(f):
-                        raw = bytes(f.readAll())
-                        p = QPixmap()
-                        p.loadFromData(raw)
-                        if not p.isNull():
-                            self._icon.addPixmap(p)
+                        raw = f.data().data()
+                    p = QPixmap()
+                    p.loadFromData(raw)
+                    if not p.isNull():
+                        self._icon.addPixmap(p)
         return self._icon
 
     def __repr__(self):

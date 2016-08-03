@@ -198,21 +198,28 @@ def sanitize_file_name(name, substitute='_'):
     return one
 
 
-def pixmap_to_data(pixmap, format='PNG', quality=90):
+def pixmap_to_data(pixmap, format='PNG'):
     '''
     Return the QPixmap pixmap as a string saved in the specified format.
     '''
     ba = QByteArray()
     buf = QBuffer(ba)
     buf.open(QBuffer.WriteOnly)
-    pixmap.save(buf, format, quality=quality)
+    pixmap.save(buf, format)
     return bytes(ba.data())
 
 
 def icon_to_data(icon, w=64, h=64):
     if icon.isNull():
         return b''
-    return pixmap_to_data(icon.pixmap(w, h))
+    if w is None:
+        sizes = sorted(icon.availableSizes(), key=lambda x: x.width() * x.height())
+        p = icon.pixmap(sizes[-1])
+    else:
+        p = icon.pixmap(w, h)
+    if p.isNull():
+        return b''
+    return pixmap_to_data(p)
 
 
 def setup_gi():

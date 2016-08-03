@@ -17,7 +17,7 @@ from itertools import count
 from PyQt5.Qt import (
     QWebEngineView, QWebEnginePage, QSize, QApplication, pyqtSignal, pyqtSlot,
     QObject, QGridLayout, QCheckBox, QLabel, Qt, QWebEngineScript,
-    pyqtBoundSignal, QByteArray, QBuffer, QUrl
+    pyqtBoundSignal, QUrl
 )
 
 from .auth import get_http_auth_credentials, get_proxy_auth_credentials
@@ -26,7 +26,7 @@ from .config import misc_config
 from .message_box import question_dialog
 from .places import places
 from .popup import Popup
-from .utils import Dialog, safe_disconnect, ascii_lowercase
+from .utils import Dialog, safe_disconnect, ascii_lowercase, icon_to_data
 from .passwd.db import password_db, key_from_url, password_exclusions
 from .settings import gprefs
 from .site_permissions import site_permissions
@@ -269,7 +269,7 @@ class WebView(QWebEngineView):
         self.main_window = main_window
         self.create_page(profile)
         self.view_id = next(view_id)
-        self.iconChanged.connect(self.icon_changed.emit)
+        self.iconChanged.connect(self.on_icon_changed, type=Qt.QueuedConnection)
         self._page.bridge.js_to_python.middle_clicked.connect(self.open_in_new_tab.emit)
         self._page.bridge.js_to_python.focus_changed.connect(self.on_focus_change)
         self._page.bridge.js_to_python.login_form_submitted.connect(self.on_login_form_submit)
@@ -303,6 +303,12 @@ class WebView(QWebEngineView):
                 traceback.print_exc()
             self.title_changed.emit(title)
         self._page.poll_for_messages.emit()
+
+    def on_icon_changed(self, icon):
+        icurl = self.iconUrl()
+        QApplication.instance().save_favicon_in_cache(icon, icurl)
+        places.on_favicon_change(self.url(), icurl)
+        self.icon_changed.emit(icon)
 
     def register_callback(self, name, func, *args, **kw):
         self._page.register_callback(name, func, *args, **kw)
@@ -464,15 +470,9 @@ class WebView(QWebEngineView):
             'view_id': self.view_id,
         }
         if include_favicon:
-            ic = self.icon()
-            if not ic.isNull():
-                p = ic.pixmap(32, 32)
-                if not p.isNull():
-                    ba = QByteArray()
-                    buf = QBuffer(ba)
-                    buf.open(QBuffer.WriteOnly)
-                    p.save(buf, b'PNG')
-                    ans['favicon'] = 'data:image/png;base64,' + standard_b64encode(ba.data()).decode('ascii')
+            ic = icon_to_data(self.icon())
+            if ic:
+                ans['favicon'] = 'data:image/png;base64,' + standard_b64encode(ic).decode('ascii')
 
         return ans
 
