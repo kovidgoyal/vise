@@ -85,17 +85,31 @@ class Candidate:
         pass
 
 
-class Ask(QWidget):
-
-    run_command = pyqtSignal(object)
-    hidden = pyqtSignal()
+class ListView(QListView):
 
     def __init__(self, parent=None):
-        self.complete_pos = 0
-        QWidget.__init__(self, parent)
-        self.l = l = QVBoxLayout(self)
-        self.edit = e = QLineEdit(self)
-        e.setStyleSheet('''
+        QListView.__init__(self, parent)
+        self.setStyleSheet('''
+        QListView { color: FG; background: BG }
+        QListView::item:selected { border-radius: 8px; background: HB }
+        '''.replace('HB', color('status bar highlight', 'palette(highlight)')).replace(
+            'FG', color('tab tree foreground', 'palette(window-text)')).replace(
+            'BG', color('tab tree background', 'palette(window)'))
+        )
+        self.setFrameStyle(QFrame.NoFrame)
+        self.viewport().setAutoFillBackground(False)
+        self.setIconSize(QSize(16, 16))
+        self.setSpacing(2)
+        self.setFocusPolicy(Qt.NoFocus)
+        self.delegate = d = Delegate(self)
+        self.setItemDelegate(d)
+
+
+class LineEdit(QLineEdit):
+
+    def __init__(self, parent=None):
+        QLineEdit.__init__(self, parent)
+        self.setStyleSheet('''
         QLineEdit {
             border-width: 0;
             border-radius: 8px;
@@ -108,25 +122,23 @@ class Ask(QWidget):
             'FG', color('status bar foreground', 'palette(window-text)')).replace(
             'SEL', color('status bar selection', 'palette(highlight)'))
         )
+        self.setPlaceholderText(_('Enter command'))
+
+
+class Ask(QWidget):
+
+    run_command = pyqtSignal(object)
+    hidden = pyqtSignal()
+
+    def __init__(self, parent=None):
+        self.complete_pos = 0
+        QWidget.__init__(self, parent)
+        self.l = l = QVBoxLayout(self)
+        self.edit = e = LineEdit(self)
         e.textEdited.connect(self.update_completions)
-        e.setPlaceholderText(_('Enter command'))
-        self.candidates = c = QListView(self)
-        c.setStyleSheet('''
-        QListView { color: FG; background: BG }
-        QListView::item:selected { border-radius: 8px; background: HB }
-        '''.replace('HB', color('status bar highlight', 'palette(highlight)')).replace(
-            'FG', color('tab tree foreground', 'palette(window-text)')).replace(
-            'BG', color('tab tree background', 'palette(window)'))
-        )
-        c.setFrameStyle(QFrame.NoFrame)
-        c.viewport().setAutoFillBackground(False)
-        c.setIconSize(QSize(16, 16))
-        c.setSpacing(2)
+        self.candidates = c = ListView(self)
         c.currentChanged = self.current_changed
-        c.setFocusPolicy(Qt.NoFocus)
         self.model = m = Completions(self)
-        self.delegate = d = Delegate(c)
-        c.setItemDelegate(d)
         c.setModel(m)
         l.addWidget(e), l.addWidget(c)
         if hasattr(parent, 'resized'):
