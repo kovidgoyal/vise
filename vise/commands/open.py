@@ -90,7 +90,7 @@ class Open(Command):
 
     def __call__(self, cmd, rest, window):
         rest = rest.strip()
-        if rest.startswith('http://') or rest.startswith('https://'):
+        if rest.startswith('http://') or rest.startswith('https://') or rest.startswith('vise:'):
             is_search = False
         else:
             is_search = ' ' in rest or '.' not in rest.strip('.')
