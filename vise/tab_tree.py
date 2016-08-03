@@ -400,7 +400,7 @@ class TabTree(QTreeWidget):
         if pos > -1 and pos < parent.childCount():
             parent.insertChild(pos, item)
         else:
-            parent.appendChild(item)
+            parent.addChild(item)
         self.scrollToItem(item)
 
     def remove_tab(self, tab):
