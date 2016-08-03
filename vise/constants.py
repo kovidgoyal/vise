@@ -22,6 +22,7 @@ isdragonflybsd = 'dragonfly' in _plat
 isbsd = isfreebsd or isnetbsd or isdragonflybsd
 islinux = not(iswindows or isosx or isbsd)
 DOWNLOADS_URL = 'vise:downloads'
+WELCOME_URL = 'vise:welcome'
 hostname = os.environ.get('VISE_HOSTNAME', socket.gethostname())
 STATUS_BAR_HEIGHT = 24
 

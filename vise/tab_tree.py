@@ -18,6 +18,7 @@ from .config import color
 from .downloads import DOWNLOADS_URL, downloads_icon
 from .resources import get_data_as_path
 from .utils import elided_text, draw_snake_spinner
+from .welcome import WELCOME_URL, welcome_icon
 
 LOADING_ROLE = Qt.UserRole
 ANGLE_ROLE = LOADING_ROLE + 1
@@ -113,7 +114,13 @@ class TabDelegate(QStyledItemDelegate):
                     traceback.print_exc()
                     self.errored_out = True
         else:
-            icon = downloads_icon() if index.data(URL_ROLE) == DOWNLOADS_URL else index.data(DECORATION_ROLE)
+            icurl = index.data(URL_ROLE)
+            if icurl == WELCOME_URL:
+                icon = welcome_icon()
+            elif icurl == DOWNLOADS_URL:
+                icon = downloads_icon()
+            else:
+                icon = index.data(DECORATION_ROLE)
             icon.paint(painter, icon_rect)
         painter.restore()
 

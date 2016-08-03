@@ -22,6 +22,7 @@ from .settings import gprefs, profile, create_profile, quickmarks
 from .status_bar import StatusBar
 from .tab_tree import TabTree
 from .view import WebView
+from .welcome import WELCOME_URL
 
 
 window_id = count()
@@ -78,7 +79,7 @@ class MainWindow(QMainWindow):
         self.profile = create_profile(private=True) if is_private else profile()
 
         if restart_state is None:
-            self.open_url(QUrl('vise:welcome'))
+            self.open_url(WELCOME_URL)
         else:
             self.unserialize_state(restart_state)
 
@@ -203,7 +204,7 @@ class MainWindow(QMainWindow):
         if tab is not None:
             self.delete_removed_tabs(self.tab_tree.remove_tab(tab))
         if not self.tabs:
-            self.open_url(QUrl('vise:welcome'), switch_to_tab=True)
+            self.open_url(WELCOME_URL, switch_to_tab=True)
             QTimer.singleShot(0, self.current_tab_changed)
 
     def close_all_tabs(self):
