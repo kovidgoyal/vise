@@ -95,23 +95,35 @@ class Ask(QWidget):
         QWidget.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
         self.edit = e = QLineEdit(self)
+        e.setStyleSheet('''
+        QLineEdit {
+            border-width: 0;
+            border-radius: 8px;
+            padding: 1px 6px;
+            background: BG;
+            color: FG;
+            selection-background-color: SEL;
+        }
+        '''.replace('BG', color('status bar background', 'palette(window)')).replace(
+            'FG', color('status bar foreground', 'palette(window-text)')).replace(
+            'SEL', color('status bar selection', 'palette(highlight)'))
+        )
         e.textEdited.connect(self.update_completions)
         e.setPlaceholderText(_('Enter command'))
         self.candidates = c = QListView(self)
+        c.setStyleSheet('''
+        QListView { color: FG; background: BG }
+        QListView::item:selected { border-radius: 8px; background: HB }
+        '''.replace('HB', color('status bar highlight', 'palette(highlight)')).replace(
+            'FG', color('tab tree foreground', 'palette(window-text)')).replace(
+            'BG', color('tab tree background', 'palette(window)'))
+        )
         c.setFrameStyle(QFrame.NoFrame)
         c.viewport().setAutoFillBackground(False)
         c.setIconSize(QSize(16, 16))
         c.setSpacing(2)
         c.currentChanged = self.current_changed
         c.setFocusPolicy(Qt.NoFocus)
-        pal = c.palette()
-        fc = color('tab tree foreground', None)
-        if fc:
-            pal.setColor(pal.Text, QColor(fc))
-        hc = color('ask bar highlight', None)
-        if hc:
-            pal.setColor(pal.Highlight, QColor(hc))
-        c.setPalette(pal)
         self.model = m = Completions(self)
         self.delegate = d = Delegate(c)
         c.setItemDelegate(d)
