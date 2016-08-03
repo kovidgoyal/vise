@@ -19,7 +19,7 @@ import sip
 from PyQt5.Qt import (
     QApplication, QFontDatabase, QNetworkAccessManager, QNetworkDiskCache,
     QLocalSocket, QLocalServer, QSslSocket, QTextStream, QAbstractSocket,
-    QTimer, QDialog, Qt, pyqtSignal, QSocketNotifier
+    QTimer, Qt, pyqtSignal, QSocketNotifier
 )
 
 from .constants import appname, str_version, cache_dir, iswindows
@@ -267,10 +267,9 @@ class Application(QApplication):
         det_msg = '%s: %s\n%s' % (appname, str_version, ''.join(traceback.format_exception(etype, value, tb)))
         parent = self.activeWindow()
         d = error_dialog(parent, _('Unhandled exception'), msg, det_msg=det_msg, show=False)
-        d.shutdown_button = d.bb.addButton(_('Shutdown'), d.bb.RejectRole)
-        ret = d.exec_()
-        if ret == QDialog.Rejected:
-            QApplication.instance().exit(1)
+        b = d.shutdown_button = d.bb.addButton(_('Shutdown'), d.bb.ActionRole)
+        b.clicked.connect(lambda: self.exit(1))
+        d.exec_()
 
     def break_cycles(self):
         # Make sure the application object has no references in python and the
