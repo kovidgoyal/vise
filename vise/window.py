@@ -206,6 +206,11 @@ class MainWindow(QMainWindow):
             self.open_url(QUrl('vise:welcome'), switch_to_tab=True)
             QTimer.singleShot(0, self.current_tab_changed)
 
+    def close_all_tabs(self):
+        if self.current_tab is not None:
+            self.tab_tree.close_other_tabs(self.current_tab)
+            self.close_tab(self.current_tab)
+
     def break_cycles(self):
         for tab in self.tabs:
             if not sip.isdeleted(tab):

@@ -53,6 +53,14 @@ class Restart(Command):
         restart(window)
 
 
+class Clear(Command):
+
+    names = {'clear', 'closeall'}
+
+    def __call__(self, cmd, rest, window):
+        window.close_all_tabs()
+
+
 def init_commands():
     all_commands = set()
 
