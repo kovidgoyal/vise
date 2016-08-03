@@ -8,11 +8,10 @@ from gettext import gettext as _
 
 from PyQt5.Qt import (
     QLineEdit, pyqtSignal, Qt, QStackedWidget, QLabel, QWidget, QHBoxLayout,
-    QToolButton, QTimer, QStatusBar, QFrame, QPainter, QColor, QLinearGradient,
-    QPen, QBrush)
+    QTimer, QStatusBar, QFrame, QPainter, QColor, QLinearGradient, QPen, QBrush
+)
 
 from .config import color
-from .resources import get_icon
 
 
 class Search(QLineEdit):
@@ -175,22 +174,45 @@ class ModeLabel(QLabel):
         self.setText(text)
 
 
-class PassthroughButton(QToolButton):
+class PassthroughButton(QWidget):
+
+    toggled = pyqtSignal(bool)
 
     def __init__(self, parent):
-        QToolButton.__init__(self, parent)
+        QWidget.__init__(self, parent)
+        self.is_enabled = False
         self.setFocusPolicy(Qt.NoFocus)
         self.setCursor(Qt.PointingHandCursor)
-        self.setCheckable(True)
-        self.setIcon(get_icon('passthrough.png'))
         self.update_state(False)
+        self.setMinimumWidth(16)
+        self.setMinimumHeight(22)
 
     def update_state(self, passthrough):
-        self.blockSignals(True)
-        self.setChecked(passthrough)
-        self.setToolTip(_('Disable passthrough mode') if self.isChecked() else _(
-            'Enable passthrough mode'))
-        self.blockSignals(False)
+        self.is_enabled = bool(passthrough)
+        self.setToolTip(_('Disable passthrough mode') if self.is_enabled else _('Enable passthrough mode'))
+        self.update()
+
+    def mousePressEvent(self, ev):
+        if ev.button() == Qt.LeftButton:
+            self.is_enabled ^= True
+            self.toggled.emit(self.is_enabled)
+            ev.accept()
+
+    def paintEvent(self, ev):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.TextAntialiasing)
+        f = painter.font()
+        f.setBold(True)
+        f.setPixelSize(self.height() - 4)
+        painter.setFont(f)
+        painter.setPen(QColor('red' if self.is_enabled else 'green'))
+        painter.drawText(self.rect(), Qt.AlignHCenter, 'Z')
+        painter.end()
+
+    def sizeHint(self):
+        ans = QWidget.sizeHint(self)
+        ans.setWidth(24), ans.setHeight(24)
+        return ans
 
 
 class StatusBar(QStatusBar):
