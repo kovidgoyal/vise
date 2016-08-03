@@ -196,6 +196,14 @@ def ask_tabopen(window, *args, **kwargs):
     return True
 
 
+def tabopen_modified_url(window, *args, **kw):
+    if window.current_tab is not None:
+        qurl = window.current_tab.url()
+        if not qurl.isEmpty():
+            window.ask('tabopen ' + qurl.toString())
+            return True
+
+
 def next_tab(window, *args, **kwargs):
     window.tab_tree.next_tab()
     return True
