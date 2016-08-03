@@ -4,7 +4,7 @@
 
 from contextlib import closing
 
-from PyQt5.Qt import QPoint, QApplication, QIcon, QPixmap, QUrl, Qt, QUrlQuery
+from PyQt5.Qt import QPoint, QApplication, QIcon, QPixmap, QUrl, QUrlQuery
 
 from . import Command
 from ..places import places
@@ -64,12 +64,13 @@ class CompletionCandidate:
         option.features |= option.HasDecoration
         option.icon = self.icon
         text_rect = style.subElementRect(style.SE_ItemViewItemText, option, None)
-        if not option.icon.isNull():
-            icon_rect = style.subElementRect(style.SE_ItemViewItemDecoration, option, None)
-            option.icon.paint(painter, icon_rect, alignment=Qt.AlignBottom | Qt.AlignHCenter)
-        option.icon = QIcon()
         x, y = text_rect.x(), text_rect.y()
         y += (text_rect.height() - self.left.size().height()) // 2
+        if not option.icon.isNull():
+            icon_rect = style.subElementRect(style.SE_ItemViewItemDecoration, option, None)
+            icon_rect.setTop(y), icon_rect.setBottom(text_rect.bottom())
+            option.icon.paint(painter, icon_rect)
+        option.icon = QIcon()
         width = (text_rect.width() // 2) - 10
         painter.setClipRect(x, text_rect.y(), width, text_rect.height())
         painter.drawStaticText(QPoint(x, y), self.left)
