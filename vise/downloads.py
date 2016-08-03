@@ -35,7 +35,7 @@ DOWNLOADS_URL = QUrl(DU)
 
 def downloads_icon():
     if not hasattr(downloads_icon, 'icon'):
-        downloads_icon.icon = get_icon('emblem-downloads.png')
+        downloads_icon.icon = get_icon('download.svg')
     return downloads_icon.icon
 
 
