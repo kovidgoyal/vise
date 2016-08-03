@@ -214,6 +214,11 @@ def prev_tab(window, *args, **kwargs):
     return True
 
 
+def undo_close_tab(window, *a, **k):
+    if window.undelete_tab():
+        return True
+
+
 def reload(window, *args, **kwargs):
     if window.current_tab is not None:
         p = window.current_tab.page()

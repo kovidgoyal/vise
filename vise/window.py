@@ -5,6 +5,7 @@
 import os
 from functools import partial
 from gettext import gettext as _
+from collections import deque
 
 import sip
 from PyQt5.Qt import (
@@ -46,6 +47,7 @@ class MainWindow(QMainWindow):
         _window_id += 1
         self.window_id = _window_id
         self.is_private = is_private
+        self.deleted_tabs_cache = deque(maxlen=200)
         self.setAttribute(Qt.WA_DeleteOnClose, True)
 
         self.downloads_indicator = Indicator(self)
@@ -175,6 +177,7 @@ class MainWindow(QMainWindow):
     def delete_removed_tabs(self, tabs):
         # Delete tabs that have already been removed from the tab tree
         for tab in tabs:
+            self.deleted_tabs_cache.append(tab.serialize_state())
             tab.break_cycles()
             try:
                 self.tabs.remove(tab)
@@ -182,6 +185,16 @@ class MainWindow(QMainWindow):
                 pass
             self.stack.removeWidget(tab)
             tab.close()
+
+    def undelete_tab(self):
+        if self.deleted_tabs_cache:
+            stab = self.deleted_tabs_cache.pop()
+            tab = self.get_tab_for_load(in_current_tab=False)
+            self.tab_tree.undelete_tab(tab, stab)
+            tab.unserialize_state(stab)
+            self.show_tab(tab)
+            return True
+        return False
 
     def close_tab(self, tab=None):
         tab = tab or self.current_tab

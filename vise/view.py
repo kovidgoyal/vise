@@ -17,7 +17,7 @@ from itertools import count
 from PyQt5.Qt import (
     QWebEngineView, QWebEnginePage, QSize, QApplication, pyqtSignal, pyqtSlot,
     QObject, QGridLayout, QCheckBox, QLabel, Qt, QWebEngineScript,
-    pyqtBoundSignal, QByteArray, QBuffer
+    pyqtBoundSignal, QByteArray, QBuffer, QUrl
 )
 
 from .auth import get_http_auth_credentials, get_proxy_auth_credentials
@@ -265,6 +265,7 @@ class WebView(QWebEngineView):
         self.setAttribute(Qt.WA_DeleteOnClose)  # needed otherwise object is not deleted on close which means, it keeps running
         self.setMinimumWidth(300)
         self.setFocusPolicy(Qt.ClickFocus | Qt.WheelFocus)
+        self.pending_unserialize = None
         self.main_window = main_window
         self.create_page(profile)
         self.view_id = next(view_id)
@@ -287,6 +288,9 @@ class WebView(QWebEngineView):
         self.titleChanged.connect(self.on_title_change)
 
     def load_finished(self):
+        if self.pending_unserialize is not None:
+            state, self.pending_unserialize = self.pending_unserialize, None
+            self._page.runJavaScript('window.scrollTo(%d, %d)' % (state['x'], state['y']))
         self.loading_status_changed.emit(False)
 
     def on_title_change(self, title):
@@ -457,6 +461,7 @@ class WebView(QWebEngineView):
             'title': self.title(),
             'url': self._page.url().toString(),
             'audio_muted': self._page.isAudioMuted(),
+            'view_id': self.view_id,
         }
         if include_favicon:
             ic = self.icon()
@@ -470,6 +475,12 @@ class WebView(QWebEngineView):
                     ans['favicon'] = 'data:image/png;base64,' + standard_b64encode(ba.data()).decode('ascii')
 
         return ans
+
+    def unserialize_state(self, state):
+        self.load(QUrl(state['url']))
+        self.setZoomFactor(state['zoom_factor'])
+        self._page.setAudioMuted(state['audio_muted'])
+        self.pending_unserialize = state
 
     @property
     def zoom_factor(self):

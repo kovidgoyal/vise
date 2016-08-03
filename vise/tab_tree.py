@@ -156,6 +156,10 @@ class TabItem(QTreeWidgetItem):
         return self.tabref()
 
     @property
+    def view_id(self):
+        return getattr(self.tab, 'view_id', -1)
+
+    @property
     def current_title(self):
         return self.data(0, DISPLAY_ROLE)
 
@@ -192,6 +196,7 @@ class TabTree(QTreeWidget):
 
     def __init__(self, parent):
         QTreeWidget.__init__(self, parent)
+        self.deleted_parent_map = {}
         pal = self.palette()
         pal.setColor(pal.Highlight, pal.color(pal.Base))
         pal.setColor(pal.HighlightedText, pal.color(pal.Text))
@@ -283,7 +288,9 @@ class TabTree(QTreeWidget):
             for i in tuple(self):
                 found_self = found_self or i is item
                 if found_self:
-                    (i.parent() or self.invisibleRootItem()).removeChild(i)
+                    parent = i.parent() or self.invisibleRootItem()
+                    self.deleted_parent_map[i.view_id] = (getattr(parent, 'view_id', -1), parent.indexOfChild(i))
+                    parent.removeChild(i)
                     tabs_to_delete.append(i.tab)
             self.delete_tabs.emit(tuple(filter(None, tabs_to_delete)))
 
@@ -295,19 +302,25 @@ class TabTree(QTreeWidget):
             for i in tuple(self):
                 if i is not item and (not keep_children or not i.has_ancestor(item)):
                     p = i.parent() or self.invisibleRootItem()
+                    self.deleted_parent_map[i.view_id] = (getattr(p, 'view_id', -1), p.indexOfChild(i))
                     p.removeChild(i)
                     tabs_to_delete.append(i.tab)
-            (item.parent() or self.invisibleRootItem()).removeChild(item)
+            p = (item.parent() or self.invisibleRootItem())
+            self.deleted_parent_map[item.view_id] = (getattr(p, 'view_id', -1), p.indexOfChild(item))
+            p.removeChild(item)
             self.addTopLevelItem(item)
             self.delete_tabs.emit(tuple(filter(None, tabs_to_delete)))
 
     def close_tree(self, item_or_tab):
         item = item_or_tab if isinstance(item_or_tab, TabItem) else self.item_for_tab(item_or_tab)
         if item:
-            (item.parent() or self.invisibleRootItem()).removeChild(item)
+            p = (item.parent() or self.invisibleRootItem())
+            self.deleted_parent_map[item.view_id] = (getattr(p, 'view_id', -1), p.indexOfChild(item))
+            p.removeChild(item)
             tabs_to_delete = [item.tab]
             for i in tuple(item):
                 p = i.parent()
+                self.deleted_parent_map[i.view_id] = (getattr(p, 'view_id', -1), p.indexOfChild(i))
                 p.removeChild(i)
                 tabs_to_delete.append(i.tab)
             self.delete_tabs.emit(tuple(filter(None, tabs_to_delete)))
@@ -366,6 +379,23 @@ class TabTree(QTreeWidget):
             self.item_for_tab(parent).addChild(i)
             self.scrollToItem(i)
 
+    def undelete_tab(self, tab, stab):
+        old_tab_id = stab['view_id']
+        parent_id, pos = self.deleted_parent_map.pop(old_tab_id, (None, None))
+        parent = self.invisibleRootItem()
+        item = self.item_for_tab(tab)
+        if parent_id is not None and parent_id >= 0:
+            for q in self:
+                if q.view_id == parent_id:
+                    parent = q
+                    break
+        (item.parent() or self.invisibleRootItem()).removeChild(item)
+        if pos > -1 and pos < parent.childCount():
+            parent.insertChild(pos, item)
+        else:
+            parent.appendChild(item)
+        self.scrollToItem(item)
+
     def remove_tab(self, tab):
         item = self.item_for_tab(tab)
         children_to_close = ()
@@ -377,6 +407,7 @@ class TabTree(QTreeWidget):
             else:
                 children_to_close = tuple(i.tab for i in item.takeChildren())
                 self.next_tab(wrap=False)
+            self.deleted_parent_map[item.view_id] = (getattr(p, 'view_id', -1), p.indexOfChild(item))
             p.removeChild(item)
         return children_to_close + (tab,)
 
