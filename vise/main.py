@@ -223,13 +223,13 @@ class Application(QApplication):
             self.open_urls(urls, in_current_tab=False, switch_to_tab=True)
 
     def save_favicon_in_cache(self, icon, qurl):
-        ic = icon_to_data(icon, w=None)
-        if ic:
-            md = QNetworkCacheMetaData()
-            md.setUrl(qurl)
-            md.setSaveToDisk(True)
-            dio = self.disk_cache.prepare(md)
-            if dio:
+        md = QNetworkCacheMetaData()
+        md.setUrl(qurl)
+        md.setSaveToDisk(True)
+        dio = self.disk_cache.prepare(md)
+        if dio:
+            ic = icon_to_data(icon, w=None)
+            if ic:
                 while len(ic) > 0:
                     written = dio.write(ic)
                     if written < 0:
