@@ -238,6 +238,11 @@ def restart(window, *a, **k):
     return True
 
 
+def quit(window, *a, **k):
+    QApplication.instance().shutdown()
+    return True
+
+
 def choose_tab(window, *args, **kwargs):
     window.choose_tab_pending = True
     window.tab_tree.mark_tabs()

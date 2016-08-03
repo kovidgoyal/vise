@@ -61,6 +61,15 @@ class Clear(Command):
         window.close_all_tabs()
 
 
+class Quit(Command):
+
+    names = {'quit'}
+
+    def __call__(self, cmd, rest, window):
+        from .actions import quit
+        quit(window)
+
+
 def init_commands():
     all_commands = set()
 

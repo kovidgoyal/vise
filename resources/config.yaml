@@ -51,6 +51,7 @@ normal mode keys:  # The keys used in normal mode
         - 'Shift++'
         - 'Shift+='
     decrease_zoom: '-'
+    quit: Ctrl+Q
 
 
 insert mode keys:  # The keys used in insert mode (i.e. when the cursor is in a text input field)
