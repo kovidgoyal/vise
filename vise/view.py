@@ -12,6 +12,7 @@ from tempfile import NamedTemporaryFile
 from threading import Thread
 from gettext import gettext as _
 from functools import partial
+from itertools import count
 
 from PyQt5.Qt import (
     QWebEngineView, QWebEnginePage, QSize, QApplication, pyqtSignal, pyqtSlot,
@@ -30,7 +31,7 @@ from .passwd.db import password_db, key_from_url, password_exclusions
 from .settings import gprefs
 from .site_permissions import site_permissions
 
-view_id = 0
+view_id = count()
 
 
 class Alert(Dialog):  # {{{
@@ -260,15 +261,13 @@ class WebView(QWebEngineView):
     toggle_full_screen = pyqtSignal(object)
 
     def __init__(self, profile, main_window):
-        global view_id
         QWebEngineView.__init__(self, main_window)
         self.setAttribute(Qt.WA_DeleteOnClose)  # needed otherwise object is not deleted on close which means, it keeps running
         self.setMinimumWidth(300)
         self.setFocusPolicy(Qt.ClickFocus | Qt.WheelFocus)
         self.main_window = main_window
         self.create_page(profile)
-        self.view_id = view_id
-        view_id += 1
+        self.view_id = next(view_id)
         self.iconChanged.connect(self.icon_changed.emit)
         self._page.bridge.js_to_python.middle_clicked.connect(self.open_in_new_tab.emit)
         self._page.bridge.js_to_python.focus_changed.connect(self.on_focus_change)
