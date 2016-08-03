@@ -50,12 +50,11 @@ class CompletionCandidate:
                 f = QApplication.instance().disk_cache.data(QUrl(url))
                 if f is not None:
                     with closing(f):
-                        raw = f.readAll().data()
-                    if raw:
-                        p = QPixmap()
-                        p.loadFromData(raw)
-                        if not p.isNull():
-                            self._icon.addPixmap(p)
+                        raw = f.readAll()
+                    p = QPixmap()
+                    p.loadFromData(raw)
+                    if not p.isNull():
+                        self._icon.addPixmap(p)
         return self._icon
 
     def __repr__(self):
