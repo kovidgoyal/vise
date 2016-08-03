@@ -229,13 +229,14 @@ class Application(QApplication):
             md.setUrl(qurl)
             md.setSaveToDisk(True)
             dio = self.disk_cache.prepare(md)
-            while len(ic) > 0:
-                written = dio.write(ic)
-                if written < 0:
-                    print('Failed to save favicon with error:', dio.errorString())
-                    return  # error occurred
-                ic = ic[written:]
-            self.disk_cache.insert(dio)
+            if dio:
+                while len(ic) > 0:
+                    written = dio.write(ic)
+                    if written < 0:
+                        print('Failed to save favicon with error:', dio.errorString())
+                        return  # error occurred
+                    ic = ic[written:]
+                self.disk_cache.insert(dio)
 
     def shutdown(self):
         for w in self.windows:
