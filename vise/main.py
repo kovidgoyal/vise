@@ -344,6 +344,9 @@ def restart(state, env):
 
 def run_app(urls=(), callback=None, callback_wait=0, master_password=None, new_instance=False, shutdown=False, restart_state=None):
     env = os.environ.copy()
+    # Workaround for: https://bugreports.qt.io/browse/QTBUG-55125
+    if os.path.exists('/etc/localtime'):
+        os.environ['TZ'] = '/etc/localtime'
     app = Application([], master_password=master_password, urls=urls, new_instance=new_instance, shutdown=shutdown, restart_state=restart_state)
     if False:
         # This is disabled because it is insecure, see
