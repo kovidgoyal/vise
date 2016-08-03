@@ -95,7 +95,7 @@ class KeyFilter(QObject):
             if isinstance(fw, QLineEdit) and isinstance(fw.parent(), Ask):
                 # Prevent tabbing out of line edit
                 key = key_from_event(event)
-                if key in (Qt.Key_Tab, Qt.Key_Backtab):
+                if key in (Qt.Key_Tab, Qt.Key_Backtab, Qt.ShiftModifier | Qt.Key_Backtab):
                     fw.parent().keyPressEvent(event)
                     return True
 
