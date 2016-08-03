@@ -203,10 +203,10 @@ class PassthroughButton(QWidget):
         painter.setRenderHint(QPainter.TextAntialiasing)
         f = painter.font()
         f.setBold(True)
-        f.setPixelSize(self.height() - 4)
+        f.setPixelSize(self.height() - 1)
         painter.setFont(f)
         painter.setPen(QColor('red' if self.is_enabled else 'green'))
-        painter.drawText(self.rect(), Qt.AlignHCenter, 'Z')
+        painter.drawText(self.rect(), Qt.AlignCenter, 'Z')
         painter.end()
 
     def sizeHint(self):

@@ -110,7 +110,8 @@ class Indicator(QWidget):  # {{{
         self.light = pal.color(pal.Base)
         self.errored_out = False
         self.update()
-        self.setMinimumWidth(24)
+        self.setMinimumWidth(22)
+        self.setMinimumHeight(22)
 
     def tick(self):
         self.angle -= 4
@@ -141,8 +142,8 @@ class Indicator(QWidget):  # {{{
             painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
             icon = downloads_icon()
             pmap = icon.pixmap(r.width(), r.height())
-            x = (r.width() - self.minimumWidth()) // 2
-            y = (r.height() - self.minimumWidth()) // 2
+            x = (r.width() - pmap.width()) // 2
+            y = (r.height() - pmap.height()) // 2
             painter.drawPixmap(x, y, pmap)
 
     def mousePressEvent(self, ev):
