@@ -32,6 +32,7 @@ normal mode keys:  # The keys used in normal mode
     scroll_line_left: H
     scroll_line_right: L
     copy_url: Y
+    open_modified_url: Shift+Y
     paste_and_go: P
     paste_and_go_newtab: Shift+P
     reload: R

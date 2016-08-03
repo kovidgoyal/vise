@@ -103,6 +103,7 @@ def show_downloads(window, *args, **kwargs):
     tab = window.get_tab_for_load(in_current_tab=False)
     tab.load(DOWNLOADS_URL)
     window.show_tab(tab)
+    return True
 
 
 def copy_url(window, *args, **kwargs):
@@ -112,6 +113,7 @@ def copy_url(window, *args, **kwargs):
             QApplication.clipboard().setText(qurl.toString())
             window.show_status_message(_('Copied: ') + qurl.toString(), 2, 'success')
         window.statusBar()
+        return True
 
 
 def increase_zoom(window, *args, **kw):
@@ -179,6 +181,14 @@ def ask(window, *args, **kwargs):
 def ask_open(window, *args, **kwargs):
     window.ask('open ')
     return True
+
+
+def open_modified_url(window, *args, **kw):
+    if window.current_tab is not None:
+        qurl = window.current_tab.url()
+        if not qurl.isEmpty():
+            window.ask('open ' + qurl.toString())
+            return True
 
 
 def ask_tabopen(window, *args, **kwargs):
