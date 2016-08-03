@@ -254,6 +254,7 @@ class MainWindow(QMainWindow):
     def show_tab(self, tab):
         if tab is not None:
             self.stack.setCurrentWidget(tab)
+            self.refocus()
 
     def update_window_title(self):
         title = at = appname.capitalize()
