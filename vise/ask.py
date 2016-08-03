@@ -7,7 +7,7 @@ from gettext import gettext as _
 from PyQt5.Qt import (
     QWidget, QVBoxLayout, QLineEdit, QListView, QAbstractListModel,
     QModelIndex, Qt, QStyledItemDelegate, QStringListModel, QApplication,
-    QPoint, QColor, QSize, pyqtSignal, QPainter, QFrame
+    QPoint, QColor, QSize, pyqtSignal, QPainter, QFrame, QKeySequence
 )
 
 from .cmd import command_map, all_command_names
@@ -123,6 +123,16 @@ class LineEdit(QLineEdit):
             'SEL', color('status bar selection', 'palette(highlight)'))
         )
         self.setPlaceholderText(_('Enter command'))
+
+    def keyPressEvent(self, ev):
+        if ev.matches(QKeySequence.Copy):
+            from .commands.open import Open
+            cmd, rest = self.text().partition(' ')[::2]
+            if cmd in Open.names and rest.strip():
+                QApplication.clipboard().setText(rest)
+                ev.accept()
+                return
+        return QLineEdit.keyPressEvent(self, ev)
 
 
 class Ask(QWidget):
