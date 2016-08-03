@@ -16,7 +16,7 @@ from PyQt5.Qt import (
     QWebEngineDownloadItem, pyqtSignal, QTimer, Qt, QWidget, QPainter
 )
 
-from .constants import DOWNLOADS_URL as DU
+from .constants import DOWNLOADS_URL as DU, STATUS_BAR_HEIGHT
 from .resources import get_data, get_icon
 from .settings import DynamicPrefs
 from .utils import (
@@ -110,8 +110,8 @@ class Indicator(QWidget):  # {{{
         self.light = pal.color(pal.Base)
         self.errored_out = False
         self.update()
-        self.setMinimumWidth(22)
-        self.setMinimumHeight(22)
+        self.setMinimumWidth(STATUS_BAR_HEIGHT - 4)
+        self.setMinimumHeight(STATUS_BAR_HEIGHT - 4)
 
     def tick(self):
         self.angle -= 4

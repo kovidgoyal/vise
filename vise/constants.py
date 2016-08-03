@@ -23,6 +23,7 @@ isbsd = isfreebsd or isnetbsd or isdragonflybsd
 islinux = not(iswindows or isosx or isbsd)
 DOWNLOADS_URL = 'vise:downloads'
 hostname = os.environ.get('VISE_HOSTNAME', socket.gethostname())
+STATUS_BAR_HEIGHT = 24
 
 
 def _get_cache_dir():

@@ -8,9 +8,10 @@ from gettext import gettext as _
 
 from PyQt5.Qt import (
     QLineEdit, pyqtSignal, Qt, QStackedWidget, QLabel, QWidget, QHBoxLayout,
-    QTimer, QStatusBar, QFrame, QPainter, QColor, QLinearGradient, QPen, QBrush
+    QTimer, QStatusBar, QPainter, QColor, QLinearGradient, QPen, QBrush
 )
 
+from .constants import STATUS_BAR_HEIGHT
 from .config import color
 
 
@@ -184,8 +185,8 @@ class PassthroughButton(QWidget):
         self.setFocusPolicy(Qt.NoFocus)
         self.setCursor(Qt.PointingHandCursor)
         self.update_state(False)
-        self.setMinimumWidth(16)
-        self.setMinimumHeight(22)
+        self.setMinimumWidth(STATUS_BAR_HEIGHT - 4)
+        self.setMinimumHeight(STATUS_BAR_HEIGHT - 4)
 
     def update_state(self, passthrough):
         self.is_enabled = bool(passthrough)
@@ -209,11 +210,6 @@ class PassthroughButton(QWidget):
         painter.drawText(self.rect(), Qt.AlignCenter, 'Z')
         painter.end()
 
-    def sizeHint(self):
-        ans = QWidget.sizeHint(self)
-        ans.setWidth(24), ans.setHeight(24)
-        return ans
-
 
 class StatusBar(QStatusBar):
 
@@ -223,9 +219,11 @@ class StatusBar(QStatusBar):
 
     def __init__(self, downloads_indicator, parent=None):
         QStatusBar.__init__(self, parent)
+        self.setMaximumHeight(STATUS_BAR_HEIGHT)
+        self.setMinimumHeight(STATUS_BAR_HEIGHT)
         if parent:
             f = parent.font()
-            f.setPixelSize(int(f.pixelSize() * 0.8))
+            f.setPixelSize(min(f.pixelSize(), self.maximumHeight() - 4))
             self.setFont(f)
         self.status_msg = Status(self)
         self.status_msg.hidden.connect(self.search_bar_hidden)
@@ -242,15 +240,8 @@ class StatusBar(QStatusBar):
         self.passthrough_button.toggled.connect(self.change_passthrough)
         self.update_passthrough_state = self.passthrough_button.update_state
 
-        def addsep():
-            f = QFrame(self)
-            f.setFrameShape(f.VLine)
-            self.addPermanentWidget(f)
-        addsep()
         self.addPermanentWidget(self.mode_label)
-        addsep()
         self.addPermanentWidget(downloads_indicator)
-        addsep()
         self.addPermanentWidget(self.passthrough_button)
         self.setStyleSheet('''
         QStatusBar { color: FG; background: BG; }
