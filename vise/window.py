@@ -305,6 +305,11 @@ class MainWindow(QMainWindow):
                 self.show_status_message(_('No tab with mark: %s') % key, 5, 'error')
         self.tab_tree.mark_tabs(unmark=True)
 
+    def start_follow_link(self, action):
+        if self.current_tab is not None:
+            self.follow_link_pending = action
+            self.current_tab.start_follow_link()
+
     def do_search(self, text=None, forward=True):
         if self.current_tab is not None:
             text = self.status_bar.current_search_text if text is None else text

@@ -114,6 +114,7 @@ class Bridge(QObject):
     set_editable_text = pyqtSignal(str, int, str)
     autofill_login_form = pyqtSignal(str, str, str, bool, bool)
     get_url_for_current_login_form = pyqtSignal()
+    start_follow_link = pyqtSignal()
 
     def __init__(self, parent=None):
         QObject.__init__(self, parent)
@@ -511,3 +512,6 @@ class WebView(QWebEngineView):
     @zoom_factor.setter
     def zoom_factor(self, val):
         self.setZoomFactor(max(0.25, min(val, 5.0)))
+
+    def start_follow_link(self):
+        self._page.bridge.start_follow_link.emit()

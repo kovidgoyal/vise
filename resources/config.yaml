@@ -41,6 +41,8 @@ normal mode keys:  # The keys used in normal mode
     hard_reload: Shift+R
     restart: Ctrl+R
     choose_tab: T
+    follow_link: F
+    follow_link_newtab: Shift+F
     follow_next: ']'
     follow_previous: '['
     exit_full_screen: Escape
@@ -88,6 +90,7 @@ fonts:
         minimum-logical: default
         default-size: default
         default-monospace-size: default
+        hint-size: 12   # The size for the hints
 
 ##################### Colors ############################
 #
@@ -103,6 +106,8 @@ colors:
     status bar foreground: white
     status bar selection: darkGray
     status bar highlight: "#22000000"
+    hint background: khaki
+    hint foreground: black
 
 
 ##################### Printing ############################

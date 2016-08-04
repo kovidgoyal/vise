@@ -1,0 +1,119 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+# noqa: eol-semicolon
+from __python__ import hash_literals, bound_methods
+
+from communicate import connect_signal
+from elementmaker import E
+from utils import is_visible
+from frames import broadcast_action, send_action, register_subframe_handler, register_top_handler, frame_iter
+
+REPLACED_ELEM_TAG = 'vise-replaced-elem-tag'
+ATTR = 'data-vise-hint'
+current_request = {'id':0}
+
+def start_follow_link():
+    frames = list(frame_iter(window.top, is_visible))
+    current_request.num_left = frames.length
+    current_request.id += 1
+    current_request.hint_groups = []
+    has_frames = current_request.num_left > 0
+    if has_frames:
+        broadcast_action(frames, 'find_hints', current_request.id)
+    current_request.hint_groups.push(mark_visible_hints())
+    if not has_frames:
+        assign_hints()
+
+register_subframe_handler(def find_hints(current_frame_id, source_frame_id, source_frame, request_id):
+    hints = mark_visible_hints(current_frame_id)
+    send_action(source_frame, 'report_marked_hints', request_id, hints)
+)
+
+register_top_handler(def report_marked_hints(current_frame_id, source_frame_id, source_frame, request_id, hints):
+    if request_id is not current_request.id:
+        return
+    current_request.num_left -= 1
+    current_request.hint_groups.push(hints)
+    if current_request.num_left < 1:
+        assign_hints()
+)
+
+
+def add_hint_markup(elem, i):
+    tname = elem.tagName.toLowerCase()
+    if tname is 'input' or tname is 'textarea':
+        e = document.createElement(REPLACED_ELEM_TAG)
+        elem.parentNode.insertBefore(e, elem)
+        elem = e
+    elem.setAttribute(ATTR, i)
+
+def remove_hint_markup(elem):
+    tname = elem.tagName.toLowerCase()
+    if tname is 'input' or tname is 'textarea':
+        if elem.previousSibling?.tagName?.toLowerCase() is REPLACED_ELEM_TAG:
+            elem.previousSibling.parentNode.removeChild(elem.previousSibling)
+    else:
+        elem.removeAttribute(ATTR)
+        if elem.tagName.toLowerCase() is REPLACED_ELEM_TAG:
+            elem.parentNode.removeChild(elem)
+
+def mark_visible_hints(frame_id=0):
+    hints = v'[]'
+    for i, elem in enumerate(document.querySelectorAll('a[href], button, input, textarea')):
+        if is_visible(elem):
+            add_hint_markup(elem, i)
+            br = elem.getBoundingClientRect()
+            hints.push({'frame_id':frame_id, 'num':i, 'left':br.left, 'top':br.top})
+        else:
+            remove_hint_markup(elem)
+    return hints
+
+def assign_hints():
+    all_hints = v'[]'
+    for hg in current_request.hint_groups:
+        all_hints = all_hints.concat(hg)
+    hint_groups = {}
+    current_request.hint_map = {}
+    for i, hint in enumerate(sorted(all_hints, key=def (h): v'[h.y, h.x]';)):
+        hint.updated_num = i
+        fid = hint.frame_id
+        if not hint_groups[fid]:
+            hint_groups[fid] = {}
+        hint_groups[fid][hint.num] = hint.num = i
+        current_request.hint_map[i] = hint
+    for frame_id in hint_groups:
+        frame_id = int(frame_id)
+        if frame_id is 0:
+            update_hint_numbers(hint_groups[frame_id])
+        else:
+            send_action(frame_id, 'hints_assigned', hint_groups[frame_id])
+
+def update_hint_numbers(hint_map):
+    for elem in document.querySelectorAll('[' + ATTR + ']'):
+        newnum = hint_map[elem.getAttribute(ATTR)]
+        if newnum?:
+            elem.setAttribute(ATTR, newnum)
+        else:
+            remove_hint_markup(elem)
+
+register_subframe_handler(def hints_assigned(current_frame_id, source_frame_id, source_frame, hints):
+    update_hint_numbers(hints)
+)
+
+def onload():
+    document.body.appendChild(E.style(''' [ATTRN]:before {
+        content: attr(ATTRN);
+        text-decoration: none !important;
+        display: inline-block !important;
+        font-family: monospace;
+        font-weight: bold !important;
+        color: HINT_FOREGROUND !important;
+        background: HINT_BACKGROUND !important;
+        font-size: HINT_FONT_SIZEpx !important;
+        cursor: default !important;
+        padding: 1px !important;
+        border: solid 1px currentColor !important;
+        position: absolute !important;
+    }'''.replace(/ATTRN/g, ATTR)))
+    if window.self is window.top:
+        connect_signal('start_follow_link', start_follow_link)

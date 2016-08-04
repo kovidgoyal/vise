@@ -249,6 +249,16 @@ def choose_tab(window, *args, **kwargs):
     return True
 
 
+def follow_link(window, *args, **kwargs):
+    window.start_follow_link('sametab')
+    return True
+
+
+def follow_link_newtab(window, *args, **kwargs):
+    window.start_follow_link('newtab')
+    return True
+
+
 def follow_next(window, *args, **kw):
     window.follow_next()
     return True

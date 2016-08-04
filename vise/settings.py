@@ -14,6 +14,7 @@ from PyQt5.Qt import (
     QWebEngineProfile, QApplication, QWebEngineScript, QKeySequence, QByteArray
 )
 
+from .config import font_sizes, color
 from .constants import config_dir, appname, cache_dir, str_version, DOWNLOADS_URL
 from .resources import get_data_as_file
 
@@ -144,6 +145,9 @@ def client_script():
     f = get_data_as_file(name)
     src = f.read().decode('utf-8')
     src = src.replace('__DOWNLOADS_URL__', DOWNLOADS_URL)
+    src = src.replace('HINT_FONT_SIZE', str(font_sizes().get('hint-size')))
+    src = src.replace('HINT_FOREGROUND', color('hint foreground', 'black'))
+    src = src.replace('HINT_BACKGROUND', color('hint background', 'khaki'))
     src = src.replace('__TITLE_TOKEN__', TITLE_TOKEN)
     src = src.replace('__SECRET_KEY__', hexlify(os.urandom(32)).decode('ascii'))
     return create_script(f.name, src)

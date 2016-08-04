@@ -86,10 +86,20 @@ def register_frames():
 def register_handler(name, func):
     handlers[name] = func
 
+def register_subframe_handler(func):
+    if window.self is not window.top:
+        register_handler(func.name, func)
+
+def register_top_handler(func):
+    if window.self is window.top:
+        register_handler(func.name, func)
+
 def prepare_action(name, args, kwargs):
     return {'action':name, 'args':args, 'kwargs':kwargs}
 
 def send_action(win, name, *args, **kwargs):
+    if type(win) is 'number':
+        win = frame_for_id(win)
     post_message(win, prepare_action(name, args, kwargs))
 
 def broadcast_action(windows, name, *args, **kwargs):
