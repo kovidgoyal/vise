@@ -1,6 +1,7 @@
 apsw
 PyQt >= 5.7
 libsodium
+python-yaml
 
 # Build time dependency
 rapydscript-ng
