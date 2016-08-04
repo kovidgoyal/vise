@@ -29,6 +29,10 @@ class Search(QLineEdit):
             color('status bar selection', 'palette(window-text)'),
         ))
         self.search_forward = True
+        self.textEdited.connect(self.text_edited)
+
+    def text_edited(self, text):
+        self.do_search.emit(text, self.search_forward)
 
     def keyPressEvent(self, ev):
         k = ev.key()
@@ -38,6 +42,7 @@ class Search(QLineEdit):
             return
         if k in (Qt.Key_Enter, Qt.Key_Return):
             text = self.text()
+            self.editingFinished.emit()
             self.do_search.emit(text, self.search_forward)
             return
         return QLineEdit.keyPressEvent(self, ev)
@@ -125,7 +130,7 @@ class Status(QStackedWidget):
         self.msg.setFocusPolicy(Qt.NoFocus)
         self.search = SearchPanel(self)
         self.search.edit.abort_search.connect(self.hide_search)
-        self.search.edit.do_search.connect(self.hide_search)
+        self.search.edit.editingFinished.connect(self.hide_search)
         self.addWidget(self.search)
         self.update_timer = t = QTimer(self)
         self.fg_color = color('status bar foreground', None)
