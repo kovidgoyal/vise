@@ -12,6 +12,7 @@ import tempfile
 import socket
 import signal
 import struct
+import pickle
 from datetime import datetime
 from gettext import gettext as _
 
@@ -48,6 +49,8 @@ def option_parser():
         'Do not try to connect to an already running instance'))
     parser.add_argument('--shutdown', action='store_true', default=False, help=_(
         'Shutdown a running vise instance, if any'))
+    parser.add_argument('--no-session', action='store_true', default=False, help=_(
+        'Do not save/restore the session at shutdown/startup'))
     parser.add_argument('urls', metavar='URL', nargs='*', help='urls to open')
     return parser
 
@@ -62,10 +65,10 @@ def create_favicon_cache():
 class Application(QApplication):
 
     password_loaded = pyqtSignal(object, object)
-    remove_window_later = pyqtSignal(object)
 
-    def __init__(self, args, master_password=None, urls=(), new_instance=False, shutdown=False, restart_state=None):
+    def __init__(self, master_password=None, urls=(), new_instance=False, shutdown=False, restart_state=None, no_session=False):
         QApplication.__init__(self, [])
+        self.no_session = no_session
         self.handle_unix_signals()
         if not QSslSocket.supportsSsl():
             raise SystemExit('Qt has been compiled without SSL support!')
@@ -88,10 +91,10 @@ class Application(QApplication):
         elif restart_state and 'key' in restart_state:
             password_db.start_load(restart_state.pop('key'), self.password_loaded.emit, pw_is_key=True)
 
+        self.lastWindowClosed.connect(self.shutdown)
         self.run_local_server(urls, new_instance, shutdown)
         sys.excepthook = self.on_unhandled_error
         self.windows = []
-        self.remove_window_later.connect(self.remove_window, type=Qt.QueuedConnection)
         f = self.font()
         if (f.family(), f.pointSize()) == ('Sans Serif', 9):  # Hard coded Qt settings, no user preference detected
             f.setPointSize(10)
@@ -240,11 +243,25 @@ class Application(QApplication):
                 self.disk_cache.insert(dio)
 
     def shutdown(self):
+        self.lastWindowClosed.disconnect()
+        if not self.no_session:
+            state = self.serialize_state()
+            state = pickle.dumps(state, pickle.HIGHEST_PROTOCOL)
+            f = tempfile.NamedTemporaryFile(dir=cache_dir)
+            try:
+                f.write(state)
+                os.replace(f.name, os.path.join(cache_dir, 'last-session.pickle'))
+            finally:
+                try:
+                    f.close()
+                except FileNotFoundError:
+                    pass
         for w in self.windows:
             w.close()
 
     def new_window(self, is_private=False, restart_state=None):
         w = MainWindow(is_private=is_private, restart_state=restart_state)
+        w.window_closed.connect(self.remove_window, type=Qt.QueuedConnection)
         self.windows.append(w)
         return w
 
@@ -300,7 +317,7 @@ class Application(QApplication):
         for w in self.windows:
             w.break_cycles()
             w.deleteLater()
-        for s in (self.password_loaded, self.remove_window_later):
+        for s in (self.password_loaded,):
             s.disconnect()
         del self.windows
 
@@ -324,10 +341,10 @@ class Application(QApplication):
             w.raise_()
 
     def restart_app(self):
-        import pickle
         password_db.join()
         state = self.serialize_state(include_key=True)
         self.restart_state = pickle.dumps(state, pickle.HIGHEST_PROTOCOL)
+        self.no_session = True
         self.shutdown()
 
 
@@ -343,12 +360,24 @@ def restart(state, env):
     p.stdin.write(state), p.stdin.flush(), p.stdin.close()
 
 
-def run_app(urls=(), callback=None, callback_wait=0, master_password=None, new_instance=False, shutdown=False, restart_state=None):
+def last_saved_session(no_session):
+    if no_session:
+        return
+    try:
+        with open(os.path.join(cache_dir, 'last-session.pickle'), 'rb') as f:
+            os.unlink(f.name)
+            return pickle.load(f)
+    except Exception:
+        pass
+
+
+def run_app(urls=(), callback=None, callback_wait=0, master_password=None, new_instance=False, shutdown=False, restart_state=None, no_session=False):
     env = os.environ.copy()
     # Workaround for: https://bugreports.qt.io/browse/QTBUG-55125
     if 'TZ' not in os.environ and os.path.exists('/etc/localtime'):
         os.environ['TZ'] = '/etc/localtime'
-    app = Application([], master_password=master_password, urls=urls, new_instance=new_instance, shutdown=shutdown, restart_state=restart_state)
+    app = Application(
+        master_password=master_password, urls=urls, new_instance=new_instance, shutdown=shutdown, restart_state=restart_state, no_session=no_session)
     if False:
         # This is disabled because it is insecure, see
         # https://bugreports.qt.io/browse/QTBUG-50725
@@ -368,7 +397,11 @@ def run_app(urls=(), callback=None, callback_wait=0, master_password=None, new_i
     app.setStyle(style)
     try:
         if restart_state is None:
-            app.open_urls(urls)
+            last_session = last_saved_session(no_session)
+            if last_session is None or urls:
+                app.open_urls(urls)
+            else:
+                app.unserialize_state(last_session)
         else:
             app.unserialize_state(restart_state)
         if callback is not None:
@@ -402,7 +435,7 @@ def main():
     pw = sys.stdin.read().rstrip() if args.pw_from_stdin else None
     restart_state = None
     if os.environ.pop('IS_VISE_RESTART', None) == '1':
-        import pickle
         restart_state = pickle.loads(sys.stdin.buffer.read())
 
-    run_app(args.urls, master_password=pw, new_instance=args.new_instance, shutdown=args.shutdown, restart_state=restart_state)
+    run_app(args.urls, master_password=pw, new_instance=args.new_instance,
+            shutdown=args.shutdown, restart_state=restart_state, no_session=args.no_session)

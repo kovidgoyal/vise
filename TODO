@@ -2,6 +2,4 @@ Add a keyboard usage mnemonic table to the welcome page
 
 Implement keyboard based link following
 
-Implement session saving that preserves tabs, implementation based on the restart command
-
 Add a cookie browser, see http://doc.qt.io/qt-5/qtwebengine-webenginewidgets-cookiebrowser-example.html for an example

@@ -40,6 +40,7 @@ class StackedWidget(QStackedWidget):
 class MainWindow(QMainWindow):
 
     start_search_signal = pyqtSignal(bool)
+    window_closed = pyqtSignal(object)
 
     def __init__(self, is_private=False, restart_state=None):
         QMainWindow.__init__(self)
@@ -122,8 +123,8 @@ class MainWindow(QMainWindow):
 
     def closeEvent(self, ev):
         self.save_state()
-        QApplication.instance().remove_window_later.emit(self)
         ev.accept()
+        self.window_closed.emit(self)
 
     def create_new_tab(self):
         ans = WebView(self.profile, self)
