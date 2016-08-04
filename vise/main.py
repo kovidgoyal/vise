@@ -31,6 +31,7 @@ from .window import MainWindow
 from .utils import parse_url, BusyCursor, icon_to_data
 from .places import places
 from .passwd.db import password_db, key_from_url
+from .style import Style
 
 ADDRESS = None
 
@@ -363,6 +364,8 @@ def run_app(urls=(), callback=None, callback_wait=0, master_password=None, new_i
     app.setApplicationName(appname)
     app.setApplicationVersion(str_version)
     app.original_env = env
+    style = Style()
+    app.setStyle(style)
     try:
         if restart_state is None:
             app.open_urls(urls)

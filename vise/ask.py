@@ -109,9 +109,9 @@ class LineEdit(QLineEdit):
 
     def __init__(self, parent=None):
         QLineEdit.__init__(self, parent)
+        self.setAttribute(Qt.WA_MacShowFocusRect, False)
         self.setStyleSheet('''
         QLineEdit {
-            border-width: 0;
             border-radius: 8px;
             padding: 1px 6px;
             background: BG;

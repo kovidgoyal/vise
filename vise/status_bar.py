@@ -22,6 +22,11 @@ class Search(QLineEdit):
 
     def __init__(self, parent=None):
         QLineEdit.__init__(self, parent)
+        self.setAttribute(Qt.WA_MacShowFocusRect, False)
+        self.setStyleSheet('QLineEdit { background: transparent; color: %s; selection-background-color: %s }' % (
+            color('status bar foreground', 'palette(window-text)'),
+            color('status bar selection', 'palette(window-text)'),
+        ))
         self.search_forward = True
 
     def keyPressEvent(self, ev):
@@ -58,7 +63,7 @@ class SearchPanel(QWidget):
         self.edit.selectAll()
         self.edit.setFocus(Qt.OtherFocusReason)
         self.edit.search_forward = forward
-        self.la.setText(_('&Search forward:') if forward else _('&Search backward:'))
+        self.la.setText(_('Search forward:') if forward else _('Search backward:'))
 
     def hide_search(self):
         pass
