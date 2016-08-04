@@ -79,6 +79,15 @@ class Save(Command):
             window.current_tab.save_page(rest.strip() or None)
 
 
+class Print(Command):
+
+    names = {'print'}
+
+    def __call__(self, cmd, rest, window):
+        if window.current_tab:
+            window.current_tab.print_page(rest.strip() or None)
+
+
 def init_commands():
     all_commands = set()
 

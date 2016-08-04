@@ -17,16 +17,17 @@ from itertools import count
 from PyQt5.Qt import (
     QWebEngineView, QWebEnginePage, QSize, QApplication, pyqtSignal, pyqtSlot,
     QObject, QGridLayout, QCheckBox, QLabel, Qt, QWebEngineScript,
-    pyqtBoundSignal, QUrl
+    pyqtBoundSignal, QUrl, QPageSize, QPageLayout, QMarginsF
 )
 
 from .auth import get_http_auth_credentials, get_proxy_auth_credentials
 from .certs import cert_exceptions
 from .config import misc_config
+from .downloads import get_download_dir
 from .message_box import question_dialog
 from .places import places
 from .popup import Popup
-from .utils import Dialog, safe_disconnect, ascii_lowercase, icon_to_data
+from .utils import Dialog, safe_disconnect, ascii_lowercase, icon_to_data, open_local_file
 from .passwd.db import password_db, key_from_url, password_exclusions
 from .settings import gprefs
 from .site_permissions import site_permissions
@@ -417,6 +418,22 @@ class WebView(QWebEngineView):
         from .downloads import save_page_path_map
         self._page.triggerAction(self._page.SavePage)
         save_page_path_map[self.url().toString()] = path
+
+    def print_page(self, path=None):
+        if not path:
+            path = os.path.join(get_download_dir(), self.title())
+        if not path.lower().endswith('.pdf'):
+            path += '.pdf'
+        size = QPageSize(getattr(QPageSize, misc_config('paper_size', 'A4')))
+        layout = QPageLayout(size, QPageLayout.Portrait, QMarginsF(
+            float(misc_config('margin_left', 36)), float(misc_config('margin_top', 36)),
+            float(misc_config('margin_right', 36)), float(misc_config('margin_bottom', 36))))
+        self._page.printToPdf(partial(self.print_done, path), layout)
+
+    def print_done(self, path, data):
+        with open(path, 'wb') as f:
+            f.write(data.data())
+        open_local_file(path)
 
     def on_login_form_submit(self, url, username, password):
         if not username or not password:

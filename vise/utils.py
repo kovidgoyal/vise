@@ -5,7 +5,6 @@
 import os
 import re
 import string
-import subprocess
 import shutil
 import sys
 import math
@@ -16,9 +15,9 @@ from gettext import gettext as _
 from PyQt5.Qt import (
     QUrl, QFontMetrics, QApplication, QConicalGradient, QPen, QBrush, QPainter,
     QRect, Qt, QDialog, QDialogButtonBox, QIcon, QByteArray, QBuffer,
-    QStaticText, QCursor, QFileDialog)
+    QStaticText, QCursor, QFileDialog, QDesktopServices)
 
-from .constants import cache_dir, str_version, isosx
+from .constants import cache_dir, str_version
 from .settings import gprefs
 
 
@@ -310,9 +309,7 @@ def atomic_write(dest, data_or_file):
 
 
 def open_local_file(path):
-    app = QApplication.instance()
-    p = subprocess.Popen([('open' if isosx else 'xdg-open'), path], env=app.original_env)
-    p.wait()
+    QDesktopServices.openUrl(QUrl.fromLocalFile(path))
 
 
 def _calc_score_for_char(max_score_per_char, prev, current, distance, level1, level2, level3):

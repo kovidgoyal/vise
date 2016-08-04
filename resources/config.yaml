@@ -105,6 +105,15 @@ colors:
     status bar highlight: "#22000000"
 
 
+##################### Printing ############################
+# The paper size to use when printing to PDF. For the list of possible names, see the documentation
+# of QPageSize::PageSizeId
+paper_size: A4
+margin_left: 36 # pts
+margin_right: 36 # pts
+margin_top: 36 # pts
+margin_bottom: 36 # pts
+
 ##################### Misc ############################
 
 # The editor to use to edit text fields. A value of "default" means use the
