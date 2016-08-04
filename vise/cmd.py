@@ -2,6 +2,9 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
+import os
+import tempfile
+import pickle
 from gettext import gettext as _
 
 
@@ -77,6 +80,20 @@ class Save(Command):
     def __call__(self, cmd, rest, window):
         if window.current_tab:
             window.current_tab.save_page(rest.strip() or None)
+
+
+class Export(Command):
+
+    names = {'export'}
+
+    def __call__(self, cmd, rest, window):
+        from PyQt5.Qt import QApplication
+        if not rest.strip():
+            rest = os.path.join(tempfile.gettempdir(), 'unnamed.vise-session')
+        with open(rest, 'wb') as f:
+            session_data = QApplication.instance().serialize_state()
+            f.write(pickle.dumps(session_data, pickle.HIGHEST_PROTOCOL))
+        window.show_status_message(_('Exported session to: %s') % rest, 5, 'success')
 
 
 class Print(Command):

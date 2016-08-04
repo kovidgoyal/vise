@@ -51,6 +51,10 @@ def option_parser():
         'Shutdown a running vise instance, if any'))
     parser.add_argument('--no-session', action='store_true', default=False, help=_(
         'Do not save/restore the session at shutdown/startup'))
+    parser.add_argument('--startup-session', default=None, help=_(
+        'Path to a session previously saved with the export command. It will'
+        ' be used to startup this instance of vise. Note that is vise is already'
+        ' running this will have no effect'))
     parser.add_argument('urls', metavar='URL', nargs='*', help='urls to open')
     return parser
 
@@ -371,7 +375,9 @@ def last_saved_session(no_session):
         pass
 
 
-def run_app(urls=(), callback=None, callback_wait=0, master_password=None, new_instance=False, shutdown=False, restart_state=None, no_session=False):
+def run_app(
+        urls=(), callback=None, callback_wait=0,
+        master_password=None, new_instance=False, shutdown=False, restart_state=None, no_session=False, startup_session=None):
     env = os.environ.copy()
     # Workaround for: https://bugreports.qt.io/browse/QTBUG-55125
     if 'TZ' not in os.environ and os.path.exists('/etc/localtime'):
@@ -396,14 +402,17 @@ def run_app(urls=(), callback=None, callback_wait=0, master_password=None, new_i
     style = Style()
     app.setStyle(style)
     try:
-        if restart_state is None:
+        if startup_session is not None:
+            with open(startup_session, 'rb') as f:
+                app.unserialize_state(pickle.load(f))
+        elif restart_state is not None:
+            app.unserialize_state(restart_state)
+        else:
             last_session = last_saved_session(no_session)
             if last_session is None or urls:
                 app.open_urls(urls)
             else:
                 app.unserialize_state(last_session)
-        else:
-            app.unserialize_state(restart_state)
         if callback is not None:
             QTimer.singleShot(callback_wait, callback)
         app.exec_()
@@ -438,4 +447,5 @@ def main():
         restart_state = pickle.loads(sys.stdin.buffer.read())
 
     run_app(args.urls, master_password=pw, new_instance=args.new_instance,
-            shutdown=args.shutdown, restart_state=restart_state, no_session=args.no_session)
+            shutdown=args.shutdown, restart_state=restart_state, no_session=args.no_session,
+            startup_session=args.startup_session)
