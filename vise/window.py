@@ -307,8 +307,7 @@ class MainWindow(QMainWindow):
 
     def start_follow_link(self, action):
         if self.current_tab is not None:
-            self.follow_link_pending = action
-            self.current_tab.start_follow_link()
+            self.current_tab.start_follow_link(action)
 
     def do_search(self, text=None, forward=True):
         if self.current_tab is not None:

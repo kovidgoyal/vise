@@ -23,6 +23,7 @@ from PyQt5.Qt import (
 from .auth import get_http_auth_credentials, get_proxy_auth_credentials
 from .certs import cert_exceptions
 from .config import misc_config
+from .constants import FOLLOW_LINK_KEY_MAP
 from .downloads import get_download_dir
 from .message_box import question_dialog
 from .places import places
@@ -98,6 +99,7 @@ class JStoPython(QObject):
     login_form_found = pyqtSignal(str, bool)
     login_form_submitted = pyqtSignal(str, str, str)
     set_editable_text_in_gui_thread = pyqtSignal(str, int, str)
+    link_followed = pyqtSignal(bool, str)
 
     def __init__(self, parent=None):
         QObject.__init__(self, parent)
@@ -115,6 +117,7 @@ class Bridge(QObject):
     autofill_login_form = pyqtSignal(str, str, str, bool, bool)
     get_url_for_current_login_form = pyqtSignal()
     start_follow_link = pyqtSignal()
+    follow_link = pyqtSignal(str)
 
     def __init__(self, parent=None):
         QObject.__init__(self, parent)
@@ -153,6 +156,10 @@ class Bridge(QObject):
     @pyqtSlot(str, str, str)
     def login_form_submitted_in_page(self, url, username, password):
         self.js_to_python.login_form_submitted.emit(url, username, password)
+
+    @pyqtSlot(bool, str)
+    def link_followed(self, ok, text):
+        self.js_to_python.link_followed.emit(ok, text)
 
     def break_cycles(self):
         for sig in itersignals(self):
@@ -266,6 +273,7 @@ class WebView(QWebEngineView):
         QWebEngineView.__init__(self, main_window)
         self.setAttribute(Qt.WA_DeleteOnClose)  # needed otherwise object is not deleted on close which means, it keeps running
         self.setMinimumWidth(300)
+        self.follow_link_pending = None
         self.setFocusPolicy(Qt.ClickFocus | Qt.WheelFocus)
         self.pending_unserialize = None
         self.main_window = main_window
@@ -275,6 +283,7 @@ class WebView(QWebEngineView):
         self._page.bridge.js_to_python.middle_clicked.connect(self.open_in_new_tab.emit)
         self._page.bridge.js_to_python.focus_changed.connect(self.on_focus_change)
         self._page.bridge.js_to_python.login_form_submitted.connect(self.on_login_form_submit)
+        self._page.bridge.js_to_python.link_followed.connect(self.link_followed)
         self._page.bridge.js_to_python.login_form_found.connect(self.on_login_form_found)
         self.loadStarted.connect(lambda: self.loading_status_changed.emit(True))
         self.loadFinished.connect(self.load_finished)
@@ -513,5 +522,21 @@ class WebView(QWebEngineView):
     def zoom_factor(self, val):
         self.setZoomFactor(max(0.25, min(val, 5.0)))
 
-    def start_follow_link(self):
+    def start_follow_link(self, action):
+        self.follow_link_pending = action
         self._page.bridge.start_follow_link.emit()
+
+    def follow_link(self, key):
+        jkey = FOLLOW_LINK_KEY_MAP.get(key)
+        if jkey is not None:
+            self._page.bridge.follow_link.emit(jkey)
+            return True
+
+    def link_followed(self, ok, text):
+        if ok:
+            self.follow_link_pending = None
+        else:
+            if text == '|escape':
+                self.follow_link_pending = None
+                return
+            self.main_window.show_status_message(_('No match for %s!') % text, 5000, 'error')

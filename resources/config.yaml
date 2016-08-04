@@ -106,8 +106,9 @@ colors:
     status bar foreground: white
     status bar selection: darkGray
     status bar highlight: "#22000000"
-    hint background: khaki
     hint foreground: black
+    hint background: khaki
+    selected hint background: '#3FFF00'
 
 
 ##################### Printing ############################

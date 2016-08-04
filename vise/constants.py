@@ -5,8 +5,9 @@
 import sys
 import os
 import socket
+import string
 
-from PyQt5.Qt import QStandardPaths
+from PyQt5.Qt import QStandardPaths, Qt
 
 appname = 'vise'
 numeric_version = (0, 1, 0)
@@ -25,6 +26,9 @@ DOWNLOADS_URL = 'vise:downloads'
 WELCOME_URL = 'vise:welcome'
 hostname = os.environ.get('VISE_HOSTNAME', socket.gethostname())
 STATUS_BAR_HEIGHT = 24
+FOLLOW_LINK_KEY_MAP = {getattr(Qt, 'Key_' + x.upper()): x for x in string.ascii_lowercase + string.digits}
+FOLLOW_LINK_KEY_MAP[Qt.Key_Escape] = '|escape'
+FOLLOW_LINK_KEY_MAP[Qt.Key_Enter] = FOLLOW_LINK_KEY_MAP[Qt.Key_Return] = '|enter'
 
 
 def _get_cache_dir():

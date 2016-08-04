@@ -132,6 +132,12 @@ class KeyFilter(QObject):
                     if window.current_tab.force_passthrough:
                         return False
 
+                    if window.current_tab.follow_link_pending:
+                        if only_modifiers(key):
+                            return True
+                        if window.current_tab.follow_link(key):
+                            return True
+
                     if window.current_tab.text_input_focused:
                         action = input_key_map.get(key)
                         if action is not None:

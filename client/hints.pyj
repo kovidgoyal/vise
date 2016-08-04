@@ -3,12 +3,12 @@
 # noqa: eol-semicolon
 from __python__ import hash_literals, bound_methods
 
-from communicate import connect_signal
+from communicate import connect_signal, js_to_python
 from elementmaker import E
 from utils import is_visible
 from frames import broadcast_action, send_action, register_subframe_handler, register_top_handler, frame_iter
 
-REPLACED_ELEM_TAG = 'vise-replaced-elem-tag'
+REPLACED_ELEM_TAG = 'vise-replaced-elem-hint'
 ATTR = 'data-vise-hint'
 current_request = {'id':0}
 
@@ -17,6 +17,8 @@ def start_follow_link():
     current_request.num_left = frames.length
     current_request.id += 1
     current_request.hint_groups = []
+    current_request.accumulated_keypresses = []
+    current_request.marking_done = False
     has_frames = current_request.num_left > 0
     if has_frames:
         broadcast_action(frames, 'find_hints', current_request.id)
@@ -50,7 +52,7 @@ def add_hint_markup(elem, i):
 def remove_hint_markup(elem):
     tname = elem.tagName.toLowerCase()
     if tname is 'input' or tname is 'textarea':
-        if elem.previousSibling?.tagName?.toLowerCase() is REPLACED_ELEM_TAG:
+        if elem.previousSibling?.tagName?.toLowerCase?() is REPLACED_ELEM_TAG:
             elem.previousSibling.parentNode.removeChild(elem.previousSibling)
     else:
         elem.removeAttribute(ATTR)
@@ -73,20 +75,22 @@ def assign_hints():
     for hg in current_request.hint_groups:
         all_hints = all_hints.concat(hg)
     hint_groups = {}
-    current_request.hint_map = {}
-    for i, hint in enumerate(sorted(all_hints, key=def (h): v'[h.y, h.x]';)):
-        hint.updated_num = i
+    current_request.all_hints = sorted(all_hints, key=def (h): v'[h.y, h.x]';)
+    for i, hint in enumerate(current_request.all_hints):
+        i = i.toString(36)
         fid = hint.frame_id
         if not hint_groups[fid]:
             hint_groups[fid] = {}
-        hint_groups[fid][hint.num] = hint.num = i
-        current_request.hint_map[i] = hint
+        hint_groups[fid][hint.num] = hint.num = hint.text_left = i
     for frame_id in hint_groups:
         frame_id = int(frame_id)
         if frame_id is 0:
             update_hint_numbers(hint_groups[frame_id])
         else:
             send_action(frame_id, 'hints_assigned', hint_groups[frame_id])
+    current_request.marking_done = True
+    for text in current_request.accumulated_keypresses:
+        follow_link(text)
 
 def update_hint_numbers(hint_map):
     for elem in document.querySelectorAll('[' + ATTR + ']'):
@@ -100,8 +104,98 @@ register_subframe_handler(def hints_assigned(current_frame_id, source_frame_id, 
     update_hint_numbers(hints)
 )
 
+
+def follow_link(text):
+    if not current_request.marking_done:
+        current_request.accumulated_keypresses.push(text)
+        return
+    text = text.toLowerCase()
+    if text is '|escape':
+        predicate = def():
+            return False
+    elif text is '|enter':
+        predicate = def(hint):
+            return hint is current_request.all_hints[0]
+    else:
+        predicate = def(hint):
+            if hint.text_left.startsWith(text):
+                hint.text_left = hint.text_left[text.length:]
+                return True
+            return False
+    hint_groups = {}
+    all_hints = v'[]'
+    for i, hint in enumerate(current_request.all_hints):
+        if predicate(hint):
+            hint.matched = True
+            all_hints.push(hint)
+        else:
+            hint.matched = False
+        fid = hint.frame_id
+        if not hint_groups[fid]:
+            hint_groups[fid] = v'[]'
+        hint_groups[fid].push(hint)
+    if not all_hints.length:
+        js_to_python('link_followed', False, text)
+        if text is not '|escape':
+            return  # no match inform the user and stay in follow mode
+    if all_hints.length == 1:
+        js_to_python('link_followed', True, text)
+
+    for frame_id in hint_groups:
+        frame_id = int(frame_id)
+        if frame_id is 0:
+            update_filtered_hints(hint_groups[frame_id], all_hints.length is 1)
+        else:
+            send_action(frame_id, 'hints_filtered', hint_groups[frame_id], all_hints.length is 1)
+    for hint in all_hints:
+        hint.num = hint.text_left
+    current_request.all_hints = all_hints
+
+def update_filtered_hints(hints, found_target):
+    elem_map = {e.getAttribute(ATTR):e for e in document.querySelectorAll('[' + ATTR + ']')}
+    target_elem = None
+    for hint in hints:
+        elem = elem_map[hint.num]
+        if elem:
+            if hint.matched:
+                elem.setAttribute(ATTR, hint.text_left)
+                if found_target:
+                    target_elem = elem
+            else:
+                remove_hint_markup(elem)
+    if target_elem is not None:
+        if target_elem.tagName.toLowerCase() is REPLACED_ELEM_TAG:
+            target_elem = target_elem.nextSibling
+        remove_hint_markup(target_elem)
+        activate_elem(target_elem)
+
+
+def animate_click(elem):
+    elem.classList.add('vise-animate-click')
+    window.setTimeout(def():
+        elem.classList.remove('vise-animate-click')
+        elem.click()
+    , 300)
+
+def activate_elem(elem):
+    tname = elem.tagName.toLowerCase()
+    if tname is 'a' or tname is 'button':
+        if tname is 'a':
+            animate_click(elem)
+        else:
+            elem.click()
+    else:
+        elem.focus()
+
+register_subframe_handler(def hints_filtered(current_frame_id, source_frame_id, source_frame, hints, found_target):
+    update_filtered_hints(hints, found_target)
+)
+
+
+
 def onload():
-    document.body.appendChild(E.style(''' [ATTRN]:before {
+    document.body.appendChild(E.style('''
+    [ATTRN]:before {
         content: attr(ATTRN);
         text-decoration: none !important;
         display: inline-block !important;
@@ -114,6 +208,19 @@ def onload():
         padding: 1px !important;
         border: solid 1px currentColor !important;
         position: absolute !important;
-    }'''.replace(/ATTRN/g, ATTR)))
+    }
+
+    [ATTRN='']:before {
+        content: "\xa0";
+        background: SELECTED_HINT_BACKGROUND !important;
+    }
+
+    a.vise-animate-click {
+        display: inline-block;
+        transform: scale(2);
+    }
+
+    '''.replace(/ATTRN/g, ATTR)))
     if window.self is window.top:
         connect_signal('start_follow_link', start_follow_link)
+        connect_signal('follow_link', follow_link)

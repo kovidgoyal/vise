@@ -146,6 +146,7 @@ def client_script():
     src = f.read().decode('utf-8')
     src = src.replace('__DOWNLOADS_URL__', DOWNLOADS_URL)
     src = src.replace('HINT_FONT_SIZE', str(font_sizes().get('hint-size')))
+    src = src.replace('SELECTED_HINT_BACKGROUND', color('selected hint background', 'khaki'))
     src = src.replace('HINT_FOREGROUND', color('hint foreground', 'black'))
     src = src.replace('HINT_BACKGROUND', color('hint background', 'khaki'))
     src = src.replace('__TITLE_TOKEN__', TITLE_TOKEN)
