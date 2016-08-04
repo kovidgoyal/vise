@@ -53,7 +53,7 @@ def option_parser():
         'Do not save/restore the session at shutdown/startup'))
     parser.add_argument('--startup-session', default=None, help=_(
         'Path to a session previously saved with the export command. It will'
-        ' be used to startup this instance of vise. Note that is vise is already'
+        ' be used to startup this instance of vise. Note that if vise is already'
         ' running this will have no effect'))
     parser.add_argument('urls', metavar='URL', nargs='*', help='urls to open')
     return parser
