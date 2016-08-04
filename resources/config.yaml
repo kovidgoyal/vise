@@ -110,3 +110,5 @@ colors:
 # The editor to use to edit text fields. A value of "default" means use the
 # environment variable EDITOR.
 editor: default
+# The directory to download files to.
+download_dir: ~/downloads

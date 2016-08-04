@@ -8,28 +8,30 @@ import mimetypes
 import weakref
 from time import monotonic
 from functools import partial, lru_cache
+from itertools import count
 from gettext import gettext as _
 
 import sip
 from PyQt5.Qt import (
-    QApplication, QVBoxLayout, QCheckBox, QLabel, QObject, QUrl, QByteArray,
+    QApplication, QObject, QUrl, QByteArray,
     QWebEngineDownloadItem, pyqtSignal, QTimer, Qt, QWidget, QPainter
 )
 
+from .config import misc_config
 from .constants import DOWNLOADS_URL as DU, STATUS_BAR_HEIGHT
 from .resources import get_data, get_icon
-from .settings import DynamicPrefs
-from .utils import (
-    Dialog, sanitize_file_name, safe_disconnect, get_content_type_icon,
-    open_local_file, draw_snake_spinner
-)
+from .utils import safe_disconnect, get_content_type_icon, open_local_file, draw_snake_spinner
 
-if os.path.isdir('/t') and os.access('/t', os.R_OK | os.W_OK | os.X_OK):
-    download_dir = '/t'
-else:
-    download_dir = tempfile.gettempdir()
 
-open_after = DynamicPrefs('open-after')
+def get_download_dir():
+    if not hasattr(get_download_dir, 'ans'):
+        get_download_dir.ans = os.path.expanduser(misc_config('download_dir', default='~/downloads'))
+        try:
+            os.makedirs(get_download_dir.ans)
+        except FileExistsError:
+            pass
+    return get_download_dir.ans
+
 DOWNLOADS_URL = QUrl(DU)
 
 
@@ -43,51 +45,6 @@ def downloads_icon():
 def mimetype_icon_data(mime_type):
     raw = get_content_type_icon(mime_type, as_data=True) or get_data('images/blank.png')
     return QByteArray(raw)
-
-
-class AskAboutDownload(Dialog):  # {{{
-
-    fcounter = 0
-
-    def __init__(self, download_item, parent=None):
-        self.download_item = download_item
-        fname = os.path.basename(download_item.path())
-        if not fname:
-            AskAboutDownload.fcounter += 1
-            fname = 'file%d' % AskAboutDownload.fcounter
-        self.fname = download_item.fname = sanitize_file_name(fname)
-        self.mime_type = download_item.mime_type = mimetypes.guess_type(self.download_item.url().toString())[0]
-        download_item.setPath(os.path.join(download_dir, fname))
-        Dialog.__init__(self, 'Allow download?', 'allow-download-question', parent)
-        del self.download_item
-
-    def setup_ui(self):
-        fname = self.fname
-        mt = self.mime_type
-        oa = bool(mt and open_after.get(mt))
-        self.l = l = QVBoxLayout(self)
-
-        self.la = la = QLabel('<p>{dl} <b>{fname}</b>?<br>{fr}: {url}</p>'.format(
-            dl=_('Download'), fname=fname, fr=_('from'), url=self.download_item.url().toString()))
-        la.setWordWrap(True)
-        l.addWidget(la)
-        self.setWindowTitle(_('Download %s?') % fname)
-        self.cb = QCheckBox(_('&Open file after download?'), self)
-        self.cb.setChecked(oa)
-        self.cb.toggled.connect(lambda: (self.mime_type and open_after.set(self.mime_type, self.cb.isChecked())))
-        l.addWidget(self.cb)
-        self.bb.setStandardButtons(self.bb.Ok | self.bb.Cancel)
-        l.addWidget(self.bb)
-
-    @property
-    def open_after(self):
-        return self.cb.isChecked()
-
-    def sizeHint(self):
-        ans = Dialog.sizeHint(self)
-        ans.setWidth(max(400, ans.width()))
-        return ans
-# }}}
 
 
 class Indicator(QWidget):  # {{{
@@ -156,14 +113,15 @@ class Indicator(QWidget):  # {{{
 # }}}
 
 
+file_counter = count()
+
+
 def download_requested(download_item):
     app = QApplication.instance()
-    parent = app.activeWindow()
-    d = AskAboutDownload(download_item, parent)
-    if d.exec_() == d.Accepted:
-        download_item.open_after = d.open_after
-        download_item.accept()
-        app.downloads.download_created(download_item)
+    fname = download_item.fname = os.path.basename(download_item.path()) or 'file%d' % next(file_counter)
+    download_item.setPath(os.path.join(get_download_dir(), fname))
+    download_item.accept()
+    app.downloads.download_created(download_item)
 
 
 class Downloads(QObject):
@@ -237,8 +195,9 @@ class Downloads(QObject):
 
     def on_download_finish(self, item):
         item.rates = [0]
-        if item.open_after and item.state() == QWebEngineDownloadItem.DownloadCompleted:
-            open_local_file(item.path())
+        w = QApplication.instance().activeWindow()
+        if hasattr(w, 'show_status_message'):
+            w.show_status_message(_('Download of %s completed!') % os.path.basename(item.path()), 5, 'success')
 
     def break_cycles(self):
         for item in self.items:
@@ -267,8 +226,8 @@ class Downloads(QObject):
 
     def create_item(self, tab, download_item):
         tab.js_func('window.create_download',
-                    download_item.id(), download_item.fname, download_item.mime_type,
-                    'vise:mimetype-icon/' + (download_item.mime_type or 'application/octet-stream'),
+                    download_item.id(), download_item.fname, download_item.mimeType(),
+                    'vise:mimetype-icon/' + (download_item.mimeType() or 'application/octet-stream'),
                     download_item.url().host() or 'localhost')
 
     def update_item(self, tab, download_item):
@@ -309,7 +268,6 @@ def develop():  # {{{
     class FakeDownloadItem(QObject):
 
         idc = 0
-        open_after = False
         downloadProgress = pyqtSignal(object, object)
         stateChanged = pyqtSignal(object)
         finished = pyqtSignal()
@@ -322,7 +280,7 @@ def develop():  # {{{
             self._id = FakeDownloadItem.idc
             self._size = size
             self.fname = '%s.epub' % self.id()
-            self.mime_type = mimetypes.guess_type(self.fname)[0]
+            self.mimeType = lambda: mimetypes.guess_type(self.fname)[0]
             QTimer.singleShot(100, self._tick)
 
         def id(self):
