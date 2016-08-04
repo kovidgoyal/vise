@@ -405,11 +405,10 @@ class WebView(QWebEngineView):
         self.main_window.raise_tab(self)
 
     def createWindow(self, window_type):
-        if window_type in (QWebEnginePage.WebBrowserTab, QWebEnginePage.WebBrowserWindow):
-            site = '<b>%s</b>' % self.title() or self.url().host() or self.url().toString()
-            if question_dialog(self, _('Allow new window?'), _(
-                    'The site {0} wants to open a new tab, allow it?').format(site)):
-                return self.main_window.get_tab_for_load(in_current_tab=False)
+        site = '<b>%s</b>' % self.title() or self.url().host() or self.url().toString()
+        if question_dialog(self, _('Allow new window?'), _(
+                'The site {0} wants to open a new tab, allow it?').format(site)):
+            return self.main_window.get_tab_for_load(in_current_tab=False)
 
     def runjs(self, src, callback=None, world_id=QWebEngineScript.ApplicationWorld):
         if callback is not None:
