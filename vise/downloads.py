@@ -33,6 +33,7 @@ def get_download_dir():
     return get_download_dir.ans
 
 DOWNLOADS_URL = QUrl(DU)
+save_page_path_map = {}
 
 
 def downloads_icon():
@@ -118,8 +119,23 @@ file_counter = count()
 
 def download_requested(download_item):
     app = QApplication.instance()
-    fname = download_item.fname = os.path.basename(download_item.path()) or 'file%d' % next(file_counter)
-    download_item.setPath(os.path.join(get_download_dir(), fname))
+    if download_item.savePageFormat() == download_item.UnknownSaveFormat:
+        fname = download_item.fname = os.path.basename(download_item.path()) or 'file%d' % next(file_counter)
+        download_item.setPath(os.path.join(get_download_dir(), fname))
+    else:
+        # Note that currently saving in CompleteHtmlSaveFormat is broken
+        # because of a Qt bug: https://bugreports.qt.io/browse/QTBUG-55130
+        fmt = misc_config('save_format', default='files')
+        download_item.setSavePageFormat(download_item.MimeHtmlSaveFormat if fmt == 'mhtml' else download_item.CompleteHtmlSaveFormat)
+        path = save_page_path_map.pop(download_item.url().toString(), None)
+        if path:
+            download_item.setPath(path)
+            download_item.fname = os.path.basename(path)
+        else:
+            fname = download_item.fname = os.path.basename(download_item.path())
+            if fmt != 'mhtml' and fname.endswith('.mhtml'):
+                fname = fname.rpartition('.')[0] + '.html'
+            download_item.setPath(os.path.join(get_download_dir(), fname))
     download_item.accept()
     app.downloads.download_created(download_item)
 

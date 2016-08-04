@@ -413,6 +413,11 @@ class WebView(QWebEngineView):
     def follow_next(self, forward=True):
         self._page.bridge.follow_next.emit(bool(forward))
 
+    def save_page(self, path=None):
+        from .downloads import save_page_path_map
+        self._page.triggerAction(self._page.SavePage)
+        save_page_path_map[self.url().toString()] = path
+
     def on_login_form_submit(self, url, username, password):
         if not username or not password:
             return

@@ -112,3 +112,5 @@ colors:
 editor: default
 # The directory to download files to.
 download_dir: ~/downloads
+# The format in which to store saved HTML pages. Choices are: files, mhtml
+save_format: files
