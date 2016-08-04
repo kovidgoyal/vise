@@ -13,16 +13,19 @@ def find_link(node):
 def middle_clicked(current_frame_id, source_frame_id, source_frame, href):
     js_to_python('middle_clicked_link', href)
 
+def dispatch_middle_click(elem):
+    href = find_link(elem)
+    if href:
+        send_action(window.top, 'middle_clicked', href)
+        return True
+
 def handle_middle_click(ev):
     if ev.button is not 1:
         return True
-    href = find_link(ev.target)
-    if not href:
-        return True
-    send_action(window.top, 'middle_clicked', href)
-    ev.preventDefault()
-    ev.stopPropagation()
-    return False
+    if dispatch_middle_click(ev.target):
+        ev.preventDefault(), ev.stopPropagation()
+        return False
+    return True
 
 def onload():
     register_handler('middle_clicked', middle_clicked)

@@ -116,7 +116,7 @@ class Bridge(QObject):
     set_editable_text = pyqtSignal(str, int, str)
     autofill_login_form = pyqtSignal(str, str, str, bool, bool)
     get_url_for_current_login_form = pyqtSignal()
-    start_follow_link = pyqtSignal()
+    start_follow_link = pyqtSignal(str)
     follow_link = pyqtSignal(str)
 
     def __init__(self, parent=None):
@@ -524,7 +524,7 @@ class WebView(QWebEngineView):
 
     def start_follow_link(self, action):
         self.follow_link_pending = action
-        self._page.bridge.start_follow_link.emit()
+        self._page.bridge.start_follow_link.emit(action)
 
     def follow_link(self, key):
         jkey = FOLLOW_LINK_KEY_MAP.get(key)

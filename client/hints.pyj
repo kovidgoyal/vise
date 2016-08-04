@@ -7,14 +7,16 @@ from communicate import connect_signal, js_to_python
 from elementmaker import E
 from utils import is_visible
 from frames import broadcast_action, send_action, register_subframe_handler, register_top_handler, frame_iter
+from middle_click import dispatch_middle_click
 
 REPLACED_ELEM_TAG = 'vise-replaced-elem-hint'
 ATTR = 'data-vise-hint'
 current_request = {'id':0}
 
-def start_follow_link():
+def start_follow_link(action):
     frames = list(frame_iter(window.top, is_visible))
     current_request.num_left = frames.length
+    current_request.action = action
     current_request.id += 1
     current_request.hint_groups = []
     current_request.accumulated_keypresses = []
@@ -172,9 +174,13 @@ def update_filtered_hints(hints, found_target):
 
 def animate_click(elem):
     elem.classList.add('vise-animate-click')
+    action = current_request.action
     window.setTimeout(def():
         elem.classList.remove('vise-animate-click')
-        elem.click()
+        if action is 'sametab':
+            elem.click()
+        else:
+            dispatch_middle_click(elem)
     , 300)
 
 def activate_elem(elem):
