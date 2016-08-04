@@ -19,6 +19,7 @@ class Search(QLineEdit):
 
     do_search = pyqtSignal(object, object)
     abort_search = pyqtSignal()
+    passthrough_keys = True
 
     def __init__(self, parent=None):
         QLineEdit.__init__(self, parent)

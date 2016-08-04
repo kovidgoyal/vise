@@ -4,7 +4,7 @@
 
 from PyQt5.Qt import (
     Qt, QObject, QEvent, QApplication, QMainWindow, QKeySequence,
-    QOpenGLWidget, QLineEdit, QLabel
+    QOpenGLWidget, QLineEdit, QDialog
 )
 
 from . import actions
@@ -62,6 +62,19 @@ normal_key_map = read_key_map()
 input_key_map = read_key_map('insert')
 
 
+def passthrough_keys(widget):
+    if widget is None:
+        return True
+    if getattr(widget, 'passthrough_keys', False):
+        return True
+    p = widget.parent()
+    while p:
+        if isinstance(p, QDialog):
+            return True
+        p = p.parent()
+    return False
+
+
 class KeyFilter(QObject):
 
     def __init__(self, parent=None):
@@ -99,7 +112,7 @@ class KeyFilter(QObject):
                     fw.parent().keyPressEvent(event)
                     return True
 
-            if isinstance(window, QMainWindow) and (fw is None or isinstance(fw, (QOpenGLWidget, QLabel))):
+            if isinstance(window, QMainWindow) and not passthrough_keys(fw):
                 key = key_from_event(event)
 
                 if window.quickmark_pending:

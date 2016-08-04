@@ -107,6 +107,8 @@ class ListView(QListView):
 
 class LineEdit(QLineEdit):
 
+    passthrough_keys = True
+
     def __init__(self, parent=None):
         QLineEdit.__init__(self, parent)
         self.setAttribute(Qt.WA_MacShowFocusRect, False)
