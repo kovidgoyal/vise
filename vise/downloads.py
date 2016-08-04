@@ -175,6 +175,9 @@ class Downloads(QObject):
         for tab in self.itertabs():
             self.create_item(tab, download_item)
         self.has_active_downloads = True
+        w = QApplication.instance().activeWindow()
+        if hasattr(w, 'show_status_message'):
+            w.show_status_message(_('Download of %s started!') % os.path.basename(download_item.path()), 2)
 
     def on_state_change(self, idx):
         item = self.items[idx]
