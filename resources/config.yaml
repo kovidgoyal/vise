@@ -11,6 +11,7 @@ normal mode keys:  # The keys used in normal mode
     next_tab: Alt+Down
     prev_tab: Alt+Up
     close_tab: D
+    close_other_tabs: Shift+D
     undo_close_tab: U
     ask:
         - ';'

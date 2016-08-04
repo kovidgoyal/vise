@@ -28,6 +28,12 @@ def close_tab(window, *args, **kwargs):
         return True
 
 
+def close_other_tabs(window, *args, **kwargs):
+    if window.current_tab is not None:
+        window.tab_tree.close_other_tabs(window.current_tab)
+        return True
+
+
 def exit_full_screen(window, *args, **kw):
     if window.isFullScreen():
         window.toggle_full_screen(False)
