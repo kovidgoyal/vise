@@ -4,7 +4,7 @@
 
 from PyQt5.Qt import (
     Qt, QObject, QEvent, QApplication, QMainWindow, QKeySequence,
-    QOpenGLWidget, QLineEdit, QDialog
+    QOpenGLWidget, QLineEdit, QDialog, QWebEngineView
 )
 
 from . import actions
@@ -96,12 +96,21 @@ class KeyFilter(QObject):
             return False
         etype = event.type()
         if etype == QEvent.FocusIn:
-            if event.reason() == Qt.TabFocusReason and isinstance(QApplication.instance().focusWidget(), QOpenGLWidget):
+            fw = QApplication.instance().focusWidget()
+            if event.reason() == Qt.TabFocusReason and isinstance(fw, QOpenGLWidget):
                 # We do this otherwise closing the search bar or the ask dialog
                 # causes a focus event to be delivered to the page, which can
                 # cause an input box to get fox or the page to scroll
                 return True
-        if etype == QEvent.KeyPress:
+            if getattr(fw, 'current_tab', isinstance(fw, QWebEngineView)):
+                # If the main window gets focus, pass it along to the current
+                # tab. For some reason setFocusProxy() does not work and I
+                # cannot be bothered figuring out why. This is needed for the
+                # paste_url action, otherwise the text control does not get
+                # focus back after the ask widget is closed
+                fw.current_tab.setFocus(Qt.MouseFocusReason)
+                return True
+        elif etype == QEvent.KeyPress:
             app = QApplication.instance()
             window, fw = app.activeWindow(), app.focusWidget()
 

@@ -59,3 +59,18 @@ def follow_link(elem, mouse_button=0):
         'cancelable': True,
     })
     elem.dispatchEvent(ev)
+
+def text_editing_allowed(node):
+    return not node.hasAttribute('readonly') and not node.hasAttribute('disabled')
+
+def is_text_input_node(node):
+    if node and node.nodeType is Node.ELEMENT_NODE:
+        name = node.nodeName.toUpperCase()
+        if name is 'TEXTAREA':
+            return text_editing_allowed(node)
+        if name is 'INPUT':
+            itype = (node.getAttribute('type') or '').toLowerCase()
+            if itype not in {'hidden', 'image', 'button', 'reset', 'file', 'reset', 'radio', 'submit'}:
+                return text_editing_allowed(node)
+    return False
+

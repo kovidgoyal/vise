@@ -9,6 +9,7 @@ from downloads import main as downloads
 from follow_next import onload as fn_onload
 from passwd import onload as passwd_onload
 from hints import onload as hints_onload
+from edit import onload as edit_onload
 
 def on_document_loaded():
     if document.location.href is '__DOWNLOADS_URL__':
@@ -20,6 +21,7 @@ def on_document_loaded():
         fn_onload()
         passwd_onload()
         hints_onload()
+        edit_onload()
 
 init_crypto(register_frames)
 document.addEventListener('DOMContentLoaded', on_document_loaded)

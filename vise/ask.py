@@ -198,6 +198,9 @@ class Ask(QWidget):
     def keyPressEvent(self, ev):
         k = ev.key()
         if k == Qt.Key_Escape:
+            c = self.callback
+            if c is not None:
+                c(None)
             self.close() if self.parent() is None else self.hide()
             ev.accept()
             return
@@ -210,10 +213,10 @@ class Ask(QWidget):
             ev.accept()
             return
         if k in (Qt.Key_Enter, Qt.Key_Return):
+            c = self.callback
             self.close() if self.parent() is None else self.hide()
-            if self.callback is not None:
-                self.callback(self.edit.text())
-                self.callback = None
+            if c is not None:
+                c(self.edit.text())
             else:
                 self.run_command.emit(self.edit.text())
         return QWidget.keyPressEvent(self, ev)

@@ -1,0 +1,65 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals, bound_methods
+
+from communicate import connect_signal, js_to_python
+from frames import send_action, register_handler, frame_for_id, frame_iter, broadcast_action, register_subframe_handler
+from utils import is_text_input_node, text_editing_allowed, is_visible
+
+edit_counter = 0
+
+def export_edit_text_to_qt(current_frame_id, source_frame_id, source_frame, text, node_id):
+    js_to_python('edit_text', text, source_frame_id, node_id)
+
+def find_editable_text(current_frame_id, source_frame_id, source_frame):
+    nonlocal edit_counter
+    elem = document.activeElement
+    if elem.contentWindow:
+        send_action(elem.contentWindow, 'find_editable_text')
+    elif is_text_input_node(elem) and text_editing_allowed(elem):
+        text = elem.value
+        edit_counter += 1
+        elem.setAttribute('data-vise-edit-text', edit_counter + '')
+        send_action(window.top, 'export_edit_text_to_qt', text or '', edit_counter + '')
+
+def set_editable_text(text, frame_id, eid):
+    win = frame_for_id(frame_id)
+    if not win:
+        console.error('Cannot set editable text, frame with id: ' + frame_id + ' no longer exists')
+        return
+    send_action(win, 'set_edit_text', text, eid)
+
+def set_edit_text(current_frame_id, source_frame_id, source_frame, text, eid):
+    elem = document.querySelector('[data-vise-edit-text="' + eid + '"]')
+    if elem:
+        elem.value = text
+        elem.selectionStart = text.length
+
+def insert_at_cursor(elem, text):
+    text = text or ''
+    caret_pos = elem.selectionStart
+    all_text = elem.value or ''
+    elem.value = all_text[:caret_pos] + text + all_text[elem.selectionEnd:]
+    elem.selectionStart = elem.selectionEnd = caret_pos + text.length
+    elem.blur(), elem.focus()
+
+def insert_text(text):
+    if is_text_input_node(document.activeElement):
+        insert_at_cursor(document.activeElement, text)
+    else:
+        broadcast_action(frame_iter(window.self, is_visible), 'insert_text_subframe', text)
+
+register_subframe_handler(def insert_text_subframe(current_frame_id, source_frame_id, source_frame, text):
+    if is_text_input_node(document.activeElement):
+        insert_at_cursor(document.activeElement, text)
+)
+
+
+def onload():
+    if window.self is window.top:
+        register_handler('export_edit_text_to_qt', export_edit_text_to_qt)
+        connect_signal('get_editable_text', def(): send_action(window.top, 'find_editable_text');)
+        connect_signal('set_editable_text', set_editable_text)
+        connect_signal('insert_text', insert_text)
+    register_handler('find_editable_text', find_editable_text)
+    register_handler('set_edit_text', set_edit_text)

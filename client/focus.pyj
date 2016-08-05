@@ -1,22 +1,9 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-from communicate import connect_signal, js_to_python
-from frames import send_action, register_handler, frame_for_id
-
-def text_editing_allowed(node):
-    return not node.hasAttribute('readonly') and not node.hasAttribute('disabled')
-
-def is_text_input_node(node):
-    if node and node.nodeType is Node.ELEMENT_NODE:
-        name = node.nodeName.toUpperCase()
-        if name is 'TEXTAREA':
-            return text_editing_allowed(node)
-        if name is 'INPUT':
-            itype = (node.getAttribute('type') or '').toLowerCase()
-            if itype not in {'hidden', 'image', 'button', 'reset', 'file', 'reset', 'radio', 'submit'}:
-                return text_editing_allowed(node)
-    return False
+from communicate import js_to_python
+from frames import send_action, register_handler
+from utils import is_text_input_node
 
 def focus_event_received(current_frame_id, source_frame_id, source_frame, focussed):
     js_to_python('element_focused', focussed)
@@ -27,43 +14,10 @@ def handle_focus_in(ev):
 def handle_focus_out(ev):
     send_action(window.top, 'focus_event_received', False)
 
-edit_counter = 0
-
-def export_edit_text_to_qt(current_frame_id, source_frame_id, source_frame, text, node_id):
-    js_to_python('edit_text', text, source_frame_id, node_id)
-
-def find_editable_text(current_frame_id, source_frame_id, source_frame):
-    nonlocal edit_counter
-    elem = document.activeElement
-    if elem.contentWindow:
-        send_action(elem.contentWindow, 'find_editable_text')
-    elif is_text_input_node(elem) and text_editing_allowed(elem):
-        text = elem.value
-        edit_counter += 1
-        elem.setAttribute('data-vise-edit-text', edit_counter + '')
-        send_action(window.top, 'export_edit_text_to_qt', text or '', edit_counter + '')
-
-def set_editable_text(text, frame_id, eid):
-    win = frame_for_id(frame_id)
-    if not win:
-        console.error('Cannot set editable text, frame with id: ' + frame_id + ' no longer exists')
-        return
-    send_action(win, 'set_edit_text', text, eid)
-
-def set_edit_text(current_frame_id, source_frame_id, source_frame, text, eid):
-    elem = document.querySelector('[data-vise-edit-text="' + eid + '"]')
-    if elem:
-        elem.value = text
-
 def onload():
     document.addEventListener('focusin', handle_focus_in, True)
     document.addEventListener('focusout', handle_focus_out, True)
     if window.self is window.top:
         register_handler('focus_event_received', focus_event_received)
-        register_handler('export_edit_text_to_qt', export_edit_text_to_qt)
-        connect_signal('get_editable_text', def(): send_action(window.top, 'find_editable_text');)
-        connect_signal('set_editable_text', set_editable_text)
-    register_handler('find_editable_text', find_editable_text)
-    register_handler('set_edit_text', set_edit_text)
     if is_text_input_node(document.activeElement):
         handle_focus_in()

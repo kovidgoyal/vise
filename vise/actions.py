@@ -58,6 +58,22 @@ def edit_text(window, *args, **kwargs):
         return True
 
 
+def _paste_url(text):
+    text = text or ''
+    text = text.partition(' ')[2].strip()
+    w = QApplication.instance().activeWindow()
+    w.setFocus(Qt.MouseFocusReason)  # For some reason calling setFocus directly on the tab does not work
+    t = getattr(w, 'current_tab', None)
+    if t is not None:
+        python_to_js(t, 'insert_text', text)
+
+
+def paste_url(window, *a, **k):
+    if window.current_tab is not None:
+        window.ask('copyurl ', _paste_url)
+        return True
+
+
 def fill_login_form(window, *args, **kwargs):
     if window.current_tab is not None:
         python_to_js(window.current_tab, 'get_url_for_current_login_form')
