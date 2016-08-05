@@ -6,10 +6,18 @@
 ##################### Keyboard shortcuts ############################
 
 normal mode keys:  # The keys used in normal mode
-    forward: Alt+Right
-    back: Alt+Left
-    next_tab: Alt+Down
-    prev_tab: Alt+Up
+    forward: 
+        - Alt+Right
+        - Shift+Right
+    back: 
+        - Alt+Left
+        - Shift+Left
+    next_tab: 
+        - Alt+Down
+        - Shift+Down
+    prev_tab: 
+        - Alt+Up
+        - Shift+Up
     close_tab: D
     close_other_tabs: Shift+D
     undo_close_tab: U
