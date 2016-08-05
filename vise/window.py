@@ -90,8 +90,8 @@ class MainWindow(QMainWindow):
     def show_status_message(self, msg, timeout=1, message_type='info'):
         self.status_bar.show_message(msg, timeout, message_type)
 
-    def ask(self, prefix):
-        self.ask(prefix)
+    def ask(self, prefix, callback):
+        self.ask(prefix, callback)
 
     def run_command(self, text):
         run_command(self, text)

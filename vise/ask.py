@@ -144,6 +144,7 @@ class Ask(QWidget):
 
     def __init__(self, parent=None):
         self.complete_pos = 0
+        self.callback = None
         QWidget.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
         self.edit = e = LineEdit(self)
@@ -163,7 +164,8 @@ class Ask(QWidget):
         self.resize(w, h)
         self.move(0, h)
 
-    def __call__(self, prefix=''):
+    def __call__(self, prefix='', callback=None):
+        self.callback = callback
         self.setVisible(True), self.raise_()
         self.edit.blockSignals(True)
         self.edit.setText(prefix)
@@ -209,11 +211,16 @@ class Ask(QWidget):
             return
         if k in (Qt.Key_Enter, Qt.Key_Return):
             self.close() if self.parent() is None else self.hide()
-            self.run_command.emit(self.edit.text())
+            if self.callback is not None:
+                self.callback(self.edit.text())
+                self.callback = None
+            else:
+                self.run_command.emit(self.edit.text())
         return QWidget.keyPressEvent(self, ev)
 
     def hide(self):
         QWidget.hide(self)
+        self.callback = None
         self.hidden.emit()
 
     def next_completion(self, forward=True):
