@@ -7,7 +7,7 @@ import json
 from PyQt5.Qt import QWebEngineView, QWebEngineScript
 
 
-signals = {}
+from_js = {}
 
 
 def python_to_js(page_or_tab, name, *args):
@@ -19,16 +19,16 @@ def connect_signal(name=None, func_name=None):
     def connect(f):
         fname = func_name or f.__name__
         n = name or fname
-        if n in signals:
+        if n in from_js:
             raise KeyError('A signal with the name of %s has already been connected' % name)
 
-        signals[n] = fname
+        from_js[n] = fname
         return f
     return connect
 
 
 def js_to_python(page, name, args):
-    func_name = signals.get(name)
+    func_name = from_js.get(name)
     if func_name is None:
         print('Unknown signal received from js:', name)
         return
