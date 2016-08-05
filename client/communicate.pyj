@@ -22,6 +22,8 @@ def js_to_python(name, *args):
     notify_python()
 
 def connect_signal(name, func):
+    if name in from_python:
+        raise KeyError(str.format('The signal {} has already been connected', name))
     from_python[name] = func
 
 window.get_messages_from_javascript = def get_messages_from_javascript():
