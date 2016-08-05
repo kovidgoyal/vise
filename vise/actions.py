@@ -9,6 +9,8 @@ from PyQt5.Qt import (
     QApplication, QKeyEvent, QEvent, Qt, QUrl
 )
 
+from .communicate import python_to_js
+
 
 def forward(window, *args, **kwargs):
     if window.current_tab is not None:
@@ -52,13 +54,13 @@ def exit_text_input(window, *args, **kwargs):
 
 def edit_text(window, *args, **kwargs):
     if window.current_tab is not None:
-        window.current_tab.page().bridge.get_editable_text.emit()
+        python_to_js(window.current_tab, 'get_editable_text')
         return True
 
 
 def fill_login_form(window, *args, **kwargs):
     if window.current_tab is not None:
-        window.current_tab.page().bridge.get_url_for_current_login_form.emit()
+        python_to_js(window.current_tab, 'get_url_for_current_login_form')
         return True
 
 
@@ -266,10 +268,12 @@ def follow_link_newtab(window, *args, **kwargs):
 
 
 def follow_next(window, *args, **kw):
-    window.follow_next()
-    return True
+    if window.current_tab is not None:
+        python_to_js(window.current_tab, 'follow_next', True)
+        return True
 
 
 def follow_previous(window, *args, **kw):
-    window.follow_next(forward=False)
-    return True
+    if window.current_tab is not None:
+        python_to_js(window.current_tab, 'follow_next', False)
+        return True

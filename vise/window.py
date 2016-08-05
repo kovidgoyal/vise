@@ -319,10 +319,6 @@ class MainWindow(QMainWindow):
             msg = _('%s found') % text if found else _('%s not found!') % text
             self.show_status_message(msg, 1 if found else 3, 'success' if found else 'error')
 
-    def follow_next(self, forward=True):
-        if self.current_tab is not None:
-            self.current_tab.follow_next(forward)
-
     def serialize_state(self, include_favicons=False):
         ans = {'window_id': self.window_id, 'is_private': self.is_private}
         tab_map = ans['tab_map'] = {}

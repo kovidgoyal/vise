@@ -15,13 +15,14 @@ from functools import partial
 from itertools import count
 
 from PyQt5.Qt import (
-    QWebEngineView, QWebEnginePage, QSize, QApplication, pyqtSignal, pyqtSlot,
-    QObject, QGridLayout, QCheckBox, QLabel, Qt, QWebEngineScript,
-    pyqtBoundSignal, QUrl, QPageSize, QPageLayout, QMarginsF
+    QWebEngineView, QWebEnginePage, QSize, QApplication, pyqtSignal,
+    QGridLayout, QCheckBox, QLabel, Qt, QWebEngineScript, QUrl, QPageSize,
+    QPageLayout, QMarginsF
 )
 
 from .auth import get_http_auth_credentials, get_proxy_auth_credentials
 from .certs import cert_exceptions
+from .communicate import python_to_js, js_to_python, connect_signal
 from .config import misc_config
 from .constants import FOLLOW_LINK_KEY_MAP
 from .downloads import get_download_dir
@@ -65,7 +66,7 @@ class Alert(Dialog):  # {{{
 # }}}
 
 
-def edit_text(bridgeref, text, frame_id, eid):  # {{{
+def edit_text(viewref, text, frame_id, eid):  # {{{
     editor = shlex.split(misc_config('editor', default=os.environ.get('EDITOR', 'gvim -f')))
     with NamedTemporaryFile(suffix='.txt') as f:
         f.write(text.encode('utf-8'))
@@ -76,95 +77,10 @@ def edit_text(bridgeref, text, frame_id, eid):  # {{{
             text = f.read().decode('utf-8')
             # This signal can only be emitted in the GUI thread as it is
             # connected to JavaScript code
-            bridge = bridgeref()
-            if bridge is not None:
-                bridge.js_to_python.set_editable_text_in_gui_thread.emit(text, frame_id, eid)
+            view = viewref()
+            if view is not None:
+                view.set_editable_text_in_gui_thread.emit(text, frame_id, eid)
 # }}}
-
-
-def itersignals(self, get_name=False):
-    for name in dir(self):
-        val = getattr(self, name)
-        if isinstance(val, pyqtBoundSignal) and '_' in name:
-            if get_name:
-                yield name, val
-            else:
-                yield val
-
-
-class JStoPython(QObject):
-
-    middle_clicked = pyqtSignal(object)
-    focus_changed = pyqtSignal(object)
-    login_form_found = pyqtSignal(str, bool)
-    login_form_submitted = pyqtSignal(str, str, str)
-    set_editable_text_in_gui_thread = pyqtSignal(str, int, str)
-    link_followed = pyqtSignal(bool, str)
-
-    def __init__(self, parent=None):
-        QObject.__init__(self, parent)
-
-    def break_cycles(self):
-        for sig in itersignals(self):
-            safe_disconnect(sig)
-
-
-class Bridge(QObject):
-
-    follow_next = pyqtSignal(bool)
-    get_editable_text = pyqtSignal()
-    set_editable_text = pyqtSignal(str, int, str)
-    autofill_login_form = pyqtSignal(str, str, str, bool, bool)
-    get_url_for_current_login_form = pyqtSignal()
-    start_follow_link = pyqtSignal(str)
-    follow_link = pyqtSignal(str)
-
-    def __init__(self, parent=None):
-        QObject.__init__(self, parent)
-        self.js_to_python = JStoPython(self)
-        self.js_to_python.set_editable_text_in_gui_thread.connect(self.set_editable_text.emit, type=Qt.QueuedConnection)
-        for name, sig in itersignals(self, get_name=True):
-            sig.connect(partial(self.python_to_js, name))
-
-    def python_to_js(self, name, *args):
-        self.parent().runJavaScript('window.send_message_to_javascript(%s, %s)' % (json.dumps(name), json.dumps(args)), QWebEngineScript.ApplicationWorld)
-
-    @pyqtSlot(str)
-    def middle_clicked_link(self, href):
-        if href:
-            self.js_to_python.middle_clicked.emit(href)
-
-    @pyqtSlot(bool)
-    def element_focused(self, is_text_input):
-        self.js_to_python.focus_changed.emit(bool(is_text_input))
-
-    @pyqtSlot(str, int, str)
-    def edit_text(self, text, frame_id, eid):
-        bridgeref = weakref.ref(self)
-        t = Thread(name='EditText', target=edit_text, args=(bridgeref, text, frame_id, eid))
-        t.daemon = True
-        t.start()
-
-    @pyqtSlot(str)
-    def login_form_found_in_page(self, url):
-        self.js_to_python.login_form_found.emit(url, False)
-
-    @pyqtSlot(str)
-    def url_for_current_login_form(self, url):
-        self.js_to_python.login_form_found.emit(url, True)
-
-    @pyqtSlot(str, str, str)
-    def login_form_submitted_in_page(self, url, username, password):
-        self.js_to_python.login_form_submitted.emit(url, username, password)
-
-    @pyqtSlot(bool, str)
-    def link_followed(self, ok, text):
-        self.js_to_python.link_followed.emit(ok, text)
-
-    def break_cycles(self):
-        for sig in itersignals(self):
-            safe_disconnect(sig)
-        self.js_to_python.break_cycles()
 
 
 class WebPage(QWebEnginePage):
@@ -173,7 +89,6 @@ class WebPage(QWebEnginePage):
 
     def __init__(self, profile, parent):
         QWebEnginePage.__init__(self, profile, parent)
-        self.bridge = Bridge(self)
         self.authenticationRequired.connect(self.authentication_required)
         self.proxyAuthenticationRequired.connect(self.proxy_authentication_required)
         self.callbacks = {'vise_downloads_page': (self.downloads_callback, (), {})}
@@ -195,7 +110,7 @@ class WebPage(QWebEnginePage):
                 if mtype == 'callback':
                     self.called_back(msg['name'], msg['data'])
                 elif mtype == 'js_to_python':
-                    getattr(self.bridge, msg['name'])(*msg['args'])
+                    js_to_python(self, msg['name'], msg['args'])
                 else:
                     print('Unknown message type %s received from javascript' % mtype)
 
@@ -240,7 +155,6 @@ class WebPage(QWebEnginePage):
         Alert(self.title(), qurl, msg, self.parent()).exec_()
 
     def break_cycles(self):
-        self.bridge.break_cycles()
         self.callbacks.clear()
         for s in ('authenticationRequired proxyAuthenticationRequired linkHovered featurePermissionRequested'
                   ' featurePermissionRequestCanceled fullScreenRequested windowCloseRequested poll_for_messages').split():
@@ -258,7 +172,7 @@ class WebPage(QWebEnginePage):
 class WebView(QWebEngineView):
 
     icon_changed = pyqtSignal(object)
-    open_in_new_tab = pyqtSignal(object)
+    open_in_new_tab = connect_signal('middle_clicked_link', 'open_in_new_tab')(pyqtSignal(object))
     loading_status_changed = pyqtSignal(object)
     focus_changed = pyqtSignal(object, object)
     link_hovered = pyqtSignal(object)
@@ -268,6 +182,7 @@ class WebView(QWebEngineView):
     passthrough_changed = pyqtSignal(object, object)
     title_changed = pyqtSignal(object)
     toggle_full_screen = pyqtSignal(object)
+    set_editable_text_in_gui_thread = pyqtSignal(str, int, str)
 
     def __init__(self, profile, main_window):
         QWebEngineView.__init__(self, main_window)
@@ -280,11 +195,7 @@ class WebView(QWebEngineView):
         self.create_page(profile)
         self.view_id = next(view_id)
         self.iconChanged.connect(self.on_icon_changed, type=Qt.QueuedConnection)
-        self._page.bridge.js_to_python.middle_clicked.connect(self.open_in_new_tab.emit)
-        self._page.bridge.js_to_python.focus_changed.connect(self.on_focus_change)
-        self._page.bridge.js_to_python.login_form_submitted.connect(self.on_login_form_submit)
-        self._page.bridge.js_to_python.link_followed.connect(self.link_followed)
-        self._page.bridge.js_to_python.login_form_found.connect(self.on_login_form_found)
+        self.set_editable_text_in_gui_thread.connect(self.set_editable_text, type=Qt.QueuedConnection)
         self.loadStarted.connect(lambda: self.loading_status_changed.emit(True))
         self.loadFinished.connect(self.load_finished)
         self._page.linkHovered.connect(self.link_hovered.emit)
@@ -333,6 +244,7 @@ class WebView(QWebEngineView):
         self._force_passthrough = bool(val)
         self.passthrough_changed.emit(self._force_passthrough, self)
 
+    @connect_signal('element_focused')
     def on_focus_change(self, is_text_input):
         self.text_input_focused = is_text_input
         self.focus_changed.emit(is_text_input, self)
@@ -420,9 +332,6 @@ class WebView(QWebEngineView):
         func = '%s(%s)' % (name, ','.join(map(lambda x: json.dumps(x, ensure_ascii=False), args)))
         self.runjs(func, callback=callback, world_id=world_id)
 
-    def follow_next(self, forward=True):
-        self._page.bridge.follow_next.emit(bool(forward))
-
     def save_page(self, path=None):
         from .downloads import save_page_path_map
         self._page.triggerAction(self._page.SavePage)
@@ -444,6 +353,7 @@ class WebView(QWebEngineView):
             f.write(data.data())
         open_local_file(path)
 
+    @connect_signal('login_form_submitted_in_page')
     def on_login_form_submit(self, url, username, password):
         if not username or not password:
             return
@@ -465,6 +375,14 @@ class WebView(QWebEngineView):
         else:
             QApplication.instance().store_password(url, username, password)
 
+    @connect_signal()
+    def login_form_found_in_page(self, url):
+        self.on_login_form_found(url, False)
+
+    @connect_signal()
+    def url_for_current_login_form(self, url):
+        self.on_login_form_found(url, True)
+
     def on_login_form_found(self, url, is_current_form):
         if not QApplication.instance().ask_for_master_password(self):
             return
@@ -473,7 +391,7 @@ class WebView(QWebEngineView):
             accounts = password_db.get_accounts(key)
             if accounts:
                 ac = accounts[0]
-                self._page.bridge.autofill_login_form.emit(url, ac['username'], ac['password'], ac['autologin'], is_current_form)
+                python_to_js(self, 'autofill_login_form', url, ac['username'], ac['password'], ac['autologin'], is_current_form)
 
     def find_text(self, text, callback=None, forward=True):
         flags = QWebEnginePage.FindFlags(0) if forward else QWebEnginePage.FindBackward
@@ -523,14 +441,15 @@ class WebView(QWebEngineView):
 
     def start_follow_link(self, action):
         self.follow_link_pending = action
-        self._page.bridge.start_follow_link.emit(action)
+        python_to_js(self, 'start_follow_link', action)
 
     def follow_link(self, key):
         jkey = FOLLOW_LINK_KEY_MAP.get(key)
         if jkey is not None:
-            self._page.bridge.follow_link.emit(jkey)
+            python_to_js(self, 'follow_link', jkey)
             return True
 
+    @connect_signal()
     def link_followed(self, ok, text):
         if ok:
             self.follow_link_pending = None
@@ -539,3 +458,13 @@ class WebView(QWebEngineView):
                 self.follow_link_pending = None
                 return
             self.main_window.show_status_message(_('No match for %s!') % text, 5000, 'error')
+
+    def set_editable_text(self, *args):
+        python_to_js(self, 'set_editable_text', *args)
+
+    @connect_signal()
+    def edit_text(self, text, frame_id, eid):
+        ref = weakref.ref(self)
+        t = Thread(name='EditText', target=edit_text, args=(ref, text, frame_id, eid))
+        t.daemon = True
+        t.start()
