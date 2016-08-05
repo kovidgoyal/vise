@@ -81,7 +81,7 @@ class CompletionCandidate:
 
 class Open(Command):
 
-    names = {'open', 'tabopen', 'topen', 'wopen', 'winopen', 'popen', 'privateopen'}
+    names = {'open', 'tabopen', 'topen', 'wopen', 'winopen', 'popen', 'privateopen', 'copyurl'}
 
     def completions(self, cmd, prefix):
         substrings = prefix.split(' ')
@@ -89,6 +89,9 @@ class Open(Command):
         return items
 
     def __call__(self, cmd, rest, window):
+        if cmd == 'copyurl':
+            QApplication.clipboard().setText(rest)
+            return
         rest = rest.strip()
         if rest.startswith('http://') or rest.startswith('https://') or rest.startswith('vise:'):
             is_search = False
