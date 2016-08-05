@@ -54,7 +54,8 @@ def add_hint_markup(elem, i):
 def remove_hint_markup(elem):
     tname = elem.tagName.toLowerCase()
     if tname is 'input' or tname is 'textarea':
-        if elem.previousSibling?.tagName?.toLowerCase?() is REPLACED_ELEM_TAG:
+        ps = elem.previousSibling?.tagName
+        if ps and ps.toLowerCase() is REPLACED_ELEM_TAG:
             elem.previousSibling.parentNode.removeChild(elem.previousSibling)
     else:
         elem.removeAttribute(ATTR)
