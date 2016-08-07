@@ -4,7 +4,7 @@ libsodium
 python-yaml
 
 # Build time dependency
-rapydscript-ng
+rapydscript-ng (https://github.com/kovidgoyal/rapydscript-ng)
 
 # Optional dependency
 Python gtk bindings
