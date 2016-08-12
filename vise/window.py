@@ -19,6 +19,7 @@ from .cmd import run_command
 from .constants import appname
 from .downloads import Indicator
 from .settings import gprefs, profile, create_profile, quickmarks
+from .resources import get_icon
 from .status_bar import StatusBar
 from .tab_tree import TabTree
 from .view import WebView
@@ -44,6 +45,8 @@ class MainWindow(QMainWindow):
 
     def __init__(self, is_private=False, restart_state=None):
         QMainWindow.__init__(self)
+        self.setWindowIcon(get_icon('vise.svg'))
+        self.setWindowRole('browser')
         self.current_tab = None
         self.quickmark_pending = self.choose_tab_pending = None
         self.window_id = next(window_id)
