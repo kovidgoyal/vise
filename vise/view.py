@@ -404,7 +404,8 @@ class WebView(QWebEngineView):
     def _find_text_intermediate(self, found):
         text, callback = self.find_text_data
         self.find_text_data = [None, None]
-        callback(text, found)
+        if callback is not None:
+            callback(text, found)
 
     def serialize_state(self, include_favicon=False):
         pos = self._page.scrollPosition()
