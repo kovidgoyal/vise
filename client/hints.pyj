@@ -11,7 +11,7 @@ from middle_click import dispatch_middle_click
 
 REPLACED_ELEM_TAG = 'vise-replaced-elem-hint'
 ATTR = 'data-vise-hint'
-current_request = {'id':0}
+current_request = {'id':0, 'accumulated_keypresses':[]}
 
 def start_follow_link(action):
     frames = list(frame_iter(window.top, is_visible))

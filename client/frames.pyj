@@ -57,7 +57,11 @@ def frame_iter(win, filter_func=None):
     win = win or window.top
     for i in range(win.frames.length):
         frame = win.frames[i]
-        if filter_func is None or filter_func(frame.frameElement):
+        try:
+            fe = frame.frameElement
+        except:
+            fe = None  # Cross-origin frame
+        if filter_func is None or fe is None or filter_func(fe):
             yield frame
         yield from frame_iter(frame, filter_func=filter_func)
 
