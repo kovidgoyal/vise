@@ -71,7 +71,10 @@ class Application(QApplication):
     password_loaded = pyqtSignal(object, object)
 
     def __init__(self, master_password=None, urls=(), new_instance=False, shutdown=False, restart_state=None, no_session=False):
-        QApplication.__init__(self, [])
+        QApplication.__init__(self, [appname, '-name', appname])
+        self.setOrganizationName('kovidgoyal')
+        self.setApplicationName(appname)
+        self.setApplicationVersion(str_version)
         self.no_session = no_session
         self.handle_unix_signals()
         if not QSslSocket.supportsSsl():
@@ -395,9 +398,6 @@ def run_app(
         port = s.getsockname()[1]
         os.environ['QTWEBENGINE_REMOTE_DEBUGGING'] = '127.0.0.1:%d' % port
         app.debug_port = port
-    app.setOrganizationName('kovidgoyal')
-    app.setApplicationName(appname)
-    app.setApplicationVersion(str_version)
     app.original_env = env
     style = Style()
     app.setStyle(style)
