@@ -108,6 +108,7 @@ fonts:
 
 colors:
     tab tree background: darkGray
+    tab tree current background: lightGray
     tab tree foreground: black
     tab tree hover gradient start: "#e7effd"
     tab tree hover gradient end: "#cbdaf1"

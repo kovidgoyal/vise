@@ -11,7 +11,7 @@ from collections import OrderedDict
 from PyQt5.Qt import (
     QTreeWidget, QTreeWidgetItem, Qt, pyqtSignal, QSize, QFont, QPen, QRect,
     QApplication, QPainter, QPixmap, QIcon, QTimer, QStyledItemDelegate,
-    QStyle, QEvent, QColor, QMenu
+    QStyle, QEvent, QColor, QMenu, QPainterPath, QBrush, QRectF
 )
 
 from .config import color
@@ -68,6 +68,7 @@ class TabDelegate(QStyledItemDelegate):
         self.light = pal.color(pal.Base)
         self.highlighted_text = pal.color(pal.HighlightedText)
         self.errored_out = False
+        self.current_background = QBrush(QColor(color('tab tree current background', Qt.lightGray)))
 
     def sizeHint(self, option, index):
         return QSize(300, ICON_SIZE + 2 * self.MARGIN)
@@ -77,6 +78,11 @@ class TabDelegate(QStyledItemDelegate):
         hovering = index.data(HOVER_ROLE) is True
         painter.save()
         rect = option.rect
+        is_current = index.data(Qt.FontRole) is not None
+        if not hovering and is_current:
+            qpp = QPainterPath()
+            qpp.addRoundedRect(QRectF(rect), 6, 6)
+            painter.fillPath(qpp, self.current_background)
         icon_rect = QRect(rect.left() + self.MARGIN, rect.top() + self.MARGIN, ICON_SIZE, ICON_SIZE)
         left = icon_rect.right() + 2 * self.MARGIN
         text_rect = QRect(left, icon_rect.top(), rect.width() - left + rect.left(), icon_rect.height())
