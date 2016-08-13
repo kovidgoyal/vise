@@ -15,7 +15,7 @@ from PyQt5.Qt import (
 )
 
 from .config import font_sizes, color
-from .constants import config_dir, appname, cache_dir, str_version, DOWNLOADS_URL
+from .constants import config_dir, appname, cache_dir, DOWNLOADS_URL
 from .resources import get_data_as_file
 
 
@@ -177,7 +177,8 @@ def create_profile(parent=None, private=False):
         safe_makedirs(ans.cachePath())
         ans.setPersistentStoragePath(os.path.join(cache_dir, appname, 'storage'))
         safe_makedirs(ans.persistentStoragePath())
-    ans.setHttpUserAgent(ans.httpUserAgent().replace('QtWebEngine/', '%s/%s QtWebEngine/' % (appname, str_version)))
+    ua = ' '.join(x for x in ans.httpUserAgent().split() if 'QtWebEngine' not in x)
+    ans.setHttpUserAgent(ua)
     try:
         insert_scripts(ans, client_script())
     except FileNotFoundError as err:
