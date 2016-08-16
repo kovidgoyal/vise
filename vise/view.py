@@ -101,7 +101,8 @@ class WebPage(QWebEnginePage):
         return QApplication.instance().downloads.callback(*args, **kw)
 
     def check_for_messages_from_js(self):
-        self.runJavaScript('window.get_messages_from_javascript()', QWebEngineScript.ApplicationWorld, self.messages_received_from_js)
+        self.runJavaScript('try { window.get_messages_from_javascript() } catch(TypeError) {}',
+                           QWebEngineScript.ApplicationWorld, self.messages_received_from_js)
 
     def messages_received_from_js(self, messages):
         if messages and messages != '[]':
