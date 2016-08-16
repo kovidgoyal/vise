@@ -249,6 +249,10 @@ class WebView(QWebEngineView):
         self.text_input_focused = is_text_input
         self.focus_changed.emit(is_text_input, self)
 
+    @connect_signal('copy_to_clipboard')
+    def copy_to_clipboard(self, text):
+        QApplication.clipboard().setText(text)
+
     def feature_permission_requested(self, qurl, feature):
         key = (qurl.toString(), feature)
         what = {QWebEnginePage.Geolocation: _('current location'), QWebEnginePage.MediaAudioCapture: _('microphone'),

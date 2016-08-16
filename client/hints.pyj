@@ -23,13 +23,13 @@ def start_follow_link(action):
     current_request.marking_done = False
     has_frames = current_request.num_left > 0
     if has_frames:
-        broadcast_action(frames, 'find_hints', current_request.id)
-    current_request.hint_groups.push(mark_visible_hints())
+        broadcast_action(frames, 'find_hints', current_request.action, current_request.id)
+    current_request.hint_groups.push(mark_visible_hints(current_request.action))
     if not has_frames:
         assign_hints()
 
-register_subframe_handler(def find_hints(current_frame_id, source_frame_id, source_frame, request_id):
-    hints = mark_visible_hints(current_frame_id)
+register_subframe_handler(def find_hints(current_frame_id, source_frame_id, source_frame, action, request_id):
+    hints = mark_visible_hints(action, current_frame_id)
     send_action(source_frame, 'report_marked_hints', request_id, hints)
 )
 
@@ -62,9 +62,12 @@ def remove_hint_markup(elem):
         if elem.tagName.toLowerCase() is REPLACED_ELEM_TAG:
             elem.parentNode.removeChild(elem)
 
-def mark_visible_hints(frame_id=0):
+def mark_visible_hints(action, frame_id=0):
     hints = v'[]'
-    for i, elem in enumerate(document.querySelectorAll('a[href], button, input, textarea')):
+    sel = 'a[href], button, input, textarea'
+    if action is 'copy':
+        sel = 'a[href]'
+    for i, elem in enumerate(document.querySelectorAll(sel)):
         if is_visible(elem):
             add_hint_markup(elem, i)
             br = elem.getBoundingClientRect()
@@ -180,6 +183,8 @@ def animate_click(elem):
         elem.classList.remove('vise-animate-click')
         if action is 'sametab':
             elem.click()
+        elif action is 'copy':
+            js_to_python('copy_to_clipboard', elem.href)
         else:
             dispatch_middle_click(elem)
     , 300)

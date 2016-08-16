@@ -283,6 +283,11 @@ def follow_link_newtab(window, *args, **kwargs):
     return True
 
 
+def copy_link(window, *a, **k):
+    window.start_follow_link('copy')
+    return True
+
+
 def follow_next(window, *args, **kw):
     if window.current_tab is not None:
         python_to_js(window.current_tab, 'follow_next', True)

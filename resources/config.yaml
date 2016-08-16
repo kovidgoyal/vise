@@ -52,6 +52,7 @@ normal mode keys:  # The keys used in normal mode
     choose_tab: T
     follow_link: F
     follow_link_newtab: Shift+F
+    copy_link: Alt+F
     follow_next: ']'
     follow_previous: '['
     exit_full_screen: Escape
