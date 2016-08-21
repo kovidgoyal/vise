@@ -5,8 +5,8 @@ from communicate import js_to_python, connect_signal
 from frames import send_action, register_handler, broadcast_action, frame_iter, register_subframe_handler
 from utils import is_text_input_node
 
-def focus_event_received(current_frame_id, source_frame_id, source_frame, focussed):
-    js_to_python('element_focused', focussed)
+def focus_event_received(current_frame_id, source_frame_id, source_frame, is_text_input):
+    js_to_python('element_focused', is_text_input)
 
 def handle_focus_in(ev):
     send_action(window.top, 'focus_event_received', is_text_input_node(document.activeElement))
