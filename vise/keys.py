@@ -100,7 +100,7 @@ class KeyFilter(QObject):
             if event.reason() == Qt.TabFocusReason and isinstance(fw, QOpenGLWidget):
                 # We do this otherwise closing the search bar or the ask dialog
                 # causes a focus event to be delivered to the page, which can
-                # cause an input box to get fox or the page to scroll
+                # cause an input box to get focus or the page to scroll
                 return True
             if getattr(fw, 'current_tab', isinstance(fw, QWebEngineView)):
                 # If the main window gets focus, pass it along to the current
