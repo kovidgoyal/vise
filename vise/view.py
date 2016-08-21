@@ -197,7 +197,7 @@ class WebView(QWebEngineView):
         self.view_id = next(view_id)
         self.iconChanged.connect(self.on_icon_changed, type=Qt.QueuedConnection)
         self.set_editable_text_in_gui_thread.connect(self.set_editable_text, type=Qt.QueuedConnection)
-        self.loadStarted.connect(lambda: self.loading_status_changed.emit(True))
+        self.loadStarted.connect(self.load_started)
         self.loadFinished.connect(self.load_finished)
         self._page.linkHovered.connect(self.link_hovered.emit)
         self._page.windowCloseRequested.connect(lambda: self.window_close_requested.emit(self))
@@ -209,6 +209,11 @@ class WebView(QWebEngineView):
         self.text_input_focused = False
         self._force_passthrough = False
         self.titleChanged.connect(self.on_title_change)
+
+    def load_started(self):
+        self.text_input_focused = False
+        self.focus_changed.emit(False, self)
+        self.loading_status_changed.emit(True)
 
     def load_finished(self):
         if self.pending_unserialize is not None:
