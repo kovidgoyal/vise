@@ -48,7 +48,7 @@ def toggle_full_screen(window, *args, **kw):
 
 def exit_text_input(window, *args, **kwargs):
     if window.current_tab is not None:
-        window.current_tab.page().runJavaScript('document.activeElement.blur()')
+        window.current_tab.exit_text_input()
         return True
 
 

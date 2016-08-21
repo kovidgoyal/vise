@@ -250,6 +250,11 @@ class WebView(QWebEngineView):
         self.text_input_focused = is_text_input
         self.focus_changed.emit(is_text_input, self)
 
+    def exit_text_input(self):
+        python_to_js(self, 'exit_text_input')
+        self.text_input_focused = False
+        self.focus_changed.emit(False, self)
+
     @connect_signal('copy_to_clipboard')
     def copy_to_clipboard(self, text):
         QApplication.clipboard().setText(text)

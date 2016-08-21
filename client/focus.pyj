@@ -1,8 +1,8 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-from communicate import js_to_python
-from frames import send_action, register_handler
+from communicate import js_to_python, connect_signal
+from frames import send_action, register_handler, broadcast_action, frame_iter, register_subframe_handler
 from utils import is_text_input_node
 
 def focus_event_received(current_frame_id, source_frame_id, source_frame, focussed):
@@ -14,10 +14,26 @@ def handle_focus_in(ev):
 def handle_focus_out(ev):
     send_action(window.top, 'focus_event_received', False)
 
+def do_exit_text_input():
+    elem = document.activeElement
+    if elem and is_text_input_node(elem):
+        elem.blur()
+        return True
+    return False
+
+def exit_text_input():
+    if not do_exit_text_input():
+        broadcast_action(frame_iter(window.self), 'exit_text_input_subframe')
+
+register_subframe_handler(def exit_text_input_subframe(current_frame_id, source_frame_id, source_frame, action, request_id):
+    do_exit_text_input()
+)
+
 def onload():
     document.addEventListener('focusin', handle_focus_in, True)
     document.addEventListener('focusout', handle_focus_out, True)
     if window.self is window.top:
         register_handler('focus_event_received', focus_event_received)
+        connect_signal('exit_text_input', exit_text_input)
     if is_text_input_node(document.activeElement):
         handle_focus_in()
