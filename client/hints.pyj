@@ -83,7 +83,7 @@ def assign_hints():
     hint_groups = {}
     current_request.all_hints = sorted(all_hints, key=def (h): v'[h.y, h.x]';)
     for i, hint in enumerate(current_request.all_hints):
-        i = i.toString(36)
+        i = i.toString(36).toLowerCase()
         fid = hint.frame_id
         if not hint_groups[fid]:
             hint_groups[fid] = {}
