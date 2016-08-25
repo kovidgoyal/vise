@@ -108,7 +108,10 @@ class KeyFilter(QObject):
                 # cannot be bothered figuring out why. This is needed for the
                 # paste_url action, otherwise the text control does not get
                 # focus back after the ask widget is closed
-                fw.current_tab.setFocus(Qt.MouseFocusReason)
+                try:
+                    fw.current_tab.setFocus(Qt.MouseFocusReason)
+                except AttributeError:
+                    pass
                 return True
         elif etype == QEvent.KeyPress:
             app = QApplication.instance()
