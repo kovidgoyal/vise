@@ -25,6 +25,9 @@ Here is a list of features that I intend this browser to have
    passwords. That makes it easy to sync between computers using standard file
    syncing tools.
 
+ * Text based configuration files for easy reproducability and syncing of
+   settings
+
 
 Status
 --------
