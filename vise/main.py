@@ -23,7 +23,7 @@ from PyQt5.Qt import (
     QSocketNotifier, QNetworkCacheMetaData
 )
 
-from .constants import appname, str_version, cache_dir, iswindows
+from .constants import appname, str_version, cache_dir, iswindows, isosx
 from .downloads import Downloads
 from .keys import KeyFilter
 from .message_box import error_dialog
@@ -71,6 +71,12 @@ class Application(QApplication):
     password_loaded = pyqtSignal(object, object)
 
     def __init__(self, master_password=None, urls=(), new_instance=False, shutdown=False, restart_state=None, no_session=False):
+        if not isosx:  # OS X turns this on automatically
+            for v in ('QT_AUTO_SCREEN_SCALE_FACTOR', 'QT_SCALE_FACTOR', 'QT_SCREEN_SCALE_FACTORS', 'QT_DEVICE_PIXEL_RATIO'):
+                if os.environ.get(v):
+                    break
+            else:
+                QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
         QApplication.__init__(self, [appname, '-name', appname])
         self.setAttribute(Qt.AA_UseHighDpiPixmaps)
         self.setOrganizationName('kovidgoyal')
