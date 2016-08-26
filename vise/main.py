@@ -72,6 +72,7 @@ class Application(QApplication):
 
     def __init__(self, master_password=None, urls=(), new_instance=False, shutdown=False, restart_state=None, no_session=False):
         QApplication.__init__(self, [appname, '-name', appname])
+        self.setAttribute(Qt.AA_UseHighDpiPixmaps)
         self.setOrganizationName('kovidgoyal')
         self.setApplicationName(appname)
         self.setApplicationVersion(str_version)
