@@ -33,6 +33,7 @@ from .utils import parse_url, BusyCursor, icon_to_data
 from .places import places
 from .passwd.db import password_db, key_from_url
 from .style import Style
+from .welcome import WELCOME_URL
 
 ADDRESS = None
 
@@ -237,7 +238,7 @@ class Application(QApplication):
             return
         urls = [x for x in urls if isinstance(x, str)]
         if urls:
-            self.open_urls(urls, in_current_tab=False, switch_to_tab=True)
+            self.open_urls(urls, in_current_tab='dynamic', switch_to_tab=True)
 
     def save_favicon_in_cache(self, icon, qurl):
         md = QNetworkCacheMetaData()
@@ -289,6 +290,8 @@ class Application(QApplication):
         if not self.windows:
             self.new_window().show()
         w = self.activeWindow() or self.windows[0]
+        if in_current_tab == 'dynamic':
+            in_current_tab = w.current_tab is not None and w.current_tab.url() == WELCOME_URL
         for i, url in enumerate(urls):
             w.open_url(parse_url(url), in_current_tab=in_current_tab and i == 0, switch_to_tab=switch_to_tab and i == 0)
 
