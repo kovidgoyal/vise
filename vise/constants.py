@@ -72,3 +72,45 @@ def _get_config_dir():
     return ans
 config_dir = _get_config_dir()
 del _get_config_dir
+
+
+def get_windows_username():
+    '''
+    Return the user name of the currently logged in user as a unicode string.
+    Note that usernames on windows are case insensitive, the case of the value
+    returned depends on what the user typed into the login box at login time.
+    '''
+    import ctypes
+    try:
+        advapi32 = ctypes.windll.advapi32
+        GetUserName = getattr(advapi32, 'GetUserNameW')
+    except AttributeError:
+        pass
+    else:
+        buf = ctypes.create_unicode_buffer(257)
+        n = ctypes.c_int(257)
+        if GetUserName(buf, ctypes.byref(n)):
+            return buf.value
+
+    return os.environ.get('USERNAME')
+
+
+def local_socket_address():
+    if getattr(local_socket_address, 'ADDRESS', None) is None:
+        if iswindows:
+            local_socket_address.ADDRESS = r'\\.\pipe\vise-local-server'
+            try:
+                user = get_windows_username()
+            except Exception:
+                user = None
+            if user:
+                user = user.replace(' ', '_')
+                if user:
+                    local_socket_address.ADDRESS += '-' + user[:100] + 'x'
+        else:
+            user = os.environ.get('USER', '')
+            if not user:
+                user = os.path.basename(os.path.expanduser('~'))
+            from tempfile import gettempdir
+            local_socket_address.ADDRESS = os.path.join(gettempdir(), user + '-vise-local-server')
+    return local_socket_address.ADDRESS

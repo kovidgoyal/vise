@@ -23,7 +23,7 @@ from PyQt5.Qt import (
     QSocketNotifier, QNetworkCacheMetaData
 )
 
-from .constants import appname, str_version, cache_dir, iswindows, isosx
+from .constants import appname, str_version, cache_dir, iswindows, isosx, local_socket_address
 from .downloads import Downloads
 from .keys import KeyFilter
 from .message_box import error_dialog
@@ -179,8 +179,7 @@ class Application(QApplication):
     def run_local_server(self, urls, new_instance, shutdown):
         if shutdown:
             new_instance = False
-        prefix = r'\\.\pipe' if iswindows else tempfile.gettempdir().rstrip('/')
-        server_name = prefix + os.sep + appname + '-local-server'
+        server_name = local_socket_address()
         s = QLocalSocket()
         s.connectToServer(server_name)
         if s.waitForConnected(500):
