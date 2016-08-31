@@ -100,8 +100,8 @@ class Indicator(QWidget):  # {{{
             painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
             icon = downloads_icon()
             pmap = icon.pixmap(r.width(), r.height())
-            x = (r.width() - pmap.width()) // 2
-            y = (r.height() - pmap.height()) // 2
+            x = (r.width() - int(pmap.width()/pmap.devicePixelRatio())) // 2
+            y = (r.height() - int(pmap.height()/pmap.devicePixelRatio())) // 2 + 1
             painter.drawPixmap(x, y, pmap)
 
     def mousePressEvent(self, ev):
