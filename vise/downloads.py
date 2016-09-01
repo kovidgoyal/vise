@@ -10,6 +10,7 @@ from time import monotonic
 from functools import partial, lru_cache
 from itertools import count
 from gettext import gettext as _
+from urllib.parse import unquote
 
 import sip
 from PyQt5.Qt import (
@@ -120,7 +121,7 @@ file_counter = count()
 def download_requested(download_item):
     app = QApplication.instance()
     if download_item.savePageFormat() == download_item.UnknownSaveFormat:
-        fname = download_item.fname = os.path.basename(download_item.path()) or 'file%d' % next(file_counter)
+        fname = download_item.fname = unquote(os.path.basename(download_item.path())) or 'file%d' % next(file_counter)
         download_item.setPath(os.path.join(get_download_dir(), fname))
     else:
         # Note that currently saving in CompleteHtmlSaveFormat is broken
@@ -132,7 +133,7 @@ def download_requested(download_item):
             download_item.setPath(path)
             download_item.fname = os.path.basename(path)
         else:
-            fname = download_item.fname = os.path.basename(download_item.path())
+            fname = download_item.fname = unquote(os.path.basename(download_item.path()))
             if fmt != 'mhtml' and fname.endswith('.mhtml'):
                 fname = fname.rpartition('.')[0] + '.html'
             download_item.setPath(os.path.join(get_download_dir(), fname))
