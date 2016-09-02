@@ -92,10 +92,6 @@ class WebPage(QWebEnginePage):
         QWebEnginePage.__init__(self, profile, parent)
         self.authenticationRequired.connect(self.authentication_required)
         self.proxyAuthenticationRequired.connect(self.proxy_authentication_required)
-        try:
-            self.renderProcessTerminated.connect(self.render_process_terminated)
-        except TypeError:
-            pass
         self.callbacks = {'vise_downloads_page': (self.downloads_callback, (), {})}
         self.poll_for_messages.connect(self.check_for_messages_from_js, type=Qt.QueuedConnection)
 
@@ -166,7 +162,7 @@ class WebPage(QWebEnginePage):
 
     def break_cycles(self):
         self.callbacks.clear()
-        for s in ('authenticationRequired proxyAuthenticationRequired linkHovered featurePermissionRequested renderProcessTerminated'
+        for s in ('authenticationRequired proxyAuthenticationRequired linkHovered featurePermissionRequested'
                   ' featurePermissionRequestCanceled fullScreenRequested windowCloseRequested poll_for_messages').split():
             safe_disconnect(getattr(self, s))
 
@@ -177,13 +173,6 @@ class WebPage(QWebEnginePage):
             import traceback
             traceback.print_exc()
         return True
-
-    def render_process_terminated(self, termination_type, exit_code):
-        if termination_type == self.CrashedTerminationStatus:
-            from .message_box import error_dialog
-            error_dialog(self.parent(), _('Render process crashed'), _(
-                'The render process crashed while displaying the URL: {0} with exit code: {1}').format(
-                    self.url().toString(), exit_code), show=True)
 
 
 class WebView(QWebEngineView):
@@ -225,6 +214,14 @@ class WebView(QWebEngineView):
         self.text_input_focused = False
         self._force_passthrough = False
         self.titleChanged.connect(self.on_title_change)
+        self.renderProcessTerminated.connect(self.render_process_terminated)
+
+    def render_process_terminated(self, termination_type, exit_code):
+        if termination_type == self.CrashedTerminationStatus:
+            from .message_box import error_dialog
+            error_dialog(self.parent(), _('Render process crashed'), _(
+                'The render process crashed while displaying the URL: {0} with exit code: {1}').format(
+                    self.url().toString(), exit_code), show=True)
 
     def load_started(self):
         self.text_input_focused = False
@@ -333,7 +330,7 @@ class WebView(QWebEngineView):
     def break_cycles(self):
         self.popup.break_cycles()
         self._page.break_cycles()
-        for s in ('resized moved icon_changed open_in_new_tab loading_status_changed link_hovered urlChanged iconChanged'
+        for s in ('resized moved icon_changed open_in_new_tab loading_status_changed link_hovered urlChanged iconChanged renderProcessTerminated'
                   ' loadStarted loadFinished window_close_requested focus_changed passthrough_changed toggle_full_screen').split():
             safe_disconnect(getattr(self, s))
 
