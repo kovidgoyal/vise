@@ -1,4 +1,5 @@
 apsw
+Qt >= 5.7.1
 PyQt >= 5.7
 libsodium
 python-yaml
@@ -7,4 +8,4 @@ python-yaml
 rapydscript-ng (https://github.com/kovidgoyal/rapydscript-ng)
 
 # Optional dependency
-Python gtk bindings
+Python gtk bindings (python-gobject)

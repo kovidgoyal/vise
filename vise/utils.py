@@ -237,6 +237,10 @@ def setup_gi():
             if num == 3:
                 setup_gi.done = False
                 return False
+        except AttributeError:
+            setup_gi.done = False
+            return False
+
     try:
         from gi.repository import Gtk, Gio  # noqa
     except ImportError:
