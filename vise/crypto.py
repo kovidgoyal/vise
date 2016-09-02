@@ -109,7 +109,7 @@ def generate_salt_v1():
 
 def lock_python_bytes(data):
     if sodium_mlock(cast(data, c_void_p), len(data)) != 0:
-        raise RuntimeError('Failed to lock the memory used by the derived key')
+        raise RuntimeError('Failed to lock memory')
 
 
 def derive_key_v1(passwd, salt=None):
