@@ -35,6 +35,7 @@ from .settings import gprefs
 from .site_permissions import site_permissions
 
 view_id = count()
+certificate_error_domains = set()
 
 
 class Alert(Dialog):  # {{{
@@ -139,11 +140,15 @@ class WebPage(QWebEnginePage):
         qurl = err.url()
         domain = qurl.host()
         if cert_exceptions.has_exception(domain, code):
+            certificate_error_domains.add(domain)
             return True
         if not err.isOverridable():
             cert_exceptions.show_error(domain, err.errorDescription(), self.parent())
             return False
-        return cert_exceptions.ask(domain, code, err.errorDescription(), self.parent())
+        allow = cert_exceptions.ask(domain, code, err.errorDescription(), self.parent())
+        if allow:
+            certificate_error_domains.add(domain)
+        return allow
 
     def authentication_required(self, qurl, authenticator):
         get_http_auth_credentials(qurl, authenticator, parent=self.parent())

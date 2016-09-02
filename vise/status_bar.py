@@ -8,7 +8,7 @@ from gettext import gettext as _
 
 from PyQt5.Qt import (
     QLineEdit, pyqtSignal, Qt, QStackedWidget, QLabel, QWidget, QHBoxLayout,
-    QTimer, QStatusBar, QPainter, QColor, QLinearGradient, QPen, QBrush
+    QTimer, QStatusBar, QPainter, QColor, QLinearGradient, QPen, QBrush, QUrl
 )
 
 from .constants import STATUS_BAR_HEIGHT
@@ -83,10 +83,20 @@ class Message(QWidget):
         QWidget.__init__(self, parent)
         self.text = ''
         self.bold = False
+        self.is_permanent = False
+        self.is_address = False
+        self.is_secure = False
         self.setFocusPolicy(Qt.NoFocus)
 
-    def set_message(self, text, color, bold=False):
+    def set_message(self, text, color, bold=False, is_permanent=False):
+        from vise.view import certificate_error_domains
         self.text, self.color, self.bold = text, color, bold
+        self.is_permanent = is_permanent
+        self.prefix = self.text.partition(':')[0]
+        self.is_address = self.is_permanent and self.prefix.lower() in {'http', 'https'}
+        self.is_secure = self.prefix.lower() == 'https'
+        if self.is_address and self.is_secure and QUrl(self.text).host() in certificate_error_domains:
+            self.is_secure = False
         self.update()
 
     def paintEvent(self, ev):
@@ -113,6 +123,9 @@ class Message(QWidget):
             pen.setBrush(QBrush(g))
             p.setPen(pen)
         p.drawText(self.rect(), flags, self.text)
+        if self.is_address:
+            p.setPen(Qt.green if self.is_secure else Qt.red)
+            p.drawText(self.rect(), flags, self.prefix)
         p.end()
 
 
@@ -146,6 +159,7 @@ class Status(QStackedWidget):
         tm = self.temporary_message
         col = self.fg_color
         bold = False
+        is_permanent = True
         if tm.text and (tm.timeout == 0 or monotonic() - tm.start_time < tm.timeout):
             text = tm.text
             if tm.type == 'error':
@@ -153,10 +167,11 @@ class Status(QStackedWidget):
             elif tm.type == 'success':
                 col, bold = QColor('green'), True
             self.update_timer.start()
+            is_permanent = False
         else:
             text = self.permanent_message
             self.update_timer.stop()
-        self.msg.set_message(text, col, bold)
+        self.msg.set_message(text, col, bold, is_permanent)
 
     def show_message(self, msg, timeout=1, message_type='info'):
         self.temporary_message = TemporaryMessage(timeout, msg, message_type, monotonic())
