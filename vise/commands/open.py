@@ -102,4 +102,5 @@ class Open(Command):
             window.open_url(url, in_current_tab=cmd == 'open', switch_to_tab=True)
         else:
             window = QApplication.instance().new_window(is_private=cmd.startswith('p'))
+            window.show()
             window.open_url(url, in_current_tab=True)
