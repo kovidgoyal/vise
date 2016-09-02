@@ -32,7 +32,7 @@ class MessageBox(QDialog):  # {{{
         l.setObjectName("gridLayout")
         self.icon_label = la = QLabel('')
         la.setMaximumSize(QSize(68, 68))
-        la.setScaledContents(True)
+        la.setScaledContents(False)
         la.setObjectName("icon_label")
         l.addWidget(la)
         self.msg = la = QLabel(self)
@@ -75,7 +75,7 @@ class MessageBox(QDialog):  # {{{
 
         self.setWindowTitle(title)
         self.setWindowIcon(self.icon)
-        self.icon_label.setPixmap(self.icon.pixmap(128, 128))
+        self.icon_label.setPixmap(self.icon.pixmap(64, 64))
         self.msg.setText(msg)
         self.det_msg.setPlainText(det_msg)
         self.det_msg.setVisible(False)
