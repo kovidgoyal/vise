@@ -91,7 +91,10 @@ class WebPage(QWebEnginePage):
         QWebEnginePage.__init__(self, profile, parent)
         self.authenticationRequired.connect(self.authentication_required)
         self.proxyAuthenticationRequired.connect(self.proxy_authentication_required)
-        self.renderProcessTerminated.connect(self.render_process_terminated)
+        try:
+            self.renderProcessTerminated.connect(self.render_process_terminated)
+        except TypeError:
+            pass
         self.callbacks = {'vise_downloads_page': (self.downloads_callback, (), {})}
         self.poll_for_messages.connect(self.check_for_messages_from_js, type=Qt.QueuedConnection)
 
