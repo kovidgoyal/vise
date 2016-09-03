@@ -131,7 +131,6 @@ class MainWindow(QMainWindow):
         self.stack.addWidget(ans)
         self.tabs.append(ans)
         ans.title_changed.connect(self.update_window_title)
-        ans.open_in_new_tab.connect(self.open_in_new_tab)
         ans.urlChanged.connect(self.url_changed)
         ans.link_hovered.connect(partial(self.link_hovered, ans))
         ans.window_close_requested.connect(self.close_tab)
@@ -244,6 +243,9 @@ class MainWindow(QMainWindow):
                 self.current_tab = tab
         return tab
 
+    def get_child_tab_for_load(self):
+        return self.get_tab_for_load(in_current_tab=False, parent=self.current_tab)
+
     def open_url(self, qurl, in_current_tab=True, switch_to_tab=False):
         tab = self.get_tab_for_load(in_current_tab=in_current_tab)
         tab.load(qurl)
@@ -256,15 +258,6 @@ class MainWindow(QMainWindow):
             html = html.decode('utf-8')
         tab = self.get_tab_for_load(in_current_tab=in_current_tab)
         tab.setHtml(html, QUrl.fromLocalFile(os.path.expanduser('~')))
-
-    def open_in_new_tab(self, qurl):
-        if isinstance(qurl, str):
-            qurl = QUrl(qurl)
-        if self.current_tab is None:
-            return self.open_url(qurl, in_current_tab=False)
-        tab = self.create_new_tab()
-        self.tab_tree.add_tab(tab, parent=self.current_tab)
-        tab.load(qurl)
 
     def current_tab_changed(self):
         self.update_window_title()

@@ -3,7 +3,6 @@
 
 from crypto import initialize as init_crypto
 from frames import register_frames
-from middle_click import onload as mc_onload
 from focus import onload as focus_onload
 from downloads import main as downloads
 from follow_next import onload as fn_onload
@@ -16,7 +15,6 @@ def on_document_loaded():
         downloads()
         hints_onload()
     else:
-        mc_onload()
         focus_onload()
         fn_onload()
         passwd_onload()

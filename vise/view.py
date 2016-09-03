@@ -7,6 +7,7 @@ import json
 import weakref
 import subprocess
 import shlex
+from time import monotonic
 from base64 import standard_b64encode
 from tempfile import NamedTemporaryFile
 from threading import Thread
@@ -178,7 +179,6 @@ class WebPage(QWebEnginePage):
 class WebView(QWebEngineView):
 
     icon_changed = pyqtSignal(object)
-    open_in_new_tab = connect_signal('middle_clicked_link', 'open_in_new_tab')(pyqtSignal(object))
     loading_status_changed = pyqtSignal(object)
     focus_changed = pyqtSignal(object, object)
     link_hovered = pyqtSignal(object)
@@ -192,6 +192,7 @@ class WebView(QWebEngineView):
 
     def __init__(self, profile, main_window):
         QWebEngineView.__init__(self, main_window)
+        self.middle_click_soon = 0
         self.setAttribute(Qt.WA_DeleteOnClose)  # needed otherwise object is not deleted on close which means, it keeps running
         self.setMinimumWidth(300)
         self.follow_link_pending = None
@@ -330,7 +331,7 @@ class WebView(QWebEngineView):
     def break_cycles(self):
         self.popup.break_cycles()
         self._page.break_cycles()
-        for s in ('resized moved icon_changed open_in_new_tab loading_status_changed link_hovered urlChanged iconChanged renderProcessTerminated'
+        for s in ('resized moved icon_changed loading_status_changed link_hovered urlChanged iconChanged renderProcessTerminated'
                   ' loadStarted loadFinished window_close_requested focus_changed passthrough_changed toggle_full_screen').split():
             safe_disconnect(getattr(self, s))
 
@@ -344,11 +345,16 @@ class WebView(QWebEngineView):
     def raise_tab(self):
         self.main_window.raise_tab(self)
 
+    @connect_signal('middle_click_soon')
+    def expecting_middle_click(self):
+        self.middle_click_soon = monotonic()
+
     def createWindow(self, window_type):
         site = '<b>%s</b>' % self.title() or self.url().host() or self.url().toString()
-        if question_dialog(self, _('Allow new window?'), _(
-                'The site {0} wants to open a new tab, allow it?').format(site)):
-            return self.main_window.get_tab_for_load(in_current_tab=False)
+        now = monotonic()
+        if window_type == QWebEnginePage.WebBrowserBackgroundTab or now - self.middle_click_soon < 2 or question_dialog(
+                self, _('Allow new window?'), _('The site {0} wants to open a new tab, allow it?').format(site)):
+            return self.main_window.get_child_tab_for_load()
 
     def runjs(self, src, callback=None, world_id=QWebEngineScript.ApplicationWorld):
         if callback is not None:
