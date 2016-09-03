@@ -7,7 +7,7 @@ import re
 import math
 import time
 import unicodedata
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 from itertools import repeat
 from enum import Enum, unique
 
@@ -40,6 +40,8 @@ class VisitType(Enum):
 FRECENCY_NUM_VISITS = 10
 VISIT_TYPE_WEIGHTS = {VisitType.link_clicked.value: 120, VisitType.typed.value: 200}
 RECENCY_WEIGHTS = [100, 70, 50, 30, 10]
+
+MergeData = namedtuple('MergeData', 'visit_count typed last_visit_date frecency')
 
 
 def from_qt(key):
@@ -103,6 +105,52 @@ class Places:
             frecency = self.calculate_frecency(place_id, visit_count, cursor=c)
             c.execute('UPDATE places SET visit_count = ?, last_visit_date = ?, typed = ?, frecency = ? WHERE id=?', (
                 visit_count + 1, timestamp, typed, frecency, place_id))
+
+    def merge_places(self, src_place_id, dest_place_id):
+        ' Merge src onto dest and delete src '
+        c = self.conn.cursor()
+
+        def data(place_id):
+            return MergeData(*next(c.execute('SELECT visit_count, typed, last_visit_date, frecency FROM places WHERE id=?', (place_id,))))
+        src, dest = data(src_place_id), data(dest_place_id)
+        c.execute('UPDATE visits SET place_id=? WHERE place_id=?', (dest_place_id, src_place_id))
+        visit_count = src.visit_count + dest.visit_count
+        frecency = self.calculate_frecency(dest_place_id, visit_count)
+        c.execute('UPDATE places SET visit_count = ?, last_visit_date = ?, typed = ?, frecency = ? WHERE id=?', (
+            visit_count, max(src.last_visit_date, dest.last_visit_date), src.typed or dest.typed, frecency, dest_place_id))
+        c.execute('DELETE FROM places WHERE id=?', (src_place_id,))
+
+    def merge_https_places(self, http_qurl=None):
+        ' Merge the specified http place into the corresponding https place, if available '
+        with self.conn:
+            c = self.conn.cursor()
+
+            def place_id_for(url):
+                try:
+                    return next(c.execute('SELECT id FROM places WHERE url=?', (url,)))[0]
+                except StopIteration:
+                    pass
+
+            pairs = {}
+            if http_qurl is None:
+                # Go over all http urls in db
+                for place_id, url in c.execute('SELECT id, url FROM places'):
+                    if url.startswith('http:'):
+                        pairs[place_id] = 'https' + url[4:]
+            else:
+                url = normalize(http_qurl.toString())
+                place_id = place_id_for(url)
+                if place_id is None:
+                    return
+                pairs[place_id] = 'https' + url[4:]
+
+            mergers = {}
+            for place_id, surl in pairs.items():
+                splace_id = place_id_for(surl)
+                if splace_id is not None:
+                    mergers[place_id] = splace_id
+            for place_id, splace_id in mergers.items():
+                self.merge_places(place_id, splace_id)
 
     def calculate_frecency(self, place_id, visit_count, cursor=None):
         ' Algorithm taken from: https://developer.mozilla.org/en-US/docs/Mozilla/Tech/Places/Frecency_algorithm '

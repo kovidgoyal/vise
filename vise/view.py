@@ -234,6 +234,10 @@ class WebView(QWebEngineView):
             state, self.pending_unserialize = self.pending_unserialize, None
             self._page.runJavaScript('window.scrollTo(%d, %d)' % (state['x'], state['y']))
         self.loading_status_changed.emit(False)
+        u, ru = self._page.url(), self._page.requestedUrl()
+        if u != ru:
+            if u.toString() == 'https' + ru.toString()[4:]:
+                places.merge_https_places(ru)
 
     def on_title_change(self, title):
         from .settings import TITLE_TOKEN
