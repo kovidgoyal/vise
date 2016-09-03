@@ -96,7 +96,7 @@ class Open(Command):
         if rest.startswith('http://') or rest.startswith('https://') or rest.startswith('vise:'):
             is_search = False
         else:
-            is_search = ' ' in rest or '.' not in rest.strip('.')
+            is_search = rest.strip() and (' ' in rest or '.' not in rest.strip('.'))
         url = search_engine(rest) if is_search else parse_url(rest)
         if cmd in {'open', 'topen', 'tabopen'}:
             window.open_url(url, in_current_tab=cmd == 'open', switch_to_tab=True)
