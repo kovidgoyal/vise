@@ -269,12 +269,13 @@ class StatusBar(QStatusBar):
         self.addPermanentWidget(self.mode_label)
         self.addPermanentWidget(downloads_indicator)
         self.addPermanentWidget(self.passthrough_button)
+        sb_background = 'status bar private background' if getattr(parent, 'is_private', False) else 'status bar background'
         self.setStyleSheet('''
         QStatusBar { color: FG; background: BG; }
         QStatusBar QLabel { color: FG; background: BG; }
         '''.replace(
             'FG', color('status bar foreground', 'palette(window-text)')).replace(
-            'BG', color('status bar background', 'palette(window)'))
+            'BG', color(sb_background, 'palette(window)'))
         )
 
     @property
