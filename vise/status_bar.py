@@ -106,14 +106,22 @@ class Message(QWidget):
             qurl = QUrl(text)
             if self.is_secure and qurl.host() in certificate_error_domains:
                 self.is_secure = False
+            if qurl.scheme() == 'vise':
+                host = qurl.path()
+                rest = ''
+                sep = ':'
+            else:
+                host = qurl.host()
+                rest = qurl.toDisplayString(QUrl.PrettyDecoded | QUrl.RemoveScheme | QUrl.RemoveAuthority)
+                sep = '://'
             self.static_text = QStaticText(
                 '<span style="white-space:nowrap; color: {fg}">'
-                '<span style="color:{emph}; font-weight:bold">{scheme}</span><span style="color:{dull}">://</span>'
+                '<span style="color:{emph}; font-weight:bold">{scheme}</span><span style="color:{dull}">{sep}</span>'
                 '<span style="color:{fg}">{host}</span>'
                 '<span style="color:{dull}">{rest}</span>'.format(
                     fg=color_.name(), emph='green' if self.is_secure else 'red', scheme=escape(qurl.scheme()),
-                    host=escape(qurl.host()), dull=color('status bar dull foreground', 'gray'),
-                    rest=escape(qurl.toDisplayString(QUrl.PrettyDecoded | QUrl.RemoveScheme | QUrl.RemoveAuthority))
+                    host=escape(host), dull=color('status bar dull foreground', 'gray'), sep=sep,
+                    rest=escape(rest)
                 ))
         else:
             self.static_text = QStaticText('<span style="color:{}; font-weight: {}; white-space:nowrap">{}</span>'.format(
