@@ -5,10 +5,12 @@
 from collections import namedtuple
 from time import monotonic
 from gettext import gettext as _
+from xml.sax.saxutils import escape
 
 from PyQt5.Qt import (
     QLineEdit, pyqtSignal, Qt, QStackedWidget, QLabel, QWidget, QHBoxLayout,
-    QTimer, QStatusBar, QPainter, QColor, QLinearGradient, QPen, QBrush, QUrl
+    QTimer, QStatusBar, QPainter, QColor, QLinearGradient, QBrush, QUrl,
+    QStaticText, QTextOption, QPalette
 )
 
 from .constants import STATUS_BAR_HEIGHT
@@ -79,53 +81,67 @@ TemporaryMessage = namedtuple('TemporaryMessage', 'timeout text type start_time'
 
 class Message(QWidget):
 
-    def __init__(self, parent=None):
+    def __init__(self, parent, sb_background):
         QWidget.__init__(self, parent)
-        self.text = ''
-        self.bold = False
         self.is_permanent = False
         self.is_address = False
         self.is_secure = False
+        self.static_text = None
+        self.current_key = None
         self.setFocusPolicy(Qt.NoFocus)
+        self.sb_background = QColor(color(sb_background, self.palette().color(QPalette.Window)))
 
-    def set_message(self, text, color, bold=False, is_permanent=False):
+    def set_message(self, text, color_, bold=False, is_permanent=False):
         from vise.view import certificate_error_domains
-        self.text, self.color, self.bold = text, color, bold
+        key = (text, color_.name(), bold, is_permanent)
+        if key == self.current_key:
+            return
+        self.current_key = key
         self.is_permanent = is_permanent
-        self.prefix = self.text.partition(':')[0]
-        self.is_address = self.is_permanent and self.prefix.lower() in {'http', 'https'}
-        self.is_secure = self.prefix.lower() == 'https'
-        if self.is_address and self.is_secure and QUrl(self.text).host() in certificate_error_domains:
-            self.is_secure = False
+        prefix = text.partition(':')[0]
+        self.is_address = self.is_permanent and prefix.lower() in {'http', 'https', 'vise'}
+        self.is_secure = prefix.lower() in {'https', 'vise'}
+        color_ = color_ or self.palette().color(self.palette().WindowText)
+        if self.is_address:
+            qurl = QUrl(text)
+            if self.is_secure and qurl.host() in certificate_error_domains:
+                self.is_secure = False
+            self.static_text = QStaticText(
+                '<span style="white-space:nowrap; color: {fg}">'
+                '<span style="color:{emph}; font-weight:bold">{scheme}</span><span style="color:{dull}">://</span>'
+                '<span style="color:{fg}">{host}</span>'
+                '<span style="color:{dull}">{rest}</span>'.format(
+                    fg=color_.name(), emph='green' if self.is_secure else 'red', scheme=escape(qurl.scheme()),
+                    host=escape(qurl.host()), dull=color('status bar dull foreground', 'gray'),
+                    rest=escape(qurl.toDisplayString(QUrl.PrettyDecoded | QUrl.RemoveScheme | QUrl.RemoveAuthority))
+                ))
+        else:
+            self.static_text = QStaticText('<span style="color:{}; font-weight: {}; white-space:nowrap">{}</span>'.format(
+                color_.name(), ('bold' if bold else 'normal'), escape(text)))
+        to = QTextOption(Qt.AlignLeft | Qt.AlignTop)
+        to.setWrapMode(to.NoWrap)
+        self.static_text.setTextOption(to)
+        self.static_text.prepare(font=self.font())
         self.update()
 
     def paintEvent(self, ev):
-        if not self.text:
+        if not self.static_text or not self.static_text.text():
             return
         p = QPainter(self)
-        if self.bold:
-            f = self.font()
-            f.setBold(True)
-            p.setFont(f)
-        if self.color:
-            p.setPen(self.color)
         p.setRenderHint(p.TextAntialiasing)
         # If text is too long too fit, fade it out at the end
-        flags = Qt.AlignLeft | Qt.AlignVCenter | Qt.TextSingleLine
+        self.static_text.setTextWidth(self.rect().width())
+        sz = self.static_text.size()
         r = self.rect()
-        r.setWidth(r.width() * 2)
-        br = p.boundingRect(r, flags, self.text)
-        if br.width() > self.rect().width():
+        p.drawStaticText(0, (r.height() - sz.height()) // 2, self.static_text)
+        if sz.width() > r.width():
             g = QLinearGradient(self.rect().topLeft(), self.rect().topRight())
-            g.setColorAt(0.8, self.color or self.palette().color(self.palette().WindowText))
-            g.setColorAt(1.0, QColor(1, 1, 1, 0))
-            pen = QPen()
-            pen.setBrush(QBrush(g))
-            p.setPen(pen)
-        p.drawText(self.rect(), flags, self.text)
-        if self.is_address:
-            p.setPen(Qt.green if self.is_secure else Qt.red)
-            p.drawText(self.rect(), flags, self.prefix)
+            c = QColor(self.sb_background)
+            c.setAlpha(0)
+            g.setColorAt(0, c)
+            g.setColorAt(0.8, c)
+            g.setColorAt(1.0, self.sb_background)
+            p.fillRect(self.rect(), QBrush(g))
         p.end()
 
 
@@ -137,7 +153,7 @@ class Status(QStackedWidget):
         QStackedWidget.__init__(self, parent)
         self.permanent_message = ''
         self.temporary_message = TemporaryMessage(1, '', 'info', monotonic())
-        self.msg = Message(self)
+        self.msg = Message(self, parent.sb_background)
         self.addWidget(self.msg)
         self.setFocusPolicy(Qt.NoFocus)
         self.msg.setFocusPolicy(Qt.NoFocus)
@@ -247,6 +263,7 @@ class StatusBar(QStatusBar):
         QStatusBar.__init__(self, parent)
         self.setMaximumHeight(STATUS_BAR_HEIGHT)
         self.setMinimumHeight(STATUS_BAR_HEIGHT)
+        self.sb_background = 'status bar private background' if getattr(parent, 'is_private', False) else 'status bar background'
         if parent:
             f = parent.font()
             f.setPixelSize(min(f.pixelSize(), self.maximumHeight() - 4))
@@ -269,13 +286,12 @@ class StatusBar(QStatusBar):
         self.addPermanentWidget(self.mode_label)
         self.addPermanentWidget(downloads_indicator)
         self.addPermanentWidget(self.passthrough_button)
-        sb_background = 'status bar private background' if getattr(parent, 'is_private', False) else 'status bar background'
         self.setStyleSheet('''
         QStatusBar { color: FG; background: BG; }
         QStatusBar QLabel { color: FG; background: BG; }
         '''.replace(
             'FG', color('status bar foreground', 'palette(window-text)')).replace(
-            'BG', color(sb_background, 'palette(window)'))
+            'BG', color(self.sb_background, 'palette(window)'))
         )
 
     @property
