@@ -165,6 +165,7 @@ def insert_scripts(profile, *scripts):
 
 def create_profile(parent=None, private=False):
     from .vise_scheme import UrlSchemeHandler
+    from .url_intercept import Interceptor
     if parent is None:
         parent = QApplication.instance()
     if private:
@@ -179,6 +180,7 @@ def create_profile(parent=None, private=False):
         safe_makedirs(ans.persistentStoragePath())
     ua = ' '.join(x for x in ans.httpUserAgent().split() if 'QtWebEngine' not in x)
     ans.setHttpUserAgent(ua)
+    ans.setRequestInterceptor(Interceptor(ans))
     try:
         insert_scripts(ans, client_script())
     except FileNotFoundError as err:
