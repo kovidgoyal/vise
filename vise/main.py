@@ -71,7 +71,7 @@ class Application(QApplication):
 
     password_loaded = pyqtSignal(object, object)
 
-    def __init__(self, master_password=None, urls=(), new_instance=False, shutdown=False, restart_state=None, no_session=False):
+    def __init__(self, master_password=None, urls=(), new_instance=False, shutdown=False, restart_state=None, no_session=False, run_local_server=True):
         if not isosx:  # OS X turns this on automatically
             for v in ('QT_AUTO_SCREEN_SCALE_FACTOR', 'QT_SCALE_FACTOR', 'QT_SCREEN_SCALE_FACTORS', 'QT_DEVICE_PIXEL_RATIO'):
                 if os.environ.get(v):
@@ -107,7 +107,8 @@ class Application(QApplication):
             password_db.start_load(restart_state.pop('key'), self.password_loaded.emit, pw_is_key=True)
 
         self.lastWindowClosed.connect(self.shutdown)
-        self.run_local_server(urls, new_instance, shutdown)
+        if run_local_server:
+            self.run_local_server(urls, new_instance, shutdown)
         sys.excepthook = self.on_unhandled_error
         self.windows = []
         f = self.font()

@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
+import sys
 from gettext import gettext as _
 
 from PyQt5.Qt import (
@@ -252,10 +253,34 @@ class Ask(QWidget):
 
 
 def develop():
-    from .main import create_favicon_cache
-    app = QApplication([])
-    app.disk_cache = create_favicon_cache()
+    from .main import Application
+    app = Application(no_session=True, run_local_server=False)
     w = Ask()
     w()
     w.show()
     app.exec_()
+    del w
+    del app
+
+
+def standalone():
+    from .main import Application
+    app = Application(no_session=True, run_local_server=False)
+    w = Ask()
+    ret = 0
+
+    def output(text):
+        nonlocal ret
+        if text is None:
+            ret = 1
+        else:
+            text = text.partition(' ')[-1]
+            sys.stdout.buffer.write(text.encode('utf-8'))
+            sys.stdout.flush()
+
+    w('copyurl ', output)
+    w.show()
+    app.exec_()
+    del w
+    del app
+    raise SystemExit(ret)
