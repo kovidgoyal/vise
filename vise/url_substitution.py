@@ -130,6 +130,8 @@ def test_host_matching():
 def substitute(url, ruleset=None):
     purl = urlparse(url)
     host = purl.hostname
+    if not host:
+        return False, url
     if ruleset is None:
         ruleset = substitution_rules()
     for rule in ruleset:

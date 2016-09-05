@@ -152,6 +152,33 @@ class Places:
             for place_id, splace_id in mergers.items():
                 self.merge_places(place_id, splace_id)
 
+    def transform_urls(self, transform_func=None):
+        if transform_func is None:
+            from .url_substitution import substitute as transform_func
+        with self.conn:
+            c = self.conn.cursor()
+            changes = {}
+            url_map = {}
+            for place_id, url in c.execute('SELECT id, url FROM places'):
+                url_map[url] = place_id
+                changed, nurl = transform_func(url)
+                if changed:
+                    changes[place_id] = nurl
+            if changes:
+                merge, other = {}, {}
+                for place_id, nurl in changes.items():
+                    nplace_id = url_map.get(nurl)
+                    if nplace_id is None:
+                        other[place_id] = nurl
+                    else:
+                        merge[place_id] = nplace_id
+
+                if other:
+                    c.executemany('UPDATE places SET url=? WHERE id=?', [
+                        (url, place_id) for place_id, url in other.items()])
+                for src, dest in merge.items():
+                    self.merge_places(src, dest)
+
     def calculate_frecency(self, place_id, visit_count, cursor=None):
         ' Algorithm taken from: https://developer.mozilla.org/en-US/docs/Mozilla/Tech/Places/Frecency_algorithm '
         cursor = cursor or self.conn.cursor()
