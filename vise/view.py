@@ -421,15 +421,19 @@ class WebView(QWebEngineView):
     def url_for_current_login_form(self, url):
         self.on_login_form_found(url, True)
 
-    def on_login_form_found(self, url, is_current_form):
+    def get_login_credentials(self, url):
         if not QApplication.instance().ask_for_master_password(self):
             return
         if password_db.join():
             key = key_from_url(url)
             accounts = password_db.get_accounts(key)
             if accounts:
-                ac = accounts[0]
-                python_to_js(self, 'autofill_login_form', url, ac['username'], ac['password'], ac['autologin'], is_current_form)
+                return accounts[0]
+
+    def on_login_form_found(self, url, is_current_form):
+        ac = self.get_login_credentials(url)
+        if ac is not None:
+            python_to_js(self, 'autofill_login_form', url, ac['username'], ac['password'], ac['autologin'], is_current_form)
 
     def find_text(self, text, callback=None, forward=True):
         flags = QWebEnginePage.FindFlags(0) if forward else QWebEnginePage.FindBackward

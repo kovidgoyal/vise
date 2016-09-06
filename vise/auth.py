@@ -20,6 +20,7 @@ class Credentials(Dialog):
         self.l = l = QFormLayout(self)
         l.setFieldGrowthPolicy(l.ExpandingFieldsGrow)
         self.la = la = QLabel(self.msg)
+        la.setMinimumWidth(450)
         la.setWordWrap(True)
         l.addRow(la)
         self.username = un = QLineEdit(self)
@@ -36,6 +37,11 @@ class Credentials(Dialog):
     def credentials(self):
         return self.username.text(), self.password.text()
 
+    @credentials.setter
+    def credentials(self, x):
+        self.username.setText(x[0])
+        self.password.setText(x[1])
+
     def accept(self):
         un, pw = self.credentials
         if not un or not pw:
@@ -49,11 +55,21 @@ def get_http_auth_credentials(qurl, authenticator, parent=None):
     qurl.setFragment(None)
     realm = authenticator.realm()
     trealm = (' (%s)' % realm) if realm else ''
+    ac = parent and parent.get_login_credentials(qurl.toString())
     d = Credentials(_('Please specify a password for {0}{1}').format(qurl.toString(), trealm), parent)
+    if ac is not None:
+        if ac['autologin']:
+            authenticator.setUser(ac['username'])
+            authenticator.setPassword(ac['password'])
+            return
+        d.credentials = ac['username'], ac['password']
+
     if d.exec_() == d.Accepted:
         username, password = d.credentials
         authenticator.setUser(username)
         authenticator.setPassword(password)
+        if parent is not None:
+            parent.on_login_form_submit(qurl.toString(), username, password)
     else:
         if parent is not None:
             parent.setHtml('<p style="font-family:sans-serif">{} {}</p>'.format(
