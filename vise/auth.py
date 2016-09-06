@@ -54,6 +54,10 @@ def get_http_auth_credentials(qurl, authenticator, parent=None):
         username, password = d.credentials
         authenticator.setUser(username)
         authenticator.setPassword(password)
+    else:
+        if parent is not None:
+            parent.setHtml('<p style="font-family:sans-serif">{} {}</p>'.format(
+                _('Authentication required to access: '), '<a href="{0}">{0}</a>'.format(qurl.toDisplayString())))
 
 
 def get_proxy_auth_credentials(qurl, authenticator, proxy_host, parent=None):
