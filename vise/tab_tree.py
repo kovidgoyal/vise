@@ -416,7 +416,11 @@ class TabTree(QTreeWidget):
             p = item.parent() or self.invisibleRootItem()
             if item.isExpanded():
                 self.next_tab(wrap=False)
-                p.insertChildren(p.indexOfChild(item), item.takeChildren())
+                surviving_children = tuple(item.takeChildren())
+                if surviving_children:
+                    p.insertChild(p.indexOfChild(item), surviving_children[0])
+                    tuple(map(surviving_children[0].addChild, surviving_children[1:]))
+                    surviving_children[0].setExpanded(True)
             else:
                 children_to_close = tuple(i.tab for i in item.takeChildren())
                 self.next_tab(wrap=False)
