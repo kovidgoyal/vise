@@ -43,7 +43,7 @@ def downloads_icon():
     return downloads_icon.icon
 
 
-@lru_cache(maxsize=50)
+@lru_cache(maxsize=150)
 def mimetype_icon_data(mime_type):
     raw = get_content_type_icon(mime_type, as_data=True) or get_data('images/blank.png')
     return QByteArray(raw)
