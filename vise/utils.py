@@ -14,8 +14,8 @@ from gettext import gettext as _
 
 from PyQt5.Qt import (
     QUrl, QFontMetrics, QApplication, QConicalGradient, QPen, QBrush, QPainter,
-    QRect, Qt, QDialog, QDialogButtonBox, QIcon, QByteArray, QBuffer,
-    QStaticText, QCursor, QFileDialog, QDesktopServices)
+    QRect, Qt, QDialog, QDialogButtonBox, QByteArray, QBuffer, QMimeDatabase,
+    QStaticText, QCursor, QFileDialog, QDesktopServices, QIcon)
 
 from .constants import cache_dir, str_version
 from .settings import gprefs
@@ -221,75 +221,21 @@ def icon_to_data(icon, w=64, h=64):
     return pixmap_to_data(p)
 
 
-def setup_gi():
-    'GTK is the stupidest toolkit on the planet'
-    if setup_gi.done is not None:
-        return setup_gi.done
-    try:
-        import gi
-    except ImportError:
-        setup_gi.done = False
-        return False
-    for num in range(10, 2, -1):
-        try:
-            gi.require_version('Gtk', '%d.0' % num)
-        except ValueError:
-            if num == 3:
-                setup_gi.done = False
-                return False
-        except AttributeError:
-            setup_gi.done = False
-            return False
-
-    try:
-        from gi.repository import Gtk, Gio  # noqa
-    except ImportError:
-        setup_gi.done = False
-        return False
-    setup_gi.done = True
-    return True
-
-setup_gi.done = None
-
-
-@lru_cache()
-def get_content_type_icon(mime_type, size=64, as_data=False):
-    if mime_type:
-        if not setup_gi():
-            return b'' if as_data else QIcon()
-        from gi.repository import Gtk, Gio
-        icon_theme = Gtk.IconTheme.get_default()
-        if icon_theme:
-            icon = Gio.content_type_get_icon(mime_type)
-            if icon:
-                icon_info = icon_theme.choose_icon(icon.get_names(), size, 0)
-                if icon_info:
-                    fname = icon_info.get_filename()
-                    if fname:
-                        ans = QIcon(fname)
-                        if not ans.isNull():
-                            if as_data:
-                                ans = icon_to_data(ans, size, size)
-                            return ans
-    return b'' if as_data else QIcon()
-
-
-@lru_cache()
-def get_theme_icon(name, size=64, as_data=False):
-    if not setup_gi():
-        return b'' if as_data else QIcon()
-    from gi.repository import Gtk
-    icon_theme = Gtk.IconTheme.get_default()
-    if icon_theme:
-        icon_info = icon_theme.choose_icon([name], size, 0)
-        if icon_info:
-            fname = icon_info.get_filename()
-            if fname:
-                ans = QIcon(fname)
-                if as_data:
-                    ans = icon_to_data(ans, size, size)
-                return ans
-    return b'' if as_data else QIcon()
+def icon_data_for_filename(fname, size=64):
+    ''' Return the file type icon (as bytes) for the given filename '''
+    raw = b''
+    if fname:
+        if not hasattr(icon_data_for_filename, 'md'):
+            icon_data_for_filename.md = QMimeDatabase()
+        for mt in icon_data_for_filename.md.mimeTypesForFileName(fname):
+            icname = mt.iconName()
+            if icname:
+                ic = QIcon.fromTheme(icname)
+                if not ic.isNull():
+                    raw = icon_to_data(ic)
+                    if raw:
+                        break
+    return raw
 
 
 def atomic_write(dest, data_or_file):

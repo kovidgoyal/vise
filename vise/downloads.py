@@ -6,6 +6,7 @@ import os
 import tempfile
 import mimetypes
 import weakref
+from binascii import hexlify, unhexlify
 from time import monotonic
 from functools import partial, lru_cache
 from itertools import count
@@ -14,14 +15,14 @@ from urllib.parse import unquote
 
 import sip
 from PyQt5.Qt import (
-    QApplication, QObject, QUrl, QByteArray,
-    QWebEngineDownloadItem, pyqtSignal, QTimer, Qt, QWidget, QPainter
+    QApplication, QObject, QUrl, QByteArray, QWebEngineDownloadItem,
+    pyqtSignal, QTimer, Qt, QWidget, QPainter
 )
 
 from .config import misc_config
 from .constants import DOWNLOADS_URL as DU, STATUS_BAR_HEIGHT
 from .resources import get_data, get_icon
-from .utils import safe_disconnect, get_content_type_icon, open_local_file, draw_snake_spinner
+from .utils import safe_disconnect, open_local_file, draw_snake_spinner, icon_data_for_filename
 
 
 def get_download_dir():
@@ -44,9 +45,8 @@ def downloads_icon():
 
 
 @lru_cache(maxsize=150)
-def mimetype_icon_data(mime_type):
-    raw = get_content_type_icon(mime_type, as_data=True) or get_data('images/blank.png')
-    return QByteArray(raw)
+def filename_icon_data(encoded_file_name):
+    return QByteArray(icon_data_for_filename(unhexlify(encoded_file_name).decode('utf-8'), size=64) or get_data('images/blank.png'))
 
 
 class Indicator(QWidget):  # {{{
@@ -101,8 +101,8 @@ class Indicator(QWidget):  # {{{
             painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
             icon = downloads_icon()
             pmap = icon.pixmap(r.width(), r.height())
-            x = (r.width() - int(pmap.width()/pmap.devicePixelRatio())) // 2
-            y = (r.height() - int(pmap.height()/pmap.devicePixelRatio())) // 2 + 1
+            x = (r.width() - int(pmap.width() / pmap.devicePixelRatio())) // 2
+            y = (r.height() - int(pmap.height() / pmap.devicePixelRatio())) // 2 + 1
             painter.drawPixmap(x, y, pmap)
 
     def mousePressEvent(self, ev):
@@ -247,7 +247,7 @@ class Downloads(QObject):
     def create_item(self, tab, download_item):
         tab.js_func('window.create_download',
                     download_item.id(), download_item.fname, download_item.mimeType(),
-                    'vise:mimetype-icon/' + (download_item.mimeType() or 'application/octet-stream'),
+                    'vise:filename-icon/' + hexlify((download_item.fname or '').encode('utf-8')).decode('ascii'),
                     download_item.url().host() or 'localhost')
 
     def update_item(self, tab, download_item):
