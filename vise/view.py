@@ -305,6 +305,8 @@ class WebView(QWebEngineView):
     def full_screen_requested(self, req):
         if True or site_permissions.has_permission(req.origin(), 'full_screen'):
             # Asking the user is disabled because of: https://bugreports.qt.io/browse/QTBUG-55064
+            # The next release of PyQt will allow cloning of the request
+            # objects (SIP v 4.19)
             req.accept()
             self.toggle_full_screen.emit(req.toggleOn())
         else:
