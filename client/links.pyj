@@ -10,7 +10,7 @@ def iter_links(win, regexps=None, rel=None, selector=None, filter_func=None):
     win = win or window
 
     if regexps is not None:
-        regexps = [RegExp(pat, 'i') if type(pat) is 'string' else pat for pat in regexps]
+        regexps = [RegExp(pat, 'i') if jstype(pat) is 'string' else pat for pat in regexps]
 
     for elem in win.document.querySelectorAll(selector):
         if filter_func is not None and not filter_func(elem):

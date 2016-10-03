@@ -102,7 +102,7 @@ def prepare_action(name, args, kwargs):
     return {'action':name, 'args':args, 'kwargs':kwargs}
 
 def send_action(win, name, *args, **kwargs):
-    if type(win) is 'number':
+    if jstype(win) is 'number':
         win = frame_for_id(win)
     post_message(win, prepare_action(name, args, kwargs))
 
