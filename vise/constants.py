@@ -111,6 +111,6 @@ def local_socket_address():
             user = os.environ.get('USER', '')
             if not user:
                 user = os.path.basename(os.path.expanduser('~'))
-            from tempfile import gettempdir
-            local_socket_address.ADDRESS = os.path.join(gettempdir(), user + '-vise-local-server')
+            rdir = QStandardPaths.writableLocation(QStandardPaths.RuntimeLocation) or QStandardPaths.writableLocation(QStandardPaths.TempLocation)
+            local_socket_address.ADDRESS = os.path.join(rdir, user + '-vise-local-server')
     return local_socket_address.ADDRESS
