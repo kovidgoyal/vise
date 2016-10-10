@@ -223,6 +223,11 @@ class WebView(QWebEngineView):
             error_dialog(self.parent(), _('Render process crashed'), _(
                 'The render process crashed while displaying the URL: {0} with exit code: {1}').format(
                     self.url().toString(), exit_code), show=True)
+        elif termination_type == QWebEnginePage.AbnormalTerminationStatus:
+            from .message_box import error_dialog
+            error_dialog(self.parent(), _('Render process terminated'), _(
+                'The render process exited abnormally while displaying the URL: {0} with exit code: {1}').format(
+                    self.url().toString(), exit_code), show=True)
 
     def load_started(self):
         self.text_input_focused = False
