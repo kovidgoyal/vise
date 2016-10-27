@@ -187,7 +187,10 @@ class TabItem(QTreeWidgetItem):
             yield from child
 
     def set_data(self, role, data):
-        self.setData(0, role, data)
+        try:
+            self.setData(0, role, data)
+        except RuntimeError:
+            pass
 
     def __hash__(self):
         return self.uid
