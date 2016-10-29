@@ -414,11 +414,13 @@ class TabTree(QTreeWidget):
 
     def remove_tab(self, tab):
         item = self.item_for_tab(tab)
+        closing_current_tab = item is self.current_item
         children_to_close = ()
         if item is not None:
             p = item.parent() or self.invisibleRootItem()
             if item.isExpanded():
-                self.next_tab(wrap=False)
+                if closing_current_tab:
+                    self.next_tab(wrap=False)
                 surviving_children = tuple(item.takeChildren())
                 if surviving_children:
                     p.insertChild(p.indexOfChild(item), surviving_children[0])
@@ -426,7 +428,8 @@ class TabTree(QTreeWidget):
                     surviving_children[0].setExpanded(True)
             else:
                 children_to_close = tuple(i.tab for i in item.takeChildren())
-                self.next_tab(wrap=False)
+                if closing_current_tab:
+                    self.next_tab(wrap=False)
             self.deleted_parent_map[item.view_id] = (getattr(p, 'view_id', -1), p.indexOfChild(item))
             p.removeChild(item)
         return children_to_close + (tab,)
