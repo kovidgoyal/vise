@@ -135,6 +135,12 @@ class LineEdit(QLineEdit):
                 QApplication.clipboard().setText(rest)
                 ev.accept()
                 return
+        k = ev.key()
+        mods = ev.modifiers()
+        if k in (Qt.Key_V, Qt.Key_S) and mods & Qt.CTRL and mods & Qt.SHIFT:
+            text = QApplication.clipboard().text(k == Qt.Key_S)
+            if text:
+                self.setText(text)
         return QLineEdit.keyPressEvent(self, ev)
 
 
