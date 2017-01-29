@@ -163,10 +163,12 @@ class WebPage(QWebEnginePage):
 
     def break_cycles(self):
         self.callbacks.clear()
-        self.setParent(None)
         for s in ('authenticationRequired proxyAuthenticationRequired linkHovered featurePermissionRequested'
                   ' featurePermissionRequestCanceled fullScreenRequested windowCloseRequested poll_for_messages').split():
             safe_disconnect(getattr(self, s))
+        # Without the next two lines we get a crash on exit with Qt 5.8.0
+        self.setParent(None)
+        self.deleteLater()
 
     def acceptNavigationRequest(self, qurl, navtype, is_main_frame):
         try:
