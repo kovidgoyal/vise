@@ -163,6 +163,7 @@ class WebPage(QWebEnginePage):
 
     def break_cycles(self):
         self.callbacks.clear()
+        self.setParent(None)
         for s in ('authenticationRequired proxyAuthenticationRequired linkHovered featurePermissionRequested'
                   ' featurePermissionRequestCanceled fullScreenRequested windowCloseRequested poll_for_messages').split():
             safe_disconnect(getattr(self, s))
