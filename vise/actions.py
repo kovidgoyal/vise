@@ -163,7 +163,7 @@ def _paste_and_go(window, in_current_tab=True):
     for mode in c.Clipboard, c.Selection:
         text = c.text(mode).strip()
         if text:
-            if text.partition(':')[0].lower() in {'file', 'http', 'https', 'about'}:
+            if text.partition(':')[0].lower() in {'file', 'http', 'https', 'about', 'chrome'}:
                 qurl = QUrl.fromUserInput(text)
                 if qurl.isValid() and not qurl.isEmpty():
                     window.open_url(qurl, in_current_tab=in_current_tab)
@@ -186,6 +186,7 @@ def scroll_line(key, window, focus_widget, key_filter, *args, **kwargs):
         with key_filter.disable_filtering:
             QApplication.sendEvent(focus_widget, QKeyEvent(QEvent.KeyPress, key, Qt.KeyboardModifiers(0)))
     return True
+
 
 scroll_line_down = partial(scroll_line, Qt.Key_Down)
 scroll_line_up = partial(scroll_line, Qt.Key_Up)

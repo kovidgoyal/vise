@@ -93,7 +93,7 @@ class Open(Command):
             QApplication.clipboard().setText(rest)
             return
         rest = rest.strip()
-        if rest.startswith('http://') or rest.startswith('https://') or rest.startswith('vise:'):
+        if rest.startswith('http://') or rest.startswith('https://') or rest.startswith('vise:') or rest.startswith('chrome://'):
             is_search = False
         else:
             is_search = rest.strip() and (' ' in rest or '.' not in rest.strip('.'))
