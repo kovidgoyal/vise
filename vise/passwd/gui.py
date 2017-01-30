@@ -67,6 +67,7 @@ class EditAccount(QWidget):
         l.addRow(n)
         self.autosubmit = asb = QCheckBox(_('&Auto login with these credentials'), self)
         l.addRow(asb)
+        asb.stateChanged.connect(lambda: self.changed.emit())
         self.rb = b = QPushButton(_('&Delete this account'))
         b.clicked.connect(self.delete_requested.emit)
         l.addRow(b)
