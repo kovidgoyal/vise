@@ -34,6 +34,7 @@ def get_download_dir():
             pass
     return get_download_dir.ans
 
+
 DOWNLOADS_URL = QUrl(DU)
 save_page_path_map = {}
 
@@ -124,8 +125,6 @@ def download_requested(download_item):
         fname = download_item.fname = unquote(os.path.basename(download_item.path())) or 'file%d' % next(file_counter)
         download_item.setPath(os.path.join(get_download_dir(), fname))
     else:
-        # Note that currently saving in CompleteHtmlSaveFormat is broken
-        # because of a Qt bug: https://bugreports.qt.io/browse/QTBUG-55130
         fmt = misc_config('save_format', default='files')
         download_item.setSavePageFormat(download_item.MimeHtmlSaveFormat if fmt == 'mhtml' else download_item.CompleteHtmlSaveFormat)
         path = save_page_path_map.pop(download_item.url().toString(), None)
