@@ -28,6 +28,7 @@ def key_from_event(ev):
 def key_to_string(key):
     return QKeySequence(key).toString().encode('utf-8', 'ignore').decode('utf-8')
 
+
 normal_key_map, input_key_map = {}, {}
 
 
@@ -57,6 +58,7 @@ def read_key_map(mode='normal'):
                 if k not in key_map:
                     key_map[k] = action
     return key_map
+
 
 normal_key_map = read_key_map()
 input_key_map = read_key_map('insert')
@@ -139,18 +141,19 @@ class KeyFilter(QObject):
                     window.choose_tab(key)
                     return True
 
-                if window.current_tab is not None:
+                ct = window.current_tab
+                if ct is not None:
 
-                    if window.current_tab.force_passthrough:
+                    if ct.force_passthrough:
                         return False
 
-                    if window.current_tab.follow_link_pending:
+                    if ct.follow_link_pending:
                         if only_modifiers(key):
                             return True
-                        if window.current_tab.follow_link(key):
+                        if ct.follow_link(key):
                             return True
 
-                    if window.current_tab.text_input_focused:
+                    if ct.text_input_focused:
                         action = input_key_map.get(key)
                         if action is not None:
                             swallow = action(window, fw, self)
