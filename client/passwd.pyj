@@ -20,7 +20,9 @@ def form_submitted(ev):
     if u:
         username = u.value
     if p:
-        password = p.value or p.dataset.viseLastPasswordValue
+        # We only use an explicitly typed in password, as some websites
+        # modify/hash the value in the password field before submitting
+        password = p.dataset.viseLastPasswordValue
     send_action(window.top, 'login_form_submitted', document.location.href, username, password)
 
 def get_login_inputs(form):
