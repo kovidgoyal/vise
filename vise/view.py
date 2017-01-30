@@ -219,6 +219,19 @@ class WebView(QWebEngineView):
         self._force_passthrough = False
         self.titleChanged.connect(self.on_title_change)
         self.renderProcessTerminated.connect(self.render_process_terminated)
+        self.focusProxy().installEventFilter(self)
+
+    def eventFilter(self, watched, event):
+        etype = event.type()
+        if etype in (event.FocusIn, event.FocusOut, event.FocusAboutToChange):
+            # We do this otherwise closing the search bar or the ask dialog
+            # causes a focus event to be delivered to the page, which can
+            # cause an input box to get focus or the page to scroll
+            # More generally, we do not want focus events to be delivered to
+            # the page when switching between tabs or when displaying popup widgets
+            # As far as the page is concerned it should be always focused
+            return True
+        return False
 
     def render_process_terminated(self, termination_type, exit_code):
         if termination_type == QWebEnginePage.CrashedTerminationStatus:

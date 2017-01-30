@@ -99,11 +99,6 @@ class KeyFilter(QObject):
         etype = event.type()
         if etype == QEvent.FocusIn:
             fw = QApplication.instance().focusWidget()
-            if event.reason() == Qt.TabFocusReason and fw is not None and isinstance(fw.parent(), QWebEngineView):
-                # We do this otherwise closing the search bar or the ask dialog
-                # causes a focus event to be delivered to the page, which can
-                # cause an input box to get focus or the page to scroll
-                return True
             ct = getattr(fw, 'current_tab', None)
             if isinstance(ct, QWebEngineView):
                 # If the main window gets focus, pass it along to the current
