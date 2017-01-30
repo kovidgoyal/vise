@@ -104,16 +104,14 @@ class KeyFilter(QObject):
                 # causes a focus event to be delivered to the page, which can
                 # cause an input box to get focus or the page to scroll
                 return True
-            if getattr(fw, 'current_tab', isinstance(fw, QWebEngineView)):
+            ct = getattr(fw, 'current_tab', None)
+            if isinstance(ct, QWebEngineView):
                 # If the main window gets focus, pass it along to the current
                 # tab. For some reason setFocusProxy() does not work and I
                 # cannot be bothered figuring out why. This is needed for the
                 # paste_url action, otherwise the text control does not get
                 # focus back after the ask widget is closed
-                try:
-                    fw.current_tab.setFocus(Qt.MouseFocusReason)
-                except AttributeError:
-                    pass
+                ct.setFocus(Qt.MouseFocusReason)
                 return True
         elif etype == QEvent.KeyPress:
             app = QApplication.instance()
