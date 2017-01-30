@@ -32,6 +32,7 @@ def from_json(obj):
         return bytearray(standard_b64decode(obj['__value__']))
     return obj
 
+
 nodef = object()
 
 
@@ -114,6 +115,7 @@ class DynamicPrefs:
     def __exit__(self, *args):
         self.buffer_commits = False
 
+
 gprefs = DynamicPrefs('gui-dynamic')
 
 
@@ -178,6 +180,9 @@ def create_profile(parent=None, private=False):
         safe_makedirs(ans.cachePath())
         ans.setPersistentStoragePath(os.path.join(cache_dir, appname, 'storage'))
         safe_makedirs(ans.persistentStoragePath())
+    # TODO: Enable spellchecking when
+    # https://bugreports.qt.io/browse/QTBUG-58512 is implemented.
+    # See https://doc.qt.io/qt-5/qtwebengine-webenginewidgets-spellchecker-example.html for how to create the Qt .bdic files
     ua = ' '.join(x for x in ans.httpUserAgent().split() if 'QtWebEngine' not in x)
     ans.setHttpUserAgent(ua)
     ans.setRequestInterceptor(Interceptor(ans))
@@ -209,6 +214,7 @@ def create_profile(parent=None, private=False):
                 s.setFontSize(ftype, sz)
     return ans
 
+
 _profile = None
 
 
@@ -228,6 +234,7 @@ def delete_profile():
         safe_disconnect(_profile.downloadRequested)
         _profile.deleteLater()
     _profile = None
+
 
 _quickmarks = None
 
