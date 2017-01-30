@@ -189,9 +189,6 @@ class MainWindow(QMainWindow):
             for tab in self.tabs:
                 tab.exit_full_screen()
 
-    def raise_tab(self, tab):
-        self.stack.setCurrentWidget(tab)
-
     def delete_removed_tabs(self, tabs):
         # Delete tabs that have already been removed from the tab tree
         for tab in tabs:
@@ -256,6 +253,8 @@ class MainWindow(QMainWindow):
             self.tab_tree.add_tab(tab, parent=parent)
             if self.current_tab is None:
                 self.current_tab = tab
+            else:
+                tab.needs_fake_focus = True
         return tab
 
     def get_child_tab_for_load(self):
@@ -282,8 +281,9 @@ class MainWindow(QMainWindow):
         self.url_changed()
 
     def show_tab(self, tab):
-        if tab is not None:
+        if tab is not None and self.current_tab is not tab:
             self.stack.setCurrentWidget(tab)
+            tab.send_fake_focus_if_needed()
 
     def update_window_title(self):
         title = at = appname.capitalize()

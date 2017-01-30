@@ -18,7 +18,7 @@ from itertools import count
 from PyQt5.Qt import (
     QWebEngineView, QWebEnginePage, QSize, QApplication, pyqtSignal,
     QGridLayout, QCheckBox, QLabel, Qt, QWebEngineScript, QUrl, QPageSize,
-    QPageLayout, QMarginsF
+    QPageLayout, QMarginsF, QMouseEvent, QPoint
 )
 
 from .auth import get_http_auth_credentials, get_proxy_auth_credentials
@@ -196,6 +196,7 @@ class WebView(QWebEngineView):
     def __init__(self, profile, main_window):
         QWebEngineView.__init__(self, main_window)
         self.middle_click_soon = 0
+        self.needs_fake_focus = False
         self.setAttribute(Qt.WA_DeleteOnClose)  # needed otherwise object is not deleted on close which means, it keeps running
         self.setMinimumWidth(300)
         self.follow_link_pending = None
@@ -219,6 +220,21 @@ class WebView(QWebEngineView):
         self._force_passthrough = False
         self.titleChanged.connect(self.on_title_change)
         self.renderProcessTerminated.connect(self.render_process_terminated)
+
+    def send_fake_focus_if_needed(self):
+        if self.needs_fake_focus:
+            # We force Qt to call Focus() on the web view by sending this
+            # event, see RenderWidgetHostViewQt::forwardEvent() and
+            # RenderWidgetHostViewQt::handleMouseEvent() in the qtwebengine
+            # source code to check that this both causes Focus() to be called
+            # and has no other side-effects. This work around is needed because
+            # without it, tabs opened by middle-clicking start out without
+            # keyboard focus and require a click in the web view to get it.
+            # This workaround may not be necessary once
+            # https://bugreports.qt.io/browse/QTBUG-58515 is fixed.
+            QApplication.sendEvent(self.focusProxy(), QMouseEvent(
+                QMouseEvent.MouseButtonPress, QPoint(), QPoint(), QPoint(), Qt.NoButton, Qt.NoButton, Qt.NoModifier, Qt.MouseEventSynthesizedBySystem))
+            self.needs_fake_focus = False
 
     def render_process_terminated(self, termination_type, exit_code):
         if termination_type == QWebEnginePage.CrashedTerminationStatus:
@@ -367,7 +383,7 @@ class WebView(QWebEngineView):
         return QSize(800, 600)
 
     def raise_tab(self):
-        self.main_window.raise_tab(self)
+        self.main_window.show_tab(self)
 
     @connect_signal('middle_click_soon')
     def expecting_middle_click(self):
