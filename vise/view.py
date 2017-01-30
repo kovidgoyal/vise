@@ -18,7 +18,7 @@ from itertools import count
 from PyQt5.Qt import (
     QWebEngineView, QWebEnginePage, QSize, QApplication, pyqtSignal,
     QGridLayout, QCheckBox, QLabel, Qt, QWebEngineScript, QUrl, QPageSize,
-    QPageLayout, QMarginsF, QMouseEvent, QPoint
+    QPageLayout, QMarginsF, QMouseEvent, QPoint, QWebEngineFullScreenRequest
 )
 
 from .auth import get_http_auth_credentials, get_proxy_auth_credentials
@@ -337,10 +337,8 @@ class WebView(QWebEngineView):
         self._page.triggerAction(self._page.ExitFullScreen)
 
     def full_screen_requested(self, req):
-        if True or site_permissions.has_permission(req.origin(), 'full_screen'):
-            # Asking the user is disabled because of: https://bugreports.qt.io/browse/QTBUG-55064
-            # The next release of PyQt will allow cloning of the request
-            # objects (SIP v 4.19)
+        req = QWebEngineFullScreenRequest(req)  # Needed to accept asynchronously
+        if site_permissions.has_permission(req.origin(), 'full_screen'):
             req.accept()
             self.toggle_full_screen.emit(req.toggleOn())
         else:
