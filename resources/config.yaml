@@ -6,16 +6,16 @@
 ##################### Keyboard shortcuts ############################
 
 normal mode keys:  # The keys used in normal mode
-    forward: 
+    forward:
         - Alt+Right
         - Shift+Right
-    back: 
+    back:
         - Alt+Left
         - Shift+Left
-    next_tab: 
+    next_tab:
         - Alt+Down
         - Shift+Down
-    prev_tab: 
+    prev_tab:
         - Alt+Up
         - Shift+Up
     close_tab: D
@@ -29,7 +29,7 @@ normal mode keys:  # The keys used in normal mode
     ask_open: O
     ask_tabopen: Shift+O
     search_forward: /
-    search_back: 
+    search_back:
         - '?'
         - 'Shift+?'
     next_match: N
@@ -41,6 +41,10 @@ normal mode keys:  # The keys used in normal mode
     scroll_line_up: K
     scroll_line_left: H
     scroll_line_right: L
+    scroll_page_down: Space
+    scroll_page_up: BackSpace
+    scroll_to_top: Home
+    scroll_to_bottom: End
     copy_url: Y
     open_modified_url: Shift+Y
     tabopen_modified_url: Alt+Y
@@ -58,7 +62,7 @@ normal mode keys:  # The keys used in normal mode
     exit_full_screen: Escape
     toggle_full_screen: F11
     reset_zoom: '='
-    increase_zoom: 
+    increase_zoom:
         - '+'
         - 'Shift++'
         - 'Shift+='

@@ -188,10 +188,30 @@ def scroll_line(key, window, focus_widget, key_filter, *args, **kwargs):
     return True
 
 
+def scroll_page(up, window, focus_widget, key_filter, *args, **kwargs):
+    if focus_widget is not None:
+        with key_filter.disable_filtering:
+            key = Qt.Key_PageUp if up else Qt.Key_PageDown
+            QApplication.sendEvent(focus_widget, QKeyEvent(QEvent.KeyPress, key, Qt.KeyboardModifiers(0)))
+    return True
+
+
+def scroll_to_boundary(top, window, focus_widget, key_filter, *args, **kwargs):
+    if focus_widget is not None:
+        with key_filter.disable_filtering:
+            key = Qt.Key_Home if top else Qt.Key_End
+            QApplication.sendEvent(focus_widget, QKeyEvent(QEvent.KeyPress, key, Qt.KeyboardModifiers(0)))
+    return True
+
+
 scroll_line_down = partial(scroll_line, Qt.Key_Down)
 scroll_line_up = partial(scroll_line, Qt.Key_Up)
 scroll_line_left = partial(scroll_line, Qt.Key_Left)
 scroll_line_right = partial(scroll_line, Qt.Key_Right)
+scroll_page_up = partial(scroll_page, True)
+scroll_page_down = partial(scroll_page, False)
+scroll_to_top = partial(scroll_to_boundary, True)
+scroll_to_bottom = partial(scroll_to_boundary, False)
 
 
 def passthrough(*args, **kwargs):
