@@ -45,6 +45,7 @@ class MainWindow(QMainWindow):
 
     def __init__(self, is_private=False, restart_state=None):
         QMainWindow.__init__(self)
+        self.saved_scroll = None
         self.setWindowIcon(get_icon('vise.svg'))
         self.setWindowRole('browser')
         self.current_tab = None
@@ -56,11 +57,11 @@ class MainWindow(QMainWindow):
 
         self.downloads_indicator = Indicator(self)
         self.status_bar = StatusBar(self.downloads_indicator, self)
-        self.start_search_signal.connect(self.status_bar.show_search, type=Qt.QueuedConnection)
+        self.start_search_signal.connect(self.show_search, type=Qt.QueuedConnection)
         self.start_search = lambda forward=True: self.start_search_signal.emit(forward)
         self.status_bar.do_search.connect(self.do_search)
-        self.status_bar.search_bar_hidden.connect(self.refocus)
         self.status_bar.change_passthrough.connect(self.change_passthrough)
+        self.status_bar.search_bar_hidden.connect(self.restore_state_after_popup)
         self.setStatusBar(self.status_bar)
 
         self.main_splitter = w = QSplitter(self)
@@ -77,9 +78,9 @@ class MainWindow(QMainWindow):
         s.currentChanged.connect(self.current_tab_changed)
         w.addWidget(s)
         w.setCollapsible(0, True), w.setCollapsible(1, False)
-        self.ask = a = Ask(s)
-        a.hidden.connect(self.refocus)
+        self._ask = a = Ask(s)
         a.setVisible(False), a.run_command.connect(self.run_command)
+        a.hidden.connect(self.restore_state_after_popup)
         self.profile = create_profile(private=True) if is_private else profile()
 
         if restart_state is None:
@@ -90,17 +91,31 @@ class MainWindow(QMainWindow):
         self.restore_state()
         self.current_tab_changed()
 
+    def save_scroll(self):
+        if self.current_tab is not None:
+            self.saved_scroll = self.current_tab, self.current_tab.scroll_position
+
+    def restore_state_after_popup(self):
+        ss, self.saved_scroll = self.saved_scroll, None
+        if ss is not None:
+            tab, pos = ss
+            if tab is self.current_tab:
+                tab.scroll_position = pos
+                tab.exit_text_input()
+
+    def ask(self, *a, **k):
+        self.save_scroll()
+        self._ask(*a, **k)
+
+    def show_search(self, *a, **k):
+        self.save_scroll()
+        self.status_bar.show_search(*a, **k)
+
     def show_status_message(self, msg, timeout=1, message_type='info'):
         self.status_bar.show_message(msg, timeout, message_type)
 
     def run_command(self, text):
         run_command(self, text)
-
-    def refocus(self):
-        if self.current_tab is not None:
-            self.current_tab.setFocus(Qt.TabFocusReason)
-        else:
-            self.stack.setFocus(Qt.TabFocusReason)
 
     def sizeHint(self):
         rect = QApplication.desktop().screenGeometry(self)
@@ -269,7 +284,6 @@ class MainWindow(QMainWindow):
     def show_tab(self, tab):
         if tab is not None:
             self.stack.setCurrentWidget(tab)
-            self.refocus()
 
     def update_window_title(self):
         title = at = appname.capitalize()

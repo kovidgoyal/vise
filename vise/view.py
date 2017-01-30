@@ -219,19 +219,6 @@ class WebView(QWebEngineView):
         self._force_passthrough = False
         self.titleChanged.connect(self.on_title_change)
         self.renderProcessTerminated.connect(self.render_process_terminated)
-        self.focusProxy().installEventFilter(self)
-
-    def eventFilter(self, watched, event):
-        etype = event.type()
-        if etype in (event.FocusIn, event.FocusOut, event.FocusAboutToChange):
-            # We do this otherwise closing the search bar or the ask dialog
-            # causes a focus event to be delivered to the page, which can
-            # cause an input box to get focus or the page to scroll
-            # More generally, we do not want focus events to be delivered to
-            # the page when switching between tabs or when displaying popup widgets
-            # As far as the page is concerned it should be always focused
-            return True
-        return False
 
     def render_process_terminated(self, termination_type, exit_code):
         if termination_type == QWebEnginePage.CrashedTerminationStatus:
@@ -253,12 +240,22 @@ class WebView(QWebEngineView):
     def load_finished(self):
         if self.pending_unserialize is not None:
             state, self.pending_unserialize = self.pending_unserialize, None
-            self._page.runJavaScript('window.scrollTo(%d, %d)' % (state['x'], state['y']))
+            self.scroll_position = (state['x'], state['y'])
         self.loading_status_changed.emit(False)
         u, ru = self._page.url(), self._page.requestedUrl()
         if u != ru:
             if u.toString() == 'https' + ru.toString()[4:]:
                 places.merge_https_places(ru)
+
+    @property
+    def scroll_position(self):
+        pos = self._page.scrollPosition()
+        return pos.x(), pos.y()
+
+    @scroll_position.setter
+    def scroll_position(self, val):
+        x, y = val
+        self._page.runJavaScript('window.scrollTo(%f, %f)' % (x, y))
 
     def on_title_change(self, title):
         from .settings import TITLE_TOKEN
@@ -473,10 +470,10 @@ class WebView(QWebEngineView):
             callback(text, found)
 
     def serialize_state(self, include_favicon=False):
-        pos = self._page.scrollPosition()
+        x, y = self.scroll_position
         sz = self._page.contentsSize()
         ans = {
-            'x': pos.x(), 'y': pos.y(),
+            'x': x, 'y': y,
             'width': sz.width(), 'height': sz.height(),
             'zoom_factor': self.zoom_factor,
             'title': self.title(),
