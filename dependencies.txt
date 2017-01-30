@@ -1,6 +1,6 @@
 apsw
-Qt >= 5.7.1 (with qt-webengine)
-PyQt >= 5.7
+Qt >= 5.8.0 (with qt-webengine)
+PyQt >= 5.7.1
 libsodium
 python-yaml
 
