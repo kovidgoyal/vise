@@ -42,8 +42,11 @@ def get_login_inputs(form):
 
 def submit_form(form):
     buttons = list(form.querySelectorAll('button[type=submit]'))
+    inputs = list(form.querySelectorAll('input[type=submit]'))
     if buttons.length:
         buttons[-1].click()
+    elif inputs.length:
+        inputs[-1].click()
     else:
         form.submit()
 
@@ -66,28 +69,32 @@ def autofill_login_form(current_frame_id, source_frame_id, source_frame, url, us
 
 def do_autofill(url, username, password, autosubmit, is_current_form):
     if url is document.location.href:
-        found_form = None
+        candidates = v'[]'
         if is_current_form:
             c = document.activeElement
             if c and str.lower(c.tagName) is 'input':
                 while c.parentNode:
                     c = c.parentNode
                     if str.lower(c.tagName) is 'form':
-                        found_form = c
+                        candidates.push(c)
                         break
         else:
             for form in document.querySelectorAll('form'):
                 if is_login_form(form):
-                    found_form = form
-                    break
+                    candidates.push(form)
 
-        if found_form is not None:
-            un, pw = get_login_inputs(found_form)
+        if candidates.length > 0:
+            candidates.sort(def (f1, f2):
+                            return f1.getBoundingClientRect().width - f2.getBoundingClientRect().width
+            )
+            found_form = candidates[-1]
+            un, pw = get_login_inputs(candidates[-1])
             if un is not None and username:
                 un.value = username
             if pw is not None and password:
                 pw.value = password
-            if autosubmit:
+            if autosubmit and found_form.getBoundingClientRect().width > 0:
+                # Only submit rendered forms
                 submit_form(found_form)
             return True
     return False
