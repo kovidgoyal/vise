@@ -76,6 +76,7 @@ class SearchPanel(QWidget):
     def hide_search(self):
         pass
 
+
 TemporaryMessage = namedtuple('TemporaryMessage', 'timeout text type start_time')
 
 
@@ -99,14 +100,14 @@ class Message(QWidget):
         self.current_key = key
         self.is_permanent = is_permanent
         prefix = text.partition(':')[0]
-        self.is_address = self.is_permanent and prefix.lower() in {'http', 'https', 'vise'}
-        self.is_secure = prefix.lower() in {'https', 'vise'}
+        self.is_address = self.is_permanent and prefix.lower() in {'http', 'https', 'vise', 'file'}
+        self.is_secure = prefix.lower() in {'https', 'vise', 'file'}
         color_ = color_ or self.palette().color(self.palette().WindowText)
         if self.is_address:
             qurl = QUrl(text)
             if self.is_secure and qurl.host() in certificate_error_domains:
                 self.is_secure = False
-            if qurl.scheme() == 'vise':
+            if qurl.scheme() in {'vise', 'file'}:
                 host = qurl.path()
                 rest = ''
                 sep = ':'
