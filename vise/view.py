@@ -220,6 +220,7 @@ class WebView(QWebEngineView):
         self._force_passthrough = False
         self.titleChanged.connect(self.on_title_change)
         self.renderProcessTerminated.connect(self.render_process_terminated)
+        self.callback_on_save_edit_text_node = None
 
     def send_fake_focus_if_needed(self):
         if self.needs_fake_focus:
@@ -367,6 +368,7 @@ class WebView(QWebEngineView):
         return QWebEngineView.moveEvent(self, ev)
 
     def break_cycles(self):
+        self.callback_on_save_edit_text_node = None
         self.popup.break_cycles()
         self._page.break_cycles()
         for s in ('resized moved icon_changed loading_status_changed link_hovered urlChanged iconChanged renderProcessTerminated'
@@ -545,3 +547,8 @@ class WebView(QWebEngineView):
         t = Thread(name='EditText', target=edit_text, args=(ref, text, frame_id, eid))
         t.daemon = True
         t.start()
+
+    @connect_signal()
+    def save_text_edit_node(self, selection_start, selection_end, source_frame_id, node_id):
+        if self.callback_on_save_edit_text_node is not None:
+            self.callback_on_save_edit_text_node(selection_start, selection_end, source_frame_id, node_id)

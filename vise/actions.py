@@ -5,9 +5,7 @@
 from functools import partial
 from gettext import gettext as _
 
-from PyQt5.Qt import (
-    QApplication, QKeyEvent, QEvent, Qt, QUrl
-)
+from PyQt5.Qt import (QApplication, QKeyEvent, QEvent, Qt, QUrl)
 
 from .communicate import python_to_js
 
@@ -58,19 +56,24 @@ def edit_text(window, *args, **kwargs):
         return True
 
 
-def _paste_url(text):
-    text = text or ''
-    text = text.partition(' ')[2].strip()
-    w = QApplication.instance().activeWindow()
-    w.setFocus(Qt.MouseFocusReason)  # For some reason calling setFocus directly on the tab does not work
-    t = getattr(w, 'current_tab', None)
-    if t is not None:
-        python_to_js(t, 'insert_text', text)
+def _paste_url(selection_start, selection_end, source_frame_id, node_id):
+    window = QApplication.instance().activeWindow()
+
+    def do_paste(text):
+        text = text or ''
+        text = text.partition(' ')[2].strip()
+        t = getattr(window, 'current_tab', None)
+        if t is not None:
+            python_to_js(t, 'insert_text_in_saved_node', text, selection_start,
+                         selection_end, source_frame_id, node_id)
+
+    window.ask('copyurl ', do_paste)
 
 
 def paste_url(window, *a, **k):
     if window.current_tab is not None:
-        window.ask('copyurl ', _paste_url)
+        window.current_tab.callback_on_save_edit_text_node = _paste_url
+        python_to_js(window.current_tab, 'get_active_text_input_node')
         return True
 
 
@@ -135,7 +138,8 @@ def copy_url(window, *args, **kwargs):
         qurl = window.current_tab.url()
         if not qurl.isEmpty():
             QApplication.clipboard().setText(qurl.toString())
-            window.show_status_message(_('Copied: ') + qurl.toString(), 2, 'success')
+            window.show_status_message(
+                _('Copied: ') + qurl.toString(), 2, 'success')
         window.statusBar()
         return True
 
@@ -163,7 +167,8 @@ def _paste_and_go(window, in_current_tab=True):
     for mode in c.Clipboard, c.Selection:
         text = c.text(mode).strip()
         if text:
-            if text.partition(':')[0].lower() in {'file', 'http', 'https', 'about', 'chrome'}:
+            if text.partition(':')[
+                    0].lower() in {'file', 'http', 'https', 'about', 'chrome'}:
                 qurl = QUrl.fromUserInput(text)
                 if qurl.isValid() and not qurl.isEmpty():
                     window.open_url(qurl, in_current_tab=in_current_tab)
@@ -184,7 +189,9 @@ def paste_and_go_newtab(window, *args, **kwargs):
 def scroll_line(key, window, focus_widget, key_filter, *args, **kwargs):
     if focus_widget is not None:
         with key_filter.disable_filtering:
-            QApplication.sendEvent(focus_widget, QKeyEvent(QEvent.KeyPress, key, Qt.KeyboardModifiers(0)))
+            QApplication.sendEvent(focus_widget,
+                                   QKeyEvent(QEvent.KeyPress, key,
+                                             Qt.KeyboardModifiers(0)))
     return True
 
 
@@ -192,7 +199,9 @@ def scroll_page(up, window, focus_widget, key_filter, *args, **kwargs):
     if focus_widget is not None:
         with key_filter.disable_filtering:
             key = Qt.Key_PageUp if up else Qt.Key_PageDown
-            QApplication.sendEvent(focus_widget, QKeyEvent(QEvent.KeyPress, key, Qt.KeyboardModifiers(0)))
+            QApplication.sendEvent(focus_widget,
+                                   QKeyEvent(QEvent.KeyPress, key,
+                                             Qt.KeyboardModifiers(0)))
     return True
 
 
@@ -200,7 +209,9 @@ def scroll_to_boundary(top, window, focus_widget, key_filter, *args, **kwargs):
     if focus_widget is not None:
         with key_filter.disable_filtering:
             key = Qt.Key_Home if top else Qt.Key_End
-            QApplication.sendEvent(focus_widget, QKeyEvent(QEvent.KeyPress, key, Qt.KeyboardModifiers(0)))
+            QApplication.sendEvent(focus_widget,
+                                   QKeyEvent(QEvent.KeyPress, key,
+                                             Qt.KeyboardModifiers(0)))
     return True
 
 
