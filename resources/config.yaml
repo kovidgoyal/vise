@@ -33,7 +33,7 @@ normal mode keys:  # The keys used in normal mode
         - '?'
         - 'Shift+?'
     next_match: N
-    prev_match: Shift:N
+    prev_match: Shift+N
     set_passthrough_mode: Ctrl+Z
     quickmark: G
     quickmark_newtab: Shift+G

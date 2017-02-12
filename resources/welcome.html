@@ -5,14 +5,73 @@
 		<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
         <style type="text/css">
 
-body { background-color: #eee; font-family: sans-serif }
+body { background-color: #eee; font-family: sans-serif; max-width: 600px; margin: auto }
 
 h1 { text-align: center }
+
+a { text-decoration: none; }
+a:hover { color: red; }
+a:visited { color: blue; }
+
+table.sc td { padding: 1ex 1em }
+table.sc, table.sc td { border-collapse: collapse; border: solid 1px }
+table.sc td:nth-child(even) { font-family: monospace; text-align: right }
 
         </style>
 	</head>
 	<body>
         <h1><img src="VISE_ICON" style="max-height: 3ex; vertical-align: middle"> Welcome to vise!</h1>
+        <p>vise is largely keyboard driven. There are two "modes", the <i>normal</i> mode for general browsing and the
+        <i>insert</i> mode for editing text in form fields. Below is a cheatsheat for the important keyboard
+        shortcuts in both modes. For the complete list of keyboard shortcuts as well as other customization
+        possibilities, see 
+        <a href="https://github.com/kovidgoyal/vise/blob/master/resources/config.yaml">config.yaml</a>.</p>
+        <h2>Navigation</h2>
+        <table class="sc">
+            <tr><td>Enter command</td><td>; or :</td></tr>
+            <tr><td>Open URL in current tab</td><td>o</td></tr>
+            <tr><td>Open URL in new tab</td><td>Shift+o</td></tr>
+            <tr><td>Forward, Back</td><td>Alt+Right, Alt+Left</td></tr>
+            <tr><td>Copy current URL</td><td>Shift+Y</td></tr>
+            <tr><td>Modify current URL</td><td>Shift+Y</td></tr>
+            <tr><td>Modify current URL in new tab</td><td>Alt+Y</td></tr>
+            <tr><td>Open URL from clipboard</td><td>p</td></tr>
+            <tr><td>Open URL from clipboard in new Tab</td><td>Shift+p</td></tr>
+            <tr><td>Reload, Hard reload</td><td>r, Shift+r</td></tr>
+        </table>
+        <h2>Browsing</h2>
+        <table class="sc">
+            <tr><td>Follow link</td><td>f</td></tr>
+            <tr><td>Follow link in new tab</td><td>Shift+f</td></tr>
+            <tr><td>Copy link</td><td>Alt+f</td></tr>
+            <tr><td>Zoom in/out</td><td>+, -</td></tr>
+            <tr><td>Reset zoom</td><td>=</td></tr>
+            <tr><td>Follow next/previous link</td><td>], [</td></tr>
+        </table>
+        <h2>Managing tabs</h2>
+        <table class="sc">
+            <tr><td>Next/Previous tab</td><td>Alt+Down, Alt+Up</td></tr>
+            <tr><td>Visually choose tab</td><td>Press t and then the number corresponding to the tab</td></tr>
+            <tr><td>Close tab</td><td>d</td></tr>
+            <tr><td>Close other tab</td><td>Shift+d</td></tr>
+            <tr><td>Undo close tab</td><td>u</td></tr>
+        </table>
+        <h2>Scrolling and searching</h2>
+        <table class="sc">
+            <tr><td>Scrolling by lines</td><td>Arrow keys and h,j,k,l</td></tr>
+            <tr><td>Scroll by pages</td><td>Page up, Page down, Space and Backspace</td></tr>
+            <tr><td>Scroll to top/bottom</td><td>Home, End</td></tr>
+            <tr><td>Search</td><td>/</td></tr>
+            <tr><td>Next, previous match</td><td>n, Shift+n</td></tr>
+        </table>
+        <h2>Insert mode</h2>
+        <table class="sc">
+            <tr><td>Exit insert mode</td><td>Esc</td></tr>
+            <tr><td>Edit in external editor</td><td>Ctrl+i</td></tr>
+            <tr><td>Fill login form</td><td>Ctrl+l</td></tr>
+            <tr><td>Paste URL from history</td><td>Ctrl+u</td></tr>
+        </table>
+
 	</body>
 </html>
 
