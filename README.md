@@ -32,12 +32,12 @@ Here is a list of features that I intend this browser to have
 Status
 --------
 
-vise is fully functional, and I use at as my daily browser. While the code in
+vise is fully functional, and I use it as my daily browser. While the code in
 vise is fully cross-platform, currently it is only tested on linux, as I don't
 have the time/interest to test on other platforms. If you want to install vise
 for yourself on linux, you will need the dependencies listed in the
 dependencies.txt file and then checkout this repository (I assume below that it
-is checked out into the folder ~/work/vise). Run:
+is checked out into the folder `~/work/vise`). Run:
 
 ```
 rapydscript --js-version 6 --cache-dir ~/work/vise/.build-cache ~/work/vise/client/main.pyj > ~/work/vise/resources/vise-client.js
