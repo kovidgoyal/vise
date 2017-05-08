@@ -208,6 +208,8 @@ register_subframe_handler(def hints_filtered(current_frame_id, source_frame_id, 
 
 
 def onload():
+    if not document.body:
+        return
     document.body.appendChild(E.style('''
     [ATTRN]:before {
         content: attr(ATTRN);
