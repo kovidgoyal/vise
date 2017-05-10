@@ -140,7 +140,7 @@ class LineEdit(QLineEdit):
         if k in (Qt.Key_V, Qt.Key_S) and mods & Qt.CTRL and mods & Qt.SHIFT:
             text = QApplication.clipboard().text(k == Qt.Key_S)
             if text:
-                self.setText(text)
+                self.insert(text)
         return QLineEdit.keyPressEvent(self, ev)
 
 
