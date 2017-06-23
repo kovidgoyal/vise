@@ -6,6 +6,7 @@ import argparse
 import gc
 import os
 import sys
+import fcntl
 import traceback
 import json
 import tempfile
@@ -130,7 +131,15 @@ class Application(QApplication):
             self.signal_write_socket.setblocking(False)
             read_fd, write_fd = self.signal_read_socket.fileno(), self.signal_write_socket.fileno()
         else:
-            read_fd, write_fd = os.pipe2(os.O_NONBLOCK | os.O_CLOEXEC)
+            try:
+                read_fd, write_fd = os.pipe2(os.O_NONBLOCK | os.O_CLOEXEC)
+            except AttributeError:
+                read_fd, write_fd = os.pipe()
+                fcntl.fcntl(read_fd, fcntl.F_SETFL, os.O_NONBLOCK)
+                fcntl.fcntl(read_fd, fcntl.F_SETFL, os.O_CLOEXEC)
+                fcntl.fcntl(write_fd, fcntl.F_SETFL, os.O_NONBLOCK)
+                fcntl.fcntl(write_fd, fcntl.F_SETFL, os.O_CLOEXEC)
+                fcntl.fcntl(write_fd, fcntl.F_SETFL, os.O_NONBLOCK)
         for sig in (signal.SIGINT, signal.SIGTERM):
             signal.signal(sig, lambda x, y: None)
             signal.siginterrupt(sig, False)
