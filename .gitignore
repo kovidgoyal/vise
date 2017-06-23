@@ -2,3 +2,4 @@ tags
 *.pyj-cached
 .build-cache
 resources/vise-client.js
+__pycache__
