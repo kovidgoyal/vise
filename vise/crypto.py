@@ -6,7 +6,13 @@ from threading import Lock
 from ctypes import (
     c_int, CFUNCTYPE, CDLL, c_ubyte, POINTER, c_ulonglong, c_char_p, c_size_t,
     c_void_p, create_string_buffer, cast)
-libsodium = CDLL('libsodium.so')
+
+from sys import platform
+if platform == "darwin":
+    libsodium = CDLL('libsodium.dylib')
+else:
+    libsodium = CDLL('libsodium.so')
+
 INPUT = 1
 OUTPUT = 2
 INPUTZ = 4
