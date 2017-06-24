@@ -29,7 +29,7 @@ from .keys import KeyFilter
 from .message_box import error_dialog
 from .settings import delete_profile
 from .window import MainWindow
-from .utils import parse_url, BusyCursor, icon_to_data
+from .utils import parse_url, BusyCursor, icon_to_data, pipe2
 from .places import places
 from .passwd.db import password_db, key_from_url
 from .style import Style
@@ -130,7 +130,7 @@ class Application(QApplication):
             self.signal_write_socket.setblocking(False)
             read_fd, write_fd = self.signal_read_socket.fileno(), self.signal_write_socket.fileno()
         else:
-            read_fd, write_fd = os.pipe2(os.O_NONBLOCK | os.O_CLOEXEC)
+            read_fd, write_fd = pipe2()
         for sig in (signal.SIGINT, signal.SIGTERM):
             signal.signal(sig, lambda x, y: None)
             signal.siginterrupt(sig, False)

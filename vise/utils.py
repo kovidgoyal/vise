@@ -32,6 +32,20 @@ def safe_disconnect(signal):
         pass  # signal was not connected
 
 
+def pipe2():
+    try:
+        read_fd, write_fd = os.pipe2(os.O_NONBLOCK | os.O_CLOEXEC)
+    except AttributeError:
+        import fcntl
+        read_fd, write_fd = os.pipe()
+        for fd in (read_fd, write_fd):
+            flag = fcntl.fcntl(fd, fcntl.F_GETFD)
+            fcntl.fcntl(fd, fcntl.F_SETFD, flag | fcntl.FD_CLOEXEC)
+            flag = fcntl.fcntl(fd, fcntl.F_GETFL)
+            fcntl.fcntl(fd, fcntl.F_SETFL, flag | os.O_NONBLOCK)
+    return read_fd, write_fd
+
+
 @lru_cache(maxsize=500)
 def elided_text(text, font=None, width=300, pos='middle'):
     ''' Return a version of text that is no wider than width pixels when
@@ -169,6 +183,7 @@ def ipython(user_ns=None):
 
     ipshell = InteractiveShellEmbed.instance(config=c, user_ns=user_ns)
     ipshell()
+
 
 _filename_sanitize = frozenset('\\|?*<":>+/' + ''.join(map(chr, range(32))))
 

@@ -16,7 +16,6 @@ version = str_version = '.'.join(map(str, numeric_version))
 _plat = sys.platform.lower()
 iswindows = 'win32' in _plat or 'win64' in _plat
 isosx = 'darwin' in _plat
-isnewosx = isosx and getattr(sys, 'new_app_bundle', False)
 isfreebsd = 'freebsd' in _plat
 isnetbsd = 'netbsd' in _plat
 isdragonflybsd = 'dragonfly' in _plat
@@ -47,6 +46,8 @@ def _get_cache_dir():
     except FileExistsError:
         pass
     return ans
+
+
 cache_dir = _get_cache_dir()
 del _get_cache_dir
 
@@ -70,6 +71,8 @@ def _get_config_dir():
     except FileExistsError:
         pass
     return ans
+
+
 config_dir = _get_config_dir()
 del _get_config_dir
 

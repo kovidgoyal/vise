@@ -2,11 +2,13 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
+from ctypes import (CDLL, CFUNCTYPE, POINTER, c_char_p, c_int, c_size_t,
+                    c_ubyte, c_ulonglong, c_void_p, cast, create_string_buffer)
 from threading import Lock
-from ctypes import (
-    c_int, CFUNCTYPE, CDLL, c_ubyte, POINTER, c_ulonglong, c_char_p, c_size_t,
-    c_void_p, create_string_buffer, cast)
-libsodium = CDLL('libsodium.so')
+
+from .constants import isosx, iswindows
+
+libsodium = CDLL('libsodium.' + ('dll' if iswindows else 'dylib' if isosx else 'so'))
 INPUT = 1
 OUTPUT = 2
 INPUTZ = 4
@@ -21,6 +23,7 @@ def bind(name, restype, *args):
     typsig = tuple(x['type'] for x in args)
     flags = tuple((x['io'], x['name'], x['default']) for x in args)
     return CFUNCTYPE(restype, *typsig)((name, libsodium), flags)
+
 
 sodium_init = bind('sodium_init', c_int)
 init_lock = Lock()
@@ -175,6 +178,7 @@ def test():
         raise AssertionError('Bad data was decrypted!')
     except MessageForged:
         pass
+
 
 if __name__ == '__main__':
     test()
