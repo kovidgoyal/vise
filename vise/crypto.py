@@ -6,7 +6,10 @@ from ctypes import (CDLL, CFUNCTYPE, POINTER, c_char_p, c_int, c_size_t,
                     c_ubyte, c_ulonglong, c_void_p, cast, create_string_buffer)
 from threading import Lock
 
-from .constants import isosx, iswindows
+try:
+    from .constants import isosx, iswindows
+except ImportError:
+    isosx = iswindows = False
 
 libsodium = CDLL('libsodium.' + ('dll' if iswindows else 'dylib' if isosx else 'so'))
 INPUT = 1
