@@ -70,6 +70,8 @@ class Alert(Dialog):  # {{{
 
 def edit_text(viewref, text, frame_id, eid):  # {{{
     editor = shlex.split(misc_config('editor', default=os.environ.get('EDITOR', 'gvim -f')))
+    if len(editor) == 1 and os.path.basename(editor[0]) == 'vim':
+        editor = ['gvim', '-f']
     with NamedTemporaryFile(suffix='.txt') as f:
         f.write(text.encode('utf-8'))
         f.flush()
