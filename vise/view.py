@@ -2,38 +2,38 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-import os
 import json
-import weakref
-import subprocess
+import os
 import shlex
-from time import monotonic
+import subprocess
+import weakref
 from base64 import standard_b64encode
+from functools import partial
+from gettext import gettext as _
+from itertools import count
 from tempfile import NamedTemporaryFile
 from threading import Thread
-from gettext import gettext as _
-from functools import partial
-from itertools import count
+from time import monotonic
 
-from PyQt5.Qt import (
-    QWebEngineView, QWebEnginePage, QSize, QApplication, pyqtSignal,
-    QGridLayout, QCheckBox, QLabel, Qt, QWebEngineScript, QUrl, QPageSize,
-    QPageLayout, QMarginsF, QMouseEvent, QPoint, QWebEngineFullScreenRequest
-)
+from PyQt5.Qt import (QApplication, QCheckBox, QGridLayout, QLabel, QMarginsF,
+                      QPageLayout, QPageSize, QSize, Qt, QUrl,
+                      QWebEngineFullScreenRequest, QWebEnginePage,
+                      QWebEngineScript, QWebEngineView, pyqtSignal)
 
 from .auth import get_http_auth_credentials, get_proxy_auth_credentials
 from .certs import cert_exceptions
-from .communicate import python_to_js, js_to_python, connect_signal
+from .communicate import connect_signal, js_to_python, python_to_js
 from .config import misc_config
 from .constants import FOLLOW_LINK_KEY_MAP
 from .downloads import get_download_dir
 from .message_box import question_dialog
+from .passwd.db import key_from_url, password_db, password_exclusions
 from .places import places
 from .popup import Popup
-from .utils import Dialog, safe_disconnect, ascii_lowercase, icon_to_data, open_local_file
-from .passwd.db import password_db, key_from_url, password_exclusions
 from .settings import gprefs
 from .site_permissions import site_permissions
+from .utils import (Dialog, ascii_lowercase, icon_to_data, open_local_file,
+                    safe_disconnect)
 
 view_id = count()
 certificate_error_domains = set()
@@ -198,7 +198,6 @@ class WebView(QWebEngineView):
     def __init__(self, profile, main_window):
         QWebEngineView.__init__(self, main_window)
         self.middle_click_soon = 0
-        self.needs_fake_focus = False
         self.setAttribute(Qt.WA_DeleteOnClose)  # needed otherwise object is not deleted on close which means, it keeps running
         self.setMinimumWidth(300)
         self.follow_link_pending = None
@@ -223,21 +222,6 @@ class WebView(QWebEngineView):
         self.titleChanged.connect(self.on_title_change)
         self.renderProcessTerminated.connect(self.render_process_terminated)
         self.callback_on_save_edit_text_node = None
-
-    def send_fake_focus_if_needed(self):
-        if self.needs_fake_focus:
-            # We force Qt to call Focus() on the web view by sending this
-            # event, see RenderWidgetHostViewQt::forwardEvent() and
-            # RenderWidgetHostViewQt::handleMouseEvent() in the qtwebengine
-            # source code to check that this both causes Focus() to be called
-            # and has no other side-effects. This work around is needed because
-            # without it, tabs opened by middle-clicking start out without
-            # keyboard focus and require a click in the web view to get it.
-            # This workaround may not be necessary once
-            # https://bugreports.qt.io/browse/QTBUG-58515 is fixed.
-            QApplication.sendEvent(self.focusProxy(), QMouseEvent(
-                QMouseEvent.MouseButtonPress, QPoint(), QPoint(), QPoint(), Qt.NoButton, Qt.NoButton, Qt.NoModifier, Qt.MouseEventSynthesizedBySystem))
-            self.needs_fake_focus = False
 
     def render_process_terminated(self, termination_type, exit_code):
         if termination_type == QWebEnginePage.CrashedTerminationStatus:

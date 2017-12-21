@@ -119,6 +119,12 @@ class KeyFilter(QObject):
                     fw.parent().keyPressEvent(event)
                     return True
 
+            if fw is None and hasattr(window, 'current_tab'):
+                ct = window.current_tab
+                if ct is not None:
+                    ct.setFocus(Qt.OtherFocusReason)
+                    fw = QApplication.instance().focusWidget()
+
             if isinstance(window, QMainWindow) and not passthrough_keys(fw):
                 key = key_from_event(event)
 

@@ -253,8 +253,6 @@ class MainWindow(QMainWindow):
             self.tab_tree.add_tab(tab, parent=parent)
             if self.current_tab is None:
                 self.current_tab = tab
-            else:
-                tab.needs_fake_focus = True
         return tab
 
     def get_child_tab_for_load(self):
@@ -283,7 +281,6 @@ class MainWindow(QMainWindow):
     def show_tab(self, tab):
         if tab is not None and self.current_tab is not tab:
             self.stack.setCurrentWidget(tab)
-            tab.send_fake_focus_if_needed()
 
     def update_window_title(self):
         title = at = appname.capitalize()
