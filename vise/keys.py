@@ -2,10 +2,8 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-from PyQt5.Qt import (
-    Qt, QObject, QEvent, QApplication, QMainWindow, QKeySequence,
-    QLineEdit, QDialog, QWebEngineView
-)
+from PyQt5.Qt import (QApplication, QDialog, QEvent, QKeySequence, QLineEdit,
+                      QMainWindow, QObject, Qt)
 
 from . import actions
 from .ask import Ask
@@ -97,18 +95,7 @@ class KeyFilter(QObject):
         if self.disabled:
             return False
         etype = event.type()
-        if etype == QEvent.FocusIn:
-            fw = QApplication.instance().focusWidget()
-            ct = getattr(fw, 'current_tab', None)
-            if isinstance(ct, QWebEngineView):
-                # If the main window gets focus, pass it along to the current
-                # tab. For some reason setFocusProxy() does not work and I
-                # cannot be bothered figuring out why. This is needed for the
-                # paste_url action, otherwise the text control does not get
-                # focus back after the ask widget is closed
-                ct.setFocus(Qt.MouseFocusReason)
-                return True
-        elif etype == QEvent.KeyPress:
+        if etype == QEvent.KeyPress:
             app = QApplication.instance()
             window, fw = app.activeWindow(), app.focusWidget()
 
