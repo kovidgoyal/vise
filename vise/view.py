@@ -50,16 +50,16 @@ class Alert(Dialog):  # {{{
         Dialog.__init__(self, _('Alert from') + ': ' + title, 'alert', parent)
 
     def setup_ui(self):
-        self.l = l = QGridLayout(self)
+        self.lay = lay = QGridLayout(self)
         self.la = la = QLabel(self.msg)
         la.setWordWrap(True)
-        l.addWidget(la, 0, 0, 1, -1)
+        lay.addWidget(la, 0, 0, 1, -1)
         self.setMaximumWidth(self.parent().width())
         self.setMaximumHeight(self.parent().height())
         self.cb = cb = QCheckBox(_('&Suppress future alerts from this site'), self)
         cb.toggled.connect(lambda: cb.isChecked() and Alert.suppressed_alerts.add(self.key))
-        l.addWidget(cb, 1, 0)
-        l.addWidget(self.bb, 1, 1), self.bb.setStandardButtons(self.bb.Close)
+        lay.addWidget(cb, 1, 0)
+        lay.addWidget(self.bb, 1, 1), self.bb.setStandardButtons(self.bb.Close)
 
     def sizeHint(self):
         ans = Dialog.sizeHint(self)
