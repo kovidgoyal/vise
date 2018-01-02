@@ -209,6 +209,7 @@ class WebView(QWebEngineView):
         self.iconChanged.connect(self.on_icon_changed, type=Qt.QueuedConnection)
         self.set_editable_text_in_gui_thread.connect(self.set_editable_text, type=Qt.QueuedConnection)
         self.loadStarted.connect(self.load_started)
+        self.loadProgress.connect(self.load_progress)
         self.loadFinished.connect(self.load_finished)
         self._page.linkHovered.connect(self.link_hovered.emit)
         self._page.windowCloseRequested.connect(lambda: self.window_close_requested.emit(self))
@@ -218,6 +219,7 @@ class WebView(QWebEngineView):
         self._page.fullScreenRequested.connect(self.full_screen_requested)
         self.feature_permission_map = {}
         self.text_input_focused = False
+        self.loading_in_progress = False
         self._force_passthrough = False
         self.titleChanged.connect(self.on_title_change)
         self.renderProcessTerminated.connect(self.render_process_terminated)
@@ -236,11 +238,21 @@ class WebView(QWebEngineView):
                     self.url().toString(), exit_code), show=True)
 
     def load_started(self):
+        self.loading_in_progress = True
         self.text_input_focused = False
         self.focus_changed.emit(False, self)
         self.loading_status_changed.emit(True)
 
-    def load_finished(self):
+    def load_progress(self, val):
+        if val == 100 and self.loading_in_progress:
+            # This hack is needed because of as of Qt 5.10 loadFinished() is
+            # not reliable, it is not called for some page loads
+            self.load_finished(True)
+
+    def load_finished(self, ok):
+        if not self.loading_in_progress:
+            return
+        self.loading_in_progress = False
         if self.pending_unserialize is not None:
             state, self.pending_unserialize = self.pending_unserialize, None
             self.scroll_position = (state['x'], state['y'])
