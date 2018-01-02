@@ -248,6 +248,10 @@ class MainWindow(QMainWindow):
         in_current_tab = self.current_tab is not None and in_current_tab
         if in_current_tab:
             tab = self.current_tab
+            # This is needed in Qt 5.10 as otherwise if the tab already has
+            # focus, some input element on the new page is given focus on page
+            # load
+            tab.clearFocus()
         else:
             tab = self.create_new_tab()
             self.tab_tree.add_tab(tab, parent=parent)

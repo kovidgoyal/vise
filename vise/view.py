@@ -237,6 +237,10 @@ class WebView(QWebEngineView):
                 'The render process exited abnormally while displaying the URL: {0} with exit code: {1}').format(
                     self.url().toString(), exit_code), show=True)
 
+    @property
+    def is_showing_internal_content(self):
+        return self._page.url().scheme() == 'vise'
+
     def load_started(self):
         self.loading_in_progress = True
         self.text_input_focused = False

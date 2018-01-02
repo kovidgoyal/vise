@@ -130,6 +130,7 @@ class TabDelegate(QStyledItemDelegate):
             icon.paint(painter, icon_rect)
         painter.restore()
 
+
 tab_item_counter = 0
 
 
@@ -142,6 +143,10 @@ class TabItem(QTreeWidgetItem):
         self.uid = tab_item_counter
         self.loading_status_changed = loading_status_changed
         self.setFlags(self.flags() | Qt.ItemIsDragEnabled | Qt.ItemIsDropEnabled)
+        self.tabref = lambda: None
+        self.set_view(tab)
+
+    def set_view(self, tab):
         self.set_data(LOADING_ROLE, False)
         self.set_data(DISPLAY_ROLE, tab.title() or _('Loading...'))
         self.set_data(DECORATION_ROLE, missing_icon())
@@ -411,6 +416,11 @@ class TabTree(QTreeWidget):
         else:
             parent.addChild(item)
         self.scrollToItem(item)
+
+    def replace_view_in_tab(self, tab, replacement):
+        item = self.item_for_tab(tab)
+        if item is not None:
+            item.set_view(replacement)
 
     def remove_tab(self, tab):
         item = self.item_for_tab(tab)
