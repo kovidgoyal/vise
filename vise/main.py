@@ -23,7 +23,7 @@ from PyQt5.Qt import (
     QSocketNotifier, QNetworkCacheMetaData
 )
 
-from .constants import appname, str_version, cache_dir, iswindows, isosx, local_socket_address
+from .constants import appname, str_version, cache_dir, iswindows, isosx, local_socket_address, config_dir
 from .downloads import Downloads
 from .keys import KeyFilter
 from .message_box import error_dialog
@@ -394,6 +394,7 @@ def run_app(
     env = os.environ.copy()
     app = Application(
         master_password=master_password, urls=urls, new_instance=new_instance, shutdown=shutdown, restart_state=restart_state, no_session=no_session)
+    os.environ['QTWEBENGINE_DICTIONARIES_PATH'] = os.path.join(config_dir, 'spell')
     if False:
         # This is disabled because it is insecure, see
         # https://bugreports.qt.io/browse/QTBUG-50725

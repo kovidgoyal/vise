@@ -2,20 +2,20 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-import os
-import apsw
+import glob
 import json
+import os
 from base64 import standard_b64decode, standard_b64encode
 from binascii import hexlify
 from collections import defaultdict
 from functools import lru_cache
 
-from PyQt5.Qt import (
-    QWebEngineProfile, QApplication, QWebEngineScript, QKeySequence, QByteArray
-)
+import apsw
+from PyQt5.Qt import (QApplication, QByteArray, QKeySequence,
+                      QWebEngineProfile, QWebEngineScript)
 
-from .config import font_sizes, color
-from .constants import config_dir, appname, cache_dir, DOWNLOADS_URL
+from .config import color, font_sizes
+from .constants import DOWNLOADS_URL, appname, cache_dir, config_dir
 from .resources import get_data_as_file
 
 
@@ -165,6 +165,19 @@ def insert_scripts(profile, *scripts):
         sc.insert(script)
 
 
+def get_spell_langs():
+    ans = getattr(get_spell_langs, 'ans', None)
+    if ans is None:
+        # To learn how to create bdic files, see https://doc.qt.io/qt-5/qtwebengine-webenginewidgets-spellchecker-example.html
+        spell_dir = os.environ['QTWEBENGINE_DICTIONARIES_PATH']
+        langs = []
+        if os.path.exists(spell_dir):
+            for dic in glob.glob(os.path.join(spell_dir, '*.bdic')):
+                langs.append(os.path.basename(dic).rpartition('.')[0])
+        get_spell_langs.ans = ans = langs
+    return ans
+
+
 def create_profile(parent=None, private=False):
     from .vise_scheme import UrlSchemeHandler
     from .url_intercept import Interceptor
@@ -180,9 +193,11 @@ def create_profile(parent=None, private=False):
         safe_makedirs(ans.cachePath())
         ans.setPersistentStoragePath(os.path.join(cache_dir, appname, 'storage'))
         safe_makedirs(ans.persistentStoragePath())
-    # TODO: Enable spellchecking when
-    # https://bugreports.qt.io/browse/QTBUG-58512 is implemented.
-    # See https://doc.qt.io/qt-5/qtwebengine-webenginewidgets-spellchecker-example.html for how to create the Qt .bdic files
+
+    langs = get_spell_langs()
+    if langs:
+        ans.setSpellCheckEnabled(True)
+        ans.setSpellCheckLanguages(langs)
     ua = ' '.join(x for x in ans.httpUserAgent().split() if 'QtWebEngine' not in x)
     ans.setHttpUserAgent(ua)
     ans.setRequestInterceptor(Interceptor(ans))
