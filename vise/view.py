@@ -274,7 +274,9 @@ class WebView(QWebEngineView):
     @scroll_position.setter
     def scroll_position(self, val):
         x, y = val
-        self._page.runJavaScript('window.scrollTo(%f, %f)' % (x, y))
+        factor = self.devicePixelRatioF()
+        x, y = int(x / factor), int(y / factor)
+        self.runjs(f'window.scrollTo({x}, {y})')
 
     def on_title_change(self, title):
         from .settings import TITLE_TOKEN
