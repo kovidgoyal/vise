@@ -29,9 +29,10 @@ def handle_message_from_frame(source, source_id, data):
     nonlocal frame_count, frame_id
     action = data.action
     if action is '*register':
-        frame_count += 1
-        frame_map.set(source, frame_count)
-        post_message(source, {'action':'*set_id', 'value': frame_count})
+        if source is not undefined:
+            frame_count += 1
+            frame_map.set(source, frame_count)
+            post_message(source, {'action':'*set_id', 'value': frame_count})
     elif action is '*set_id':
         frame_id = data.value
     else:
