@@ -281,6 +281,8 @@ class MainWindow(QMainWindow):
         self.tab_tree.current_changed(self.current_tab)
         self.update_passthrough_state()
         self.url_changed()
+        if self.current_tab is not None:
+            self.current_tab.fix_host_widget()
 
     def show_tab(self, tab):
         if tab is not None and self.current_tab is not tab:
