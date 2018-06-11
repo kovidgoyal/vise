@@ -11,7 +11,7 @@ from itertools import count
 import sip
 from PyQt5.Qt import (
     QMainWindow, Qt, QSplitter, QApplication, QStackedWidget, QUrl,
-    QKeySequence, pyqtSignal, QTimer
+    QKeySequence, pyqtSignal, QTimer, QEventLoop
 )
 
 from .ask import Ask
@@ -215,6 +215,12 @@ class MainWindow(QMainWindow):
         tab = tab or self.current_tab
         if tab is not None:
             self.delete_removed_tabs(self.tab_tree.remove_tab(tab))
+            # As of Qt 5.11 closing many tabs without processing events between
+            # closes causes Qt to crash
+            num = 10
+            app = QApplication.instance()
+            while app.processEvents(QEventLoop.ExcludeUserInputEvents, 100) and num > 0:
+                num -= 1
         if not self.tabs:
             self.open_url(WELCOME_URL, switch_to_tab=True)
             QTimer.singleShot(0, self.current_tab_changed)
