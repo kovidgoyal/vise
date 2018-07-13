@@ -153,6 +153,10 @@ class MainWindow(QMainWindow):
         ans.passthrough_changed.connect(self.update_mode)
         ans.passthrough_changed.connect(self.update_passthrough_state)
         ans.toggle_full_screen.connect(self.toggle_full_screen)
+        if self.current_tab:
+            # As of Qt 5.11 adding the widget to the stack does not
+            # set its geometry correctly until it is shown
+            ans.setGeometry(self.current_tab.geometry())
         return ans
 
     def update_mode(self):
@@ -287,8 +291,6 @@ class MainWindow(QMainWindow):
         self.tab_tree.current_changed(self.current_tab)
         self.update_passthrough_state()
         self.url_changed()
-        if self.current_tab is not None:
-            self.current_tab.fix_host_widget()
 
     def show_tab(self, tab):
         if tab is not None and self.current_tab is not tab:

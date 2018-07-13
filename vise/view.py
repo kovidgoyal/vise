@@ -15,7 +15,6 @@ from tempfile import NamedTemporaryFile
 from threading import Thread
 from time import monotonic
 
-import sip
 from PyQt5.Qt import (QApplication, QCheckBox, QGridLayout, QLabel, QMarginsF,
                       QPageLayout, QPageSize, QSize, Qt, QUrl,
                       QWebEngineFullScreenRequest, QWebEnginePage,
@@ -198,7 +197,6 @@ class WebView(QWebEngineView):
 
     def __init__(self, profile, main_window):
         QWebEngineView.__init__(self, main_window)
-        self.host_widget = None
         self.middle_click_soon = 0
         self.setAttribute(Qt.WA_DeleteOnClose)  # needed otherwise object is not deleted on close which means, it keeps running
         self.setMinimumWidth(300)
@@ -248,23 +246,8 @@ class WebView(QWebEngineView):
         self.text_input_focused = False
         self.focus_changed.emit(False, self)
         self.loading_status_changed.emit(True)
-        self.fix_host_widget()
-
-    def fix_host_widget(self):
-        if self.host_widget is not None and not sip.isdeleted(self.host_widget):
-            # Workaround for bug in Qt 5.11 causing some tabs to use only half
-            # available height for rendering the page
-            self.host_widget.setGeometry(self.geometry())
-
-    def event(self, event):
-        if event.type() == event.ChildPolished:
-            child = event.child()
-            if 'HostView' in child.metaObject().className():
-                self.host_widget = child
-        return QWebEngineView.event(self, event)
 
     def load_progress(self, val):
-        self.fix_host_widget()
         if val == 100 and self.loading_in_progress:
             # This hack is needed because of as of Qt 5.10 loadFinished() is
             # not reliable, it is not called for some page loads
@@ -389,7 +372,6 @@ class WebView(QWebEngineView):
         return QWebEngineView.moveEvent(self, ev)
 
     def break_cycles(self):
-        self.host_widget = None
         self.callback_on_save_edit_text_node = None
         self.popup.break_cycles()
         self._page.break_cycles()
