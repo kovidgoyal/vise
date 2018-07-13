@@ -8,7 +8,7 @@ from gettext import gettext as _
 from xml.sax.saxutils import escape
 
 from PyQt5.Qt import (
-    QLineEdit, pyqtSignal, Qt, QStackedWidget, QLabel, QWidget, QHBoxLayout,
+    QLineEdit, pyqtSignal, Qt, QStackedWidget, QLabel, QWidget, QHBoxLayout, QApplication,
     QTimer, QStatusBar, QPainter, QColor, QLinearGradient, QBrush, QUrl,
     QStaticText, QTextOption, QPalette
 )
@@ -91,6 +91,15 @@ class Message(QWidget):
         self.current_key = None
         self.setFocusPolicy(Qt.NoFocus)
         self.sb_background = QColor(color(sb_background, self.palette().color(QPalette.Window)))
+
+    def focusInEvent(self, ev):
+        # Needed because in Qt 5.11 the no focus focus policy is broken
+        app = QApplication.instance()
+        window = app.activeWindow()
+        if hasattr(window, 'current_tab'):
+            ct = window.current_tab
+            if ct is not None:
+                ct.setFocus(Qt.OtherFocusReason)
 
     def set_message(self, text, color_, bold=False, is_permanent=False):
         from vise.view import certificate_error_domains
