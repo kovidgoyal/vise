@@ -60,14 +60,24 @@ def login_form_found(current_frame_id, source_frame_id, source_frame, url):
 def login_form_submitted(current_frame_id, source_frame_id, source_frame, url, username, password):
     js_to_python('login_form_submitted_in_page', url, username, password)
 
-def on_autofill_login_form(url, username, password, autosubmit, is_current_form):
-    if not do_autofill(url, username, password, autosubmit, is_current_form):
-        broadcast_action(frame_iter(window.self), 'autofill_login_form', url, username, password, autosubmit, is_current_form)
+def on_autofill_login_form(url, autosubmit, is_current_form):
+    if not do_autofill(url, autosubmit, is_current_form):
+        broadcast_action(frame_iter(window.self), 'autofill_login_form', url, autosubmit, is_current_form)
 
-def autofill_login_form(current_frame_id, source_frame_id, source_frame, url, username, password, autosubmit, is_current_form):
-    do_autofill(url, username, password, autosubmit, is_current_form)
 
-def do_autofill(url, username, password, autosubmit, is_current_form):
+def on_form_field_filled(url, which):
+    if not do_form_field_filled(url, which):
+        broadcast_action(frame_iter(window.self), 'form_field_filled', url, which)
+
+
+def form_field_filled(current_frame_id, source_frame_id, source_frame, url, which):
+    do_form_field_filled(url, which)
+
+
+def autofill_login_form(current_frame_id, source_frame_id, source_frame, url, autosubmit, is_current_form):
+    do_autofill(url, autosubmit, is_current_form)
+
+def do_autofill(url, autosubmit, is_current_form):
     if url is document.location.href:
         candidates = v'[]'
         if is_current_form:
@@ -88,16 +98,40 @@ def do_autofill(url, username, password, autosubmit, is_current_form):
                             return f1.getBoundingClientRect().width - f2.getBoundingClientRect().width
             )
             found_form = candidates[-1]
-            un, pw = get_login_inputs(candidates[-1])
-            if un is not None and username:
-                un.value = username
-            if pw is not None and password:
-                pw.value = password
-            if autosubmit and found_form.getBoundingClientRect().width > 0:
-                # Only submit rendered forms
-                submit_form(found_form)
+            found_form.dataset.viseAutosubmit = '1' if autosubmit else '0'
+            un = get_login_inputs(found_form)[0]
+            if un is not None and not un.value:
+                un.focus()
+                js_to_python('fill_form_field_for', url, 'username')
+            else:
+                js_to_python('fill_form_field_for', url, 'password')
             return True
     return False
+
+
+def do_form_field_filled(url, which):
+    form = None
+    c = document.activeElement
+    if c and str.lower(c.tagName) is 'input':
+        while c.parentNode:
+            c = c.parentNode
+            if str.lower(c.tagName) is 'form':
+                form = c
+                break
+    if not form:
+        return
+    if which is 'username':
+        pw = get_login_inputs(form)[1]
+        if pw is not None and not pw.value:
+            pw.focus()
+            js_to_python('fill_form_field_for', url, 'password')
+        else:
+            do_form_field_filled(url, 'password')
+    elif which is 'password':
+        if form.dataset.viseAutosubmit is '1' and form.getBoundingClientRect().width > 0:
+            # Only submit rendered forms
+            submit_form(form)
+
 
 current_login_form_request_id = 0
 
@@ -125,17 +159,22 @@ def onload():
         register_handler('login_form_submitted', login_form_submitted)
         register_handler('send_url_for_current_login_form', send_url_for_current_login_form)
         connect_signal('autofill_login_form', on_autofill_login_form)
+        connect_signal('form_field_filled', on_form_field_filled)
         connect_signal('get_url_for_current_login_form', on_get_url_for_current_login_form)
     else:
         register_handler('autofill_login_form', autofill_login_form)
+        register_handler('form_field_filled', form_field_filled)
         register_handler('get_url_for_current_login_form_in_subframe', get_url_for_current_login_form_in_subframe)
     login_forms_found = False
     for form in document.querySelectorAll('form'):
         if is_login_form(form):
-            pw = get_login_inputs(form)[1]
+            un, pw = get_login_inputs(form)
             if pw:
                 pw.addEventListener('input', password_changed, True)
             form.addEventListener('submit', form_submitted, True)
             login_forms_found = True
+            if un:
+                un.focus()
+            break
     if login_forms_found:
         send_action(window.top, 'login_form_found', document.location.href)

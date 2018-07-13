@@ -15,8 +15,8 @@ from tempfile import NamedTemporaryFile
 from threading import Thread
 from time import monotonic
 
-from PyQt5.Qt import (QApplication, QCheckBox, QGridLayout, QLabel, QMarginsF,
-                      QPageLayout, QPageSize, QSize, Qt, QUrl,
+from PyQt5.Qt import (QApplication, QCheckBox, QGridLayout, QKeyEvent, QLabel,
+                      QMarginsF, QPageLayout, QPageSize, QSize, Qt, QUrl,
                       QWebEngineFullScreenRequest, QWebEnginePage,
                       QWebEngineScript, QWebEngineView, pyqtSignal)
 
@@ -197,6 +197,7 @@ class WebView(QWebEngineView):
 
     def __init__(self, profile, main_window):
         QWebEngineView.__init__(self, main_window)
+        self.host_widget = None
         self.middle_click_soon = 0
         self.setAttribute(Qt.WA_DeleteOnClose)  # needed otherwise object is not deleted on close which means, it keeps running
         self.setMinimumWidth(300)
@@ -372,6 +373,7 @@ class WebView(QWebEngineView):
         return QWebEngineView.moveEvent(self, ev)
 
     def break_cycles(self):
+        self.host_widget = None
         self.callback_on_save_edit_text_node = None
         self.popup.break_cycles()
         self._page.break_cycles()
@@ -470,10 +472,29 @@ class WebView(QWebEngineView):
             if accounts:
                 return accounts[0]
 
+    def event(self, event):
+        if event.type() == event.ChildPolished:
+            child = event.child()
+            if 'HostView' in child.metaObject().className():
+                self.host_widget = child
+        return QWebEngineView.event(self, event)
+
+    def send_text_using_keys(self, text):
+        if self.host_widget is not None:
+            for ch in text:
+                QApplication.sendEvent(self.host_widget, QKeyEvent(QKeyEvent.KeyPress, Qt.Key_Space, Qt.KeyboardModifiers(0), ch))
+
+    @connect_signal()
+    def fill_form_field_for(self, url, which):
+        ac = self.get_login_credentials(url)
+        if ac is not None:
+            self.send_text_using_keys(ac[which])
+            python_to_js(self, 'form_field_filled', url, which)
+
     def on_login_form_found(self, url, is_current_form):
         ac = self.get_login_credentials(url)
         if ac is not None:
-            python_to_js(self, 'autofill_login_form', url, ac['username'], ac['password'], ac['autologin'], is_current_form)
+            python_to_js(self, 'autofill_login_form', url, ac['autologin'], is_current_form)
 
     def find_text(self, text, callback=None, forward=True):
         flags = QWebEnginePage.FindFlags(0) if forward else QWebEnginePage.FindBackward
