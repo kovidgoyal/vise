@@ -156,6 +156,7 @@ class MainWindow(QMainWindow):
         ans.passthrough_changed.connect(self.update_mode)
         ans.passthrough_changed.connect(self.update_passthrough_state)
         ans.toggle_full_screen.connect(self.toggle_full_screen)
+        ans.dev_tools_requested.connect(self.dev_tools_requested)
         if self.current_tab:
             # As of Qt 5.11 adding the widget to the stack does not
             # set its geometry correctly until it is shown
@@ -407,3 +408,7 @@ class MainWindow(QMainWindow):
             self.set_devtools_visibility(True)
             if self.current_tab is not None:
                 self.dev_tools_container.change_widget(self.current_tab.dev_tools)
+
+    def dev_tools_requested(self):
+        if not self.dev_tools_container.isVisible():
+            self.toggle_devtools()

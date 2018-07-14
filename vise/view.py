@@ -195,6 +195,7 @@ class WebView(QWebEngineView):
     title_changed = pyqtSignal(object)
     toggle_full_screen = pyqtSignal(object)
     set_editable_text_in_gui_thread = pyqtSignal(str, int, str)
+    dev_tools_requested = pyqtSignal()
 
     def __init__(self, profile, main_window):
         QWebEngineView.__init__(self, main_window)
@@ -399,7 +400,7 @@ class WebView(QWebEngineView):
         self.popup.break_cycles()
         self._page.break_cycles()
         for s in ('resized moved icon_changed loading_status_changed link_hovered urlChanged iconChanged renderProcessTerminated'
-                  ' loadStarted loadFinished window_close_requested focus_changed passthrough_changed toggle_full_screen').split():
+                  ' loadStarted loadFinished window_close_requested focus_changed passthrough_changed toggle_full_screen dev_tools_requested').split():
             safe_disconnect(getattr(self, s))
 
     def create_page(self, profile):
@@ -598,3 +599,15 @@ class WebView(QWebEngineView):
     def save_text_edit_node(self, selection_start, selection_end, source_frame_id, node_id):
         if self.callback_on_save_edit_text_node is not None:
             self.callback_on_save_edit_text_node(selection_start, selection_end, source_frame_id, node_id)
+
+    def trigger_inspect(self):
+        if not self.dev_tools_enabled:
+            self.dev_tools_requested.emit()
+        self._page.triggerAction(self._page.InspectElement)
+
+    def contextMenuEvent(self, ev):
+        self.middle_click_soon = monotonic() + 2  # so that voew page source does not popup a confirmation
+        menu = self._page.createStandardContextMenu()
+        menu.addSeparator()
+        menu.addAction(_('Inspect element'), self.trigger_inspect)
+        menu.exec_(ev.globalPos())
