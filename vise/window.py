@@ -75,6 +75,8 @@ class MainWindow(QMainWindow):
         s.currentChanged.connect(self.current_tab_changed)
         w.addWidget(s)
         self.dev_tools_container = d = DevToolsContainer(self)
+        self.before_devtools_splitter_state = None
+        self.prev_devtools_splitter_state = None
         w.addWidget(d)
         d.setVisible(False)
         w.setCollapsible(0, True), w.setCollapsible(1, False), w.setCollapsible(2, True)
@@ -122,7 +124,7 @@ class MainWindow(QMainWindow):
         return rect.size() * 0.9
 
     def save_state(self):
-        self.dev_tools_container.setVisible(False)
+        self.set_devtools_visibility(False)
         with gprefs:
             gprefs['main-window-geometry'] = bytearray(self.saveGeometry())
             gprefs['main-splitter-state'] = bytearray(self.main_splitter.saveState())
@@ -296,10 +298,10 @@ class MainWindow(QMainWindow):
         if self.current_tab is not None:
             if self.current_tab.dev_tools_enabled:
                 self.dev_tools_container.change_widget(self.current_tab.dev_tools)
-                self.dev_tools_container.setVisible(True)
+                self.set_devtools_visibility(True)
             else:
                 self.dev_tools_container.change_widget()
-                self.dev_tools_container.setVisible(False)
+                self.set_devtools_visibility(False)
 
     def show_tab(self, tab):
         if tab is not None and self.current_tab is not tab:
@@ -378,12 +380,30 @@ class MainWindow(QMainWindow):
         if current_tab is not None:
             self.show_tab(current_tab)
 
-    def toggle_devtools(self):
-        self.dev_tools_container.setVisible(not self.dev_tools_container.isVisible())
-        if self.dev_tools_container.isVisible():
-            if self.current_tab is not None:
-                self.dev_tools_container.change_widget(self.current_tab.dev_tools)
+    def set_devtools_visibility(self, visible):
+        if self.dev_tools_container.isVisible() == visible:
+            return
+        if not self.dev_tools_container.isVisible():
+            self.before_devtools_splitter_state = self.main_splitter.saveState()
+            self.dev_tools_container.setVisible(True)
+            if self.prev_devtools_splitter_state is not None:
+                self.main_splitter.restoreState(self.prev_devtools_splitter_state)
+            else:
+                w = self.main_splitter.width()
+                self.main_splitter.setSizes([int(w * 0.2), int(w * 0.45), int(w * 0.35)])
         else:
+            self.prev_devtools_splitter_state = self.main_splitter.saveState()
+            self.dev_tools_container.setVisible(False)
+            if self.before_devtools_splitter_state is not None:
+                self.main_splitter.restoreState(self.before_devtools_splitter_state)
+
+    def toggle_devtools(self):
+        if self.dev_tools_container.isVisible():
+            self.set_devtools_visibility(False)
             if self.current_tab is not None:
                 self.dev_tools_container.change_widget()
                 self.current_tab.close_dev_tools()
+        else:
+            self.set_devtools_visibility(True)
+            if self.current_tab is not None:
+                self.dev_tools_container.change_widget(self.current_tab.dev_tools)
