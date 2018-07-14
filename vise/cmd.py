@@ -105,6 +105,14 @@ class Print(Command):
             window.current_tab.print_page(rest.strip() or None)
 
 
+class Inspect(Command):
+
+    names = {'inspect', 'dev'}
+
+    def __call__(self, cmd, rest, window):
+        window.toggle_devtools()
+
+
 def init_commands():
     all_commands = set()
 
@@ -129,6 +137,7 @@ def read_command_names():
                 raise ValueError('The command name %r is used twice' % name)
             command_map[name] = cmd
     return all_command_names, command_map
+
 
 all_commands = init_commands()
 all_command_names, command_map = read_command_names()

@@ -3,28 +3,26 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
+from collections import deque
 from functools import partial
 from gettext import gettext as _
-from collections import deque
 from itertools import count
 
 from PyQt5 import sip
-from PyQt5.Qt import (
-    QMainWindow, Qt, QSplitter, QApplication, QStackedWidget, QUrl,
-    QKeySequence, pyqtSignal, QTimer, QEventLoop
-)
+from PyQt5.Qt import (QApplication, QEventLoop, QKeySequence, QMainWindow,
+                      QSplitter, QStackedWidget, Qt, QTimer, QUrl, pyqtSignal)
 
 from .ask import Ask
 from .cmd import run_command
 from .constants import appname
+from .dev_tools import DevToolsContainer
 from .downloads import Indicator
-from .settings import gprefs, profile, create_profile, quickmarks
 from .resources import get_icon
+from .settings import create_profile, gprefs, profile, quickmarks
 from .status_bar import StatusBar
 from .tab_tree import TabTree
 from .view import WebView
 from .welcome import WELCOME_URL
-
 
 window_id = count()
 
@@ -65,7 +63,6 @@ class MainWindow(QMainWindow):
         self.setStatusBar(self.status_bar)
 
         self.main_splitter = w = QSplitter(self)
-        w.setChildrenCollapsible(False)
         self.setCentralWidget(w)
 
         self.tabs = []
@@ -77,7 +74,10 @@ class MainWindow(QMainWindow):
         self.stack = s = StackedWidget(self)
         s.currentChanged.connect(self.current_tab_changed)
         w.addWidget(s)
-        w.setCollapsible(0, True), w.setCollapsible(1, False)
+        self.dev_tools_container = d = DevToolsContainer(self)
+        w.addWidget(d)
+        d.setVisible(False)
+        w.setCollapsible(0, True), w.setCollapsible(1, False), w.setCollapsible(2, True)
         self._ask = a = Ask(s)
         a.setVisible(False), a.run_command.connect(self.run_command)
         a.hidden.connect(self.restore_state_after_popup)
@@ -122,6 +122,7 @@ class MainWindow(QMainWindow):
         return rect.size() * 0.9
 
     def save_state(self):
+        self.dev_tools_container.setVisible(False)
         with gprefs:
             gprefs['main-window-geometry'] = bytearray(self.saveGeometry())
             gprefs['main-splitter-state'] = bytearray(self.main_splitter.saveState())
@@ -235,6 +236,7 @@ class MainWindow(QMainWindow):
             self.close_tab(self.current_tab)
 
     def break_cycles(self):
+        self.dev_tools_container.change_widget()
         for tab in self.tabs:
             if not sip.isdeleted(tab):
                 self.stack.removeWidget(tab)
@@ -291,6 +293,13 @@ class MainWindow(QMainWindow):
         self.tab_tree.current_changed(self.current_tab)
         self.update_passthrough_state()
         self.url_changed()
+        if self.current_tab is not None:
+            if self.current_tab.dev_tools_enabled:
+                self.dev_tools_container.change_widget(self.current_tab.dev_tools)
+                self.dev_tools_container.setVisible(True)
+            else:
+                self.dev_tools_container.change_widget()
+                self.dev_tools_container.setVisible(False)
 
     def show_tab(self, tab):
         if tab is not None and self.current_tab is not tab:
@@ -368,3 +377,13 @@ class MainWindow(QMainWindow):
         process_node(state['tab_tree'])
         if current_tab is not None:
             self.show_tab(current_tab)
+
+    def toggle_devtools(self):
+        self.dev_tools_container.setVisible(not self.dev_tools_container.isVisible())
+        if self.dev_tools_container.isVisible():
+            if self.current_tab is not None:
+                self.dev_tools_container.change_widget(self.current_tab.dev_tools)
+        else:
+            if self.current_tab is not None:
+                self.dev_tools_container.change_widget()
+                self.current_tab.close_dev_tools()

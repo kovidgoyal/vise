@@ -22,6 +22,7 @@ from PyQt5.Qt import (QApplication, QCheckBox, QGridLayout, QKeyEvent, QLabel,
 
 from .auth import get_http_auth_credentials, get_proxy_auth_credentials
 from .certs import cert_exceptions
+from .dev_tools import DevTools
 from .communicate import connect_signal, js_to_python, python_to_js
 from .config import misc_config
 from .constants import FOLLOW_LINK_KEY_MAP
@@ -225,6 +226,7 @@ class WebView(QWebEngineView):
         self.titleChanged.connect(self.on_title_change)
         self.renderProcessTerminated.connect(self.render_process_terminated)
         self.callback_on_save_edit_text_node = None
+        self._dev_tools = None
 
     def render_process_terminated(self, termination_type, exit_code):
         if termination_type == QWebEnginePage.CrashedTerminationStatus:
@@ -237,6 +239,24 @@ class WebView(QWebEngineView):
             error_dialog(self.parent(), _('Render process terminated'), _(
                 'The render process exited abnormally while displaying the URL: {0} with exit code: {1}').format(
                     self.url().toString(), exit_code), show=True)
+
+    @property
+    def dev_tools(self):
+        if self._dev_tools is None:
+            self._dev_tools = DevTools(self)
+            self._dev_tools.set_inspected_view(self)
+        return self._dev_tools
+
+    @property
+    def dev_tools_enabled(self):
+        return self._dev_tools is not None
+
+    def close_dev_tools(self):
+        if self._dev_tools is not None:
+            self._dev_tools.set_inspected_view()
+            self._dev_tools.setParent(None)
+            self._dev_tools.deleteLater()
+            self._dev_tools = None
 
     @property
     def is_showing_internal_content(self):
@@ -373,6 +393,7 @@ class WebView(QWebEngineView):
         return QWebEngineView.moveEvent(self, ev)
 
     def break_cycles(self):
+        self.close_dev_tools()
         self.host_widget = None
         self.callback_on_save_edit_text_node = None
         self.popup.break_cycles()

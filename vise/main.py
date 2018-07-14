@@ -395,17 +395,6 @@ def run_app(
     app = Application(
         master_password=master_password, urls=urls, new_instance=new_instance, shutdown=shutdown, restart_state=restart_state, no_session=no_session)
     os.environ['QTWEBENGINE_DICTIONARIES_PATH'] = os.path.join(config_dir, 'spell')
-    if False:
-        # This is disabled because it is insecure, see
-        # https://bugreports.qt.io/browse/QTBUG-50725
-        # Note that you can get a list of inspectable pages
-        # by fetching the /json URL from the debugging server.
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        s.bind(('127.0.0.1', 0))
-        port = s.getsockname()[1]
-        os.environ['QTWEBENGINE_REMOTE_DEBUGGING'] = '127.0.0.1:%d' % port
-        app.debug_port = port
     app.original_env = env
     style = Style()
     app.setStyle(style)
