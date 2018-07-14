@@ -347,9 +347,14 @@ class WebView(QWebEngineView):
 
     def feature_permission_requested(self, qurl, feature):
         key = (qurl.toString(), feature)
-        what = {QWebEnginePage.Geolocation: _('current location'), QWebEnginePage.MediaAudioCapture: _('microphone'),
-                QWebEnginePage.MediaVideoCapture: _('webcam'), QWebEnginePage.MediaAudioVideoCapture: _('microphone and webcam')
-                }[feature]
+        what = {
+            QWebEnginePage.Geolocation: _('current location'),
+            QWebEnginePage.MediaAudioCapture: _('microphone'),
+            QWebEnginePage.MediaVideoCapture: _('webcam'),
+            QWebEnginePage.MediaAudioVideoCapture: _('microphone and webcam'),
+            QWebEnginePage.DesktopVideoCapture: _('desktop video capture'),
+            QWebEnginePage.DesktopAudioVideoCapture: _('desktop audio/video capture'),
+        }[feature]
         self.feature_permission_map[key] = self.popup(
             _('Grant this site access to your <b>%s</b>?') % what,
             lambda ok, during_shutdown: self.page().setFeaturePermission(qurl, feature, (
