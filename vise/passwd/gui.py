@@ -4,7 +4,7 @@
 
 from gettext import gettext as _
 
-import sip
+from PyQt5 import sip
 from PyQt5.Qt import (
     QSize, QAbstractListModel, Qt, QSortFilterProxyModel, QListView,
     QVBoxLayout, QLineEdit, QFormLayout, QCheckBox, QPlainTextEdit,

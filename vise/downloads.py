@@ -13,7 +13,7 @@ from itertools import count
 from gettext import gettext as _
 from urllib.parse import unquote
 
-import sip
+from PyQt5 import sip
 from PyQt5.Qt import (
     QApplication, QObject, QUrl, QByteArray, QWebEngineDownloadItem,
     pyqtSignal, QTimer, Qt, QWidget, QPainter

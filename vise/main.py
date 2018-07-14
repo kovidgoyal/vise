@@ -16,7 +16,7 @@ import pickle
 from datetime import datetime
 from gettext import gettext as _
 
-import sip
+from PyQt5 import sip
 from PyQt5.Qt import (
     QApplication, QFontDatabase, QNetworkDiskCache, QLocalSocket, QLocalServer,
     QSslSocket, QTextStream, QAbstractSocket, QTimer, Qt, pyqtSignal,

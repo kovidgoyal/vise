@@ -8,7 +8,7 @@ from gettext import gettext as _
 from collections import deque
 from itertools import count
 
-import sip
+from PyQt5 import sip
 from PyQt5.Qt import (
     QMainWindow, Qt, QSplitter, QApplication, QStackedWidget, QUrl,
     QKeySequence, pyqtSignal, QTimer, QEventLoop
