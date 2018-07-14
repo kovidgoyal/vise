@@ -167,7 +167,8 @@ class WebPage(QWebEnginePage):
     def break_cycles(self):
         self.callbacks.clear()
         for s in ('authenticationRequired proxyAuthenticationRequired linkHovered featurePermissionRequested'
-                  ' featurePermissionRequestCanceled fullScreenRequested windowCloseRequested poll_for_messages').split():
+                  ' featurePermissionRequestCanceled fullScreenRequested windowCloseRequested quotaRequested'
+                  ' poll_for_messages').split():
             safe_disconnect(getattr(self, s))
         # Without the next two lines we get a crash on exit with Qt 5.8.0
         self.setParent(None)
@@ -219,6 +220,7 @@ class WebView(QWebEngineView):
         self.popup = Popup(self)
         self._page.featurePermissionRequested.connect(self.feature_permission_requested)
         self._page.featurePermissionRequestCanceled.connect(self.feature_permission_request_canceled)
+        self._page.quotaRequested.connect(self.quota_requested)
         self._page.fullScreenRequested.connect(self.full_screen_requested)
         self.feature_permission_map = {}
         self.text_input_focused = False
@@ -359,6 +361,12 @@ class WebView(QWebEngineView):
         qid = self.feature_permission_map.pop(key, None)
         if qid is not None:
             self.popup.abort_question(qid)
+
+    def quota_requested(self, request):
+        self.popup(
+            _('Grant this site access to <b>persistent storage</b> of {}?'),
+            lambda ok, during_shutdown: request.accept() if ok else request.reject()
+        )
 
     def exit_full_screen(self):
         self._page.triggerAction(self._page.ExitFullScreen)
