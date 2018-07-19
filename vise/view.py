@@ -499,6 +499,7 @@ class WebView(QWebEngineView):
         self.on_login_form_found(url, True)
 
     def get_login_credentials(self, url):
+        # return {'password': 'testpw', 'autologin': False, 'username': 'testuser', 'notes': None}
         if not QApplication.instance().ask_for_master_password(self):
             return
         if password_db.join():
@@ -516,11 +517,17 @@ class WebView(QWebEngineView):
 
     def send_text_using_keys(self, text):
         if self.host_widget is not None:
-            for ch in text:
-                QApplication.sendEvent(self.host_widget, QKeyEvent(QKeyEvent.KeyPress, Qt.Key_Space, Qt.KeyboardModifiers(0), ch))
+            self.host_widget.setFocus(Qt.OtherFocusReason)
+            with QApplication.instance().key_filter.disable_filtering:
+                for ch in text:
+                    key = getattr(Qt, f'Key_{ch.upper()}', Qt.Key_A)
+                    QApplication.sendEvent(self.host_widget, QKeyEvent(QKeyEvent.KeyPress, key, Qt.KeyboardModifiers(0), ch))
+                # Ensure key events are delivered before any other processing
+                while QApplication.instance().processEvents():
+                    pass
 
     @connect_signal()
-    def fill_form_field_for(self, url, which):
+    def fill_form_field_for(self, url, which, left, top, right, bottom):
         ac = self.get_login_credentials(url)
         if ac is not None:
             self.send_text_using_keys(ac[which])
