@@ -82,7 +82,11 @@ def request_form_field_fill(which, element, url):
     element.focus()
     element.value = ''
     br = element.getBoundingClientRect()
-    js_to_python('fill_form_field_for', url, which, br.left, br.top, br.right, br.bottom)
+    send_action(window.top, 'request_form_field_fill', url, which, br.left, br.top, br.right, br.bottom)
+
+
+def do_request_form_field_fill(current_frame_id, source_frame_id, source_frame, url, which, left, top, right, bottom):
+    js_to_python('fill_form_field_for', url, which, left, top, right, bottom)
 
 
 def do_autofill(url, autosubmit, is_current_form):
@@ -109,7 +113,7 @@ def do_autofill(url, autosubmit, is_current_form):
         found_form = candidates[-1]
         found_form.dataset.viseAutosubmit = '1' if autosubmit else '0'
         un, pw = get_login_inputs(found_form)
-        if un is not None and not un.dataset.viseFilled:
+        if un is not None and un.dataset.viseFilled is not '1':
             un.dataset.viseFilled = '1'
             request_form_field_fill('username', un, url)
         elif pw:
@@ -162,11 +166,30 @@ def send_url_for_current_login_form(current_frame_id, source_frame_id, source_fr
         current_login_form_request_id += 1
         js_to_python('url_for_current_login_form', url)
 
+
+def form_focused(evt):
+    if evt.target.dataset.viseFormAutofilled is '1':
+        return
+    evt.target.dataset.viseFormAutofilled = '1'
+    window.setTimeout(send_action.bind(None, window.top, 'login_form_found', document.location.href), 10)
+
+
+def setup_login_forms():
+    for form in document.querySelectorAll('form'):
+        if is_login_form(form):
+            pw = get_login_inputs(form)[1]
+            if pw:
+                pw.addEventListener('input', password_changed, True)
+            form.addEventListener('submit', form_submitted, True)
+            form.addEventListener('focus', form_focused, True)
+
+
 def onload():
     if window is window.top:
         register_handler('login_form_found', login_form_found)
         register_handler('login_form_submitted', login_form_submitted)
         register_handler('send_url_for_current_login_form', send_url_for_current_login_form)
+        register_handler('request_form_field_fill', do_request_form_field_fill)
         connect_signal('autofill_login_form', on_autofill_login_form)
         connect_signal('form_field_filled', on_form_field_filled)
         connect_signal('get_url_for_current_login_form', on_get_url_for_current_login_form)
@@ -174,14 +197,4 @@ def onload():
         register_handler('autofill_login_form', autofill_login_form)
         register_handler('form_field_filled', form_field_filled)
         register_handler('get_url_for_current_login_form_in_subframe', get_url_for_current_login_form_in_subframe)
-    login_forms_found = False
-    for form in document.querySelectorAll('form'):
-        if is_login_form(form):
-            pw = get_login_inputs(form)[1]
-            if pw:
-                pw.addEventListener('input', password_changed, True)
-            form.addEventListener('submit', form_submitted, True)
-            login_forms_found = True
-            break
-    if login_forms_found:
-        send_action(window.top, 'login_form_found', document.location.href)
+    setup_login_forms()

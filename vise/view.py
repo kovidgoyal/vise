@@ -492,7 +492,7 @@ class WebView(QWebEngineView):
 
     @connect_signal()
     def login_form_found_in_page(self, url):
-        self.on_login_form_found(url, False)
+        self.on_login_form_found(url, True)
 
     @connect_signal()
     def url_for_current_login_form(self, url):
