@@ -4,7 +4,6 @@
 
 import os
 from collections import deque
-from functools import partial
 from gettext import gettext as _
 from itertools import count
 
@@ -150,7 +149,7 @@ class MainWindow(QMainWindow):
         self.tabs.append(ans)
         ans.title_changed.connect(self.update_window_title)
         ans.urlChanged.connect(self.url_changed)
-        ans.link_hovered.connect(partial(self.link_hovered, ans))
+        ans.link_hovered.connect(self.link_hovered)
         ans.window_close_requested.connect(self.close_tab)
         ans.focus_changed.connect(self.update_mode)
         ans.passthrough_changed.connect(self.update_mode)

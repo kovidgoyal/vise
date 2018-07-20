@@ -192,7 +192,7 @@ class WebView(QWebEngineView):
     icon_changed = pyqtSignal(object)
     loading_status_changed = pyqtSignal(object)
     focus_changed = pyqtSignal(object, object)
-    link_hovered = pyqtSignal(object)
+    link_hovered = pyqtSignal(object, object)
     window_close_requested = pyqtSignal(object)
     resized = pyqtSignal()
     moved = pyqtSignal()
@@ -219,7 +219,7 @@ class WebView(QWebEngineView):
         self.loadStarted.connect(self.load_started)
         self.loadProgress.connect(self.load_progress)
         self.loadFinished.connect(self.load_finished)
-        self._page.linkHovered.connect(self.link_hovered.emit)
+        self._page.linkHovered.connect(self.on_link_hovered)
         self._page.windowCloseRequested.connect(self.on_window_close_requested)
         self.popup = Popup(self)
         self._page.featurePermissionRequested.connect(self.feature_permission_requested)
@@ -234,6 +234,9 @@ class WebView(QWebEngineView):
         self.renderProcessTerminated.connect(self.render_process_terminated)
         self.callback_on_save_edit_text_node = None
         self._dev_tools = None
+
+    def on_link_hovered(self, href):
+        self.link_hovered.emit(self, href)
 
     def on_window_close_requested(self):
         self.window_close_requested.emit(self)

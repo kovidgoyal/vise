@@ -3,7 +3,6 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 from collections import namedtuple
-from functools import partial
 
 from PyQt5.Qt import (
     QWidget, Qt, QLabel, QDialogButtonBox, QHBoxLayout, QPainter, QPainterPath,
@@ -73,8 +72,16 @@ class Popup(QWidget):
         else:
             self.bb.setStandardButtons(self.bb.Yes | self.bb.No)
         for text, val in q.extra_buttons.items():
-            self.bb.addButton(text, self.bb.AcceptRole).clicked.connect(partial(q.callback, val))
+            b = self.bb.addButton(text, self.bb.AcceptRole)
+            b.clicked.connect(self.extra_button_clicked)
+            b.setObjectName(val)
         self.show()
+
+    def extra_button_clicked(self):
+        button = self.sender()
+        q = self.questions[0]
+        if q.callback is not None:
+            q.callback(button.objectName())
 
     def show(self):
         self.move(0, 1)

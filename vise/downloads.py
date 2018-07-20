@@ -8,7 +8,7 @@ import mimetypes
 import weakref
 from binascii import hexlify, unhexlify
 from time import monotonic
-from functools import partial, lru_cache
+from functools import lru_cache
 from itertools import count
 from gettext import gettext as _
 from urllib.parse import unquote
@@ -181,11 +181,10 @@ class Downloads(QObject):
             self.tabrefs.remove(tabref)
 
     def download_created(self, download_item):
-        idx = len(self.items)
         self.items.append(download_item)
-        download_item.downloadProgress.connect(partial(self.on_state_change, idx))
-        download_item.finished.connect(partial(self.on_state_change, idx))
-        download_item.stateChanged.connect(partial(self.on_state_change, idx))
+        download_item.downloadProgress.connect(self.on_state_change)
+        download_item.finished.connect(self.on_state_change)
+        download_item.stateChanged.connect(self.on_state_change)
         download_item.last_tick = (monotonic(), 0)
         download_item.rates = [-1]
         for tab in self.itertabs():
@@ -195,8 +194,8 @@ class Downloads(QObject):
         if hasattr(w, 'show_status_message'):
             w.show_status_message(_('Download of %s started!') % os.path.basename(download_item.path()), 2)
 
-    def on_state_change(self, idx):
-        item = self.items[idx]
+    def on_state_change(self):
+        item = self.sender()
         state = item.state()
         now = monotonic()
         if now - item.last_tick[0] >= self.INTERVAL:
