@@ -30,8 +30,11 @@ class Credentials(Dialog):
         pw.setEchoMode(QLineEdit.Password)
         self.pwt = c = QCheckBox(_('&Show password'), self)
         l.addRow(c)
-        c.toggled.connect(lambda: pw.setEchoMode(QLineEdit.Normal if c.isChecked() else QLineEdit.Password))
+        c.toggled.connect(self.show_password_toggled)
         l.addRow(self.bb)
+
+    def show_password_toggled(self):
+        self.pwt.setEchoMode(QLineEdit.Normal if self.pwt.isChecked() else QLineEdit.Password)
 
     @property
     def credentials(self):

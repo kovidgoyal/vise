@@ -36,16 +36,20 @@ class Ask(Dialog):
         p.setToolTip(_('If checked you will never be asked for confirmation for this site again,'
                        '\notherwise, you will be asked again after restarting the browser.'))
         p.setChecked(gprefs.get('permanently_store_ssl_exception', True))
-        p.toggled.connect(lambda: gprefs.set('permanently_store_ssl_exception', p.isChecked()))
+        p.toggled.connect(self.permanent_toggled)
         l.addWidget(p, 1, 0, 1, -1)
         l.addWidget(self.bb, 2, 0, 1, -1)
         self.bb.setStandardButtons(self.bb.Yes | self.bb.No)
         l.setColumnStretch(1, 100)
 
+    def permanent_toggled(self):
+        gprefs.set('permanently_store_ssl_exception', self.permanent.isChecked())
+
     def sizeHint(self):
         ans = Dialog.sizeHint(self)
         ans.setWidth(ans.width() + 150)
         return ans
+
 
 code_map = {int(v): k for k, v in vars(QWebEngineCertificateError).items() if isinstance(v, QWebEngineCertificateError.Error)}
 
@@ -111,5 +115,6 @@ class CertExceptions:
             self.add_exception(domain, code, permanent=d.permanent.isChecked())
             return True
         return False
+
 
 cert_exceptions = CertExceptions()

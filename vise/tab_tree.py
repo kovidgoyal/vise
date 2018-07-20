@@ -285,11 +285,14 @@ class TabTree(QTreeWidget):
         self.setItemDelegate(self.delegate)
         self.setMouseTracking(True)
         self._last_item = lambda: None
-        self.itemEntered.connect(lambda item, col: item.set_data(HOVER_ROLE, True))
+        self.itemEntered.connect(self.item_entered)
         self.setCursor(Qt.PointingHandCursor)
         self.viewport().installEventFilter(self)
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.show_context_menu)
+
+    def item_entered(self, item, col):
+        item.set_data(HOVER_ROLE, True)
 
     def show_context_menu(self, pos):
         item = self.itemAt(pos)

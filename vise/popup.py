@@ -26,13 +26,19 @@ class Popup(QWidget):
         self.msg = msg = QLabel('\xa0')
         self.bb = bb = QDialogButtonBox(QDialogButtonBox.Close, self)
         l.addWidget(msg), l.addWidget(bb)
-        bb.accepted.connect(lambda: self.finish(True))
-        bb.rejected.connect(lambda: self.finish(False))
+        bb.accepted.connect(self.accept)
+        bb.rejected.connect(self.reject)
         self.question_id = 0
         self.shutting_down = False
         self.setFocusPolicy(Qt.NoFocus)
         bb.setFocusPolicy(Qt.NoFocus)
         self.msg.setFocusPolicy(Qt.NoFocus)
+
+    def accept(self):
+        self.finish(True)
+
+    def reject(self):
+        self.finish(False)
 
     def parent_resized(self):
         self.resize(self.parent().width(), self.sizeHint().height())

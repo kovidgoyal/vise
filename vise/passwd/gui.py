@@ -58,7 +58,7 @@ class EditAccount(QWidget):
         p.setEchoMode(p.Password)
         self.show_password = sp = QCheckBox(_('&Show password'))
         l.addWidget(sp)
-        sp.toggled.connect(lambda checked: p.setEchoMode(p.Normal if checked else p.Password))
+        sp.toggled.connect(self.show_password_toggled)
         self.la = la = QLabel(_('&Notes:'))
         l.addRow(la)
         self.notes = n = QPlainTextEdit(self)
@@ -67,10 +67,16 @@ class EditAccount(QWidget):
         l.addRow(n)
         self.autosubmit = asb = QCheckBox(_('&Auto login with these credentials'), self)
         l.addRow(asb)
-        asb.stateChanged.connect(lambda: self.changed.emit())
+        asb.stateChanged.connect(self.on_change)
         self.rb = b = QPushButton(_('&Delete this account'))
         b.clicked.connect(self.delete_requested.emit)
         l.addRow(b)
+
+    def show_password_toggled(self, checked):
+        self.password.setEchoMode(QLineEdit.Normal if checked else QLineEdit.Password)
+
+    def on_change(self):
+        self.changed.emit()
 
     @property
     def data(self):
@@ -243,13 +249,16 @@ class AskForPassword(Dialog):
         l.addWidget(pw)
         self.showp = sp = QCheckBox(_('&Show password'), self)
         l.addWidget(sp)
-        sp.toggled.connect(lambda show: pw.setEchoMode(pw.Normal if show else pw.Password))
+        sp.toggled.connect(self.show_password_toggled)
         if self.create_password:
             self.la2 = la = QLabel(_('Confirm (re-enter) the password'))
             l.addWidget(la)
             self.confirm = c = QLineEdit(self)
             l.addWidget(c)
         l.addWidget(self.bb)
+
+    def show_password_toggled(self, show):
+        self.pw.setEchoMode(self.pw.Normal if show else self.pw.Password)
 
     @property
     def password(self):

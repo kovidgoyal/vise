@@ -58,9 +58,13 @@ class Alert(Dialog):  # {{{
         self.setMaximumWidth(self.parent().width())
         self.setMaximumHeight(self.parent().height())
         self.cb = cb = QCheckBox(_('&Suppress future alerts from this site'), self)
-        cb.toggled.connect(lambda: cb.isChecked() and Alert.suppressed_alerts.add(self.key))
+        cb.toggled.connect(self.suppress_toggled)
         lay.addWidget(cb, 1, 0)
         lay.addWidget(self.bb, 1, 1), self.bb.setStandardButtons(self.bb.Close)
+
+    def suppress_toggled(self):
+        if self.cb.isChecked():
+            Alert.suppressed_alerts.add(self.key)
 
     def sizeHint(self):
         ans = Dialog.sizeHint(self)
@@ -216,7 +220,7 @@ class WebView(QWebEngineView):
         self.loadProgress.connect(self.load_progress)
         self.loadFinished.connect(self.load_finished)
         self._page.linkHovered.connect(self.link_hovered.emit)
-        self._page.windowCloseRequested.connect(lambda: self.window_close_requested.emit(self))
+        self._page.windowCloseRequested.connect(self.on_window_close_requested)
         self.popup = Popup(self)
         self._page.featurePermissionRequested.connect(self.feature_permission_requested)
         self._page.featurePermissionRequestCanceled.connect(self.feature_permission_request_canceled)
@@ -230,6 +234,9 @@ class WebView(QWebEngineView):
         self.renderProcessTerminated.connect(self.render_process_terminated)
         self.callback_on_save_edit_text_node = None
         self._dev_tools = None
+
+    def on_window_close_requested(self):
+        self.window_close_requested.emit(self)
 
     def render_process_terminated(self, termination_type, exit_code):
         if termination_type == QWebEnginePage.CrashedTerminationStatus:

@@ -317,8 +317,11 @@ class Application(QApplication):
         parent = self.activeWindow()
         d = error_dialog(parent, _('Unhandled exception'), msg, det_msg=det_msg, show=False)
         b = d.shutdown_button = d.bb.addButton(_('Shutdown'), d.bb.ActionRole)
-        b.clicked.connect(lambda: self.exit(1))
+        b.clicked.connect(self.exit_with_error)
         d.exec_()
+
+    def exit_with_error(self):
+        self.exit(1)
 
     def break_cycles(self):
         # Make sure the application object has no references in python and the
