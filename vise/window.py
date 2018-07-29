@@ -207,6 +207,12 @@ class MainWindow(QMainWindow):
                 pass
             self.stack.removeWidget(tab)
             tab.close()
+            # As of Qt 5.11 closing many tabs without processing events between
+            # closes causes Qt to crash
+            num = 10
+            app = QApplication.instance()
+            while app.processEvents(QEventLoop.ExcludeUserInputEvents, 100) and num > 0:
+                num -= 1
 
     def undelete_tab(self):
         if self.deleted_tabs_cache:
@@ -222,12 +228,6 @@ class MainWindow(QMainWindow):
         tab = tab or self.current_tab
         if tab is not None:
             self.delete_removed_tabs(self.tab_tree.remove_tab(tab))
-            # As of Qt 5.11 closing many tabs without processing events between
-            # closes causes Qt to crash
-            num = 10
-            app = QApplication.instance()
-            while app.processEvents(QEventLoop.ExcludeUserInputEvents, 100) and num > 0:
-                num -= 1
         if not self.tabs:
             self.open_url(WELCOME_URL, switch_to_tab=True)
             QTimer.singleShot(0, self.current_tab_changed)
