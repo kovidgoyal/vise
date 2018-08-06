@@ -77,6 +77,13 @@ def paste_url(window, *a, **k):
         return True
 
 
+def paste_selection(window, *a, **k):
+    if window.current_tab is not None:
+        text = QApplication.clipboard().text(1)
+        if text:
+            window.current_tab.send_text_using_keys(text)
+
+
 def fill_login_form(window, *args, **kwargs):
     if window.current_tab is not None:
         python_to_js(window.current_tab, 'get_url_for_current_login_form')

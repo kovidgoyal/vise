@@ -75,6 +75,7 @@ insert mode keys:  # The keys used in insert mode (i.e. when the cursor is in a 
     edit_text: Ctrl+I
     fill_login_form: Ctrl+L
     paste_url: Ctrl+U
+    paste_selection: Ctrl+Shift+S
 
 ##################### Fonts ############################
 
