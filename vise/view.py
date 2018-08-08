@@ -234,12 +234,24 @@ class WebView(QWebEngineView):
         self.renderProcessTerminated.connect(self.render_process_terminated)
         self.callback_on_save_edit_text_node = None
         self._dev_tools = None
+        self._pending_anchor = False
 
     def on_link_hovered(self, href):
         self.link_hovered.emit(self, href)
 
     def on_window_close_requested(self):
         self.window_close_requested.emit(self)
+
+    def on_display_in_stack(self):
+        # Workaround for https://bugreports.qt.io/browse/QTBUG-69838
+        if self._pending_anchor:
+            self._pending_anchor = False
+            self.runjs('''
+            (function() {
+                var h = location.hash;
+                location.hash = '';
+                location.hash = h;
+            }());''')
 
     def render_process_terminated(self, termination_type, exit_code):
         if termination_type == QWebEnginePage.CrashedTerminationStatus:
@@ -294,6 +306,9 @@ class WebView(QWebEngineView):
         if self.pending_unserialize is not None:
             state, self.pending_unserialize = self.pending_unserialize, None
             self.scroll_position = (state['x'], state['y'])
+        else:
+            if not self.isVisible() and self._page.url().hasFragment():
+                self._pending_anchor = True
         self.loading_status_changed.emit(False)
         u, ru = self._page.url(), self._page.requestedUrl()
         if u != ru:

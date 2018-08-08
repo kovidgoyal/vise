@@ -296,6 +296,7 @@ class MainWindow(QMainWindow):
         self.update_passthrough_state()
         self.url_changed()
         if self.current_tab is not None:
+            self.current_tab.on_display_in_stack()
             if self.current_tab.dev_tools_enabled:
                 self.dev_tools_container.change_widget(self.current_tab.dev_tools)
                 self.set_devtools_visibility(True)
