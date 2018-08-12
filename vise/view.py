@@ -19,6 +19,7 @@ from PyQt5.Qt import (QApplication, QCheckBox, QGridLayout, QKeyEvent, QLabel,
                       QMarginsF, QPageLayout, QPageSize, QSize, Qt, QUrl,
                       QWebEngineFullScreenRequest, QWebEnginePage,
                       QWebEngineScript, QWebEngineView, pyqtSignal)
+from PyQt5 import sip
 
 from .auth import get_http_auth_credentials, get_proxy_auth_credentials
 from .certs import cert_exceptions
@@ -541,7 +542,7 @@ class WebView(QWebEngineView):
         return QWebEngineView.event(self, event)
 
     def send_text_using_keys(self, text):
-        if self.host_widget is not None:
+        if self.host_widget is not None and not sip.isdeleted(self.host_widget):
             self.host_widget.setFocus(Qt.OtherFocusReason)
             with QApplication.instance().key_filter.disable_filtering:
                 for ch in text:

@@ -393,8 +393,9 @@ class TabTree(QTreeWidget):
     def __iter__(self):
         for i in range(self.topLevelItemCount()):
             item = self.topLevelItem(i)
-            yield item
-            yield from item
+            if isinstance(item, TabItem):
+                yield item
+                yield from item
 
     def item_for_tab(self, tab):
         for q in self:
