@@ -337,7 +337,10 @@ class WebView(QWebEngineView):
                 import traceback
                 traceback.print_exc()
             self.title_changed.emit(title)
-        self._page.poll_for_messages.emit()
+        try:
+            self._page.poll_for_messages.emit()
+        except RuntimeError:
+            pass  # happens if page is deleted
 
     def on_icon_changed(self, icon):
         icurl = self.iconUrl()
