@@ -84,7 +84,9 @@ class MainWindow(QMainWindow):
         a.hidden.connect(self.restore_state_after_popup)
         self.profile = create_profile(private=True) if is_private else profile()
         if is_private:
-            self.profile.setParent(self)
+            # TODO: delete this profile on window close rather than application
+            # close
+            self.profile.setParent(None)
 
         if restart_state is None:
             self.open_url(WELCOME_URL)

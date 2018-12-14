@@ -178,6 +178,9 @@ def get_spell_langs():
     return ans
 
 
+private_profiles = []
+
+
 def create_profile(parent=None, private=False):
     from .vise_scheme import UrlSchemeHandler
     from .url_intercept import Interceptor
@@ -187,6 +190,7 @@ def create_profile(parent=None, private=False):
         from .downloads import download_requested
         ans = QWebEngineProfile(parent)
         ans.downloadRequested.connect(download_requested)
+        private_profiles.append(ans)
     else:
         ans = QWebEngineProfile(appname, parent)
         ans.setCachePath(os.path.join(cache_dir, appname, 'cache'))
@@ -242,14 +246,21 @@ def profile():
     return _profile
 
 
-def delete_profile():
+def do_delete_profile(profile):
     from .utils import safe_disconnect
+    safe_disconnect(profile.downloadRequested)
+    profile.setParent(None)
+    profile.deleteLater()
+
+
+def delete_profile():
     global _profile
     if _profile is not None:
-        safe_disconnect(_profile.downloadRequested)
-        _profile.setParent(None)
-        _profile.deleteLater()
+        do_delete_profile(_profile)
     _profile = None
+    for profile in private_profiles:
+        do_delete_profile(profile)
+    del private_profiles[:]
 
 
 _quickmarks = None
