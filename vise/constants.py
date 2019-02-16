@@ -28,6 +28,7 @@ STATUS_BAR_HEIGHT = 24
 FOLLOW_LINK_KEY_MAP = {getattr(Qt, 'Key_' + x.upper()): x for x in string.ascii_lowercase + string.digits}
 FOLLOW_LINK_KEY_MAP[Qt.Key_Escape] = '|escape'
 FOLLOW_LINK_KEY_MAP[Qt.Key_Enter] = FOLLOW_LINK_KEY_MAP[Qt.Key_Return] = '|enter'
+VISE_SCHEME = 'vise'
 
 
 def _get_cache_dir():

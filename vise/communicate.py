@@ -4,7 +4,7 @@
 
 import json
 
-from PyQt5.Qt import QWebEngineView, QWebEngineScript
+from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEngineScript
 
 
 from_js = {}

@@ -15,18 +15,20 @@ from tempfile import NamedTemporaryFile
 from threading import Thread
 from time import monotonic
 
+from PyQt5 import sip
 from PyQt5.Qt import (QApplication, QCheckBox, QGridLayout, QKeyEvent, QLabel,
                       QMarginsF, QPageLayout, QPageSize, QSize, Qt, QUrl,
-                      QWebEngineFullScreenRequest, QWebEnginePage,
-                      QWebEngineScript, QWebEngineView, pyqtSignal)
-from PyQt5 import sip
+                      pyqtSignal)
+from PyQt5.QtWebEngineWidgets import (QWebEngineFullScreenRequest,
+                                      QWebEnginePage, QWebEngineScript,
+                                      QWebEngineView)
 
 from .auth import get_http_auth_credentials, get_proxy_auth_credentials
 from .certs import cert_exceptions
-from .dev_tools import DevTools
 from .communicate import connect_signal, js_to_python, python_to_js
 from .config import misc_config
 from .constants import FOLLOW_LINK_KEY_MAP
+from .dev_tools import DevTools
 from .downloads import get_download_dir
 from .message_box import question_dialog
 from .passwd.db import key_from_url, password_db, password_exclusions

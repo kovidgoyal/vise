@@ -11,11 +11,12 @@ from collections import defaultdict
 from functools import lru_cache
 
 import apsw
-from PyQt5.Qt import (QApplication, QByteArray, QKeySequence,
-                      QWebEngineProfile, QWebEngineScript)
+from PyQt5.Qt import QApplication, QKeySequence
+from PyQt5.QtWebEngineWidgets import QWebEngineScript, QWebEngineProfile
 
 from .config import color, font_sizes
-from .constants import DOWNLOADS_URL, appname, cache_dir, config_dir
+from .constants import (DOWNLOADS_URL, VISE_SCHEME, appname, cache_dir,
+                        config_dir)
 from .resources import get_data_as_file
 
 
@@ -212,7 +213,7 @@ def create_profile(parent=None, private=False):
             raise SystemExit('You need to compile the rapydscript parts of vise before running it. Install rapydscript-ng and run the build script')
         raise
     ans.url_handler = UrlSchemeHandler(ans)
-    ans.installUrlSchemeHandler(QByteArray(b'vise'), ans.url_handler)
+    ans.installUrlSchemeHandler(VISE_SCHEME.encode('ascii'), ans.url_handler)
     s = ans.settings()
     s.setDefaultTextEncoding('utf-8')
     s.setAttribute(s.FullScreenSupportEnabled, True)

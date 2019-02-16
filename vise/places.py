@@ -12,7 +12,7 @@ from itertools import repeat
 from enum import Enum, unique
 
 import apsw
-from PyQt5.Qt import QWebEnginePage
+from PyQt5.QtWebEngineWidgets import QWebEnginePage
 
 from .constants import config_dir
 from .resources import get_data
@@ -24,6 +24,7 @@ def now():
 
 def normalize(x):
     return unicodedata.normalize('NFC', x)
+
 
 DAY = int(24 * 60 * 60 * 1e6)
 
@@ -37,6 +38,7 @@ class VisitType(Enum):
     reload = 4
     other = 5
 
+
 FRECENCY_NUM_VISITS = 10
 VISIT_TYPE_WEIGHTS = {VisitType.link_clicked.value: 120, VisitType.typed.value: 200}
 RECENCY_WEIGHTS = [100, 70, 50, 30, 10]
@@ -47,6 +49,7 @@ MergeData = namedtuple('MergeData', 'visit_count typed last_visit_date frecency'
 def from_qt(key):
     ans = re.sub(r'[A-Z]', lambda m: '_' + m.group().lower(), key[len('NavigationType'):]).lstrip('_')
     return getattr(VisitType, ans)
+
 
 qt_visit_types = {
     val: from_qt(key) for key, val in vars(QWebEnginePage).items() if key.startswith('NavigationType') and key != 'NavigationType'

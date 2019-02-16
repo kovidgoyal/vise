@@ -4,36 +4,37 @@
 
 import argparse
 import gc
-import os
-import sys
-import traceback
 import json
-import tempfile
-import socket
-import signal
-import struct
+import os
 import pickle
+import signal
+import socket
+import struct
+import sys
+import tempfile
+import traceback
 from datetime import datetime
 from gettext import gettext as _
 
 from PyQt5 import sip
-from PyQt5.Qt import (
-    QApplication, QFontDatabase, QNetworkDiskCache, QLocalSocket, QLocalServer,
-    QSslSocket, QTextStream, QAbstractSocket, QTimer, Qt, pyqtSignal,
-    QSocketNotifier, QNetworkCacheMetaData
-)
+from PyQt5.Qt import (QAbstractSocket, QApplication, QFontDatabase,
+                      QLocalServer, QLocalSocket, QNetworkCacheMetaData,
+                      QNetworkDiskCache, QSocketNotifier, QSslSocket, Qt,
+                      QTextStream, QTimer, pyqtSignal)
+from PyQt5.QtWebEngineCore import QWebEngineUrlScheme
 
-from .constants import appname, str_version, cache_dir, iswindows, isosx, local_socket_address, config_dir
+from .constants import (VISE_SCHEME, appname, cache_dir, config_dir, isosx,
+                        iswindows, local_socket_address, str_version)
 from .downloads import Downloads
 from .keys import KeyFilter
 from .message_box import error_dialog
-from .settings import delete_profile
-from .window import MainWindow
-from .utils import parse_url, BusyCursor, icon_to_data, pipe2
+from .passwd.db import key_from_url, password_db
 from .places import places
-from .passwd.db import password_db, key_from_url
+from .settings import delete_profile
 from .style import Style
+from .utils import BusyCursor, icon_to_data, parse_url, pipe2
 from .welcome import WELCOME_URL
+from .window import MainWindow
 
 ADDRESS = None
 
@@ -440,6 +441,12 @@ def main():
         from .utils import ipython
         ipython()
         raise SystemExit(0)
+
+    scheme = QWebEngineUrlScheme(VISE_SCHEME.encode('ascii'))
+    scheme.setSyntax(QWebEngineUrlScheme.Syntax.Path)
+    scheme.setDefaultPort(13254)
+    scheme.setFlags(QWebEngineUrlScheme.SecureScheme)
+    QWebEngineUrlScheme.registerScheme(scheme)
 
     pw = sys.stdin.read().rstrip() if args.pw_from_stdin else None
     restart_state = None

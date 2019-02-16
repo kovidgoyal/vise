@@ -2,27 +2,28 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
+import mimetypes
 import os
 import tempfile
-import mimetypes
 import weakref
 from binascii import hexlify, unhexlify
-from time import monotonic
 from functools import lru_cache
-from itertools import count
 from gettext import gettext as _
+from itertools import count
+from time import monotonic
 from urllib.parse import unquote
 
 from PyQt5 import sip
-from PyQt5.Qt import (
-    QApplication, QObject, QUrl, QByteArray, QWebEngineDownloadItem,
-    pyqtSignal, QTimer, Qt, QWidget, QPainter
-)
+from PyQt5.Qt import (QApplication, QByteArray, QObject, QPainter, Qt, QTimer,
+                      QUrl, QWidget, pyqtSignal)
+from PyQt5.QtWebEngineWidgets import QWebEngineDownloadItem
 
 from .config import misc_config
-from .constants import DOWNLOADS_URL as DU, STATUS_BAR_HEIGHT
+from .constants import DOWNLOADS_URL as DU
+from .constants import STATUS_BAR_HEIGHT
 from .resources import get_data, get_icon
-from .utils import safe_disconnect, open_local_file, draw_snake_spinner, icon_data_for_filename
+from .utils import (draw_snake_spinner, icon_data_for_filename,
+                    open_local_file, safe_disconnect)
 
 
 def get_download_dir():
