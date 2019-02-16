@@ -218,6 +218,7 @@ def create_profile(parent=None, private=False):
     s.setDefaultTextEncoding('utf-8')
     s.setAttribute(s.FullScreenSupportEnabled, True)
     s.setAttribute(s.LinksIncludedInFocusChain, False)
+    s.setAttribute(s.DnsPrefetchEnabled, True)
     from .config import font_families, font_sizes
     for ftype, family in font_families().items():
         if ftype != 'default' and family:
