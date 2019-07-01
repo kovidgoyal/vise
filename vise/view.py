@@ -377,6 +377,8 @@ class WebView(QWebEngineView):
         QApplication.clipboard().setText(text)
 
     def feature_permission_requested(self, qurl, feature):
+        if not feature:
+            return
         key = (qurl.toString(), feature)
         what = {
             QWebEnginePage.Geolocation: _('current location'),
