@@ -205,7 +205,7 @@ def create_profile(parent=None, private=False):
         ans.setSpellCheckLanguages(langs)
     ua = ' '.join(x for x in ans.httpUserAgent().split() if 'QtWebEngine' not in x)
     ans.setHttpUserAgent(ua)
-    ans.setRequestInterceptor(Interceptor(ans))
+    ans.setUrlRequestInterceptor(Interceptor(ans))
     try:
         insert_scripts(ans, client_script())
     except FileNotFoundError as err:
