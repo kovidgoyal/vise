@@ -221,7 +221,11 @@ def create_profile(parent=None, private=False):
     s.setAttribute(s.DnsPrefetchEnabled, True)
     from .config import font_families, font_sizes
     for ftype, family in font_families().items():
-        if ftype != 'default' and family:
+        if not family:
+            continue
+        if ftype == 'default':
+            s.setFontFamily(s.StandardFont, family)
+        else:
             ftype = ftype.replace('-', '').capitalize().replace('serif', 'Serif') + 'Font'
             ftype = getattr(s, ftype, None)
             if ftype:
