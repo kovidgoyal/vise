@@ -37,6 +37,7 @@ class VisitType(Enum):
     back_forward = 3
     reload = 4
     other = 5
+    redirect = 6
 
 
 FRECENCY_NUM_VISITS = 10
