@@ -295,8 +295,6 @@ class WebView(QWebEngineView):
 
     def load_started(self):
         self.loading_in_progress = True
-        self.text_input_focused = False
-        self.focus_changed.emit(False, self)
         self.loading_status_changed.emit(True)
 
     def load_progress(self, val):
