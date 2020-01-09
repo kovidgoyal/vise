@@ -156,7 +156,7 @@ class MainWindow(QMainWindow):
         ans.title_changed.connect(self.update_window_title)
         ans.urlChanged.connect(self.url_changed)
         ans.link_hovered.connect(self.link_hovered)
-        ans.window_close_requested.connect(self.close_tab)
+        ans.window_close_requested.connect(self.close_tab, type=Qt.QueuedConnection)
         ans.focus_changed.connect(self.update_mode)
         ans.passthrough_changed.connect(self.update_mode)
         ans.passthrough_changed.connect(self.update_passthrough_state)
