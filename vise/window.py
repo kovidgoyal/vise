@@ -10,12 +10,14 @@ from itertools import count
 from PyQt5 import sip
 from PyQt5.Qt import (QApplication, QEventLoop, QKeySequence, QMainWindow,
                       QSplitter, QStackedWidget, Qt, QTimer, QUrl, pyqtSignal)
+from PyQt5.QtWebEngineWidgets import QWebEnginePage
 
 from .ask import Ask
 from .cmd import run_command
 from .constants import appname
 from .dev_tools import DevToolsContainer
 from .downloads import Indicator
+from .places import places
 from .resources import get_icon
 from .settings import create_profile, gprefs, profile, quickmarks
 from .status_bar import StatusBar
@@ -287,6 +289,9 @@ class MainWindow(QMainWindow):
         if switch_to_tab:
             self.show_tab(tab)
         return tab
+
+    def save_url_in_places(self, qurl):
+        places.on_visit(qurl, QWebEnginePage.NavigationTypeTyped, True)
 
     def show_html(self, html, in_current_tab=True):
         if isinstance(html, bytes):

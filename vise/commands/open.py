@@ -91,6 +91,7 @@ class Open(Command):
     def __call__(self, cmd, rest, window):
         if cmd == 'copyurl':
             QApplication.clipboard().setText(rest)
+            window.save_url_in_places(parse_url(rest))
             return
         rest = rest.strip()
         if rest.startswith('http://') or rest.startswith('https://') or rest.startswith('vise:') or rest.startswith('chrome://'):

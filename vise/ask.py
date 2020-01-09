@@ -271,6 +271,8 @@ def develop():
 
 def standalone():
     from .main import Application
+    from vise.utils import parse_url
+    from .places import places
     app = Application(no_session=True, run_local_server=False)
     w = Ask()
     ret = 0
@@ -280,7 +282,9 @@ def standalone():
         if text is None:
             ret = 1
         else:
-            text = text.partition(' ')[-1]
+            text = text.partition(' ')[-1].strip()
+            qurl = parse_url(text)
+            places.on_visit(qurl, 1, True)
             sys.stdout.buffer.write(text.encode('utf-8'))
             sys.stdout.flush()
 
