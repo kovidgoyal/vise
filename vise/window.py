@@ -275,6 +275,7 @@ class MainWindow(QMainWindow):
             self.tab_tree.add_tab(tab, parent=parent)
             if self.current_tab is None:
                 self.current_tab = tab
+                tab.setFocus(Qt.ActiveWindowFocusReason)
         return tab
 
     def get_child_tab_for_load(self):
