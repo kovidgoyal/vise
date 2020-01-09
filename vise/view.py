@@ -77,21 +77,24 @@ class Alert(Dialog):  # {{{
 
 
 def edit_text(viewref, text, frame_id, eid):  # {{{
-    editor = shlex.split(misc_config('editor', default=os.environ.get('EDITOR', 'gvim -f')))
-    if len(editor) == 1 and os.path.basename(editor[0]) == 'vim':
-        editor = ['gvim', '-f']
-    with NamedTemporaryFile(suffix='.txt') as f:
+    defedit = os.environ.get('VISUAL', os.environ.get('EDITOR', 'vim'))
+    defedit = 'kitty ' + defedit
+    editor = shlex.split(misc_config('editor', default=defedit))
+    with NamedTemporaryFile(prefix='vise-edit-file-', suffix='.txt', delete=False) as f:
         f.write(text.encode('utf-8'))
-        f.flush()
+    try:
         ret = subprocess.Popen(editor + [f.name]).wait()
         if ret == 0:
-            f.seek(0)
-            text = f.read().decode('utf-8')
-            # This signal can only be emitted in the GUI thread as it is
-            # connected to JavaScript code
-            view = viewref()
-            if view is not None:
-                view.set_editable_text_in_gui_thread.emit(text, frame_id, eid)
+            with open(f.name, 'rb') as f:
+                new_text = f.read().decode('utf-8')
+            if new_text != text:
+                # This signal can only be emitted in the GUI thread as it is
+                # connected to JavaScript code
+                view = viewref()
+                if view is not None:
+                    view.set_editable_text_in_gui_thread.emit(text, frame_id, eid)
+    finally:
+        os.remove(f.name)
 # }}}
 
 
