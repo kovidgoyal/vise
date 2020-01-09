@@ -4,14 +4,17 @@
 
 import sys
 from gettext import gettext as _
+from queue import Queue
+from threading import Thread
 
-from PyQt5.Qt import (
-    QWidget, QVBoxLayout, QLineEdit, QListView, QAbstractListModel,
-    QModelIndex, Qt, QStyledItemDelegate, QStringListModel, QApplication,
-    QPoint, QColor, QSize, pyqtSignal, QPainter, QFrame, QKeySequence
-)
+from PyQt5 import sip
+from PyQt5.Qt import (QAbstractListModel, QApplication, QColor, QFrame,
+                      QKeySequence, QLineEdit, QListView, QModelIndex,
+                      QPainter, QPoint, QSize, QStringListModel,
+                      QStyledItemDelegate, Qt, QVBoxLayout, QWidget,
+                      pyqtSignal)
 
-from .cmd import command_map, all_command_names
+from .cmd import all_command_names, command_map
 from .config import color
 from .utils import make_highlighted_text
 
@@ -148,11 +151,16 @@ class Ask(QWidget):
 
     run_command = pyqtSignal(object)
     hidden = pyqtSignal()
+    completions_done = pyqtSignal(object)
 
     def __init__(self, parent=None):
         self.complete_pos = 0
         self.callback = None
         QWidget.__init__(self, parent)
+        self.queue = Queue()
+        self.completions_done.connect(self.on_completions_done)
+        self.completions_thread = t = Thread(name='Completions', target=self.completions_thread, daemon=True)
+        t.start()
         self.l = l = QVBoxLayout(self)
         self.edit = e = LineEdit(self)
         e.textEdited.connect(self.update_completions)
@@ -164,6 +172,13 @@ class Ask(QWidget):
         if hasattr(parent, 'resized'):
             parent.resized.connect(self.re_layout)
             self.re_layout()
+
+    def completions_thread(self):
+        while True:
+            obj, cmd, rest = self.queue.get()
+            completions = obj.completions(cmd, rest)
+            if not sip.isdeleted(self):
+                self.completions_done.emit(completions)
 
     def re_layout(self):
         w = self.parent().width()
@@ -183,16 +198,17 @@ class Ask(QWidget):
     def update_completions(self):
         text = self.edit.text()
         parts = text.strip().split(' ')
-        completions = []
         self.complete_pos = 0
         if len(parts) == 1:
-            completions = self.command_completions(parts[0])
+            self.completions_done.emit(self.command_completions(parts[0]))
         else:
             idx = self.complete_pos = text.find(parts[0]) + len(parts[0]) + 1
             cmd, rest = parts[0], text[idx:]
             obj = command_map.get(cmd)
             if obj is not None:
-                completions = obj.completions(cmd, rest)
+                self.queue.put((obj, cmd, rest))
+
+    def on_completions_done(self, completions):
         self.model.set_items(completions)
         self.candidates.setCurrentIndex(QModelIndex())
 
