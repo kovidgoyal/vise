@@ -88,11 +88,9 @@ def edit_text(viewref, text, frame_id, eid):  # {{{
             with open(f.name, 'rb') as f:
                 new_text = f.read().decode('utf-8')
             if new_text != text:
-                # This signal can only be emitted in the GUI thread as it is
-                # connected to JavaScript code
                 view = viewref()
                 if view is not None:
-                    view.set_editable_text_in_gui_thread.emit(text, frame_id, eid)
+                    view.set_editable_text_in_gui_thread.emit(new_text, frame_id, eid)
     finally:
         os.remove(f.name)
 # }}}
