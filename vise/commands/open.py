@@ -13,6 +13,8 @@ from ..utils import make_highlighted_text, parse_url
 
 def search_engine(q):
     ans = QUrl('https://google.com/search')
+    # ans = QUrl('https://duckduckgo.com/lite')
+    # ans = QUrl('https://duckduckgo.com')
     qq = QUrlQuery()
     qq.addQueryItem('q', q)
     ans.setQuery(qq)
