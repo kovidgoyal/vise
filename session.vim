@@ -6,7 +6,7 @@ set wildignore+==template.py
 set wildignore+==tags
 set wildignore+=*.pyj-cached
 
-python <<endpython
+python3 <<endpython
 import sys
 sys.path.insert(0, os.path.abspath('.'))
 import vise
