@@ -23,8 +23,9 @@ from PyQt5.Qt import (QAbstractSocket, QApplication, QFontDatabase,
                       QTextStream, QTimer, pyqtSignal)
 from PyQt5.QtWebEngineCore import QWebEngineUrlScheme
 
-from .constants import (VISE_SCHEME, appname, cache_dir, config_dir, isosx,
-                        iswindows, local_socket_address, str_version)
+from .constants import (VISE_SCHEME, appname, cache_dir, config_dir,
+                        in_dark_mode, isosx, iswindows, local_socket_address,
+                        str_version)
 from .downloads import Downloads
 from .keys import KeyFilter
 from .message_box import error_dialog
@@ -376,6 +377,8 @@ def restart(state, env):
     cmd = [sys.executable, sys.argv[0]]
     if '--new-instance' in sys.argv:
         cmd.append('--new-instance')
+    if in_dark_mode:
+        cmd.append('--force-dark-mode')
     print('Restarting with command:', *map(shlex.quote, cmd))
     p = subprocess.Popen(cmd, env=env, stdin=subprocess.PIPE)
     p.stdin.write(state), p.stdin.flush(), p.stdin.close()

@@ -51,6 +51,7 @@ def _get_cache_dir():
 
 cache_dir = _get_cache_dir()
 del _get_cache_dir
+in_dark_mode = '--force-dark-mode' in os.environ.get('QTWEBENGINE_CHROMIUM_FLAGS', '').split()
 
 
 def _get_config_dir():
