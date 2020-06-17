@@ -19,8 +19,7 @@ from PyQt5 import sip
 from PyQt5.Qt import (QApplication, QCheckBox, QGridLayout, QKeyEvent, QLabel,
                       QMarginsF, QPageLayout, QPageSize, QSize, Qt, QUrl,
                       pyqtSignal)
-from PyQt5.QtWebEngineWidgets import (QWebEngineFullScreenRequest,
-                                      QWebEnginePage, QWebEngineScript,
+from PyQt5.QtWebEngineWidgets import (QWebEnginePage, QWebEngineScript,
                                       QWebEngineView)
 
 from .auth import get_http_auth_credentials, get_proxy_auth_credentials
@@ -409,26 +408,24 @@ class WebView(QWebEngineView):
         self._page.triggerAction(self._page.ExitFullScreen)
 
     def full_screen_requested(self, req):
-        req = QWebEngineFullScreenRequest(req)  # Needed to accept asynchronously
+        # Cannot accept this asynchronously in python, see
+        # https://bugreports.qt.io/browse/QTBUG-55064
+        req.accept()
         if site_permissions.has_permission(req.origin(), 'full_screen'):
-            req.accept()
             self.toggle_full_screen.emit(req.toggleOn())
         else:
-            callback = partial(self.on_full_screen_decision, req)
+            callback = partial(self.on_full_screen_decision, req.origin(), req.toggleOn())
             q = _('Allow %s to switch to full screen?')
             if not req.toggleOn():
                 q = _('Allow %s to switch out of full screen?')
             self.popup(q % ascii_lowercase(req.origin().host()),
                        callback, extra_buttons={_('Always'): 'permanent'})
 
-    def on_full_screen_decision(self, req, ok, during_shutdown):
+    def on_full_screen_decision(self, origin, toggle_on, ok, during_shutdown):
         if ok:
-            site_permissions.add_permission(req.origin(), 'full_screen', permanent=ok == 'permanent')
-            req.accept()
+            site_permissions.add_permission(origin, 'full_screen', permanent=ok == 'permanent')
             if not during_shutdown:
-                self.toggle_full_screen.emit(req.toggleOn())
-        else:
-            req.reject()
+                self.toggle_full_screen.emit(toggle_on)
 
     def resizeEvent(self, ev):
         self.resized.emit()
