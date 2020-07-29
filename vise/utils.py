@@ -2,20 +2,21 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
+import math
 import os
 import re
-import string
 import shutil
+import string
 import sys
-import math
 from functools import lru_cache
-from xml.sax.saxutils import escape
 from gettext import gettext as _
+from xml.sax.saxutils import escape
 
-from PyQt5.Qt import (
-    QUrl, QFontMetrics, QApplication, QConicalGradient, QPen, QBrush, QPainter,
-    QRect, Qt, QDialog, QDialogButtonBox, QByteArray, QBuffer, QMimeDatabase,
-    QStaticText, QCursor, QFileDialog, QDesktopServices, QIcon)
+from PyQt5.Qt import (QApplication, QBrush, QBuffer, QByteArray,
+                      QConicalGradient, QCursor, QDesktopServices, QDialog,
+                      QDialogButtonBox, QFileDialog, QFontMetrics, QIcon,
+                      QImage, QMimeDatabase, QPainter, QPen, QRect,
+                      QStaticText, Qt, QUrl)
 
 from .constants import cache_dir, str_version
 from .settings import gprefs
@@ -94,6 +95,30 @@ def draw_snake_spinner(painter, rect, angle, light, dark):
     pen.setCapStyle(Qt.RoundCap)
     painter.setPen(pen)
     painter.drawArc(drawing_rect, angle * 16, (360 - 2 * angle_for_width) * 16)
+
+
+class SpinnerCache:
+
+    def __init__(self, light, dark):
+        self.width = self.height = 0
+        self.light, self.dark = light, dark
+        self.cache = {}
+
+    def __call__(self, painter, rect, angle):
+        width, height = rect.width(), rect.height()
+        if (width, height) != (self.width, self.height):
+            self.cache = {}
+            self.width, self.height = width, height
+        img = self.cache.get(angle)
+        if img is None:
+            img = self.cache[angle] = QImage(width, height, QImage.Format_ARGB32_Premultiplied)
+            img.fill(Qt.transparent)
+            p = QPainter(img)
+            r = img.rect()
+            draw_snake_spinner(p, r, angle, self.light, self.dark)
+            p.end()
+            del p
+        painter.drawImage(rect, img, img.rect())
 
 
 class Dialog(QDialog):

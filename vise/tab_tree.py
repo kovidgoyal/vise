@@ -2,22 +2,21 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-import weakref
 import string
-from gettext import gettext as _
-from functools import partial
+import weakref
 from collections import OrderedDict
+from functools import partial
+from gettext import gettext as _
 
-from PyQt5.Qt import (
-    QTreeWidget, QTreeWidgetItem, Qt, pyqtSignal, QSize, QFont, QPen, QRect,
-    QApplication, QPainter, QPixmap, QIcon, QTimer, QStyledItemDelegate,
-    QStyle, QEvent, QColor, QMenu, QPainterPath, QBrush, QRectF
-)
+from PyQt5.Qt import (QApplication, QBrush, QColor, QEvent, QFont, QIcon,
+                      QMenu, QPainter, QPainterPath, QPen, QPixmap, QRect,
+                      QRectF, QSize, QStyle, QStyledItemDelegate, Qt, QTimer,
+                      QTreeWidget, QTreeWidgetItem, pyqtSignal)
 
 from .config import color
 from .downloads import DOWNLOADS_URL, downloads_icon
 from .resources import get_data_as_path
-from .utils import elided_text, draw_snake_spinner
+from .utils import SpinnerCache, elided_text
 from .welcome import WELCOME_URL, welcome_icon
 
 LOADING_ROLE = Qt.UserRole
@@ -66,6 +65,7 @@ class TabDelegate(QStyledItemDelegate):
         pal = parent.palette()
         self.dark = pal.color(pal.Text)
         self.light = pal.color(pal.Base)
+        self.draw_spinner = SpinnerCache(self.light, self.dark)
         self.highlighted_text = pal.color(pal.HighlightedText)
         self.errored_out = False
         self.current_background = QBrush(QColor(color('tab tree current background', Qt.lightGray)))
@@ -114,7 +114,7 @@ class TabDelegate(QStyledItemDelegate):
             if not self.errored_out:
                 angle = index.data(ANGLE_ROLE)
                 try:
-                    draw_snake_spinner(painter, icon_rect, angle, self.light, self.dark)
+                    self.draw_spinner(painter, icon_rect, angle)
                 except Exception:
                     import traceback
                     traceback.print_exc()
@@ -465,8 +465,8 @@ class TabTree(QTreeWidget):
 
     def tick_loading_animation(self):
         for item in self.loading_items:
-            angle = item.data(0, ANGLE_ROLE)
-            item.set_data(ANGLE_ROLE, angle - 4)
+            angle = (item.data(0, ANGLE_ROLE) - 4 + 360) % 360
+            item.set_data(ANGLE_ROLE, angle)
 
     def item_clicked(self, item, column):
         if item is not None:
