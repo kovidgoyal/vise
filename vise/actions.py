@@ -169,6 +169,12 @@ def reset_zoom(window, *args, **kw):
         return True
 
 
+def toggle_muted(window, *args, **kw):
+    if window.current_tab is not None:
+        window.current_tab.muted = not window.current_tab.muted
+        return True
+
+
 def _paste_and_go(window, in_current_tab=True):
     c = QApplication.clipboard()
     for mode in c.Clipboard, c.Selection:

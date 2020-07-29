@@ -175,7 +175,7 @@ class WebPage(QWebEnginePage):
         self.callbacks.clear()
         for s in ('authenticationRequired proxyAuthenticationRequired linkHovered featurePermissionRequested'
                   ' featurePermissionRequestCanceled fullScreenRequested windowCloseRequested quotaRequested'
-                  ' poll_for_messages').split():
+                  ' poll_for_messages audioMutedChanged').split():
             safe_disconnect(getattr(self, s))
         # Without the next two lines we get a crash on exit with Qt 5.8.0
         self.setParent(None)
@@ -204,6 +204,7 @@ class WebView(QWebEngineView):
     toggle_full_screen = pyqtSignal(object)
     set_editable_text_in_gui_thread = pyqtSignal(str, int, str)
     dev_tools_requested = pyqtSignal()
+    audio_muted_changed = pyqtSignal(bool)
 
     def __init__(self, profile, main_window):
         QWebEngineView.__init__(self, main_window)
@@ -224,6 +225,7 @@ class WebView(QWebEngineView):
         self.loadFinished.connect(self.load_finished)
         self._page.linkHovered.connect(self.on_link_hovered)
         self._page.windowCloseRequested.connect(self.on_window_close_requested)
+        self._page.audioMutedChanged.connect(self.audio_muted_changed)
         self.popup = Popup(self)
         self._page.featurePermissionRequested.connect(self.feature_permission_requested)
         self._page.featurePermissionRequestCanceled.connect(self.feature_permission_request_canceled)
@@ -238,6 +240,14 @@ class WebView(QWebEngineView):
         self.callback_on_save_edit_text_node = None
         self._dev_tools = None
         self._pending_anchor = False
+
+    @property
+    def muted(self):
+        return self._page.isAudioMuted()
+
+    @muted.setter
+    def muted(self, val):
+        self._page.setAudioMuted(bool(val))
 
     def on_link_hovered(self, href):
         self.link_hovered.emit(self, href)
