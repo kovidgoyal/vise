@@ -16,7 +16,7 @@ from PyQt5.Qt import (QApplication, QBrush, QColor, QEvent, QFont, QIcon,
 from .config import color
 from .downloads import DOWNLOADS_URL, downloads_icon
 from .resources import get_data_as_path
-from .utils import SpinnerCache, elided_text
+from .utils import SpinnerCache, elided_text, mute_icon
 from .welcome import WELCOME_URL, welcome_icon
 
 LOADING_ROLE = Qt.UserRole
@@ -27,6 +27,7 @@ MARK_ROLE = CLOSE_HOVER_ROLE + 1
 DISPLAY_ROLE = MARK_ROLE + 1
 DECORATION_ROLE = DISPLAY_ROLE + 1
 URL_ROLE = DECORATION_ROLE + 1
+MUTED_ROLE = URL_ROLE + 1
 ICON_SIZE = 24
 
 
@@ -90,6 +91,11 @@ class TabDelegate(QStyledItemDelegate):
         if hovering or mark:
             text_rect.adjust(0, 0, -text_rect.height(), 0)
         text = index.data(DISPLAY_ROLE) or ''
+        muted = index.data(MUTED_ROLE)
+        if muted:
+            mc = mute_icon(ICON_SIZE)
+            painter.drawImage(QRect(text_rect.left(), text_rect.top(), ICON_SIZE, text_rect.height()), mc, mc.rect())
+            text_rect.adjust(ICON_SIZE, 0, 0, 0)
         font = index.data(Qt.FontRole)
         if font:
             painter.setFont(font)
@@ -153,10 +159,12 @@ class TabItem(QTreeWidgetItem):
         self.set_data(ANGLE_ROLE, 0)
         self.set_data(HOVER_ROLE, False)
         self.set_data(URL_ROLE, '')
+        self.set_data(MUTED_ROLE, False)
         self.tabref = weakref.ref(tab)
         tab.title_changed.connect(self.set_display_role)
         tab.icon_changed.connect(self.icon_changed)
         tab.loading_status_changed.connect(self._loading_status_changed)
+        tab.audio_muted_changed.connect(self.audio_muted_changed)
         tab.urlChanged.connect(self.set_url_role)
 
     def set_display_role(self, text):
@@ -169,6 +177,9 @@ class TabItem(QTreeWidgetItem):
         self.set_data(ANGLE_ROLE, 0)
         self.set_data(LOADING_ROLE, loading)
         self.loading_status_changed(self, loading)
+
+    def audio_muted_changed(self, muted):
+        self.set_data(MUTED_ROLE, muted)
 
     def icon_changed(self, new_icon):
         if new_icon.isNull():

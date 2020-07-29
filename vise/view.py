@@ -225,7 +225,6 @@ class WebView(QWebEngineView):
         self.loadFinished.connect(self.load_finished)
         self._page.linkHovered.connect(self.on_link_hovered)
         self._page.windowCloseRequested.connect(self.on_window_close_requested)
-        self._page.audioMutedChanged.connect(self.audio_muted_changed)
         self.popup = Popup(self)
         self._page.featurePermissionRequested.connect(self.feature_permission_requested)
         self._page.featurePermissionRequestCanceled.connect(self.feature_permission_request_canceled)
@@ -247,7 +246,10 @@ class WebView(QWebEngineView):
 
     @muted.setter
     def muted(self, val):
-        self._page.setAudioMuted(bool(val))
+        val = bool(val)
+        if val != self.muted:
+            self._page.setAudioMuted(bool(val))
+            self.audio_muted_changed.emit(val)
 
     def on_link_hovered(self, href):
         self.link_hovered.emit(self, href)
@@ -613,7 +615,7 @@ class WebView(QWebEngineView):
     def unserialize_state(self, state):
         self.load(QUrl(state['url']))
         self.setZoomFactor(state['zoom_factor'])
-        self._page.setAudioMuted(state['audio_muted'])
+        self.muted = state['audio_muted']
         self.pending_unserialize = state
 
     @property

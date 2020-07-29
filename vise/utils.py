@@ -14,8 +14,8 @@ from xml.sax.saxutils import escape
 
 from PyQt5.Qt import (QApplication, QBrush, QBuffer, QByteArray,
                       QConicalGradient, QCursor, QDesktopServices, QDialog,
-                      QDialogButtonBox, QFileDialog, QFontMetrics, QIcon,
-                      QImage, QMimeDatabase, QPainter, QPen, QRect,
+                      QDialogButtonBox, QFileDialog, QFont, QFontMetrics,
+                      QIcon, QImage, QMimeDatabase, QPainter, QPen, QRect,
                       QStaticText, Qt, QUrl)
 
 from .constants import cache_dir, str_version
@@ -119,6 +119,20 @@ class SpinnerCache:
             p.end()
             del p
         painter.drawImage(rect, img, img.rect())
+
+
+@lru_cache(maxsize=2)
+def mute_icon(size):
+    img = QImage(size, size, QImage.Format_ARGB32_Premultiplied)
+    img.fill(Qt.transparent)
+    p = QPainter(img)
+    p.setRenderHint(QPainter.TextAntialiasing)
+    font = QFont()
+    font.setPixelSize(size - 4)
+    p.setFont(font)
+    p.drawText(0, size - 4, '🔇')
+    p.end()
+    return img
 
 
 class Dialog(QDialog):
