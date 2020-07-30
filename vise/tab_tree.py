@@ -78,6 +78,8 @@ class TabDelegate(QStyledItemDelegate):
         QStyledItemDelegate.paint(self, painter, option, index)
         hovering = index.data(HOVER_ROLE) is True
         painter.save()
+        painter.setRenderHint(painter.Antialiasing)
+        painter.setRenderHint(painter.SmoothPixmapTransform)
         rect = option.rect
         is_current = index.data(Qt.FontRole) is not None
         if not hovering and is_current:
