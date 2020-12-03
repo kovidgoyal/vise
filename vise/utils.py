@@ -13,10 +13,11 @@ from xml.sax.saxutils import escape
 
 from PyQt5.Qt import (QApplication, QBuffer, QByteArray, QCursor,
                       QDesktopServices, QDialog, QDialogButtonBox, QFileDialog,
-                      QFontMetrics, QIcon, QMimeDatabase, QStaticText, Qt,
-                      QUrl)
+                      QFontMetrics, QIcon, QMimeDatabase, QObject, QPainter,
+                      QPixmap, QStaticText, Qt, QTimer, QUrl, pyqtSignal)
 
 from .constants import cache_dir, str_version
+from .resources import get_icon
 from .settings import gprefs
 
 
@@ -368,3 +369,66 @@ def choose_files(name, parent=None, title=None, filters=(), all_files=False, sel
 
 def ascii_lowercase(val):
     return re.sub('[%s]' % string.ascii_uppercase, lambda m: m.group().lower(), val)
+
+
+class RotatingIcon(QObject):
+
+    updated = pyqtSignal(QPixmap)
+
+    def __init__(self, icon_name='busy.svg', icon_size=24, duration=2, frames=120, parent=None):
+        QObject.__init__(self, parent)
+        pmap = get_icon(icon_name).pixmap(icon_size, icon_size)
+        self.interval = duration * 1000 // frames
+        self.timer = t = QTimer(self)
+        t.setInterval(self.interval)
+        t.timeout.connect(self.do_update)
+        self.frame_number = 0
+        self.frames = []
+        angle_delta = 360 / frames
+        angle = -angle_delta
+        for i in range(frames):
+            angle += angle_delta
+            p = pmap
+            if angle:
+                p = self.rotated_by(pmap, angle)
+            self.frames.append(p)
+
+    def rotated_by(self, pixmap, angle):
+        ans = QPixmap(pixmap.size())
+        ans.fill(Qt.GlobalColor.transparent)
+        p = QPainter(ans)
+        p.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform)
+        p.setRenderHint(QPainter.RenderHint.Antialiasing)
+        sz = ans.size().width()
+        p.translate(sz // 2, sz // 2)
+        p.rotate(angle)
+        p.translate(-sz // 2, -sz // 2)
+        p.drawPixmap(0, 0, pixmap)
+        p.end()
+        return ans
+
+    def do_update(self):
+        self.frame_number = (self.frame_number + 1) % len(self.frames)
+        self.updated.emit(self.frames[self.frame_number])
+
+    @property
+    def first_frame(self):
+        return self.frames[0]
+
+    def start(self):
+        self.timer.start()
+
+    def stop(self):
+        self.timer.stop()
+
+
+def develop():
+    from PyQt5.Qt import QApplication, QLabel
+    app = QApplication([])
+    r = RotatingIcon(icon_size=64)
+    l = QLabel()
+    l.setPixmap(r.first_frame)
+    r.updated.connect(l.setPixmap)
+    r.start()
+    l.show()
+    app.exec_()
