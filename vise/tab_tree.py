@@ -118,7 +118,7 @@ class TabDelegate(QStyledItemDelegate):
                 pen.setColor(QColor('red'))
                 painter.setPen(pen)
             painter.drawText(hrect, Qt.AlignmentFlag.AlignCenter, '✖ ')
-        if index.data(LOADING_ROLE):
+        if index.data(LOADING_ROLE) > 0:
             lc = self.frames[self.frame_number]
             painter.drawPixmap(icon_rect.topLeft(), lc)
         else:
@@ -134,6 +134,7 @@ class TabDelegate(QStyledItemDelegate):
 
     def next_loading_frame(self):
         self.frame_number = (self.frame_number + 1) % NUM_FRAMES
+        return self.frame_number
 
 
 tab_item_counter = 0
@@ -152,7 +153,7 @@ class TabItem(QTreeWidgetItem):
         self.set_view(tab)
 
     def set_view(self, tab):
-        self.set_data(LOADING_ROLE, False)
+        self.set_data(LOADING_ROLE, 0)
         self.set_data(DISPLAY_ROLE, tab.title() or _('Loading...'))
         self.set_data(DECORATION_ROLE, missing_icon())
         self.set_data(HOVER_ROLE, False)
@@ -172,7 +173,7 @@ class TabItem(QTreeWidgetItem):
         self.set_data(URL_ROLE, url)
 
     def _loading_status_changed(self, loading):
-        self.set_data(LOADING_ROLE, loading)
+        self.set_data(LOADING_ROLE, 0 if loading else 1)
         self.loading_status_changed(self, loading)
 
     def audio_muted_changed(self, muted):
@@ -466,17 +467,24 @@ class TabTree(QTreeWidget):
         if loading:
             self.loading_items.add(item)
             # this is disabled as it causes loading to become very slow
-            # when many tabs are loading, probably need to move the delegate
-            # implementation into native code
-            # self.loading_animation_timer.start()
+            # when many tabs are loading, this happens even if the delegate
+            # paint() method does nothing. On the other hand if
+            # repaint_loading_items() does not call set_data there is no
+            # performance impact, so is a Qt bug of some kind.
+            if False:
+                self.loading_animation_timer.start()
+            else:
+                item.set_data(LOADING_ROLE, 1)
         else:
             self.loading_items.discard(item)
+            item.set_data(LOADING_ROLE, 0)
             if not self.loading_items:
                 self.loading_animation_timer.stop()
 
     def repaint_loading_items(self):
-        self.delegate.next_loading_frame()
-        self.viewport().update()
+        n = self.delegate.next_loading_frame()
+        for item in self.loading_items:
+            item.set_data(LOADING_ROLE, n + 2)
 
     def item_clicked(self, item, column):
         if item is not None:
