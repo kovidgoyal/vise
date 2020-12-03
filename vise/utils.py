@@ -394,12 +394,12 @@ class RotatingIcon(QObject):
             self.frames.append(p)
 
     def rotated_by(self, pixmap, angle):
-        ans = QPixmap(pixmap.size())
+        ans = pixmap.copy()
         ans.fill(Qt.GlobalColor.transparent)
         p = QPainter(ans)
         p.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform)
         p.setRenderHint(QPainter.RenderHint.Antialiasing)
-        sz = ans.size().width()
+        sz = ans.size().width() / ans.devicePixelRatio()
         p.translate(sz // 2, sz // 2)
         p.rotate(angle)
         p.translate(-sz // 2, -sz // 2)
