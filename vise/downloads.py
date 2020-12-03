@@ -60,7 +60,7 @@ class Indicator(QWidget):  # {{{
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
-        self.setCursor(Qt.PointingHandCursor)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.setToolTip(self.no_downloads_tooltip)
         self.timer = tt = QTimer(self)
         tt.setInterval(10)
@@ -100,7 +100,7 @@ class Indicator(QWidget):  # {{{
         else:
             r = self.rect()
             painter = QPainter(self)
-            painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
+            painter.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform, True)
             icon = downloads_icon()
             pmap = icon.pixmap(r.width(), r.height())
             x = (r.width() - int(pmap.width() / pmap.devicePixelRatio())) // 2
@@ -108,7 +108,7 @@ class Indicator(QWidget):  # {{{
             painter.drawPixmap(x, y, pmap)
 
     def mousePressEvent(self, ev):
-        if ev.button() == Qt.LeftButton:
+        if ev.button() == Qt.MouseButton.LeftButton:
             from .actions import show_downloads
             app = QApplication.instance()
             w = app.activeWindow()
@@ -202,7 +202,7 @@ class Downloads(QObject):
         if now - item.last_tick[0] >= self.INTERVAL:
             item.rates.append((item.receivedBytes() - item.last_tick[1]) / (now - item.last_tick[0]))
             item.last_tick = (now, item.receivedBytes())
-        if state not in (QWebEngineDownloadItem.DownloadRequested, QWebEngineDownloadItem.DownloadInProgress):
+        if state not in (QWebEngineDownloadItem.DownloadState.DownloadRequested, QWebEngineDownloadItem.DownloadState.DownloadInProgress):
             self.on_download_finish(item)
         for tab in self.itertabs():
             self.update_item(tab, item)
@@ -250,8 +250,8 @@ class Downloads(QObject):
                     download_item.url().host() or 'localhost')
 
     def update_item(self, tab, download_item):
-        state = {QWebEngineDownloadItem.DownloadCancelled: 'canceled', QWebEngineDownloadItem.DownloadCompleted: 'completed',
-                 QWebEngineDownloadItem.DownloadInterrupted: 'interrupted'}.get(download_item.state(), 'running')
+        state = {QWebEngineDownloadItem.DownloadState.DownloadCancelled: 'canceled', QWebEngineDownloadItem.DownloadState.DownloadCompleted: 'completed',
+                 QWebEngineDownloadItem.DownloadState.DownloadInterrupted: 'interrupted'}.get(download_item.state(), 'running')
         rates = download_item.rates
         if len(rates) == 1:
             rate = rates[0]
@@ -293,7 +293,7 @@ def develop():  # {{{
 
         def __init__(self, size=10 * 1024 * 1024):
             QObject.__init__(self)
-            self._state = QWebEngineDownloadItem.DownloadRequested
+            self._state = QWebEngineDownloadItem.DownloadState.DownloadRequested
             self._received = self._total = -1
             FakeDownloadItem.idc += 1
             self._id = FakeDownloadItem.idc
@@ -306,7 +306,7 @@ def develop():  # {{{
             return self._id
 
         def isFinished(self):
-            return self._state not in (QWebEngineDownloadItem.DownloadInProgress, QWebEngineDownloadItem.DownloadRequested)
+            return self._state not in (QWebEngineDownloadItem.DownloadState.DownloadInProgress, QWebEngineDownloadItem.DownloadState.DownloadRequested)
 
         def path(self):
             return os.path.join(tempfile.gettempdir(), self.fname)
@@ -324,12 +324,12 @@ def develop():  # {{{
             return QUrl('http://example.com/%s' % self.fname)
 
         def _tick(self):
-            if self._state not in (QWebEngineDownloadItem.DownloadInProgress, QWebEngineDownloadItem.DownloadRequested):
+            if self._state not in (QWebEngineDownloadItem.DownloadState.DownloadInProgress, QWebEngineDownloadItem.DownloadState.DownloadRequested):
                 return
             if self._total == -1:
                 self._total = self._size
                 self._received = 0
-                self._state = QWebEngineDownloadItem.DownloadInProgress
+                self._state = QWebEngineDownloadItem.DownloadState.DownloadInProgress
                 self.stateChanged.emit(self._state)
                 self.downloadProgress.emit(self._received, self._total)
                 QTimer.singleShot(100, self._tick)
@@ -337,14 +337,14 @@ def develop():  # {{{
                 self._received += min(self._total - self._received, self._size // 100)
                 self.downloadProgress.emit(self._received, self._total)
                 if self._received >= self._total:
-                    self._state = QWebEngineDownloadItem.DownloadCompleted
+                    self._state = QWebEngineDownloadItem.DownloadState.DownloadCompleted
                     self.stateChanged.emit(self._state)
                     self.finished.emit()
                 else:
                     QTimer.singleShot(100, self._tick)
 
         def cancel(self):
-            self._state = QWebEngineDownloadItem.DownloadCancelled
+            self._state = QWebEngineDownloadItem.DownloadState.DownloadCancelled
             self.stateChanged.emit(self._state)
 
     def create_downloads(*args):

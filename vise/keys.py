@@ -9,7 +9,7 @@ from . import actions
 from .ask import Ask
 from .config import load_config
 
-modifiers_mask = int(Qt.ShiftModifier | Qt.ControlModifier | Qt.AltModifier | Qt.MetaModifier)
+modifiers_mask = int(Qt.KeyboardModifier.ShiftModifier | Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.AltModifier | Qt.KeyboardModifier.MetaModifier)
 
 all_keys = {int(v): k for k, v in vars(Qt).items() if k.startswith('Key_') and k not in {'Key_Alt', 'Key_Meta', 'Key_Control', 'Key_Shift'}}
 
@@ -95,21 +95,21 @@ class KeyFilter(QObject):
         if self.disabled:
             return False
         etype = event.type()
-        if etype == QEvent.KeyPress:
+        if etype == QEvent.Type.KeyPress:
             app = QApplication.instance()
             window, fw = app.activeWindow(), app.focusWidget()
 
             if isinstance(fw, QLineEdit) and isinstance(fw.parent(), Ask):
                 # Prevent tabbing out of line edit
                 key = key_from_event(event)
-                if key in (Qt.Key_Tab, Qt.Key_Backtab, Qt.ShiftModifier | Qt.Key_Backtab):
+                if key in (Qt.Key.Key_Tab, Qt.Key.Key_Backtab, Qt.KeyboardModifier.ShiftModifier | Qt.Key.Key_Backtab):
                     fw.parent().keyPressEvent(event)
                     return True
 
             if fw is None and hasattr(window, 'current_tab'):
                 ct = window.current_tab
                 if ct is not None:
-                    ct.setFocus(Qt.OtherFocusReason)
+                    ct.setFocus(Qt.FocusReason.OtherFocusReason)
                     fw = QApplication.instance().focusWidget()
 
             if isinstance(window, QMainWindow) and not passthrough_keys(fw):

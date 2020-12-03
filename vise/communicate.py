@@ -12,7 +12,7 @@ from_js = {}
 
 def python_to_js(page_or_tab, name, *args):
     page = page_or_tab.page() if isinstance(page_or_tab, QWebEngineView) else page_or_tab
-    page.runJavaScript('window.send_message_to_javascript(%s, %s)' % (json.dumps(name), json.dumps(args)), QWebEngineScript.ApplicationWorld)
+    page.runJavaScript('window.send_message_to_javascript(%s, %s)' % (json.dumps(name), json.dumps(args)), QWebEngineScript.ScriptWorldId.ApplicationWorld)
 
 
 def connect_signal(name=None, func_name=None):

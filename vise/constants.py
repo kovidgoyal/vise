@@ -26,8 +26,8 @@ WELCOME_URL = 'vise:welcome'
 hostname = os.environ.get('VISE_HOSTNAME', socket.gethostname())
 STATUS_BAR_HEIGHT = 24
 FOLLOW_LINK_KEY_MAP = {getattr(Qt, 'Key_' + x.upper()): x for x in string.ascii_lowercase + string.digits}
-FOLLOW_LINK_KEY_MAP[Qt.Key_Escape] = '|escape'
-FOLLOW_LINK_KEY_MAP[Qt.Key_Enter] = FOLLOW_LINK_KEY_MAP[Qt.Key_Return] = '|enter'
+FOLLOW_LINK_KEY_MAP[Qt.Key.Key_Escape] = '|escape'
+FOLLOW_LINK_KEY_MAP[Qt.Key.Key_Enter] = FOLLOW_LINK_KEY_MAP[Qt.Key.Key_Return] = '|enter'
 VISE_SCHEME = 'vise'
 
 
@@ -35,7 +35,7 @@ def _get_cache_dir():
     if 'VISE_CACHE_DIRECTORY' in os.environ:
         return os.path.abspath(os.path.expanduser(os.environ['VISE_CACHE_DIRECTORY']))
 
-    candidate = QStandardPaths.writableLocation(QStandardPaths.CacheLocation)
+    candidate = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.CacheLocation)
     if not candidate and not iswindows and not isosx:
         candidate = os.path.expanduser(os.environ.get('XDG_CACHE_HOME', u'~/.cache'))
     if not candidate:
@@ -58,7 +58,7 @@ def _get_config_dir():
     if 'VISE_CONFIG_DIRECTORY' in os.environ:
         return os.path.abspath(os.path.expanduser(os.environ['VISE_CONFIG_DIRECTORY']))
 
-    candidate = QStandardPaths.writableLocation(QStandardPaths.ConfigLocation)
+    candidate = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.ConfigLocation)
     if not candidate:
         if isosx:
             candidate = os.path.expanduser('~/Library/Preferences')
@@ -116,6 +116,6 @@ def local_socket_address():
             user = os.environ.get('USER', '')
             if not user:
                 user = os.path.basename(os.path.expanduser('~'))
-            rdir = QStandardPaths.writableLocation(QStandardPaths.RuntimeLocation) or QStandardPaths.writableLocation(QStandardPaths.TempLocation)
+            rdir = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.RuntimeLocation) or QStandardPaths.writableLocation(QStandardPaths.StandardLocation.TempLocation)
             local_socket_address.ADDRESS = os.path.join(rdir, user + '-vise-local-server')
     return local_socket_address.ADDRESS

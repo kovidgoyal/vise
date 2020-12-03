@@ -69,7 +69,7 @@ def elided_text(text, font=None, width=300, pos='middle'):
 
 def draw_snake_spinner(painter, rect, angle, light, dark):
     ' Draw a snake spinner on the specified painter '
-    painter.setRenderHint(QPainter.Antialiasing)
+    painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
     if rect.width() > rect.height():
         delta = (rect.width() - rect.height()) // 2
@@ -92,7 +92,7 @@ def draw_snake_spinner(painter, rect, angle, light, dark):
     painter.setPen(QPen(light, disc_width))
     painter.drawArc(drawing_rect, 0, 360 * 16)
     pen = QPen(QBrush(gradient), disc_width)
-    pen.setCapStyle(Qt.RoundCap)
+    pen.setCapStyle(Qt.PenCapStyle.RoundCap)
     painter.setPen(pen)
     painter.drawArc(drawing_rect, angle * 16, (360 - 2 * angle_for_width) * 16)
 
@@ -111,8 +111,8 @@ class SpinnerCache:
             self.width, self.height = width, height
         img = self.cache.get(angle)
         if img is None:
-            img = self.cache[angle] = QImage(width, height, QImage.Format_ARGB32_Premultiplied)
-            img.fill(Qt.transparent)
+            img = self.cache[angle] = QImage(width, height, QImage.Format.Format_ARGB32_Premultiplied)
+            img.fill(Qt.GlobalColor.transparent)
             p = QPainter(img)
             r = img.rect()
             draw_snake_spinner(p, r, angle, self.light, self.dark)
@@ -123,10 +123,10 @@ class SpinnerCache:
 
 @lru_cache(maxsize=2)
 def mute_icon(size):
-    img = QImage(size, size, QImage.Format_ARGB32_Premultiplied)
-    img.fill(Qt.transparent)
+    img = QImage(size, size, QImage.Format.Format_ARGB32_Premultiplied)
+    img.fill(Qt.GlobalColor.transparent)
     p = QPainter(img)
-    p.setRenderHint(QPainter.TextAntialiasing)
+    p.setRenderHint(QPainter.RenderHint.TextAntialiasing)
     font = QFont()
     font.setPixelSize(size - 4)
     p.setFont(font)
@@ -153,7 +153,7 @@ class Dialog(QDialog):
         self.prefs_for_persistence = prefs
         self.setWindowTitle(title)
         self.name = name
-        self.bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        self.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         self.bb.accepted.connect(self.accept)
         self.bb.rejected.connect(self.reject)
 
@@ -395,14 +395,14 @@ def make_highlighted_text(text, positions, emph='color:magenta', wrapper=None):
     to = ans.textOption()
     to.setWrapMode(to.NoWrap)
     ans.setTextOption(to)
-    ans.setTextFormat(Qt.RichText)
+    ans.setTextFormat(Qt.TextFormat.RichText)
     return ans
 
 
 class BusyCursor:
 
     def __enter__(self):
-        QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
+        QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))
 
     def __exit__(self, *args):
         QApplication.restoreOverrideCursor()

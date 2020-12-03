@@ -25,7 +25,7 @@ class Ask(Dialog):
     def setup_ui(self):
         self.l = l = QGridLayout(self)
         self.ic = la = QLabel(self)
-        ic = self.style().standardIcon(QStyle.SP_MessageBoxWarning)
+        ic = self.style().standardIcon(QStyle.StandardPixmap.SP_MessageBoxWarning)
         la.setPixmap(ic.pixmap(64, 64))
         l.addWidget(la, 0, 0)
         self.la = la = QLabel(self.msg)
@@ -99,10 +99,10 @@ class CertExceptions:
 
     def ask(self, odomain, code, error_string, parent=None):
         domain = ascii_lowercase(odomain)
-        if code == QWebEngineCertificateError.CertificateAuthorityInvalid:
+        if code == QWebEngineCertificateError.Error.CertificateAuthorityInvalid:
             msg = _('The TLS certificate for <i>{0}</i> has an unknown certificate authority'
                     ' (could be a self signed certificate) do you want to trust it nevertheless?')
-        elif code == QWebEngineCertificateError.CertificateWeakSignatureAlgorithm:
+        elif code == QWebEngineCertificateError.Error.CertificateWeakSignatureAlgorithm:
             msg = _('The TLS certificate for <i>{0}</i> uses a weak signature algorithm,'
                     ' do you want to trust it nevertheless?')
         else:

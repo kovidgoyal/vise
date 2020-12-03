@@ -79,9 +79,9 @@ class Application(QApplication):
                 if os.environ.get(v):
                     break
             else:
-                QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+                QApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True)
         QApplication.__init__(self, [appname, '-name', appname])
-        self.setAttribute(Qt.AA_UseHighDpiPixmaps)
+        self.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps)
         self.setOrganizationName('kovidgoyal')
         self.setApplicationName(appname)
         self.setApplicationVersion(str_version)
@@ -102,7 +102,7 @@ class Application(QApplication):
             except Exception:
                 pass
         self.setFont(f)
-        self.password_loaded.connect(self.on_password_load, type=Qt.QueuedConnection)
+        self.password_loaded.connect(self.on_password_load, type=Qt.ConnectionType.QueuedConnection)
         if master_password is not None:
             password_db.start_load(master_password, self.password_loaded.emit)
         elif restart_state and 'key' in restart_state:
@@ -137,9 +137,9 @@ class Application(QApplication):
             signal.signal(sig, lambda x, y: None)
             signal.siginterrupt(sig, False)
         signal.set_wakeup_fd(write_fd)
-        self.signal_notifier = QSocketNotifier(read_fd, QSocketNotifier.Read, self)
+        self.signal_notifier = QSocketNotifier(read_fd, QSocketNotifier.Type.Read, self)
         self.signal_notifier.setEnabled(True)
-        self.signal_notifier.activated.connect(self.signal_received, type=Qt.QueuedConnection)
+        self.signal_notifier.activated.connect(self.signal_received, type=Qt.ConnectionType.QueuedConnection)
 
     def signal_received(self, read_fd):
         try:
@@ -204,7 +204,7 @@ class Application(QApplication):
         self.local_server = ls = QLocalServer(self)
         ls.newConnection.connect(self.another_instance_wants_to_talk)
         if not ls.listen(server_name):
-            if ls.serverError() == QAbstractSocket.AddressInUseError:
+            if ls.serverError() == QAbstractSocket.SocketError.AddressInUseError:
                 try:
                     os.remove(server_name)
                 except FileNotFoundError:
@@ -278,7 +278,7 @@ class Application(QApplication):
 
     def new_window(self, is_private=False, restart_state=None):
         w = MainWindow(is_private=is_private, restart_state=restart_state)
-        w.window_closed.connect(self.remove_window, type=Qt.QueuedConnection)
+        w.window_closed.connect(self.remove_window, type=Qt.ConnectionType.QueuedConnection)
         self.windows.append(w)
         return w
 
@@ -448,7 +448,7 @@ def main():
     scheme = QWebEngineUrlScheme(VISE_SCHEME.encode('ascii'))
     scheme.setSyntax(QWebEngineUrlScheme.Syntax.Path)
     scheme.setDefaultPort(13254)
-    scheme.setFlags(QWebEngineUrlScheme.SecureScheme)
+    scheme.setFlags(QWebEngineUrlScheme.Flag.SecureScheme)
     QWebEngineUrlScheme.registerScheme(scheme)
 
     pw = sys.stdin.read().rstrip() if args.pw_from_stdin else None

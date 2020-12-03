@@ -16,22 +16,22 @@ class Popup(QWidget):
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
-        parent.resized.connect(self.parent_resized, type=Qt.QueuedConnection)
+        parent.resized.connect(self.parent_resized, type=Qt.ConnectionType.QueuedConnection)
         self.questions = []
         self.move(0, 1)
         self.hide()
         self.l = l = QHBoxLayout(self)
         l.setStretch(0, 100)
         self.msg = msg = QLabel('\xa0')
-        self.bb = bb = QDialogButtonBox(QDialogButtonBox.Close, self)
+        self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Close, self)
         l.addWidget(msg), l.addWidget(bb)
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
         self.question_id = 0
         self.shutting_down = False
-        self.setFocusPolicy(Qt.NoFocus)
-        bb.setFocusPolicy(Qt.NoFocus)
-        self.msg.setFocusPolicy(Qt.NoFocus)
+        self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        bb.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.msg.setFocusPolicy(Qt.FocusPolicy.NoFocus)
 
     def accept(self):
         self.finish(True)
@@ -105,8 +105,8 @@ class Popup(QWidget):
 
     def paintEvent(self, ev):
         painter = QPainter(self)
-        painter.setRenderHint(QPainter.Antialiasing, True)
-        painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+        painter.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform, True)
         try:
             self.paint_background(painter)
         except Exception:

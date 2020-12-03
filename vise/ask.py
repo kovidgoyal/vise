@@ -35,13 +35,13 @@ class Completions(QAbstractListModel):
         self.items = items
         self.endResetModel()
 
-    def data(self, index, role=Qt.DisplayRole):
-        if role == Qt.UserRole:
+    def data(self, index, role=Qt.ItemDataRole.DisplayRole):
+        if role == Qt.ItemDataRole.UserRole:
             try:
                 return self.items[index.row()]
             except IndexError:
                 pass
-        elif role == Qt.DecorationRole:
+        elif role == Qt.ItemDataRole.DecorationRole:
             try:
                 return self.items[index.row()].icon()
             except IndexError:
@@ -56,7 +56,7 @@ class Delegate(QStyledItemDelegate):
 
     def sizeHint(self, option, index):
         ans = QStyledItemDelegate.sizeHint(self, option, self._m.index(0))
-        index.data(Qt.UserRole).adjust_size_hint(option, ans)
+        index.data(Qt.ItemDataRole.UserRole).adjust_size_hint(option, ans)
         return ans
 
     def paint(self, painter, option, index):
@@ -65,7 +65,7 @@ class Delegate(QStyledItemDelegate):
         parent = self.parent() or QApplication.instance()
         style = parent.style()
         try:
-            index.data(Qt.UserRole).draw_item(painter, style, option)
+            index.data(Qt.ItemDataRole.UserRole).draw_item(painter, style, option)
         finally:
             painter.restore()
 
@@ -100,11 +100,11 @@ class ListView(QListView):
             'FG', color('tab tree foreground', 'palette(window-text)')).replace(
             'BG', color('tab tree background', 'palette(window)'))
         )
-        self.setFrameStyle(QFrame.NoFrame)
+        self.setFrameStyle(QFrame.Shape.NoFrame)
         self.viewport().setAutoFillBackground(False)
         self.setIconSize(QSize(16, 16))
         self.setSpacing(2)
-        self.setFocusPolicy(Qt.NoFocus)
+        self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.delegate = d = Delegate(self)
         self.setItemDelegate(d)
 
@@ -115,7 +115,7 @@ class LineEdit(QLineEdit):
 
     def __init__(self, parent=None):
         QLineEdit.__init__(self, parent)
-        self.setAttribute(Qt.WA_MacShowFocusRect, False)
+        self.setAttribute(Qt.WidgetAttribute.WA_MacShowFocusRect, False)
         self.setStyleSheet('''
         QLineEdit {
             border-radius: 8px;
@@ -131,7 +131,7 @@ class LineEdit(QLineEdit):
         self.setPlaceholderText(_('Enter command'))
 
     def keyPressEvent(self, ev):
-        if ev.matches(QKeySequence.Copy):
+        if ev.matches(QKeySequence.StandardKey.Copy):
             from .commands.open import Open
             cmd, rest = self.text().partition(' ')[::2]
             if cmd in Open.names and rest.strip():
@@ -140,8 +140,8 @@ class LineEdit(QLineEdit):
                 return
         k = ev.key()
         mods = ev.modifiers()
-        if k in (Qt.Key_V, Qt.Key_S) and mods & Qt.CTRL and mods & Qt.SHIFT:
-            text = QApplication.clipboard().text(k == Qt.Key_S)
+        if k in (Qt.Key.Key_V, Qt.Key.Key_S) and mods & Qt.Modifier.CTRL and mods & Qt.Modifier.SHIFT:
+            text = QApplication.clipboard().text(k == Qt.Key.Key_S)
             if text:
                 self.insert(text)
         return QLineEdit.keyPressEvent(self, ev)
@@ -193,7 +193,7 @@ class Ask(QWidget):
         self.edit.setText(prefix)
         self.edit.blockSignals(False)
         self.update_completions()
-        self.edit.setFocus(Qt.OtherFocusReason)
+        self.edit.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def update_completions(self):
         text = self.edit.text()
@@ -220,22 +220,22 @@ class Ask(QWidget):
 
     def keyPressEvent(self, ev):
         k = ev.key()
-        if k == Qt.Key_Escape:
+        if k == Qt.Key.Key_Escape:
             c = self.callback
             if c is not None:
                 c(None)
             self.close() if self.parent() is None else self.hide()
             ev.accept()
             return
-        if k == Qt.Key_Tab:
+        if k == Qt.Key.Key_Tab:
             self.next_completion()
             ev.accept()
             return
-        if k == Qt.Key_Backtab:
+        if k == Qt.Key.Key_Backtab:
             self.next_completion(forward=False)
             ev.accept()
             return
-        if k in (Qt.Key_Enter, Qt.Key_Return):
+        if k in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
             c = self.callback
             self.close() if self.parent() is None else self.hide()
             if c is not None:
@@ -260,7 +260,7 @@ class Ask(QWidget):
         v.scrollTo(v.currentIndex())
 
     def current_changed(self, old_index, new_index):
-        item = self.candidates.currentIndex().data(Qt.UserRole)
+        item = self.candidates.currentIndex().data(Qt.ItemDataRole.UserRole)
         if item is not None:
             text = self.edit.text()[:self.complete_pos] + item.value
             self.edit.setText(text)

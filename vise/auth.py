@@ -27,14 +27,14 @@ class Credentials(Dialog):
         l.addRow(_('&Username:'), un)
         self.password = pw = QLineEdit(self)
         l.addRow(_('&Password:'), pw)
-        pw.setEchoMode(QLineEdit.Password)
+        pw.setEchoMode(QLineEdit.EchoMode.Password)
         self.pwt = c = QCheckBox(_('&Show password'), self)
         l.addRow(c)
         c.toggled.connect(self.show_password_toggled)
         l.addRow(self.bb)
 
     def show_password_toggled(self):
-        self.pwt.setEchoMode(QLineEdit.Normal if self.pwt.isChecked() else QLineEdit.Password)
+        self.pwt.setEchoMode(QLineEdit.EchoMode.Normal if self.pwt.isChecked() else QLineEdit.EchoMode.Password)
 
     @property
     def credentials(self):

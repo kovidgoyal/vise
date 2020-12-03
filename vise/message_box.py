@@ -45,7 +45,7 @@ class MessageBox(QDialog):  # {{{
         dm.setObjectName("det_msg")
         l.addWidget(dm, 1, 0, 1, 2)
         self.bb = bb = QDialogButtonBox(self)
-        bb.setStandardButtons(QDialogButtonBox.Ok)
+        bb.setStandardButtons(QDialogButtonBox.StandardButton.Ok)
         bb.setObjectName("bb")
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
@@ -63,10 +63,10 @@ class MessageBox(QDialog):  # {{{
         QDialog.__init__(self, parent)
         if q_icon is None:
             icon = {
-                self.ERROR: QStyle.SP_MessageBoxCritical,
-                self.WARNING: QStyle.SP_MessageBoxWarning,
-                self.INFO:    QStyle.SP_MessageBoxInformation,
-                self.QUESTION: QStyle.SP_MessageBoxQuestion,
+                self.ERROR: QStyle.StandardPixmap.SP_MessageBoxCritical,
+                self.WARNING: QStyle.StandardPixmap.SP_MessageBoxWarning,
+                self.INFO:    QStyle.StandardPixmap.SP_MessageBoxInformation,
+                self.QUESTION: QStyle.StandardPixmap.SP_MessageBoxQuestion,
             }[type_]
             self.icon = self.style().standardIcon(icon)
         else:
@@ -95,7 +95,7 @@ class MessageBox(QDialog):  # {{{
 
         self.copy_action = QAction(self)
         self.addAction(self.copy_action)
-        self.copy_action.setShortcuts(QKeySequence.Copy)
+        self.copy_action.setShortcuts(QKeySequence.StandardKey.Copy)
         self.copy_action.triggered.connect(self.copy_to_clipboard)
 
         self.is_question = type_ == self.QUESTION
@@ -118,7 +118,7 @@ class MessageBox(QDialog):  # {{{
         if not det_msg:
             self.det_msg_toggle.setVisible(False)
 
-        self.resize_needed.connect(self.do_resize, type=Qt.QueuedConnection)
+        self.resize_needed.connect(self.do_resize, type=Qt.ConnectionType.QueuedConnection)
         self.do_resize()
 
     def break_cycles(self):
@@ -161,11 +161,11 @@ class MessageBox(QDialog):  # {{{
         if self.is_question:
             try:
                 self.bb.button(self.bb.Yes if self.default_yes else self.bb.No
-                               ).setFocus(Qt.OtherFocusReason)
+                               ).setFocus(Qt.FocusReason.OtherFocusReason)
             except:
                 pass  # Buttons were changed
         else:
-            self.bb.button(self.bb.Ok).setFocus(Qt.OtherFocusReason)
+            self.bb.button(self.bb.Ok).setFocus(Qt.FocusReason.OtherFocusReason)
         return ret
 
     def set_details(self, msg):

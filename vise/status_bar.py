@@ -25,7 +25,7 @@ class Search(QLineEdit):
 
     def __init__(self, parent=None):
         QLineEdit.__init__(self, parent)
-        self.setAttribute(Qt.WA_MacShowFocusRect, False)
+        self.setAttribute(Qt.WidgetAttribute.WA_MacShowFocusRect, False)
         self.setStyleSheet('QLineEdit { background: transparent; color: %s; selection-background-color: %s }' % (
             color('status bar foreground', 'palette(window-text)'),
             color('status bar selection', 'palette(window-text)'),
@@ -38,11 +38,11 @@ class Search(QLineEdit):
 
     def keyPressEvent(self, ev):
         k = ev.key()
-        if k == Qt.Key_Escape:
+        if k == Qt.Key.Key_Escape:
             self.abort_search.emit()
             ev.accept()
             return
-        if k in (Qt.Key_Enter, Qt.Key_Return):
+        if k in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
             text = self.text()
             self.editingFinished.emit()
             self.do_search.emit(text, self.search_forward)
@@ -69,7 +69,7 @@ class SearchPanel(QWidget):
 
     def show_search(self, forward=True):
         self.edit.selectAll()
-        self.edit.setFocus(Qt.OtherFocusReason)
+        self.edit.setFocus(Qt.FocusReason.OtherFocusReason)
         self.edit.search_forward = forward
         self.la.setText(_('Search forward:') if forward else _('Search backward:'))
 
@@ -89,8 +89,8 @@ class Message(QWidget):
         self.is_secure = False
         self.static_text = None
         self.current_key = None
-        self.setFocusPolicy(Qt.NoFocus)
-        self.sb_background = QColor(color(sb_background, self.palette().color(QPalette.Window)))
+        self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.sb_background = QColor(color(sb_background, self.palette().color(QPalette.ColorRole.Window)))
 
     def focusInEvent(self, ev):
         # Needed because in Qt 5.11 the no focus focus policy is broken
@@ -99,7 +99,7 @@ class Message(QWidget):
         if hasattr(window, 'current_tab'):
             ct = window.current_tab
             if ct is not None:
-                ct.setFocus(Qt.OtherFocusReason)
+                ct.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def set_message(self, text, color_, bold=False, is_permanent=False):
         from vise.view import certificate_error_domains
@@ -122,7 +122,7 @@ class Message(QWidget):
                 sep = ':'
             else:
                 host = qurl.host()
-                rest = qurl.toDisplayString(QUrl.PrettyDecoded | QUrl.RemoveScheme | QUrl.RemoveAuthority)
+                rest = qurl.toDisplayString(QUrl.ComponentFormattingOption.PrettyDecoded | QUrl.UrlFormattingOption.RemoveScheme | QUrl.UrlFormattingOption.RemoveAuthority)
                 sep = '://'
             self.static_text = QStaticText(
                 '<span style="white-space:nowrap; color: {fg}">'
@@ -136,7 +136,7 @@ class Message(QWidget):
         else:
             self.static_text = QStaticText('<span style="color:{}; font-weight: {}; white-space:nowrap">{}</span>'.format(
                 color_.name(), ('bold' if bold else 'normal'), escape(text)))
-        to = QTextOption(Qt.AlignLeft | Qt.AlignTop)
+        to = QTextOption(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
         to.setWrapMode(to.NoWrap)
         self.static_text.setTextOption(to)
         self.static_text.prepare(font=self.font())
@@ -173,8 +173,8 @@ class Status(QStackedWidget):
         self.temporary_message = TemporaryMessage(1, '', 'info', monotonic())
         self.msg = Message(self, parent.sb_background)
         self.addWidget(self.msg)
-        self.setFocusPolicy(Qt.NoFocus)
-        self.msg.setFocusPolicy(Qt.NoFocus)
+        self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.msg.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.search = SearchPanel(self)
         self.search.edit.abort_search.connect(self.hide_search)
         self.search.edit.editingFinished.connect(self.hide_search)
@@ -229,7 +229,7 @@ class ModeLabel(QLabel):
 
     def __init__(self):
         QLabel.__init__(self, '')
-        self.setFocusPolicy(Qt.NoFocus)
+        self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
 
     def update_mode(self, text):
         self.setText(text)
@@ -242,8 +242,8 @@ class PassthroughButton(QWidget):
     def __init__(self, parent):
         QWidget.__init__(self, parent)
         self.is_enabled = False
-        self.setFocusPolicy(Qt.NoFocus)
-        self.setCursor(Qt.PointingHandCursor)
+        self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.update_state(False)
         self.setMinimumWidth(STATUS_BAR_HEIGHT - 4)
         self.setMinimumHeight(STATUS_BAR_HEIGHT - 4)
@@ -254,20 +254,20 @@ class PassthroughButton(QWidget):
         self.update()
 
     def mousePressEvent(self, ev):
-        if ev.button() == Qt.LeftButton:
+        if ev.button() == Qt.MouseButton.LeftButton:
             self.is_enabled ^= True
             self.toggled.emit(self.is_enabled)
             ev.accept()
 
     def paintEvent(self, ev):
         painter = QPainter(self)
-        painter.setRenderHint(QPainter.TextAntialiasing)
+        painter.setRenderHint(QPainter.RenderHint.TextAntialiasing)
         f = painter.font()
         f.setBold(True)
         f.setPixelSize(self.height() - 1)
         painter.setFont(f)
         painter.setPen(QColor('red' if self.is_enabled else 'green'))
-        painter.drawText(self.rect(), Qt.AlignCenter, 'Z')
+        painter.drawText(self.rect(), Qt.AlignmentFlag.AlignCenter, 'Z')
         painter.end()
 
 

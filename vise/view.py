@@ -104,7 +104,7 @@ class WebPage(QWebEnginePage):
         self.authenticationRequired.connect(self.authentication_required)
         self.proxyAuthenticationRequired.connect(self.proxy_authentication_required)
         self.callbacks = {'vise_downloads_page': (self.downloads_callback, (), {})}
-        self.poll_for_messages.connect(self.check_for_messages_from_js, type=Qt.QueuedConnection)
+        self.poll_for_messages.connect(self.check_for_messages_from_js, type=Qt.ConnectionType.QueuedConnection)
 
     def register_callback(self, name, func, *args, **kw):
         self.callbacks[name] = (func, args, kw)
@@ -114,7 +114,7 @@ class WebPage(QWebEnginePage):
 
     def check_for_messages_from_js(self):
         self.runJavaScript('try { window.get_messages_from_javascript() } catch(TypeError) {}',
-                           QWebEngineScript.ApplicationWorld, self.messages_received_from_js)
+                           QWebEngineScript.ScriptWorldId.ApplicationWorld, self.messages_received_from_js)
 
     def messages_received_from_js(self, messages):
         if messages and messages != '[]':
@@ -210,16 +210,16 @@ class WebView(QWebEngineView):
         QWebEngineView.__init__(self, main_window)
         self.host_widget = None
         self.middle_click_soon = 0
-        self.setAttribute(Qt.WA_DeleteOnClose)  # needed otherwise object is not deleted on close which means, it keeps running
+        self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)  # needed otherwise object is not deleted on close which means, it keeps running
         self.setMinimumWidth(300)
         self.follow_link_pending = None
-        self.setFocusPolicy(Qt.ClickFocus | Qt.WheelFocus)
+        self.setFocusPolicy(Qt.FocusPolicy.ClickFocus | Qt.FocusPolicy.WheelFocus)
         self.pending_unserialize = None
         self.main_window = main_window
         self.create_page(profile)
         self.view_id = next(view_id)
-        self.iconChanged.connect(self.on_icon_changed, type=Qt.QueuedConnection)
-        self.set_editable_text_in_gui_thread.connect(self.set_editable_text, type=Qt.QueuedConnection)
+        self.iconChanged.connect(self.on_icon_changed, type=Qt.ConnectionType.QueuedConnection)
+        self.set_editable_text_in_gui_thread.connect(self.set_editable_text, type=Qt.ConnectionType.QueuedConnection)
         self.loadStarted.connect(self.load_started)
         self.loadProgress.connect(self.load_progress)
         self.loadFinished.connect(self.load_finished)
@@ -269,12 +269,12 @@ class WebView(QWebEngineView):
             }());''')
 
     def render_process_terminated(self, termination_type, exit_code):
-        if termination_type == QWebEnginePage.CrashedTerminationStatus:
+        if termination_type == QWebEnginePage.RenderProcessTerminationStatus.CrashedTerminationStatus:
             from .message_box import error_dialog
             error_dialog(self.parent(), _('Render process crashed'), _(
                 'The render process crashed while displaying the URL: {0} with exit code: {1}').format(
                     self.url().toString(), exit_code), show=True)
-        elif termination_type == QWebEnginePage.AbnormalTerminationStatus:
+        elif termination_type == QWebEnginePage.RenderProcessTerminationStatus.AbnormalTerminationStatus:
             from .message_box import error_dialog
             error_dialog(self.parent(), _('Render process terminated'), _(
                 'The render process exited abnormally while displaying the URL: {0} with exit code: {1}').format(
@@ -391,17 +391,17 @@ class WebView(QWebEngineView):
             return
         key = (qurl.toString(), feature)
         what = {
-            QWebEnginePage.Geolocation: _('current location'),
-            QWebEnginePage.MediaAudioCapture: _('microphone'),
-            QWebEnginePage.MediaVideoCapture: _('webcam'),
-            QWebEnginePage.MediaAudioVideoCapture: _('microphone and webcam'),
-            QWebEnginePage.DesktopVideoCapture: _('desktop video capture'),
-            QWebEnginePage.DesktopAudioVideoCapture: _('desktop audio/video capture'),
+            QWebEnginePage.Feature.Geolocation: _('current location'),
+            QWebEnginePage.Feature.MediaAudioCapture: _('microphone'),
+            QWebEnginePage.Feature.MediaVideoCapture: _('webcam'),
+            QWebEnginePage.Feature.MediaAudioVideoCapture: _('microphone and webcam'),
+            QWebEnginePage.Feature.DesktopVideoCapture: _('desktop video capture'),
+            QWebEnginePage.Feature.DesktopAudioVideoCapture: _('desktop audio/video capture'),
         }[feature]
         self.feature_permission_map[key] = self.popup(
             _('Grant this site access to your <b>%s</b>?') % what,
             lambda ok, during_shutdown: self.page().setFeaturePermission(qurl, feature, (
-                QWebEnginePage.PermissionGrantedByUser if ok else QWebEnginePage.PermissionDeniedByUser))
+                QWebEnginePage.PermissionPolicy.PermissionGrantedByUser if ok else QWebEnginePage.PermissionPolicy.PermissionDeniedByUser))
         )
 
     def feature_permission_request_canceled(self, qurl, feature):
@@ -474,17 +474,17 @@ class WebView(QWebEngineView):
     def createWindow(self, window_type):
         site = '<b>%s</b>' % self.title() or self.url().host() or self.url().toString()
         now = monotonic()
-        if window_type == QWebEnginePage.WebBrowserBackgroundTab or now - self.middle_click_soon < 2 or question_dialog(
+        if window_type == QWebEnginePage.WebWindowType.WebBrowserBackgroundTab or now - self.middle_click_soon < 2 or question_dialog(
                 self, _('Allow new window?'), _('The site {0} wants to open a new tab, allow it?').format(site)):
             return self.main_window.get_child_tab_for_load()
 
-    def runjs(self, src, callback=None, world_id=QWebEngineScript.ApplicationWorld):
+    def runjs(self, src, callback=None, world_id=QWebEngineScript.ScriptWorldId.ApplicationWorld):
         if callback is not None:
             self._page.runJavaScript(src, world_id, callback)
         else:
             self._page.runJavaScript(src, world_id)
 
-    def js_func(self, name, *args, callback=None, world_id=QWebEngineScript.ApplicationWorld):
+    def js_func(self, name, *args, callback=None, world_id=QWebEngineScript.ScriptWorldId.ApplicationWorld):
         func = '%s(%s)' % (name, ','.join(map(lambda x: json.dumps(x, ensure_ascii=False), args)))
         self.runjs(func, callback=callback, world_id=world_id)
 
@@ -499,7 +499,7 @@ class WebView(QWebEngineView):
         if not path.lower().endswith('.pdf'):
             path += '.pdf'
         size = QPageSize(getattr(QPageSize, misc_config('paper_size', 'A4')))
-        layout = QPageLayout(size, QPageLayout.Portrait, QMarginsF(
+        layout = QPageLayout(size, QPageLayout.Orientation.Portrait, QMarginsF(
             float(misc_config('margin_left', 36)), float(misc_config('margin_top', 36)),
             float(misc_config('margin_right', 36)), float(misc_config('margin_bottom', 36))))
         self._page.printToPdf(partial(self.print_done, path), layout)
@@ -558,10 +558,10 @@ class WebView(QWebEngineView):
 
     def send_text_using_keys(self, text):
         if self.host_widget is not None and not sip.isdeleted(self.host_widget):
-            self.host_widget.setFocus(Qt.OtherFocusReason)
+            self.host_widget.setFocus(Qt.FocusReason.OtherFocusReason)
             with QApplication.instance().key_filter.disable_filtering:
                 for ch in text:
-                    key = getattr(Qt, f'Key_{ch.upper()}', Qt.Key_A)
+                    key = getattr(Qt, f'Key_{ch.upper()}', Qt.Key.Key_A)
                     QApplication.sendEvent(self.host_widget, QKeyEvent(QKeyEvent.KeyPress, key, Qt.KeyboardModifiers(0), ch))
                 # Ensure key events are delivered before any other processing
                 while QApplication.instance().processEvents():
@@ -580,7 +580,7 @@ class WebView(QWebEngineView):
             python_to_js(self, 'autofill_login_form', url, ac['autologin'], is_current_form)
 
     def find_text(self, text, callback=None, forward=True):
-        flags = QWebEnginePage.FindFlags(0) if forward else QWebEnginePage.FindBackward
+        flags = QWebEnginePage.FindFlags(0) if forward else QWebEnginePage.FindFlag.FindBackward
         self.find_text_data = [text, callback]
         if callback is None:
             self._page.findText(text, flags)

@@ -51,7 +51,7 @@ class CompletionCandidate:
         text_rect = style.subElementRect(style.SE_ItemViewItemText, option, None)
         if not option.icon.isNull():
             icon_rect = style.subElementRect(style.SE_ItemViewItemDecoration, option, None)
-            option.icon.paint(painter, icon_rect, alignment=Qt.AlignBottom | Qt.AlignHCenter)
+            option.icon.paint(painter, icon_rect, alignment=Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignHCenter)
         option.icon = QIcon()
         x, y = text_rect.x(), text_rect.y()
         y += (text_rect.height() - self.text.size().height()) // 2

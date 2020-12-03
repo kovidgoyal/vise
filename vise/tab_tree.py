@@ -19,7 +19,7 @@ from .resources import get_data_as_path
 from .utils import SpinnerCache, elided_text, mute_icon
 from .welcome import WELCOME_URL, welcome_icon
 
-LOADING_ROLE = Qt.UserRole
+LOADING_ROLE = Qt.ItemDataRole.UserRole
 ANGLE_ROLE = LOADING_ROLE + 1
 HOVER_ROLE = ANGLE_ROLE + 1
 CLOSE_HOVER_ROLE = HOVER_ROLE + 1
@@ -37,7 +37,7 @@ mark_map = OrderedDict()
 for x in string.digits + string.ascii_uppercase:
     mark_map[x] = getattr(Qt, 'Key_' + x)
 for x in string.ascii_uppercase:
-    mark_map[x] = getattr(Qt, 'Key_' + x) | Qt.ShiftModifier
+    mark_map[x] = getattr(Qt, 'Key_' + x) | Qt.KeyboardModifier.ShiftModifier
 mark_rmap = {int(v): k for k, v in mark_map.items()}
 
 
@@ -45,10 +45,10 @@ def missing_icon():
     global _missing_icon
     if _missing_icon is None:
         p = QPixmap(ICON_SIZE, ICON_SIZE)
-        p.fill(Qt.transparent)
+        p.fill(Qt.GlobalColor.transparent)
         painter = QPainter(p)
         pal = QApplication.instance().palette()
-        painter.setPen(QPen(pal.color(pal.Text), 0, Qt.DashLine))
+        painter.setPen(QPen(pal.color(pal.Text), 0, Qt.PenStyle.DashLine))
         margin = 3
         r = p.rect().adjusted(margin, margin, -margin, -margin)
         painter.drawRect(r)
@@ -69,7 +69,7 @@ class TabDelegate(QStyledItemDelegate):
         self.draw_spinner = SpinnerCache(self.light, self.dark)
         self.highlighted_text = pal.color(pal.HighlightedText)
         self.errored_out = False
-        self.current_background = QBrush(QColor(color('tab tree current background', Qt.lightGray)))
+        self.current_background = QBrush(QColor(color('tab tree current background', Qt.GlobalColor.lightGray)))
 
     def sizeHint(self, option, index):
         return QSize(300, ICON_SIZE + 2 * self.MARGIN)
@@ -81,7 +81,7 @@ class TabDelegate(QStyledItemDelegate):
         painter.setRenderHint(painter.Antialiasing)
         painter.setRenderHint(painter.SmoothPixmapTransform)
         rect = option.rect
-        is_current = index.data(Qt.FontRole) is not None
+        is_current = index.data(Qt.ItemDataRole.FontRole) is not None
         if not hovering and is_current:
             qpp = QPainterPath()
             qpp.addRoundedRect(QRectF(rect), 6, 6)
@@ -98,18 +98,18 @@ class TabDelegate(QStyledItemDelegate):
             mc = mute_icon(ICON_SIZE)
             painter.drawImage(QRect(text_rect.left(), text_rect.top(), ICON_SIZE, text_rect.height()), mc, mc.rect())
             text_rect.adjust(ICON_SIZE, 0, 0, 0)
-        font = index.data(Qt.FontRole)
+        font = index.data(Qt.ItemDataRole.FontRole)
         if font:
             painter.setFont(font)
-        text_flags = Qt.AlignVCenter | Qt.AlignLeft | Qt.TextSingleLine
+        text_flags = Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft | Qt.TextFlag.TextSingleLine
         text = elided_text(text, font, text_rect.width(), 'right')
-        if option.state & QStyle.State_Selected:
+        if option.state & QStyle.StateFlag.State_Selected:
             painter.setPen(QPen(self.highlighted_text))
         painter.drawText(text_rect, text_flags, text)
         if mark:
             hrect = QRect(text_rect.right(), text_rect.top(), text_rect.height(), text_rect.height())
             painter.fillRect(hrect, QColor('#ffffaa'))
-            painter.drawText(hrect, Qt.AlignCenter, mark)
+            painter.drawText(hrect, Qt.AlignmentFlag.AlignCenter, mark)
         elif hovering:
             hrect = QRect(text_rect.right(), text_rect.top(), text_rect.height(), text_rect.height())
             close_hover = index.data(CLOSE_HOVER_ROLE) is True
@@ -117,7 +117,7 @@ class TabDelegate(QStyledItemDelegate):
                 pen = painter.pen()
                 pen.setColor(QColor('red'))
                 painter.setPen(pen)
-            painter.drawText(hrect, Qt.AlignCenter, '✖ ')
+            painter.drawText(hrect, Qt.AlignmentFlag.AlignCenter, '✖ ')
         if index.data(LOADING_ROLE):
             if not self.errored_out:
                 angle = index.data(ANGLE_ROLE)
@@ -150,7 +150,7 @@ class TabItem(QTreeWidgetItem):
         tab_item_counter += 1
         self.uid = tab_item_counter
         self.loading_status_changed = loading_status_changed
-        self.setFlags(self.flags() | Qt.ItemIsDragEnabled | Qt.ItemIsDropEnabled)
+        self.setFlags(self.flags() | Qt.ItemFlag.ItemIsDragEnabled | Qt.ItemFlag.ItemIsDropEnabled)
         self.tabref = lambda: None
         self.set_view(tab)
 
@@ -289,13 +289,13 @@ class TabTree(QTreeWidget):
         self.viewport().setAcceptDrops(True)
         self.setDropIndicatorShown(True)
         self.setDragDropMode(self.InternalMove)
-        self.setDefaultDropAction(Qt.MoveAction)
-        self.invisibleRootItem().setFlags(Qt.ItemIsDragEnabled | Qt.ItemIsDropEnabled | self.invisibleRootItem().flags())
+        self.setDefaultDropAction(Qt.DropAction.MoveAction)
+        self.invisibleRootItem().setFlags(Qt.ItemFlag.ItemIsDragEnabled | Qt.ItemFlag.ItemIsDropEnabled | self.invisibleRootItem().flags())
         self.itemClicked.connect(self.item_clicked)
         self.current_item = None
         self.emphasis_font = QFont(self.font())
         self.emphasis_font.setBold(True)
-        self.setFocusPolicy(Qt.NoFocus)
+        self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.animation_timer = t = QTimer(self)
         t.setInterval(10)
         t.timeout.connect(self.tick_loading_animation)
@@ -305,9 +305,9 @@ class TabTree(QTreeWidget):
         self.setMouseTracking(True)
         self._last_item = lambda: None
         self.itemEntered.connect(self.item_entered)
-        self.setCursor(Qt.PointingHandCursor)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.viewport().installEventFilter(self)
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.customContextMenuRequested.connect(self.show_context_menu)
 
     def item_entered(self, item, col):
@@ -372,12 +372,12 @@ class TabTree(QTreeWidget):
         if widget is self.viewport():
             etype = event.type()
             item = last_item = self._last_item()
-            if etype == QEvent.MouseMove:
+            if etype == QEvent.Type.MouseMove:
                 pos = event.pos()
                 item = self.itemAt(pos)
                 if item is not None:
                     item.set_data(CLOSE_HOVER_ROLE, self.over_close(item, pos))
-            elif etype == QEvent.Leave:
+            elif etype == QEvent.Type.Leave:
                 item = None
             if item is not last_item:
                 if last_item is not None:
@@ -392,7 +392,7 @@ class TabTree(QTreeWidget):
         return rect.contains(pos)
 
     def mouseReleaseEvent(self, ev):
-        if ev.button() == Qt.LeftButton:
+        if ev.button() == Qt.MouseButton.LeftButton:
             item = self.itemAt(ev.pos())
             if item is not None:
                 if self.over_close(item, ev.pos()):
@@ -530,12 +530,12 @@ class TabTree(QTreeWidget):
 
     def current_changed(self, tab):
         if self.current_item is not None:
-            self.current_item.set_data(Qt.FontRole, None)
+            self.current_item.set_data(Qt.ItemDataRole.FontRole, None)
             self.current_item = None
         item = self.item_for_tab(tab)
         if item is not None:
             self.current_item = item
-            item.set_data(Qt.FontRole, self.emphasis_font)
+            item.set_data(Qt.ItemDataRole.FontRole, self.emphasis_font)
 
     def mark_tabs(self, unmark=False):
         for item in self:

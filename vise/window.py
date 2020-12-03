@@ -52,11 +52,11 @@ class MainWindow(QMainWindow):
         self.window_id = next(window_id)
         self.is_private = is_private
         self.deleted_tabs_cache = deque(maxlen=200)
-        self.setAttribute(Qt.WA_DeleteOnClose, True)
+        self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
 
         self.downloads_indicator = Indicator(self)
         self.status_bar = StatusBar(self.downloads_indicator, self)
-        self.start_search_signal.connect(self.show_search, type=Qt.QueuedConnection)
+        self.start_search_signal.connect(self.show_search, type=Qt.ConnectionType.QueuedConnection)
         self.start_search = lambda forward=True: self.start_search_signal.emit(forward)
         self.status_bar.do_search.connect(self.do_search)
         self.status_bar.change_passthrough.connect(self.change_passthrough)
@@ -156,7 +156,7 @@ class MainWindow(QMainWindow):
         ans.title_changed.connect(self.update_window_title)
         ans.urlChanged.connect(self.url_changed)
         ans.link_hovered.connect(self.link_hovered)
-        ans.window_close_requested.connect(self.close_tab, type=Qt.QueuedConnection)
+        ans.window_close_requested.connect(self.close_tab, type=Qt.ConnectionType.QueuedConnection)
         ans.focus_changed.connect(self.update_mode)
         ans.passthrough_changed.connect(self.update_mode)
         ans.passthrough_changed.connect(self.update_passthrough_state)
@@ -217,7 +217,7 @@ class MainWindow(QMainWindow):
             # closes causes Qt to crash
             num = 10
             app = QApplication.instance()
-            while app.processEvents(QEventLoop.ExcludeUserInputEvents, 100) and num > 0:
+            while app.processEvents(QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents, 100) and num > 0:
                 num -= 1
 
     def undelete_tab(self):
@@ -277,7 +277,7 @@ class MainWindow(QMainWindow):
             self.tab_tree.add_tab(tab, parent=parent)
             if self.current_tab is None:
                 self.current_tab = tab
-                tab.setFocus(Qt.ActiveWindowFocusReason)
+                tab.setFocus(Qt.FocusReason.ActiveWindowFocusReason)
         return tab
 
     def get_child_tab_for_load(self):
@@ -291,7 +291,7 @@ class MainWindow(QMainWindow):
         return tab
 
     def save_url_in_places(self, qurl):
-        places.on_visit(qurl, QWebEnginePage.NavigationTypeTyped, True)
+        places.on_visit(qurl, QWebEnginePage.NavigationType.NavigationTypeTyped, True)
 
     def show_html(self, html, in_current_tab=True):
         if isinstance(html, bytes):
@@ -318,7 +318,7 @@ class MainWindow(QMainWindow):
         if tab is not None and self.current_tab is not tab:
             self.stack.setCurrentWidget(tab)
             if not tab.hasFocus():
-                tab.setFocus(Qt.ActiveWindowFocusReason)
+                tab.setFocus(Qt.FocusReason.ActiveWindowFocusReason)
 
     def update_window_title(self):
         title = at = appname.capitalize()
@@ -333,7 +333,7 @@ class MainWindow(QMainWindow):
         self.quickmark_pending = None
         url = quickmarks().get(key)
         if url is None:
-            if not key & Qt.Key_Escape:
+            if not key & Qt.Key.Key_Escape:
                 key = QKeySequence(key).toString()
                 self.show_status_message(_('Quickmark %s is not defined!') % key, 5, 'error')
             return
@@ -342,7 +342,7 @@ class MainWindow(QMainWindow):
     def choose_tab(self, key):
         self.choose_tab_pending = None
         if not self.tab_tree.activate_marked_tab(key):
-            if not key & Qt.Key_Escape:
+            if not key & Qt.Key.Key_Escape:
                 key = QKeySequence(key).toString()
                 self.show_status_message(_('No tab with mark: %s') % key, 5, 'error')
         self.tab_tree.mark_tabs(unmark=True)

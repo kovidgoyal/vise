@@ -26,8 +26,8 @@ class KeysModel(QAbstractListModel):
     def rowCount(self, parent=None):
         return len(self.keys)
 
-    def data(self, index, role=Qt.DisplayRole):
-        if role == Qt.DisplayRole:
+    def data(self, index, role=Qt.ItemDataRole.DisplayRole):
+        if role == Qt.ItemDataRole.DisplayRole:
             try:
                 return self.keys[index.row()]
             except IndexError:
@@ -73,7 +73,7 @@ class EditAccount(QWidget):
         l.addRow(b)
 
     def show_password_toggled(self, checked):
-        self.password.setEchoMode(QLineEdit.Normal if checked else QLineEdit.Password)
+        self.password.setEchoMode(QLineEdit.EchoMode.Normal if checked else QLineEdit.EchoMode.Password)
 
     def on_change(self):
         self.changed.emit()
@@ -123,16 +123,16 @@ class EditItem(Dialog):
             if n == 0:
                 e.data = account
             i = QListWidgetItem(account['username'], a)
-            i.setData(Qt.UserRole, account)
+            i.setData(Qt.ItemDataRole.UserRole, account)
         if a.count() < 1:
             na = {'username': '', 'password': '', 'notes': ''}
             i = QListWidgetItem('', a)
-            i.setData(Qt.UserRole, na)
+            i.setData(Qt.ItemDataRole.UserRole, na)
         a.setCurrentRow(0)
         a.currentItemChanged.connect(self.current_item_changed)
 
     def current_item_changed(self, curr, prev):
-        self.edit_account.data = curr.data(Qt.UserRole) if curr else {}
+        self.edit_account.data = curr.data(Qt.ItemDataRole.UserRole) if curr else {}
 
     def delete_requested(self):
         item = self.accounts.currentItem()
@@ -141,7 +141,7 @@ class EditItem(Dialog):
 
     def add_account(self):
         i = QListWidgetItem('', self.accounts)
-        i.setData(Qt.UserRole, {})
+        i.setData(Qt.ItemDataRole.UserRole, {})
         self.accounts.setCurrentItem(i)
 
     def data_changed(self):
@@ -149,10 +149,10 @@ class EditItem(Dialog):
         if i is not None:
             data = self.edit_account.data
             i.setText(data['username'])
-            i.setData(Qt.UserRole, data)
+            i.setData(Qt.ItemDataRole.UserRole, data)
 
     def accept(self):
-        accounts = [self.accounts.item(i).data(Qt.UserRole) for i in range(self.accounts.count())]
+        accounts = [self.accounts.item(i).data(Qt.ItemDataRole.UserRole) for i in range(self.accounts.count())]
         accounts = list(filter(lambda a: bool(a['username']), accounts))
         self.db.set_accounts(self.key, accounts)
         Dialog.accept(self)
@@ -174,7 +174,7 @@ class PasswordManager(Dialog):
         l.addWidget(le)
         self.model = KeysModel(self.db, self)
         self.proxy_model = pm = QSortFilterProxyModel(self)
-        pm.setSourceModel(self.model), pm.setFilterCaseSensitivity(Qt.CaseInsensitive)
+        pm.setSourceModel(self.model), pm.setFilterCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
         self.view = v = QListView(self)
         v.setStyleSheet('QListView::item { padding: 5px }')
         v.setAlternatingRowColors(True)
@@ -193,7 +193,7 @@ class PasswordManager(Dialog):
 
     def item_activated(self, index):
         if index.isValid():
-            EditItem(self.db, index.data(Qt.DisplayRole), parent=self).exec_()
+            EditItem(self.db, index.data(Qt.ItemDataRole.DisplayRole), parent=self).exec_()
 
     def add_entry(self):
         pass
@@ -201,7 +201,7 @@ class PasswordManager(Dialog):
     def selected_keys(self):
         for index in self.view.selectedIndexes():
             if index.isValid():
-                key = index.data(Qt.DisplayRole)
+                key = index.data(Qt.ItemDataRole.DisplayRole)
                 if key:
                     yield key
 
