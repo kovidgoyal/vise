@@ -10,13 +10,13 @@ from gettext import gettext as _
 
 from PyQt5.Qt import (QApplication, QBrush, QColor, QEvent, QFont, QIcon,
                       QMenu, QPainter, QPainterPath, QPen, QPixmap, QRect,
-                      QRectF, QSize, QStyle, QStyledItemDelegate, Qt,
+                      QRectF, QSize, QStyle, QStyledItemDelegate, Qt, QTimer,
                       QTreeWidget, QTreeWidgetItem, pyqtSignal)
 
 from .config import color
-from .downloads import DOWNLOADS_URL, DOWNLOAD_ICON_NAME
+from .downloads import DOWNLOAD_ICON_NAME, DOWNLOADS_URL
 from .resources import get_data_as_path, get_icon
-from .utils import elided_text
+from .utils import RotatingIcon, elided_text
 from .welcome import WELCOME_URL, welcome_icon
 
 LOADING_ROLE = Qt.ItemDataRole.UserRole
@@ -28,6 +28,7 @@ DECORATION_ROLE = DISPLAY_ROLE + 1
 URL_ROLE = DECORATION_ROLE + 1
 MUTED_ROLE = URL_ROLE + 1
 ICON_SIZE = 24
+NUM_FRAMES = 120
 
 
 _missing_icon = None
@@ -63,6 +64,8 @@ class TabDelegate(QStyledItemDelegate):
     def __init__(self, parent):
         QStyledItemDelegate.__init__(self, parent)
         pal = parent.palette()
+        self.frames = RotatingIcon(frames=NUM_FRAMES, icon_size=ICON_SIZE).frames
+        self.frame_number = 0
         self.dark = pal.color(pal.Text)
         self.light = pal.color(pal.Base)
         self.highlighted_text = pal.color(pal.HighlightedText)
@@ -116,8 +119,8 @@ class TabDelegate(QStyledItemDelegate):
                 painter.setPen(pen)
             painter.drawText(hrect, Qt.AlignmentFlag.AlignCenter, '✖ ')
         if index.data(LOADING_ROLE):
-            lc = get_icon('busy.svg').pixmap(ICON_SIZE, ICON_SIZE)
-            painter.drawPixmap(icon_rect, lc, lc.rect())
+            lc = self.frames[self.frame_number]
+            painter.drawPixmap(icon_rect.topLeft(), lc)
         else:
             icurl = index.data(URL_ROLE)
             if icurl == WELCOME_URL:
@@ -128,6 +131,9 @@ class TabDelegate(QStyledItemDelegate):
                 icon = index.data(DECORATION_ROLE)
             icon.paint(painter, icon_rect)
         painter.restore()
+
+    def next_loading_frame(self):
+        self.frame_number = (self.frame_number + 1) % NUM_FRAMES
 
 
 tab_item_counter = 0
@@ -288,6 +294,9 @@ class TabTree(QTreeWidget):
         self.loading_items = set()
         self.delegate = TabDelegate(self)
         self.setItemDelegate(self.delegate)
+        self.loading_animation_timer = t = QTimer(self)
+        t.setInterval(1000 // 60)
+        t.timeout.connect(self.repaint_loading_items)
         self.setMouseTracking(True)
         self._last_item = lambda: None
         self.itemEntered.connect(self.item_entered)
@@ -456,8 +465,18 @@ class TabTree(QTreeWidget):
     def loading_status_changed(self, item, loading):
         if loading:
             self.loading_items.add(item)
+            # this is disabled as it causes loading to become very slow
+            # when many tabs are loading, probably need to move the delegate
+            # implementation into native code
+            # self.loading_animation_timer.start()
         else:
             self.loading_items.discard(item)
+            if not self.loading_items:
+                self.loading_animation_timer.stop()
+
+    def repaint_loading_items(self):
+        self.delegate.next_loading_frame()
+        self.viewport().update()
 
     def item_clicked(self, item, column):
         if item is not None:
