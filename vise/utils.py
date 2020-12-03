@@ -2,7 +2,6 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-import math
 import os
 import re
 import shutil
@@ -12,11 +11,10 @@ from functools import lru_cache
 from gettext import gettext as _
 from xml.sax.saxutils import escape
 
-from PyQt5.Qt import (QApplication, QBrush, QBuffer, QByteArray,
-                      QConicalGradient, QCursor, QDesktopServices, QDialog,
-                      QDialogButtonBox, QFileDialog, QFont, QFontMetrics,
-                      QIcon, QImage, QMimeDatabase, QPainter, QPen, QRect,
-                      QStaticText, Qt, QUrl)
+from PyQt5.Qt import (QApplication, QBuffer, QByteArray, QCursor,
+                      QDesktopServices, QDialog, QDialogButtonBox, QFileDialog,
+                      QFontMetrics, QIcon, QMimeDatabase, QStaticText, Qt,
+                      QUrl)
 
 from .constants import cache_dir, str_version
 from .settings import gprefs
@@ -65,74 +63,6 @@ def elided_text(text, font=None, width=300, pos='middle'):
     while len(text) > delta and fm.width(text) > width:
         text = chomp(text)
     return text
-
-
-def draw_snake_spinner(painter, rect, angle, light, dark):
-    ' Draw a snake spinner on the specified painter '
-    painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-
-    if rect.width() > rect.height():
-        delta = (rect.width() - rect.height()) // 2
-        rect = rect.adjusted(delta, 0, -delta, 0)
-    elif rect.height() > rect.width():
-        delta = (rect.height() - rect.width()) // 2
-        rect = rect.adjusted(0, delta, 0, -delta)
-    disc_width = max(4, rect.width() // 10)
-
-    drawing_rect = QRect(rect.x() + disc_width, rect.y() + disc_width, rect.width() - 2 * disc_width, rect.height() - 2 * disc_width)
-    try:
-        angle_for_width = math.degrees(math.atan2(2.5 * disc_width, drawing_rect.width()))
-    except ZeroDivisionError:
-        angle_for_width = 5
-
-    gradient = QConicalGradient(drawing_rect.center(), angle - angle_for_width)
-    gradient.setColorAt(1, light)
-    gradient.setColorAt(0, dark)
-
-    painter.setPen(QPen(light, disc_width))
-    painter.drawArc(drawing_rect, 0, 360 * 16)
-    pen = QPen(QBrush(gradient), disc_width)
-    pen.setCapStyle(Qt.PenCapStyle.RoundCap)
-    painter.setPen(pen)
-    painter.drawArc(drawing_rect, angle * 16, (360 - 2 * angle_for_width) * 16)
-
-
-class SpinnerCache:
-
-    def __init__(self, light, dark):
-        self.width = self.height = 0
-        self.light, self.dark = light, dark
-        self.cache = {}
-
-    def __call__(self, painter, rect, angle):
-        width, height = rect.width(), rect.height()
-        if (width, height) != (self.width, self.height):
-            self.cache = {}
-            self.width, self.height = width, height
-        img = self.cache.get(angle)
-        if img is None:
-            img = self.cache[angle] = QImage(width, height, QImage.Format.Format_ARGB32_Premultiplied)
-            img.fill(Qt.GlobalColor.transparent)
-            p = QPainter(img)
-            r = img.rect()
-            draw_snake_spinner(p, r, angle, self.light, self.dark)
-            p.end()
-            del p
-        painter.drawImage(rect, img, img.rect())
-
-
-@lru_cache(maxsize=2)
-def mute_icon(size):
-    img = QImage(size, size, QImage.Format.Format_ARGB32_Premultiplied)
-    img.fill(Qt.GlobalColor.transparent)
-    p = QPainter(img)
-    p.setRenderHint(QPainter.RenderHint.TextAntialiasing)
-    font = QFont()
-    font.setPixelSize(size - 4)
-    p.setFont(font)
-    p.drawText(0, size - 4, '🔇')
-    p.end()
-    return img
 
 
 class Dialog(QDialog):
@@ -189,8 +119,8 @@ def ipython(user_ns=None):
     os.environ['IPYTHONDIR'] = ipydir
     BANNER = ('Welcome to the interactive vise shell!\n')
     from IPython.terminal.embed import InteractiveShellEmbed
-    from traitlets.config.loader import Config
     from IPython.terminal.prompts import Prompts, Token
+    from traitlets.config.loader import Config
 
     class CustomPrompt(Prompts):
 

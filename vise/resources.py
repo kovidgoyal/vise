@@ -3,7 +3,9 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
-from PyQt5.Qt import QIcon, QPixmap
+from functools import lru_cache
+
+from PyQt5.Qt import QIcon
 
 
 def get_data_as_path(name):
@@ -18,18 +20,9 @@ def get_data_as_file(name):
 def get_data(name):
     return get_data_as_file(name).read()
 
-_icon_cache = {}
 
-
+@lru_cache(maxsize=512)
 def get_icon(name):
     if not name.startswith('images/'):
         name = 'images/' + name
-    try:
-        return _icon_cache[name]
-    except KeyError:
-        raw = get_data_as_file(name).read()
-        pixmap = QPixmap()
-        pixmap.loadFromData(raw)
-        icon = _icon_cache[name] = QIcon()
-        icon.addPixmap(pixmap)
-        return icon
+    return QIcon(get_data_as_path(name))

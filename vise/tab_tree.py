@@ -10,18 +10,17 @@ from gettext import gettext as _
 
 from PyQt5.Qt import (QApplication, QBrush, QColor, QEvent, QFont, QIcon,
                       QMenu, QPainter, QPainterPath, QPen, QPixmap, QRect,
-                      QRectF, QSize, QStyle, QStyledItemDelegate, Qt, QTimer,
+                      QRectF, QSize, QStyle, QStyledItemDelegate, Qt,
                       QTreeWidget, QTreeWidgetItem, pyqtSignal)
 
 from .config import color
-from .downloads import DOWNLOADS_URL, downloads_icon
-from .resources import get_data_as_path
-from .utils import SpinnerCache, elided_text, mute_icon
+from .downloads import DOWNLOADS_URL, DOWNLOAD_ICON_NAME
+from .resources import get_data_as_path, get_icon
+from .utils import elided_text
 from .welcome import WELCOME_URL, welcome_icon
 
 LOADING_ROLE = Qt.ItemDataRole.UserRole
-ANGLE_ROLE = LOADING_ROLE + 1
-HOVER_ROLE = ANGLE_ROLE + 1
+HOVER_ROLE = LOADING_ROLE + 1
 CLOSE_HOVER_ROLE = HOVER_ROLE + 1
 MARK_ROLE = CLOSE_HOVER_ROLE + 1
 DISPLAY_ROLE = MARK_ROLE + 1
@@ -66,9 +65,7 @@ class TabDelegate(QStyledItemDelegate):
         pal = parent.palette()
         self.dark = pal.color(pal.Text)
         self.light = pal.color(pal.Base)
-        self.draw_spinner = SpinnerCache(self.light, self.dark)
         self.highlighted_text = pal.color(pal.HighlightedText)
-        self.errored_out = False
         self.current_background = QBrush(QColor(color('tab tree current background', Qt.GlobalColor.lightGray)))
 
     def sizeHint(self, option, index):
@@ -95,8 +92,8 @@ class TabDelegate(QStyledItemDelegate):
         text = index.data(DISPLAY_ROLE) or ''
         muted = index.data(MUTED_ROLE)
         if muted:
-            mc = mute_icon(ICON_SIZE)
-            painter.drawImage(QRect(text_rect.left(), text_rect.top(), ICON_SIZE, text_rect.height()), mc, mc.rect())
+            mc = get_icon('volume-off.svg').pixmap(ICON_SIZE, ICON_SIZE)
+            painter.drawPixmap(QRect(text_rect.left(), text_rect.top(), ICON_SIZE, text_rect.height()), mc, mc.rect())
             text_rect.adjust(ICON_SIZE, 0, 0, 0)
         font = index.data(Qt.ItemDataRole.FontRole)
         if font:
@@ -119,20 +116,14 @@ class TabDelegate(QStyledItemDelegate):
                 painter.setPen(pen)
             painter.drawText(hrect, Qt.AlignmentFlag.AlignCenter, '✖ ')
         if index.data(LOADING_ROLE):
-            if not self.errored_out:
-                angle = index.data(ANGLE_ROLE)
-                try:
-                    self.draw_spinner(painter, icon_rect, angle)
-                except Exception:
-                    import traceback
-                    traceback.print_exc()
-                    self.errored_out = True
+            lc = get_icon('busy.svg').pixmap(ICON_SIZE, ICON_SIZE)
+            painter.drawPixmap(icon_rect, lc, lc.rect())
         else:
             icurl = index.data(URL_ROLE)
             if icurl == WELCOME_URL:
                 icon = welcome_icon()
             elif icurl == DOWNLOADS_URL:
-                icon = downloads_icon()
+                icon = get_icon(DOWNLOAD_ICON_NAME)
             else:
                 icon = index.data(DECORATION_ROLE)
             icon.paint(painter, icon_rect)
@@ -158,7 +149,6 @@ class TabItem(QTreeWidgetItem):
         self.set_data(LOADING_ROLE, False)
         self.set_data(DISPLAY_ROLE, tab.title() or _('Loading...'))
         self.set_data(DECORATION_ROLE, missing_icon())
-        self.set_data(ANGLE_ROLE, 0)
         self.set_data(HOVER_ROLE, False)
         self.set_data(URL_ROLE, '')
         self.set_data(MUTED_ROLE, False)
@@ -176,7 +166,6 @@ class TabItem(QTreeWidgetItem):
         self.set_data(URL_ROLE, url)
 
     def _loading_status_changed(self, loading):
-        self.set_data(ANGLE_ROLE, 0)
         self.set_data(LOADING_ROLE, loading)
         self.loading_status_changed(self, loading)
 
@@ -296,9 +285,6 @@ class TabTree(QTreeWidget):
         self.emphasis_font = QFont(self.font())
         self.emphasis_font.setBold(True)
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        self.animation_timer = t = QTimer(self)
-        t.setInterval(10)
-        t.timeout.connect(self.tick_loading_animation)
         self.loading_items = set()
         self.delegate = TabDelegate(self)
         self.setItemDelegate(self.delegate)
@@ -470,16 +456,8 @@ class TabTree(QTreeWidget):
     def loading_status_changed(self, item, loading):
         if loading:
             self.loading_items.add(item)
-            self.animation_timer.start()
         else:
             self.loading_items.discard(item)
-            if not self.loading_items:
-                self.animation_timer.stop()
-
-    def tick_loading_animation(self):
-        for item in self.loading_items:
-            angle = (item.data(0, ANGLE_ROLE) - 4 + 360) % 360
-            item.set_data(ANGLE_ROLE, angle)
 
     def item_clicked(self, item, column):
         if item is not None:

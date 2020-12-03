@@ -22,8 +22,7 @@ from .config import misc_config
 from .constants import DOWNLOADS_URL as DU
 from .constants import STATUS_BAR_HEIGHT
 from .resources import get_data, get_icon
-from .utils import (draw_snake_spinner, icon_data_for_filename,
-                    open_local_file, safe_disconnect)
+from .utils import icon_data_for_filename, open_local_file, safe_disconnect
 
 
 def get_download_dir():
@@ -37,13 +36,8 @@ def get_download_dir():
 
 
 DOWNLOADS_URL = QUrl(DU)
+DOWNLOAD_ICON_NAME = 'download.svg'
 save_page_path_map = {}
-
-
-def downloads_icon():
-    if not hasattr(downloads_icon, 'icon'):
-        downloads_icon.icon = get_icon('download.svg')
-    return downloads_icon.icon
 
 
 @lru_cache(maxsize=150)
@@ -62,50 +56,33 @@ class Indicator(QWidget):  # {{{
         QWidget.__init__(self, parent)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.setToolTip(self.no_downloads_tooltip)
-        self.timer = tt = QTimer(self)
-        tt.setInterval(10)
-        tt.timeout.connect(self.tick)
-        self.angle = 0
         pal = (parent or QApplication.instance()).palette()
         self.dark = pal.color(pal.Text)
         self.light = pal.color(pal.Base)
-        self.errored_out = False
         self.update()
         self.setMinimumWidth(STATUS_BAR_HEIGHT - 4)
         self.setMinimumHeight(STATUS_BAR_HEIGHT - 4)
-
-    def tick(self):
-        self.angle -= 4
-        self.update()
+        self.running = False
 
     def start(self):
-        self.timer.start()
+        self.running = True
         self.setToolTip(self.downloads_tooltip)
         self.update()
 
     def stop(self):
-        self.timer.stop()
+        self.running = False
         self.setToolTip(self.no_downloads_tooltip)
         self.update()
 
     def paintEvent(self, ev):
-        if self.timer.isActive():
-            if not self.errored_out:
-                try:
-                    draw_snake_spinner(QPainter(self), self.rect(), self.angle, self.light, self.dark)
-                except Exception:
-                    import traceback
-                    traceback.print_exc()
-                    self.errored_out = True
-        else:
-            r = self.rect()
-            painter = QPainter(self)
-            painter.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform, True)
-            icon = downloads_icon()
-            pmap = icon.pixmap(r.width(), r.height())
-            x = (r.width() - int(pmap.width() / pmap.devicePixelRatio())) // 2
-            y = (r.height() - int(pmap.height() / pmap.devicePixelRatio())) // 2 + 1
-            painter.drawPixmap(x, y, pmap)
+        r = self.rect()
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform, True)
+        icon = get_icon('busy.svg' if self.running else DOWNLOAD_ICON_NAME)
+        pmap = icon.pixmap(r.width(), r.height())
+        x = (r.width() - int(pmap.width() / pmap.devicePixelRatio())) // 2
+        y = (r.height() - int(pmap.height() / pmap.devicePixelRatio())) // 2 + 1
+        painter.drawPixmap(x, y, pmap)
 
     def mousePressEvent(self, ev):
         if ev.button() == Qt.MouseButton.LeftButton:
