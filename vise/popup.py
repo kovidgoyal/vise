@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
+from functools import partial
 from collections import namedtuple
 
 from PyQt5.Qt import (
@@ -73,15 +74,13 @@ class Popup(QWidget):
             self.bb.setStandardButtons(self.bb.Yes | self.bb.No)
         for text, val in q.extra_buttons.items():
             b = self.bb.addButton(text, self.bb.AcceptRole)
-            b.clicked.connect(self.extra_button_clicked)
+            if q.callback is not None:
+                b.clicked.connect(partial(self.extra_button_callback, q.callback, val))
             b.setObjectName(val)
         self.show()
 
-    def extra_button_clicked(self):
-        button = self.sender()
-        q = self.questions[0]
-        if q.callback is not None:
-            q.callback(button.objectName())
+    def extra_button_callback(self, callback, val):
+        callback(val, self.shutting_down)
 
     def show(self):
         self.move(0, 1)
