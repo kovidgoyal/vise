@@ -569,7 +569,7 @@ class TabTree(QTreeWidget):
 
         def process_node(node, sparent=ans):
             for child in (node.child(i) for i in range(node.childCount())):
-                view_id = child.view_id
+                view_id = getattr(child, 'view_id', -1)
                 if view_id > -1:
                     sparent['children'].append({'view_id': view_id, 'is_expanded': child.isExpanded(), 'children': []})
                     process_node(child, sparent['children'][-1])
