@@ -317,7 +317,7 @@ class TabTree(QTreeWidget):
         m.addAction(_('Close tabs to the bottom'), partial(self.close_tabs_to_bottom, item))
         m.addAction(_('Close other tabs'), partial(self.close_other_tabs, item))
         m.addAction(_('Close this tree'), partial(self.close_tree, item))
-        m.exec_(self.mapToGlobal(pos))
+        m.exec(self.mapToGlobal(pos))
 
     def close_tabs_to_bottom(self, item_or_tab):
         item = item_or_tab if isinstance(item_or_tab, TabItem) else self.item_for_tab(item_or_tab)

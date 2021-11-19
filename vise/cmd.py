@@ -35,7 +35,7 @@ class PasswordManager(Command):
         app = QApplication.instance()
         if app.ask_for_master_password(window):
             d = PasswordManager(password_db, parent=window)
-            d.exec_()
+            d.exec()
 
 
 class ClearSearchHighlighting(Command):

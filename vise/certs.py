@@ -110,7 +110,7 @@ class CertExceptions:
                 odomain, error_string)
         msg = msg.format('<i>%s</i>' % domain)
         d = Ask(msg, parent=parent)
-        if d.exec_() == d.Accepted:
+        if d.exec() == d.Accepted:
             self.add_exception(domain, code, permanent=d.permanent.isChecked())
             return True
         return False

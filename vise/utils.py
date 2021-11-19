@@ -431,4 +431,4 @@ def develop():
     r.updated.connect(l.setPixmap)
     r.start()
     l.show()
-    app.exec_()
+    app.exec()

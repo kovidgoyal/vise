@@ -177,8 +177,8 @@ class MessageBox(QDialog):  # {{{
         self.det_msg.setVisible(False)
         self.resize_needed.emit()
 
-    def exec_(self):
-        ret = QDialog.exec_(self)
+    def exec(self):
+        ret = QDialog.exec(self)
         self.break_cycles()
         return ret
 # }}}
@@ -187,13 +187,13 @@ class MessageBox(QDialog):  # {{{
 def warning_dialog(parent, title, msg, det_msg='', show=False, show_copy_button=True):
     d = MessageBox(MessageBox.WARNING, _('WARNING:') + ' ' +
                    title, msg, det_msg, parent=parent, show_copy_button=show_copy_button)
-    return d.exec_() if show else d
+    return d.exec() if show else d
 
 
 def error_dialog(parent, title, msg, det_msg='', show=True, show_copy_button=True):
     d = MessageBox(MessageBox.ERROR, _('ERROR:') + ' ' +
                    title, msg, det_msg, parent=parent, show_copy_button=show_copy_button)
-    return d.exec_() if show else d
+    return d.exec() if show else d
 
 
 def question_dialog(
@@ -227,7 +227,7 @@ def question_dialog(
         tc.setChecked(bool(skip_dialog_skip_precheck))
         d.resize_needed.emit()
 
-    ret = d.exec_() == d.Accepted
+    ret = d.exec() == d.Accepted
 
     if skip_dialog_name is not None and not d.toggle_checkbox.isChecked():
         auto_skip.add(skip_dialog_name)

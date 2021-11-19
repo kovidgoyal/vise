@@ -166,7 +166,7 @@ class Application(QApplication):
         if not pw_loaded:
             while True:
                 d = AskForPassword(parent=parent, create_password=not password_db.has_password())
-                if d.exec_() != AskForPassword.Accepted:
+                if d.exec() != AskForPassword.Accepted:
                     return
                 with BusyCursor():
                     password_db.start_load(d.password)
@@ -320,7 +320,7 @@ class Application(QApplication):
         d = error_dialog(parent, _('Unhandled exception'), msg, det_msg=det_msg, show=False)
         b = d.shutdown_button = d.bb.addButton(_('Shutdown'), d.bb.ActionRole)
         b.clicked.connect(self.exit_with_error)
-        d.exec_()
+        d.exec()
 
     def exit_with_error(self):
         self.exit(1)
@@ -419,7 +419,7 @@ def run_app(
                 app.unserialize_state(last_session)
         if callback is not None:
             QTimer.singleShot(callback_wait, callback)
-        app.exec_()
+        app.exec()
     finally:
         app.break_cycles()
         delete_profile()

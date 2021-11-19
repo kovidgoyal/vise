@@ -280,7 +280,7 @@ def develop():
     w = Ask()
     w()
     w.show()
-    app.exec_()
+    app.exec()
     del w
     del app
 
@@ -306,7 +306,7 @@ def standalone():
 
     w('copyurl ', output)
     w.show()
-    app.exec_()
+    app.exec()
     del w
     del app
     raise SystemExit(ret)

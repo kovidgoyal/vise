@@ -169,7 +169,7 @@ class WebPage(QWebEnginePage):
             print('Suppressing alert from:', qurl.toString())
             return
         self.parent().raise_tab()
-        Alert(self.title(), qurl, msg, self.parent()).exec_()
+        Alert(self.title(), qurl, msg, self.parent()).exec()
 
     def break_cycles(self):
         self.callbacks.clear()
@@ -671,4 +671,4 @@ class WebView(QWebEngineView):
         menu = self._page.createStandardContextMenu()
         menu.addSeparator()
         menu.addAction(_('Inspect element'), self.trigger_inspect)
-        menu.exec_(ev.globalPos())
+        menu.exec(ev.globalPos())

@@ -67,7 +67,7 @@ def get_http_auth_credentials(qurl, authenticator, parent=None):
             return
         d.credentials = ac['username'], ac['password']
 
-    if d.exec_() == d.Accepted:
+    if d.exec() == d.Accepted:
         username, password = d.credentials
         authenticator.setUser(username)
         authenticator.setPassword(password)
@@ -83,7 +83,7 @@ def get_proxy_auth_credentials(qurl, authenticator, proxy_host, parent=None):
     qurl = QUrl(qurl)
     qurl.setFragment(None)
     d = Credentials(_('Please specify a password for {0} at the proxy: {1}').format(qurl.toString(), proxy_host), parent)
-    if d.exec_() == d.Accepted:
+    if d.exec() == d.Accepted:
         username, password = d.credentials
         authenticator.setUser(username)
         authenticator.setPassword(password)

@@ -193,7 +193,7 @@ class PasswordManager(Dialog):
 
     def item_activated(self, index):
         if index.isValid():
-            EditItem(self.db, index.data(Qt.ItemDataRole.DisplayRole), parent=self).exec_()
+            EditItem(self.db, index.data(Qt.ItemDataRole.DisplayRole), parent=self).exec()
 
     def add_entry(self):
         pass
@@ -228,7 +228,7 @@ class PasswordManager(Dialog):
 
     def change_password(self):
         d = AskForPassword(parent=self, create_password=True)
-        if d.exec_() == d.Accepted:
+        if d.exec() == d.Accepted:
             with BusyCursor():
                 self.db.change_password(d.password)
 
@@ -281,6 +281,6 @@ def standalone(password, path=None):
     db = PasswordDB(password, path)
     app = Application([])
     d = PasswordManager(db)
-    d.exec_()
+    d.exec()
     sip.delete(d)
     sip.delete(app)
