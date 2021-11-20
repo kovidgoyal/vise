@@ -490,7 +490,7 @@ class WebView(QWebEngineView):
 
     def save_page(self, path=None):
         from .downloads import save_page_path_map
-        self._page.triggerAction(self._page.SavePage)
+        self._page.triggerAction(QWebEnginePage.WebAction.SavePage)
         save_page_path_map[self.url().toString()] = path
 
     def print_page(self, path=None):
@@ -664,11 +664,11 @@ class WebView(QWebEngineView):
     def trigger_inspect(self):
         if not self.dev_tools_enabled:
             self.dev_tools_requested.emit()
-        self._page.triggerAction(self._page.InspectElement)
+        self._page.triggerAction(QWebEnginePage.WebAction.InspectElement)
 
     def contextMenuEvent(self, ev):
         self.middle_click_soon = monotonic() + 2  # so that voew page source does not popup a confirmation
-        menu = self._page.createStandardContextMenu()
+        menu = self.createStandardContextMenu()
         menu.addSeparator()
         menu.addAction(_('Inspect element'), self.trigger_inspect)
         menu.exec(ev.globalPos())
