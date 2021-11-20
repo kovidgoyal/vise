@@ -5,16 +5,15 @@
 from gettext import gettext as _
 
 from PyQt6 import sip
-from PyQt6.QtCore import QSize, Qt
-from PyQt6.QtWidgets import (
-    QAbstractListModel, QSortFilterProxyModel, QListView,
-    QVBoxLayout, QLineEdit, QFormLayout, QCheckBox, QPlainTextEdit,
-    QLabel, QWidget, QListWidget, QSplitter, QListWidgetItem, pyqtSignal,
-    QPushButton
-)
+from PyQt6.QtCore import (QAbstractListModel, QSize, QSortFilterProxyModel, Qt,
+                          pyqtSignal)
+from PyQt6.QtWidgets import (QAbstractItemView, QCheckBox, QDialogButtonBox,
+                             QFormLayout, QLabel, QLineEdit, QListView,
+                             QListWidget, QListWidgetItem, QPlainTextEdit,
+                             QPushButton, QSplitter, QVBoxLayout, QWidget)
 
 from ..message_box import error_dialog, question_dialog
-from ..utils import Dialog, choose_files, BusyCursor
+from ..utils import BusyCursor, Dialog, choose_files
 from .db import PasswordDB, import_lastpass_db
 
 
@@ -56,7 +55,7 @@ class EditAccount(QWidget):
         l.addRow(_('&Password:'), p)
         p.setPlaceholderText(_('Password for this account'))
         p.textChanged.connect(self.changed.emit)
-        p.setEchoMode(p.Password)
+        p.setEchoMode(QLineEdit.EchoMode.Password)
         self.show_password = sp = QCheckBox(_('&Show password'))
         l.addWidget(sp)
         sp.toggled.connect(self.show_password_toggled)
@@ -111,11 +110,11 @@ class EditItem(Dialog):
         self.l = l = QVBoxLayout(self)
         self.splitter = s = QSplitter(self)
         l.addWidget(s)
-        self.ab = b = self.bb.addButton(_('Add new account'), self.bb.ActionRole)
+        self.ab = b = self.bb.addButton(_('Add new account'), QDialogButtonBox.ButtonRole.ActionRole)
         b.clicked.connect(self.add_account)
         l.addWidget(self.bb)
         self.accounts = a = QListWidget(self)
-        a.setDragDropMode(a.InternalMove)
+        a.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
         self.edit_account = e = EditAccount(self)
         e.changed.connect(self.data_changed)
         e.delete_requested.connect(self.delete_requested)
@@ -184,13 +183,13 @@ class PasswordManager(Dialog):
         l.addWidget(v)
         le.textChanged.connect(pm.setFilterFixedString)
 
-        self.bb.setStandardButtons(self.bb.Close)
+        self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Close)
         l.addWidget(self.bb)
-        self.bb.addButton(_('Import from LastPass'), self.bb.ActionRole).clicked.connect(self.import_from_lastpass)
-        self.bb.addButton(_('Change password'), self.bb.ActionRole).clicked.connect(self.change_password)
-        self.bb.addButton(_('Add entry'), self.bb.ActionRole).clicked.connect(self.add_entry)
-        self.bb.addButton(_('Remove selected'), self.bb.ActionRole).clicked.connect(self.remove_selected)
-        self.bb.button(self.bb.Close).setDefault(True)
+        self.bb.addButton(_('Import from LastPass'), QDialogButtonBox.ButtonRole.ActionRole).clicked.connect(self.import_from_lastpass)
+        self.bb.addButton(_('Change password'), QDialogButtonBox.ButtonRole.ActionRole).clicked.connect(self.change_password)
+        self.bb.addButton(_('Add entry'), QDialogButtonBox.ButtonRole.ActionRole).clicked.connect(self.add_entry)
+        self.bb.addButton(_('Remove selected'), QDialogButtonBox.ButtonRole.ActionRole).clicked.connect(self.remove_selected)
+        self.bb.button(QDialogButtonBox.StandardButton.Close).setDefault(True)
 
     def item_activated(self, index):
         if index.isValid():
@@ -246,7 +245,7 @@ class AskForPassword(Dialog):
         la.setWordWrap(True)
         l.addWidget(la)
         self.pw = pw = QLineEdit(self)
-        pw.setEchoMode(pw.Password)
+        pw.setEchoMode(QLineEdit.EchoMode.Password)
         l.addWidget(pw)
         self.showp = sp = QCheckBox(_('&Show password'), self)
         l.addWidget(sp)
@@ -259,7 +258,7 @@ class AskForPassword(Dialog):
         l.addWidget(self.bb)
 
     def show_password_toggled(self, show):
-        self.pw.setEchoMode(self.pw.Normal if show else self.pw.Password)
+        self.pw.setEchoMode(QLineEdit.EchoMode.Normal if show else QLineEdit.EchoMode.Password)
 
     @property
     def password(self):
