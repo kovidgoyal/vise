@@ -10,7 +10,9 @@ from . import actions
 from .ask import Ask
 from .config import load_config
 
-modifiers_mask = (Qt.KeyboardModifier.ShiftModifier | Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.AltModifier | Qt.KeyboardModifier.MetaModifier).value
+modifiers_mask = (
+    Qt.KeyboardModifier.ShiftModifier | Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.AltModifier | Qt.KeyboardModifier.MetaModifier
+).value
 
 all_keys = {int(v): k for k, v in vars(Qt).items() if k.startswith('Key_') and k not in {'Key_Alt', 'Key_Meta', 'Key_Control', 'Key_Shift'}}
 
@@ -20,7 +22,7 @@ def only_modifiers(key):
 
 
 def key_from_event(ev):
-    modifiers = int(ev.modifiers()) & modifiers_mask
+    modifiers = int(ev.modifiers().value) & modifiers_mask
     return ev.key() | modifiers
 
 

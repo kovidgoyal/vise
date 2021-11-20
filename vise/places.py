@@ -9,7 +9,6 @@ import time
 import unicodedata
 from collections import OrderedDict, namedtuple
 from itertools import repeat
-from enum import Enum, unique
 
 import apsw
 from PyQt6.QtWebEngineCore import QWebEnginePage
@@ -29,33 +28,11 @@ def normalize(x):
 DAY = int(24 * 60 * 60 * 1e6)
 
 
-@unique
-class VisitType(Enum):
-    link_clicked = 0
-    typed = 1
-    form_submitted = 2
-    back_forward = 3
-    reload = 4
-    other = 5
-    redirect = 6
-
-
 FRECENCY_NUM_VISITS = 10
-VISIT_TYPE_WEIGHTS = {VisitType.link_clicked.value: 120, VisitType.typed.value: 200}
+VISIT_TYPE_WEIGHTS = {QWebEnginePage.NavigationType.NavigationTypeLinkClicked.value: 120, QWebEnginePage.NavigationType.NavigationTypeTyped.value: 200}
 RECENCY_WEIGHTS = [100, 70, 50, 30, 10]
 
 MergeData = namedtuple('MergeData', 'visit_count typed last_visit_date frecency')
-
-
-def from_qt(key):
-    ans = re.sub(r'[A-Z]', lambda m: '_' + m.group().lower(), key[len('NavigationType'):]).lstrip('_')
-    return getattr(VisitType, ans)
-
-
-qt_visit_types = {
-    val: from_qt(key) for key, val in vars(QWebEnginePage).items() if key.startswith('NavigationType') and key != 'NavigationType'
-}
-del from_qt
 
 
 class Places:
@@ -90,7 +67,6 @@ class Places:
     def on_visit(self, qurl, visit_type, is_main_frame):
         if not is_main_frame:
             return
-        visit_type = qt_visit_types[visit_type]
         if not VISIT_TYPE_WEIGHTS.get(visit_type.value, 0):
             return
         url = normalize(qurl.toString())
@@ -101,10 +77,10 @@ class Places:
                 place_id, visit_count, typed = next(c.execute('SELECT id, visit_count, typed FROM places WHERE url=?', (url,)))
                 typed = bool(typed)
             except StopIteration:
-                typed = visit_type is VisitType.typed
+                typed = visit_type is QWebEnginePage.NavigationType.NavigationTypeTyped
                 place_id = self.insert('places', cursor=c, url=url, typed=int(typed))
                 visit_count = 0
-            typed = typed or visit_type is VisitType.typed
+            typed = typed or visit_type is QWebEnginePage.NavigationType.NavigationTypeTyped
             self.insert('visits', cursor=c, place_id=place_id, visit_date=timestamp, type=visit_type.value)
             frecency = self.calculate_frecency(place_id, visit_count, cursor=c)
             c.execute('UPDATE places SET visit_count = ?, last_visit_date = ?, typed = ?, frecency = ? WHERE id=?', (
@@ -322,7 +298,8 @@ def import_from_firefox():
                 'SELECT place_id,visit_date,visit_type FROM moz_historyvisits'):
             place_id = place_id_map.get(place_id)
             if place_id is not None and visit_date and visit_type in (1, 2):
-                items.append((place_id, visit_date, {1: VisitType.link_clicked, 2: VisitType.typed}[visit_type].value))
+                items.append((place_id, visit_date, {
+                    1: QWebEnginePage.NavigationType.NavigationTypeLinkClicked, 2: QWebEnginePage.NavigationType.NavigationTypeTyped}[visit_type].value))
         places.conn.cursor().executemany(
             'INSERT INTO visits (place_id, visit_date, type) VALUES (?, ?, ?)', items)
         print('Importing favicons table')
