@@ -417,7 +417,7 @@ class WebView(QWebEngineView):
         )
 
     def exit_full_screen(self):
-        self._page.triggerAction(self._page.ExitFullScreen)
+        self._page.triggerAction(QWebEnginePage.WebAction.ExitFullScreen)
 
     def full_screen_requested(self, req):
         # Cannot accept this asynchronously in python, see

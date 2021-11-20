@@ -23,7 +23,7 @@ from PyQt6.QtNetwork import (QAbstractSocket, QLocalServer, QLocalSocket,
                              QNetworkCacheMetaData, QNetworkDiskCache,
                              QSslSocket)
 from PyQt6.QtWebEngineCore import QWebEngineUrlScheme
-from PyQt6.QtWidgets import QApplication, QDialogButtonBox
+from PyQt6.QtWidgets import QApplication, QDialogButtonBox, QDialog
 
 from .constants import (VISE_SCHEME, appname, cache_dir, config_dir,
                         in_dark_mode, isosx, iswindows, local_socket_address,
@@ -162,7 +162,7 @@ class Application(QApplication):
         if not pw_loaded:
             while True:
                 d = AskForPassword(parent=parent, create_password=not password_db.has_password())
-                if d.exec() != AskForPassword.Accepted:
+                if d.exec() != QDialog.DialogCode.Accepted:
                     return
                 with BusyCursor():
                     password_db.start_load(d.password)
