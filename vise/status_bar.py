@@ -122,7 +122,7 @@ class Message(QWidget):
                 sep = ':'
             else:
                 host = qurl.host()
-                rest = qurl.toDisplayString(QUrl.ComponentFormattingOption.PrettyDecoded | QUrl.UrlFormattingOption.RemoveScheme | QUrl.UrlFormattingOption.RemoveAuthority)
+                rest = qurl.toDisplayString(QUrl.UrlFormattingOption.RemoveScheme | QUrl.UrlFormattingOption.RemoveAuthority)
                 sep = '://'
             self.static_text = QStaticText(
                 '<span style="white-space:nowrap; color: {fg}">'

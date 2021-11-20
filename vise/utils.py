@@ -12,9 +12,9 @@ from gettext import gettext as _
 from xml.sax.saxutils import escape
 
 from PyQt6.QtCore import (QBuffer, QByteArray, QMimeDatabase, QObject, Qt,
-                          QTimer, QUrl, pyqtSignal)
+                          QTimer, QUrl, pyqtSignal, QIODeviceBase)
 from PyQt6.QtGui import (QCursor, QDesktopServices, QFontMetrics, QIcon,
-                         QPainter, QPixmap, QStaticText)
+                         QPainter, QPixmap, QStaticText, QTextOption)
 from PyQt6.QtWidgets import (QApplication, QDialog, QDialogButtonBox,
                              QFileDialog)
 
@@ -194,7 +194,7 @@ def pixmap_to_data(pixmap, format='PNG'):
     '''
     ba = QByteArray()
     buf = QBuffer(ba)
-    buf.open(QBuffer.WriteOnly)
+    buf.open(QIODeviceBase.OpenModeFlag.WriteOnly)
     pixmap.save(buf, format)
     return bytes(ba.data())
 
@@ -326,7 +326,7 @@ def make_highlighted_text(text, positions, emph='color:magenta', wrapper=None):
         text = '<span style="%s">%s</span>' % (wrapper, text)
     ans = QStaticText(text)
     to = ans.textOption()
-    to.setWrapMode(to.NoWrap)
+    to.setWrapMode(QTextOption.WrapMode.NoWrap)
     ans.setTextOption(to)
     ans.setTextFormat(Qt.TextFormat.RichText)
     return ans

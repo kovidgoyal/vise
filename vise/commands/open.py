@@ -6,7 +6,7 @@ from contextlib import closing
 
 from PyQt6.QtCore import QPoint, QUrl, QUrlQuery
 from PyQt6.QtGui import QIcon, QPixmap
-from PyQt6.QtWidgets import QApplication
+from PyQt6.QtWidgets import QApplication, QStyleOptionViewItem, QStyle
 
 from ..places import places
 from ..utils import make_highlighted_text, parse_url
@@ -65,13 +65,13 @@ class CompletionCandidate:
         return self.value
 
     def draw_item(self, painter, style, option):
-        option.features |= option.HasDecoration
+        option.features |= QStyleOptionViewItem.ViewItemFeature.HasDecoration
         option.icon = self.icon
-        text_rect = style.subElementRect(style.SE_ItemViewItemText, option, None)
+        text_rect = style.subElementRect(QStyle.SubElement.SE_ItemViewItemText, option, None)
         x, y = text_rect.x(), text_rect.y()
         y += (text_rect.height() - self.left.size().height()) // 2
         if not option.icon.isNull():
-            icon_rect = style.subElementRect(style.SE_ItemViewItemDecoration, option, None)
+            icon_rect = style.subElementRect(QStyle.SubElement.SE_ItemViewItemDecoration, option, None)
             icon_rect.setTop(y), icon_rect.setBottom(text_rect.bottom())
             option.icon.paint(painter, icon_rect)
         option.icon = QIcon()

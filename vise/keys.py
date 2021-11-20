@@ -2,7 +2,7 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-from PyQt6.QtCore import QEvent, QObject, Qt
+from PyQt6.QtCore import QEvent, QObject, Qt, QKeyCombination
 from PyQt6.QtGui import QKeySequence
 from PyQt6.QtWidgets import QApplication, QDialog, QLineEdit, QMainWindow
 
@@ -143,14 +143,14 @@ class KeyFilter(QObject):
                             return True
 
                     if ct.text_input_focused:
-                        action = input_key_map.get(key)
+                        action = input_key_map.get(QKeyCombination.fromCombined(key))
                         if action is not None:
                             swallow = action(window, fw, self)
                             if swallow is True:
                                 return True
                         return False
 
-                action = normal_key_map.get(key)
+                action = normal_key_map.get(QKeyCombination.fromCombined(key))
                 if action is not None:
                     swallow = action(window, fw, self)
                     if swallow is True:

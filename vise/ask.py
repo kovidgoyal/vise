@@ -11,7 +11,7 @@ from PyQt6 import sip
 from PyQt6.QtCore import (QAbstractListModel, QModelIndex, QPoint, QSize,
                           QStringListModel, Qt, pyqtSignal)
 from PyQt6.QtGui import QColor, QKeySequence, QPainter
-from PyQt6.QtWidgets import (QApplication, QFrame, QLineEdit, QListView,
+from PyQt6.QtWidgets import (QApplication, QFrame, QLineEdit, QListView, QStyle,
                              QStyledItemDelegate, QVBoxLayout, QWidget)
 
 from .cmd import all_command_names, command_map
@@ -80,7 +80,7 @@ class Candidate:
         return self.value
 
     def draw_item(self, painter, style, option):
-        text_rect = style.subElementRect(style.SE_ItemViewItemText, option, None)
+        text_rect = style.subElementRect(QStyle.SubElement.SE_ItemViewItemText, option, None)
         y = text_rect.y()
         y += (text_rect.height() - self.text.size().height()) // 2
         painter.drawStaticText(QPoint(text_rect.x(), y), self.text)
