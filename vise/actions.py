@@ -8,6 +8,7 @@ from gettext import gettext as _
 from PyQt6.QtCore import QEvent, Qt, QUrl
 from PyQt6.QtGui import QKeyEvent
 from PyQt6.QtWidgets import QApplication
+from PyQt6.QtWebEngineCore import QWebEnginePage
 
 from .communicate import python_to_js
 
@@ -293,14 +294,14 @@ def undo_close_tab(window, *a, **k):
 def reload(window, *args, **kwargs):
     if window.current_tab is not None:
         p = window.current_tab.page()
-        p.triggerAction(p.Reload)
+        p.triggerAction(QWebEnginePage.WebAction.Reload)
         return True
 
 
 def hard_reload(window, *args, **kwargs):
     if window.current_tab is not None:
         p = window.current_tab.page()
-        p.triggerAction(p.ReloadAndBypassCache)
+        p.triggerAction(QWebEnginePage.WebAction.ReloadAndBypassCache)
         return True
 
 
