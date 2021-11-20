@@ -11,7 +11,6 @@ from functools import lru_cache
 from gettext import gettext as _
 from itertools import count
 from time import monotonic
-from urllib.parse import unquote
 
 from PyQt6 import sip
 from PyQt6.QtCore import QByteArray, QObject, Qt, QTimer, QUrl, pyqtSignal
@@ -100,21 +99,24 @@ file_counter = count()
 
 def download_requested(download_item):
     app = QApplication.instance()
-    if download_item.savePageFormat() == download_item.UnknownSaveFormat:
-        fname = download_item.fname = unquote(os.path.basename(download_item.path())) or 'file%d' % next(file_counter)
-        download_item.setPath(os.path.join(get_download_dir(), fname))
+    if not download_item.isSavePageDownload():
+        fname = download_item.fname = download_item.downloadFileName() or 'file%d' % next(file_counter)
     else:
         fmt = misc_config('save_format', default='files')
-        download_item.setSavePageFormat(download_item.MimeHtmlSaveFormat if fmt == 'mhtml' else download_item.CompleteHtmlSaveFormat)
+        download_item.setSavePageFormat(
+            QWebEngineDownloadRequest.SavePageFormat.MimeHtmlSaveFormat if fmt == 'mhtml' else QWebEngineDownloadRequest.SavePageFormat.CompleteHtmlSaveFormat)
         path = save_page_path_map.pop(download_item.url().toString(), None)
         if path:
-            download_item.setPath(path)
             download_item.fname = os.path.basename(path)
+            download_item.setDownloadFileName(download_item.fname)
         else:
-            fname = download_item.fname = unquote(os.path.basename(download_item.path()))
+
+            fname = download_item.downloadFileName()
             if fmt != 'mhtml' and fname.endswith('.mhtml'):
                 fname = fname.rpartition('.')[0] + '.html'
-            download_item.setPath(os.path.join(get_download_dir(), fname))
+            download_item.fname = fname
+    download_item.setDownloadDirectory(get_download_dir())
+    download_item.setDownloadFileName(download_item.fname)
     download_item.accept()
     app.downloads.download_created(download_item)
 
@@ -161,8 +163,8 @@ class Downloads(QObject):
 
     def download_created(self, download_item):
         self.items.append(download_item)
-        download_item.downloadProgress.connect(self.on_state_change)
-        download_item.finished.connect(self.on_state_change)
+        download_item.receivedBytesChanged.connect(self.on_state_change)
+        download_item.isFinishedChanged.connect(self.on_state_change)
         download_item.stateChanged.connect(self.on_state_change)
         download_item.last_tick = (monotonic(), 0)
         download_item.rates = [-1]
@@ -171,7 +173,7 @@ class Downloads(QObject):
         self.has_active_downloads = True
         w = QApplication.instance().activeWindow()
         if hasattr(w, 'show_status_message'):
-            w.show_status_message(_('Download of %s started!') % os.path.basename(download_item.path()), 2)
+            w.show_status_message(_('Download of %s started!') % download_item.downloadFileName(), 2)
 
     def on_state_change(self):
         item = self.sender()
@@ -194,7 +196,7 @@ class Downloads(QObject):
         item.rates = [0]
         w = QApplication.instance().activeWindow()
         if hasattr(w, 'show_status_message'):
-            w.show_status_message(_('Download of %s completed!') % os.path.basename(item.path()), 5, 'success')
+            w.show_status_message(_('Download of %s completed!') % item.downloadFileName(), 5, 'success')
 
     def break_cycles(self):
         for item in self.items:
@@ -249,7 +251,7 @@ class Downloads(QObject):
                 if cmd == 'cancel':
                     item.cancel()
                 elif cmd == 'open':
-                    open_local_file(item.path())
+                    open_local_file(os.path.join(item.downloadDirectory(), item.downloadFileName()))
                 break
 
 

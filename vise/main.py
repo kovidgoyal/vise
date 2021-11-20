@@ -17,7 +17,7 @@ from datetime import datetime
 from gettext import gettext as _
 
 from PyQt6 import sip
-from PyQt6.QtCore import Qt, QTextStream, QTimer, pyqtSignal, QSocketNotifier
+from PyQt6.QtCore import Qt, QTextStream, QTimer, pyqtSignal, QSocketNotifier, QStringConverter
 from PyQt6.QtGui import QFontDatabase
 from PyQt6.QtNetwork import (QAbstractSocket, QLocalServer, QLocalSocket,
                              QNetworkCacheMetaData, QNetworkDiskCache,
@@ -186,7 +186,7 @@ class Application(QApplication):
             if new_instance:
                 return
             stream = QTextStream(s)
-            stream.setCodec('UTF-8')
+            stream.setEncoding(QStringConverter.Encoding.Utf8)
             if shutdown:
                 cargs = json.dumps({'action': 'shutdown'})
             else:
@@ -215,7 +215,7 @@ class Application(QApplication):
             return
         s.waitForReadyRead(1000)
         stream = QTextStream(s)
-        stream.setCodec('UTF-8')
+        stream.setEncoding(QStringConverter.Encoding.Utf8)
         raw = stream.readAll()
         try:
             command = json.loads(raw)

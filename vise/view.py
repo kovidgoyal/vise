@@ -580,7 +580,7 @@ class WebView(QWebEngineView):
             python_to_js(self, 'autofill_login_form', url, ac['autologin'], is_current_form)
 
     def find_text(self, text, callback=None, forward=True):
-        flags = QWebEnginePage.FindFlags(0) if forward else QWebEnginePage.FindFlag.FindBackward
+        flags = QWebEnginePage.FindFlag(0) if forward else QWebEnginePage.FindFlag.FindBackward
         self.find_text_data = [text, callback]
         if callback is None:
             self._page.findText(text, flags)
