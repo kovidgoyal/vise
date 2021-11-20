@@ -54,7 +54,7 @@ def elided_text(text, font=None, width=300, pos='middle'):
     rendered, replacing characters from the left, middle or right (as per pos)
     of the string with an ellipsis. Results in a string much closer to the
     limit than Qt's elidedText() '''
-    fm = QApplication.fontMetrics() if font is None else (font if isinstance(font, QFontMetrics) else QFontMetrics(font))
+    fm = QFontMetrics(QApplication.font()) if font is None else (font if isinstance(font, QFontMetrics) else QFontMetrics(font))
     delta = 4
     ellipsis = u'\u2026'
 
