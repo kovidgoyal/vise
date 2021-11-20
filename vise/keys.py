@@ -14,7 +14,7 @@ modifiers_mask = (
     Qt.KeyboardModifier.ShiftModifier | Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.AltModifier | Qt.KeyboardModifier.MetaModifier
 ).value
 
-all_keys = {int(v): k for k, v in vars(Qt).items() if k.startswith('Key_') and k not in {'Key_Alt', 'Key_Meta', 'Key_Control', 'Key_Shift'}}
+all_keys = {v.value: k for k, v in Qt.Key.__members__.items() if k.startswith('Key_') and k not in {'Key_Alt', 'Key_Meta', 'Key_Control', 'Key_Shift'}}
 
 
 def only_modifiers(key):
@@ -121,13 +121,13 @@ class KeyFilter(QObject):
                 if window.quickmark_pending:
                     if only_modifiers(key):
                         return True
-                    window.quickmark(key)
+                    window.quickmark(QKeyCombination.fromCombined(key))
                     return True
 
                 if window.choose_tab_pending:
                     if only_modifiers(key):
                         return True
-                    window.choose_tab(key)
+                    window.choose_tab(QKeyCombination.fromCombined(key))
                     return True
 
                 ct = window.current_tab
@@ -139,7 +139,7 @@ class KeyFilter(QObject):
                     if ct.follow_link_pending:
                         if only_modifiers(key):
                             return True
-                        if ct.follow_link(key):
+                        if ct.follow_link(QKeyCombination.fromCombined(key)):
                             return True
 
                     if ct.text_input_focused:

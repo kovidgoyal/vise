@@ -335,7 +335,7 @@ class MainWindow(QMainWindow):
         self.quickmark_pending = None
         url = quickmarks().get(key)
         if url is None:
-            if not key & Qt.Key.Key_Escape:
+            if key.key() is not Qt.Key.Key_Escape:
                 key = QKeySequence(key).toString()
                 self.show_status_message(_('Quickmark %s is not defined!') % key, 5, 'error')
             return

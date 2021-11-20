@@ -553,7 +553,7 @@ class TabTree(QTreeWidget):
                 item = self.itemBelow(item)
 
     def activate_marked_tab(self, key):
-        m = mark_rmap.get(key)
+        m = mark_rmap.get(key.toCombined())
         if m is None:
             return False
         for item in self:

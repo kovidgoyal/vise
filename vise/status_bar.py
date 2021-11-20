@@ -7,7 +7,7 @@ from gettext import gettext as _
 from time import monotonic
 from xml.sax.saxutils import escape
 
-from PyQt6.QtCore import Qt, QTimer, QUrl, pyqtSignal
+from PyQt6.QtCore import Qt, QTimer, QUrl, pyqtSignal, QPointF
 from PyQt6.QtGui import (QBrush, QColor, QLinearGradient, QPainter, QPalette,
                          QStaticText, QTextOption)
 from PyQt6.QtWidgets import (QApplication, QHBoxLayout, QLabel, QLineEdit,
@@ -153,7 +153,7 @@ class Message(QWidget):
         r = self.rect()
         p.drawStaticText(0, (r.height() - sz.height()) // 2, self.static_text)
         if sz.width() > r.width():
-            g = QLinearGradient(self.rect().topLeft(), self.rect().topRight())
+            g = QLinearGradient(QPointF(self.rect().topLeft()), QPointF(self.rect().topRight()))
             c = QColor(self.sb_background)
             c.setAlpha(0)
             g.setColorAt(0, c)

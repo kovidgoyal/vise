@@ -631,7 +631,7 @@ class WebView(QWebEngineView):
         python_to_js(self, 'start_follow_link', action)
 
     def follow_link(self, key):
-        jkey = FOLLOW_LINK_KEY_MAP.get(key)
+        jkey = FOLLOW_LINK_KEY_MAP.get(key.key())
         if jkey is not None:
             python_to_js(self, 'follow_link', jkey)
             return True
