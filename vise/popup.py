@@ -68,11 +68,11 @@ class Popup(QWidget):
         self.msg.setText(q.text or '')
         self.bb.clear()
         if q.callback is None:
-            self.bb.setStandardButtons(self.bb.Close)
+            self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Close)
         else:
-            self.bb.setStandardButtons(self.bb.Yes | self.bb.No)
+            self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Yes | QDialogButtonBox.StandardButton.No)
         for text, val in q.extra_buttons.items():
-            b = self.bb.addButton(text, self.bb.AcceptRole)
+            b = self.bb.addButton(text, QDialogButtonBox.ButtonRole.AcceptRole)
             if q.callback is not None:
                 b.clicked.connect(partial(self.extra_button_callback, q.callback, val))
             b.setObjectName(val)
