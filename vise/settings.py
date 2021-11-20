@@ -12,7 +12,8 @@ from functools import lru_cache
 
 import apsw
 from PyQt6.QtGui import QKeySequence
-from PyQt6.QtWebEngineCore import QWebEngineProfile, QWebEngineScript
+from PyQt6.QtWebEngineCore import (QWebEngineProfile, QWebEngineScript,
+                                   QWebEngineSettings)
 from PyQt6.QtWidgets import QApplication
 
 from .config import color, font_sizes
@@ -163,7 +164,7 @@ def client_script():
 def insert_scripts(profile, *scripts):
     sc = profile.scripts()
     for script in scripts:
-        for existing in sc.findScripts(script.name()):
+        for existing in sc.find(script.name()):
             sc.remove(existing)
     for script in scripts:
         sc.insert(script)
@@ -219,18 +220,18 @@ def create_profile(parent=None, private=False):
     ans.installUrlSchemeHandler(VISE_SCHEME.encode('ascii'), ans.url_handler)
     s = ans.settings()
     s.setDefaultTextEncoding('utf-8')
-    s.setAttribute(s.FullScreenSupportEnabled, True)
-    s.setAttribute(s.LinksIncludedInFocusChain, False)
-    s.setAttribute(s.DnsPrefetchEnabled, True)
+    s.setAttribute(QWebEngineSettings.WebAttribute.FullScreenSupportEnabled, True)
+    s.setAttribute(QWebEngineSettings.WebAttribute.LinksIncludedInFocusChain, False)
+    s.setAttribute(QWebEngineSettings.WebAttribute.DnsPrefetchEnabled, True)
     from .config import font_families, font_sizes
     for ftype, family in font_families().items():
         if not family:
             continue
         if ftype == 'default':
-            s.setFontFamily(s.StandardFont, family)
+            s.setFontFamily(QWebEngineSettings.FontFamily.StandardFont, family)
         else:
             ftype = ftype.replace('-', '').capitalize().replace('serif', 'Serif') + 'Font'
-            ftype = getattr(s, ftype, None)
+            ftype = getattr(QWebEngineSettings.FontFamily, ftype, None)
             if ftype:
                 s.setFontFamily(ftype, family)
 
@@ -238,7 +239,7 @@ def create_profile(parent=None, private=False):
         if sz > 0:
             ftype = {'minimum': 'Minimum', 'minimum-logical': 'MinimumLogical', 'default-size': 'Default', 'default-monospace-size': 'DefaultFixed'}.get(ftype)
             if ftype:
-                ftype = getattr(s, ftype + 'FontSize')
+                ftype = getattr(QWebEngineSettings.FontSize, ftype + 'FontSize')
                 s.setFontSize(ftype, sz)
     return ans
 

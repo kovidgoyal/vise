@@ -8,7 +8,7 @@ from gettext import gettext as _
 
 import apsw
 from PyQt6.QtWidgets import QCheckBox, QGridLayout, QLabel, QStyle
-from PyQt6.QtWebEngineWidgets import QWebEngineCertificateError
+from PyQt6.QtWebEngineCore import QWebEngineCertificateError
 
 from .constants import config_dir
 from .message_box import error_dialog
@@ -50,7 +50,7 @@ class Ask(Dialog):
         return ans
 
 
-code_map = {int(v): k for k, v in vars(QWebEngineCertificateError).items() if isinstance(v, QWebEngineCertificateError.Error)}
+code_map = {v: k for k, v in QWebEngineCertificateError.Type.__members__.items()}
 
 
 class CertExceptions:
@@ -99,10 +99,10 @@ class CertExceptions:
 
     def ask(self, odomain, code, error_string, parent=None):
         domain = ascii_lowercase(odomain)
-        if code == QWebEngineCertificateError.Error.CertificateAuthorityInvalid:
+        if code == QWebEngineCertificateError.Type.CertificateAuthorityInvalid:
             msg = _('The TLS certificate for <i>{0}</i> has an unknown certificate authority'
                     ' (could be a self signed certificate) do you want to trust it nevertheless?')
-        elif code == QWebEngineCertificateError.Error.CertificateWeakSignatureAlgorithm:
+        elif code == QWebEngineCertificateError.Type.CertificateWeakSignatureAlgorithm:
             msg = _('The TLS certificate for <i>{0}</i> uses a weak signature algorithm,'
                     ' do you want to trust it nevertheless?')
         else:

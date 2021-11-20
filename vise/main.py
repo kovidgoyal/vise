@@ -23,7 +23,7 @@ from PyQt6.QtNetwork import (QAbstractSocket, QLocalServer, QLocalSocket,
                              QNetworkCacheMetaData, QNetworkDiskCache,
                              QSslSocket)
 from PyQt6.QtWebEngineCore import QWebEngineUrlScheme
-from PyQt6.QtWidgets import QApplication
+from PyQt6.QtWidgets import QApplication, QDialogButtonBox
 
 from .constants import (VISE_SCHEME, appname, cache_dir, config_dir,
                         in_dark_mode, isosx, iswindows, local_socket_address,
@@ -83,7 +83,6 @@ class Application(QApplication):
             else:
                 QApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True)
         QApplication.__init__(self, [appname, '-name', appname])
-        self.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps)
         self.setOrganizationName('kovidgoyal')
         self.setApplicationName(appname)
         self.setApplicationVersion(str_version)
@@ -320,7 +319,7 @@ class Application(QApplication):
         det_msg = '%s: %s\n%s' % (appname, str_version, ''.join(traceback.format_exception(etype, value, tb)))
         parent = self.activeWindow()
         d = error_dialog(parent, _('Unhandled exception'), msg, det_msg=det_msg, show=False)
-        b = d.shutdown_button = d.bb.addButton(_('Shutdown'), d.bb.ActionRole)
+        b = d.shutdown_button = d.bb.addButton(_('Shutdown'), QDialogButtonBox.ButtonRole.ActionRole)
         b.clicked.connect(self.exit_with_error)
         d.exec()
 

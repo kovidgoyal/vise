@@ -4,12 +4,11 @@
 
 from gettext import gettext as _
 
-from PyQt6.QtCore import Qt, pyqtSignal
-from PyQt6.QtWidgets import (
-    QDialog, QIcon, QApplication, QSize, QKeySequence, QAction,
-    QDialogButtonBox, QGridLayout, QLabel, QPlainTextEdit, QCheckBox,
-    QStyle
-)
+from PyQt6.QtCore import QSize, Qt, pyqtSignal
+from PyQt6.QtGui import QAction, QIcon, QKeySequence
+from PyQt6.QtWidgets import (QApplication, QCheckBox, QDialog,
+                             QDialogButtonBox, QGridLayout, QLabel,
+                             QPlainTextEdit, QStyle)
 
 from .constants import appname, str_version
 from .resources import get_icon
@@ -84,12 +83,12 @@ class MessageBox(QDialog):  # {{{
 
         if show_copy_button:
             self.ctc_button = self.bb.addButton(_('&Copy to clipboard'),
-                                                self.bb.ActionRole)
+                                                QDialogButtonBox.ButtonRole.ActionRole)
             self.ctc_button.clicked.connect(self.copy_to_clipboard)
 
         self.show_det_msg = _('Show &details')
         self.hide_det_msg = _('Hide &details')
-        self.det_msg_toggle = self.bb.addButton(self.show_det_msg, self.bb.ActionRole)
+        self.det_msg_toggle = self.bb.addButton(self.show_det_msg, QDialogButtonBox.ButtonRole.ActionRole)
         self.det_msg_toggle.clicked.connect(self.toggle_det_msg)
         self.det_msg_toggle.setToolTip(
             _('Show detailed information about this error'))
@@ -101,20 +100,20 @@ class MessageBox(QDialog):  # {{{
 
         self.is_question = type_ == self.QUESTION
         if self.is_question:
-            self.bb.setStandardButtons(self.bb.Yes | self.bb.No)
-            self.bb.button(self.bb.Yes if default_yes else self.bb.No
+            self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Yes | QDialogButtonBox.StandardButton.No)
+            self.bb.button(QDialogButtonBox.StandardButton.Yes if default_yes else QDialogButtonBox.StandardButton.No
                            ).setDefault(True)
             self.default_yes = default_yes
             if yes_text is not None:
-                self.bb.button(self.bb.Yes).setText(yes_text)
+                self.bb.button(QDialogButtonBox.StandardButton.Yes).setText(yes_text)
             if no_text is not None:
-                self.bb.button(self.bb.No).setText(no_text)
+                self.bb.button(QDialogButtonBox.StandardButton.No).setText(no_text)
             if yes_icon is not None:
-                self.bb.button(self.bb.Yes).setIcon(yes_icon if isinstance(yes_icon, QIcon) else get_icon(yes_icon))
+                self.bb.button(QDialogButtonBox.StandardButton.Yes).setIcon(yes_icon if isinstance(yes_icon, QIcon) else get_icon(yes_icon))
             if no_icon is not None:
-                self.bb.button(self.bb.No).setIcon(no_icon if isinstance(no_icon, QIcon) else get_icon(no_icon))
+                self.bb.button(QDialogButtonBox.StandardButton.No).setIcon(no_icon if isinstance(no_icon, QIcon) else get_icon(no_icon))
         else:
-            self.bb.button(self.bb.Ok).setDefault(True)
+            self.bb.button(QDialogButtonBox.StandardButton.Ok).setDefault(True)
 
         if not det_msg:
             self.det_msg_toggle.setVisible(False)

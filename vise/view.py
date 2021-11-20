@@ -16,10 +16,10 @@ from threading import Thread
 from time import monotonic
 
 from PyQt6 import sip
-from PyQt6.QtCore import QMarginsF, QSize, Qt, QUrl, pyqtSignal
+from PyQt6.QtCore import QMarginsF, QSize, Qt, QUrl, pyqtSignal, QEvent
 from PyQt6.QtGui import QKeyEvent, QPageLayout, QPageSize
-from PyQt6.QtWebEngineWidgets import (QWebEnginePage, QWebEngineScript,
-                                      QWebEngineView)
+from PyQt6.QtWebEngineCore import QWebEnginePage, QWebEngineScript
+from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtWidgets import QApplication, QCheckBox, QGridLayout, QLabel
 
 from .auth import get_http_auth_credentials, get_proxy_auth_credentials
@@ -213,7 +213,7 @@ class WebView(QWebEngineView):
         self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)  # needed otherwise object is not deleted on close which means, it keeps running
         self.setMinimumWidth(300)
         self.follow_link_pending = None
-        self.setFocusPolicy(Qt.FocusPolicy.ClickFocus | Qt.FocusPolicy.WheelFocus)
+        self.setFocusPolicy(Qt.FocusPolicy(Qt.FocusPolicy.ClickFocus.value | Qt.FocusPolicy.WheelFocus.value))
         self.pending_unserialize = None
         self.main_window = main_window
         self.create_page(profile)
@@ -550,7 +550,7 @@ class WebView(QWebEngineView):
                 return accounts[0]
 
     def event(self, event):
-        if event.type() == event.ChildPolished:
+        if event.type() == QEvent.Type.ChildPolished:
             child = event.child()
             if 'HostView' in child.metaObject().className():
                 self.host_widget = child

@@ -15,7 +15,7 @@ from urllib.parse import unquote
 
 from PyQt6 import sip
 from PyQt6.QtCore import QByteArray, QObject, Qt, QTimer, QUrl, pyqtSignal
-from PyQt6.QtGui import QPainter
+from PyQt6.QtGui import QPainter, QPalette
 from PyQt6.QtWebEngineCore import QWebEngineDownloadRequest
 from PyQt6.QtWidgets import QApplication, QWidget
 
@@ -58,8 +58,8 @@ class Indicator(QWidget):  # {{{
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.setToolTip(self.no_downloads_tooltip)
         pal = (parent or QApplication.instance()).palette()
-        self.dark = pal.color(pal.Text)
-        self.light = pal.color(pal.Base)
+        self.dark = pal.color(QPalette.ColorRole.Text)
+        self.light = pal.color(QPalette.ColorRole.Base)
         self.update()
         self.setMinimumWidth(STATUS_BAR_HEIGHT - 4)
         self.setMinimumHeight(STATUS_BAR_HEIGHT - 4)

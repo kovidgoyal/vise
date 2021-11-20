@@ -137,7 +137,7 @@ class Message(QWidget):
             self.static_text = QStaticText('<span style="color:{}; font-weight: {}; white-space:nowrap">{}</span>'.format(
                 color_.name(), ('bold' if bold else 'normal'), escape(text)))
         to = QTextOption(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
-        to.setWrapMode(to.NoWrap)
+        to.setWrapMode(QTextOption.WrapMode.NoWrap)
         self.static_text.setTextOption(to)
         self.static_text.prepare(font=self.font())
         self.update()
@@ -146,7 +146,7 @@ class Message(QWidget):
         if not self.static_text or not self.static_text.text():
             return
         p = QPainter(self)
-        p.setRenderHint(p.TextAntialiasing)
+        p.setRenderHint(QPainter.RenderHint.TextAntialiasing)
         # If text is too long too fit, fade it out at the end
         self.static_text.setTextWidth(self.rect().width())
         sz = self.static_text.size()

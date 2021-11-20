@@ -4,15 +4,14 @@
 
 import string
 import weakref
-from collections import OrderedDict
 from functools import partial
 from gettext import gettext as _
 
 from PyQt6.QtCore import QEvent, QRect, QRectF, QSize, Qt, QTimer, pyqtSignal
 from PyQt6.QtGui import (QBrush, QColor, QFont, QIcon, QPainter, QPainterPath,
-                         QPen, QPixmap)
+                         QPen, QPixmap, QPalette)
 from PyQt6.QtWidgets import (QApplication, QMenu, QStyle, QStyledItemDelegate,
-                             QTreeWidget, QTreeWidgetItem)
+                             QTreeWidget, QTreeWidgetItem, QAbstractItemView)
 
 from .config import color
 from .downloads import DOWNLOAD_ICON_NAME, DOWNLOADS_URL
@@ -34,12 +33,12 @@ NUM_FRAMES = 120
 
 _missing_icon = None
 
-mark_map = OrderedDict()
+mark_map = {}
 for x in string.digits + string.ascii_uppercase:
-    mark_map[x] = getattr(Qt, 'Key_' + x)
+    mark_map[x] = getattr(Qt.Key, 'Key_' + x)
 for x in string.ascii_uppercase:
-    mark_map[x] = getattr(Qt, 'Key_' + x) | Qt.KeyboardModifier.ShiftModifier
-mark_rmap = {int(v): k for k, v in mark_map.items()}
+    mark_map[x] = getattr(Qt.Key, 'Key_' + x) | Qt.KeyboardModifier.ShiftModifier
+mark_rmap = {v.toCombined() if hasattr(v, 'toCombined') else v.value: k for k, v in mark_map.items()}
 
 
 def missing_icon():
@@ -49,7 +48,7 @@ def missing_icon():
         p.fill(Qt.GlobalColor.transparent)
         painter = QPainter(p)
         pal = QApplication.instance().palette()
-        painter.setPen(QPen(pal.color(pal.Text), 0, Qt.PenStyle.DashLine))
+        painter.setPen(QPen(pal.color(QPalette.ColorRole.Text), 0, Qt.PenStyle.DashLine))
         margin = 3
         r = p.rect().adjusted(margin, margin, -margin, -margin)
         painter.drawRect(r)
@@ -67,9 +66,9 @@ class TabDelegate(QStyledItemDelegate):
         pal = parent.palette()
         self.frames = RotatingIcon(frames=NUM_FRAMES, icon_size=ICON_SIZE).frames
         self.frame_number = 0
-        self.dark = pal.color(pal.Text)
-        self.light = pal.color(pal.Base)
-        self.highlighted_text = pal.color(pal.HighlightedText)
+        self.dark = pal.color(QPalette.ColorRole.Text)
+        self.light = pal.color(QPalette.ColorRole.Base)
+        self.highlighted_text = pal.color(QPalette.ColorRole.HighlightedText)
         self.current_background = QBrush(QColor(color('tab tree current background', Qt.GlobalColor.lightGray)))
 
     def sizeHint(self, option, index):
@@ -79,8 +78,8 @@ class TabDelegate(QStyledItemDelegate):
         QStyledItemDelegate.paint(self, painter, option, index)
         hovering = index.data(HOVER_ROLE) is True
         painter.save()
-        painter.setRenderHint(painter.Antialiasing)
-        painter.setRenderHint(painter.SmoothPixmapTransform)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        painter.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform)
         rect = option.rect
         is_current = index.data(Qt.ItemDataRole.FontRole) is not None
         if not hovering and is_current:
@@ -235,8 +234,8 @@ class TabTree(QTreeWidget):
         QTreeWidget.__init__(self, parent)
         self.deleted_parent_map = {}
         pal = self.palette()
-        pal.setColor(pal.Highlight, pal.color(pal.Base))
-        pal.setColor(pal.HighlightedText, pal.color(pal.Text))
+        pal.setColor(QPalette.ColorRole.Highlight, pal.color(QPalette.ColorRole.Base))
+        pal.setColor(QPalette.ColorRole.HighlightedText, pal.color(QPalette.ColorRole.Text))
         self.setPalette(pal)
         self.setStyleSheet('''
                 QTreeView {
@@ -281,11 +280,11 @@ class TabTree(QTreeWidget):
         self.setAutoScrollMargin(ICON_SIZE * 2)
         self.setAnimated(True)
         self.setHeaderHidden(True)
-        self.setSelectionMode(self.SingleSelection)
+        self.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         self.setDragEnabled(True)
         self.viewport().setAcceptDrops(True)
         self.setDropIndicatorShown(True)
-        self.setDragDropMode(self.InternalMove)
+        self.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
         self.setDefaultDropAction(Qt.DropAction.MoveAction)
         self.invisibleRootItem().setFlags(Qt.ItemFlag.ItemIsDragEnabled | Qt.ItemFlag.ItemIsDropEnabled | self.invisibleRootItem().flags())
         self.itemClicked.connect(self.item_clicked)

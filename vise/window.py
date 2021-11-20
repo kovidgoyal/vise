@@ -10,7 +10,7 @@ from itertools import count
 from PyQt6 import sip
 from PyQt6.QtCore import QEventLoop, Qt, QTimer, QUrl, pyqtSignal
 from PyQt6.QtGui import QKeySequence
-from PyQt6.QtWebEngineWidgets import QWebEnginePage
+from PyQt6.QtWebEngineCore import QWebEnginePage
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QSplitter,
                              QStackedWidget)
 
