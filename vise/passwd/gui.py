@@ -4,9 +4,10 @@
 
 from gettext import gettext as _
 
-from PyQt5 import sip
-from PyQt5.Qt import (
-    QSize, QAbstractListModel, Qt, QSortFilterProxyModel, QListView,
+from PyQt6 import sip
+from PyQt6.QtCore import QSize, Qt
+from PyQt6.QtWidgets import (
+    QAbstractListModel, QSortFilterProxyModel, QListView,
     QVBoxLayout, QLineEdit, QFormLayout, QCheckBox, QPlainTextEdit,
     QLabel, QWidget, QListWidget, QSplitter, QListWidgetItem, pyqtSignal,
     QPushButton

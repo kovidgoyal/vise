@@ -29,7 +29,7 @@ class PasswordManager(Command):
     names = {'password-manager'}
 
     def __call__(self, cmd, rest, window):
-        from PyQt5.Qt import QApplication
+        from PyQt6.QtWidgets import QApplication
         from .passwd.db import password_db
         from .passwd.gui import PasswordManager
         app = QApplication.instance()
@@ -87,7 +87,7 @@ class Export(Command):
     names = {'export'}
 
     def __call__(self, cmd, rest, window):
-        from PyQt5.Qt import QApplication
+        from PyQt6.QtWidgets import QApplication
         if not rest.strip():
             rest = os.path.join(tempfile.gettempdir(), 'unnamed.vise-session')
         with open(rest, 'wb') as f:

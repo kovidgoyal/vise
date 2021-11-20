@@ -2,8 +2,8 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from PyQt5.Qt import QBuffer
-from PyQt5.QtWebEngineCore import QWebEngineUrlSchemeHandler
+from PyQt6.QtCore import QBuffer
+from PyQt6.QtWebEngineCore import QWebEngineUrlSchemeHandler
 
 from .downloads import get_downloads_html, filename_icon_data
 from .welcome import get_welcome_html

@@ -4,7 +4,8 @@
 
 from gettext import gettext as _
 
-from PyQt5.Qt import QUrl, QLineEdit, QCheckBox, QFormLayout, QLabel
+from PyQt6.QtCore import QUrl
+from PyQt6.QtWidgets import QLineEdit, QCheckBox, QFormLayout, QLabel
 
 from .utils import Dialog
 from .message_box import error_dialog

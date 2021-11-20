@@ -7,12 +7,13 @@ from gettext import gettext as _
 from queue import Queue
 from threading import Thread
 
-from PyQt5 import sip
-from PyQt5.Qt import (QAbstractListModel, QApplication, QColor, QFrame,
-                      QKeySequence, QLineEdit, QListView, QModelIndex,
-                      QPainter, QPoint, QSize, QStringListModel,
-                      QStyledItemDelegate, Qt, QVBoxLayout, QWidget,
-                      pyqtSignal)
+from PyQt6 import sip
+from PyQt6.QtCore import QPoint, QSize, Qt, pyqtSignal
+from PyQt6.QtGui import QColor, QKeySequence, QPainter
+from PyQt6.QtWidgets import (QAbstractListModel, QApplication, QFrame,
+                             QLineEdit, QListView, QModelIndex,
+                             QStringListModel, QStyledItemDelegate,
+                             QVBoxLayout, QWidget)
 
 from .cmd import all_command_names, command_map
 from .config import color
@@ -286,8 +287,9 @@ def develop():
 
 
 def standalone():
-    from .main import Application
     from vise.utils import parse_url
+
+    from .main import Application
     from .places import places
     app = Application(no_session=True, run_local_server=False)
     w = Ask()

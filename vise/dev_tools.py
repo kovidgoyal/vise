@@ -2,8 +2,8 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
-from PyQt5.Qt import QHBoxLayout, QWidget
-from PyQt5.QtWebEngineWidgets import QWebEngineView
+from PyQt6.QtWidgets import QHBoxLayout, QWidget
+from PyQt6.QtWebEngineWidgets import QWebEngineView
 
 
 def default_size_hint(ans):

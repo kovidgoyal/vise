@@ -16,12 +16,14 @@ import traceback
 from datetime import datetime
 from gettext import gettext as _
 
-from PyQt5 import sip
-from PyQt5.Qt import (QAbstractSocket, QApplication, QFontDatabase,
-                      QLocalServer, QLocalSocket, QNetworkCacheMetaData,
-                      QNetworkDiskCache, QSocketNotifier, QSslSocket, Qt,
-                      QTextStream, QTimer, pyqtSignal)
-from PyQt5.QtWebEngineCore import QWebEngineUrlScheme
+from PyQt6 import sip
+from PyQt6.QtCore import Qt, QTextStream, QTimer, pyqtSignal, QSocketNotifier
+from PyQt6.QtGui import QFontDatabase
+from PyQt6.QtNetwork import (QAbstractSocket, QLocalServer, QLocalSocket,
+                             QNetworkCacheMetaData, QNetworkDiskCache,
+                             QSslSocket)
+from PyQt6.QtWebEngineCore import QWebEngineUrlScheme
+from PyQt6.QtWidgets import QApplication
 
 from .constants import (VISE_SCHEME, appname, cache_dir, config_dir,
                         in_dark_mode, isosx, iswindows, local_socket_address,
@@ -371,8 +373,8 @@ class Application(QApplication):
 
 
 def restart(state, env):
-    import subprocess
     import shlex
+    import subprocess
     env['IS_VISE_RESTART'] = '1'
     cmd = [sys.executable, sys.argv[0]]
     if '--new-instance' in sys.argv:

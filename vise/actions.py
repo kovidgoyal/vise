@@ -5,7 +5,9 @@
 from functools import partial
 from gettext import gettext as _
 
-from PyQt5.Qt import (QApplication, QKeyEvent, QEvent, Qt, QUrl)
+from PyQt6.QtCore import QEvent, Qt, QUrl
+from PyQt6.QtGui import QKeyEvent
+from PyQt6.QtWidgets import QApplication
 
 from .communicate import python_to_js
 

@@ -11,10 +11,12 @@ from functools import lru_cache
 from gettext import gettext as _
 from xml.sax.saxutils import escape
 
-from PyQt5.Qt import (QApplication, QBuffer, QByteArray, QCursor,
-                      QDesktopServices, QDialog, QDialogButtonBox, QFileDialog,
-                      QFontMetrics, QIcon, QMimeDatabase, QObject, QPainter,
-                      QPixmap, QStaticText, Qt, QTimer, QUrl, pyqtSignal)
+from PyQt6.QtCore import (QBuffer, QByteArray, QMimeDatabase, QObject, Qt,
+                          QTimer, QUrl, pyqtSignal)
+from PyQt6.QtGui import (QCursor, QDesktopServices, QFontMetrics, QIcon,
+                         QPainter, QPixmap, QStaticText)
+from PyQt6.QtWidgets import (QApplication, QDialog, QDialogButtonBox,
+                             QFileDialog)
 
 from .constants import cache_dir, str_version
 from .resources import get_icon
@@ -423,7 +425,7 @@ class RotatingIcon(QObject):
 
 
 def develop():
-    from PyQt5.Qt import QApplication, QLabel
+    from PyQt6.QtWidgets import QApplication, QLabel
     app = QApplication([])
     r = RotatingIcon(icon_size=64)
     l = QLabel()

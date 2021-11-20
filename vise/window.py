@@ -7,10 +7,12 @@ from collections import deque
 from gettext import gettext as _
 from itertools import count
 
-from PyQt5 import sip
-from PyQt5.Qt import (QApplication, QEventLoop, QKeySequence, QMainWindow,
-                      QSplitter, QStackedWidget, Qt, QTimer, QUrl, pyqtSignal)
-from PyQt5.QtWebEngineWidgets import QWebEnginePage
+from PyQt6 import sip
+from PyQt6.QtCore import QEventLoop, Qt, QTimer, QUrl, pyqtSignal
+from PyQt6.QtGui import QKeySequence
+from PyQt6.QtWebEngineWidgets import QWebEnginePage
+from PyQt6.QtWidgets import (QApplication, QMainWindow, QSplitter,
+                             QStackedWidget)
 
 from .ask import Ask
 from .cmd import run_command

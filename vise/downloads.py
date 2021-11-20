@@ -13,10 +13,11 @@ from itertools import count
 from time import monotonic
 from urllib.parse import unquote
 
-from PyQt5 import sip
-from PyQt5.Qt import (QApplication, QByteArray, QObject, QPainter, Qt, QTimer,
-                      QUrl, QWidget, pyqtSignal)
-from PyQt5.QtWebEngineWidgets import QWebEngineDownloadItem
+from PyQt6 import sip
+from PyQt6.QtCore import QByteArray, QObject, Qt, QTimer, QUrl, pyqtSignal
+from PyQt6.QtGui import QPainter
+from PyQt6.QtWebEngineWidgets import QWebEngineDownloadItem
+from PyQt6.QtWidgets import QApplication, QWidget
 
 from .config import misc_config
 from .constants import DOWNLOADS_URL as DU

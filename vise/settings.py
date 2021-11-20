@@ -11,8 +11,9 @@ from collections import defaultdict
 from functools import lru_cache
 
 import apsw
-from PyQt5.Qt import QApplication, QKeySequence
-from PyQt5.QtWebEngineWidgets import QWebEngineScript, QWebEngineProfile
+from PyQt6.QtGui import QKeySequence
+from PyQt6.QtWebEngineWidgets import QWebEngineProfile, QWebEngineScript
+from PyQt6.QtWidgets import QApplication
 
 from .config import color, font_sizes
 from .constants import (DOWNLOADS_URL, VISE_SCHEME, appname, cache_dir,
@@ -183,8 +184,8 @@ private_profiles = []
 
 
 def create_profile(parent=None, private=False):
-    from .vise_scheme import UrlSchemeHandler
     from .url_intercept import Interceptor
+    from .vise_scheme import UrlSchemeHandler
     if parent is None:
         parent = QApplication.instance()
     if private:

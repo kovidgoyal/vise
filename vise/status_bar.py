@@ -3,18 +3,18 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 from collections import namedtuple
-from time import monotonic
 from gettext import gettext as _
+from time import monotonic
 from xml.sax.saxutils import escape
 
-from PyQt5.Qt import (
-    QLineEdit, pyqtSignal, Qt, QStackedWidget, QLabel, QWidget, QHBoxLayout, QApplication,
-    QTimer, QStatusBar, QPainter, QColor, QLinearGradient, QBrush, QUrl,
-    QStaticText, QTextOption, QPalette
-)
+from PyQt6.QtCore import Qt, QTimer, QUrl, pyqtSignal
+from PyQt6.QtGui import (QBrush, QColor, QLinearGradient, QPainter, QPalette,
+                         QStaticText, QTextOption)
+from PyQt6.QtWidgets import (QApplication, QHBoxLayout, QLabel, QLineEdit,
+                             QStackedWidget, QStatusBar, QWidget)
 
-from .constants import STATUS_BAR_HEIGHT
 from .config import color
+from .constants import STATUS_BAR_HEIGHT
 
 
 class Search(QLineEdit):

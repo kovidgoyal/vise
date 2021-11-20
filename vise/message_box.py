@@ -4,10 +4,11 @@
 
 from gettext import gettext as _
 
-from PyQt5.Qt import (
-    QDialog, QIcon, QApplication, QSize, QKeySequence, QAction, Qt,
+from PyQt6.QtCore import Qt, pyqtSignal
+from PyQt6.QtWidgets import (
+    QDialog, QIcon, QApplication, QSize, QKeySequence, QAction,
     QDialogButtonBox, QGridLayout, QLabel, QPlainTextEdit, QCheckBox,
-    pyqtSignal, QStyle
+    QStyle
 )
 
 from .constants import appname, str_version

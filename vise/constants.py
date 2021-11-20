@@ -7,7 +7,7 @@ import os
 import socket
 import string
 
-from PyQt5.Qt import QStandardPaths, Qt
+from PyQt6.QtCore import QStandardPaths, Qt
 
 appname = 'vise'
 numeric_version = (0, 1, 0)
@@ -25,7 +25,7 @@ DOWNLOADS_URL = 'vise:downloads'
 WELCOME_URL = 'vise:welcome'
 hostname = os.environ.get('VISE_HOSTNAME', socket.gethostname())
 STATUS_BAR_HEIGHT = 24
-FOLLOW_LINK_KEY_MAP = {getattr(Qt, 'Key_' + x.upper()): x for x in string.ascii_lowercase + string.digits}
+FOLLOW_LINK_KEY_MAP = {getattr(Qt.Key, 'Key_' + x.upper()): x for x in string.ascii_lowercase + string.digits}
 FOLLOW_LINK_KEY_MAP[Qt.Key.Key_Escape] = '|escape'
 FOLLOW_LINK_KEY_MAP[Qt.Key.Key_Enter] = FOLLOW_LINK_KEY_MAP[Qt.Key.Key_Return] = '|enter'
 VISE_SCHEME = 'vise'
@@ -116,6 +116,8 @@ def local_socket_address():
             user = os.environ.get('USER', '')
             if not user:
                 user = os.path.basename(os.path.expanduser('~'))
-            rdir = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.RuntimeLocation) or QStandardPaths.writableLocation(QStandardPaths.StandardLocation.TempLocation)
+            rdir = QStandardPaths.writableLocation(
+                QStandardPaths.StandardLocation.RuntimeLocation) or QStandardPaths.writableLocation(
+                    QStandardPaths.StandardLocation.TempLocation)
             local_socket_address.ADDRESS = os.path.join(rdir, user + '-vise-local-server')
     return local_socket_address.ADDRESS

@@ -7,8 +7,8 @@ from collections import defaultdict
 from gettext import gettext as _
 
 import apsw
-from PyQt5.Qt import QCheckBox, QGridLayout, QLabel, QStyle
-from PyQt5.QtWebEngineWidgets import QWebEngineCertificateError
+from PyQt6.QtWidgets import QCheckBox, QGridLayout, QLabel, QStyle
+from PyQt6.QtWebEngineWidgets import QWebEngineCertificateError
 
 from .constants import config_dir
 from .message_box import error_dialog

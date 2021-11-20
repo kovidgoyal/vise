@@ -6,7 +6,7 @@ import os
 from collections import defaultdict
 
 import apsw
-from PyQt5.Qt import QUrl
+from PyQt6.QtCore import QUrl
 
 from .constants import config_dir
 from .utils import ascii_lowercase

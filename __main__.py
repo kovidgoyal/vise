@@ -23,7 +23,7 @@ if 'auto_proxy' in os.environ:
     add_webengine_flag('--proxy-pac-url=' + os.environ['auto_proxy'])
 
 try:
-    import PyQt5.QtWebEngine as dummy
+    import PyQt6.QtWebEngine as dummy
     del dummy
 except ImportError:
     raise SystemExit(

@@ -4,11 +4,13 @@
 
 from contextlib import closing
 
-from PyQt5.Qt import QPoint, QApplication, QIcon, QPixmap, QUrl, QUrlQuery
+from PyQt6.QtCore import QPoint, QUrl, QUrlQuery
+from PyQt6.QtGui import QIcon, QPixmap
+from PyQt6.QtWidgets import QApplication
 
-from . import Command
 from ..places import places
 from ..utils import make_highlighted_text, parse_url
+from . import Command
 
 
 def search_engine(q):

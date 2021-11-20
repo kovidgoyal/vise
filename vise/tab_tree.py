@@ -8,10 +8,11 @@ from collections import OrderedDict
 from functools import partial
 from gettext import gettext as _
 
-from PyQt5.Qt import (QApplication, QBrush, QColor, QEvent, QFont, QIcon,
-                      QMenu, QPainter, QPainterPath, QPen, QPixmap, QRect,
-                      QRectF, QSize, QStyle, QStyledItemDelegate, Qt, QTimer,
-                      QTreeWidget, QTreeWidgetItem, pyqtSignal)
+from PyQt6.QtCore import QEvent, QRect, QRectF, QSize, Qt, QTimer, pyqtSignal
+from PyQt6.QtGui import (QBrush, QColor, QFont, QIcon, QPainter, QPainterPath,
+                         QPen, QPixmap)
+from PyQt6.QtWidgets import (QApplication, QMenu, QStyle, QStyledItemDelegate,
+                             QTreeWidget, QTreeWidgetItem)
 
 from .config import color
 from .downloads import DOWNLOAD_ICON_NAME, DOWNLOADS_URL

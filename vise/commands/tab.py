@@ -5,10 +5,12 @@
 import weakref
 from gettext import gettext as _
 
-from PyQt5.Qt import QApplication, Qt, QIcon, QPoint
+from PyQt6.QtCore import QPoint, Qt
+from PyQt6.QtGui import QIcon
+from PyQt6.QtWidgets import QApplication
 
-from . import Command
 from ..utils import make_highlighted_text
+from . import Command
 
 
 class CompletionCandidate:

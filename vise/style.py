@@ -2,7 +2,8 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from PyQt5.Qt import QProxyStyle, QStyle, Qt
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QProxyStyle, QStyle
 
 
 class Style(QProxyStyle):

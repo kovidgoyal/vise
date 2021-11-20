@@ -5,7 +5,7 @@
 import os
 from functools import lru_cache
 
-from PyQt5.Qt import QIcon
+from PyQt6.QtGui import QIcon
 
 
 def get_data_as_path(name):

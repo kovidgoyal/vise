@@ -2,13 +2,12 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-from functools import partial
 from collections import namedtuple
+from functools import partial
 
-from PyQt5.Qt import (
-    QWidget, Qt, QLabel, QDialogButtonBox, QHBoxLayout, QPainter, QPainterPath,
-    QRectF, QColor
-)
+from PyQt6.QtCore import QRectF, Qt
+from PyQt6.QtGui import QColor, QPainter, QPainterPath
+from PyQt6.QtWidgets import QDialogButtonBox, QHBoxLayout, QLabel, QWidget
 
 Question = namedtuple('Question', 'id text callback extra_buttons')
 

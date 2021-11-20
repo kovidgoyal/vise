@@ -4,8 +4,8 @@
 
 from gettext import gettext as _
 
-from PyQt5.Qt import QUrl
-from PyQt5.QtWebEngineCore import QWebEngineUrlRequestInterceptor
+from PyQt6.QtCore import QUrl
+from PyQt6.QtWebEngineCore import QWebEngineUrlRequestInterceptor
 
 from .url_substitution import substitute
 

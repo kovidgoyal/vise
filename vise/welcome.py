@@ -4,7 +4,7 @@
 
 import base64
 
-from PyQt5.Qt import QUrl, QByteArray
+from PyQt6.QtCore import QUrl, QByteArray
 
 from .constants import WELCOME_URL as WU
 from .resources import get_icon, get_data

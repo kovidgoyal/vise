@@ -15,12 +15,12 @@ from tempfile import NamedTemporaryFile
 from threading import Thread
 from time import monotonic
 
-from PyQt5 import sip
-from PyQt5.Qt import (QApplication, QCheckBox, QGridLayout, QKeyEvent, QLabel,
-                      QMarginsF, QPageLayout, QPageSize, QSize, Qt, QUrl,
-                      pyqtSignal)
-from PyQt5.QtWebEngineWidgets import (QWebEnginePage, QWebEngineScript,
+from PyQt6 import sip
+from PyQt6.QtCore import QMarginsF, QSize, Qt, QUrl, pyqtSignal
+from PyQt6.QtGui import QKeyEvent, QPageLayout, QPageSize
+from PyQt6.QtWebEngineWidgets import (QWebEnginePage, QWebEngineScript,
                                       QWebEngineView)
+from PyQt6.QtWidgets import QApplication, QCheckBox, QGridLayout, QLabel
 
 from .auth import get_http_auth_credentials, get_proxy_auth_credentials
 from .certs import cert_exceptions

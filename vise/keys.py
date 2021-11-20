@@ -2,8 +2,9 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-from PyQt5.Qt import (QApplication, QDialog, QEvent, QKeySequence, QLineEdit,
-                      QMainWindow, QObject, Qt)
+from PyQt6.QtCore import QEvent, QObject, Qt
+from PyQt6.QtGui import QKeySequence
+from PyQt6.QtWidgets import QApplication, QDialog, QLineEdit, QMainWindow
 
 from . import actions
 from .ask import Ask
