@@ -201,7 +201,8 @@ class Downloads(QObject):
     def break_cycles(self):
         for item in self.items:
             safe_disconnect(item.stateChanged)
-            safe_disconnect(item.downloadProgress)
+            safe_disconnect(item.receivedBytesChanged)
+            safe_disconnect(item.isFinishedChanged)
         del self.items
 
     def add_tab(self, newtab):

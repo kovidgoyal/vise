@@ -133,7 +133,7 @@ class WebPage(QWebEnginePage):
         except KeyError:
             pass
         else:
-            return func(self.view(), data, *args, **kw)
+            return func(self.parent(), data, *args, **kw)
         raise KeyError('No callback named %r is registered' % name)
 
     def javaScriptConsoleMessage(self, level, msg, linenumber, source_id):
