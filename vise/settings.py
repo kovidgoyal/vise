@@ -12,7 +12,7 @@ from functools import lru_cache
 
 import apsw
 from PyQt6.QtGui import QKeySequence
-from PyQt6.QtWebEngineWidgets import QWebEngineProfile, QWebEngineScript
+from PyQt6.QtWebEngineCore import QWebEngineProfile, QWebEngineScript
 from PyQt6.QtWidgets import QApplication
 
 from .config import color, font_sizes
@@ -128,7 +128,9 @@ def safe_makedirs(path):
         pass
 
 
-def create_script(name, src, world=QWebEngineScript.ScriptWorldId.ApplicationWorld, injection_point=QWebEngineScript.InjectionPoint.DocumentCreation, on_subframes=True):
+def create_script(
+    name, src, world=QWebEngineScript.ScriptWorldId.ApplicationWorld, injection_point=QWebEngineScript.InjectionPoint.DocumentCreation, on_subframes=True
+):
     script = QWebEngineScript()
     script.setSourceCode(src)
     script.setName(name)

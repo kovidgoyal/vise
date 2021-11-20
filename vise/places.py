@@ -12,7 +12,7 @@ from itertools import repeat
 from enum import Enum, unique
 
 import apsw
-from PyQt6.QtWebEngineWidgets import QWebEnginePage
+from PyQt6.QtWebEngineCore import QWebEnginePage
 
 from .constants import config_dir
 from .resources import get_data

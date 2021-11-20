@@ -16,7 +16,7 @@ from urllib.parse import unquote
 from PyQt6 import sip
 from PyQt6.QtCore import QByteArray, QObject, Qt, QTimer, QUrl, pyqtSignal
 from PyQt6.QtGui import QPainter
-from PyQt6.QtWebEngineWidgets import QWebEngineDownloadItem
+from PyQt6.QtWebEngineCore import QWebEngineDownloadRequest
 from PyQt6.QtWidgets import QApplication, QWidget
 
 from .config import misc_config
@@ -180,7 +180,7 @@ class Downloads(QObject):
         if now - item.last_tick[0] >= self.INTERVAL:
             item.rates.append((item.receivedBytes() - item.last_tick[1]) / (now - item.last_tick[0]))
             item.last_tick = (now, item.receivedBytes())
-        if state not in (QWebEngineDownloadItem.DownloadState.DownloadRequested, QWebEngineDownloadItem.DownloadState.DownloadInProgress):
+        if state not in (QWebEngineDownloadRequest.DownloadState.DownloadRequested, QWebEngineDownloadRequest.DownloadState.DownloadInProgress):
             self.on_download_finish(item)
         for tab in self.itertabs():
             self.update_item(tab, item)
@@ -228,8 +228,8 @@ class Downloads(QObject):
                     download_item.url().host() or 'localhost')
 
     def update_item(self, tab, download_item):
-        state = {QWebEngineDownloadItem.DownloadState.DownloadCancelled: 'canceled', QWebEngineDownloadItem.DownloadState.DownloadCompleted: 'completed',
-                 QWebEngineDownloadItem.DownloadState.DownloadInterrupted: 'interrupted'}.get(download_item.state(), 'running')
+        state = {QWebEngineDownloadRequest.DownloadState.DownloadCancelled: 'canceled', QWebEngineDownloadRequest.DownloadState.DownloadCompleted: 'completed',
+                 QWebEngineDownloadRequest.DownloadState.DownloadInterrupted: 'interrupted'}.get(download_item.state(), 'running')
         rates = download_item.rates
         if len(rates) == 1:
             rate = rates[0]
@@ -271,7 +271,7 @@ def develop():  # {{{
 
         def __init__(self, size=10 * 1024 * 1024):
             QObject.__init__(self)
-            self._state = QWebEngineDownloadItem.DownloadState.DownloadRequested
+            self._state = QWebEngineDownloadRequest.DownloadState.DownloadRequested
             self._received = self._total = -1
             FakeDownloadItem.idc += 1
             self._id = FakeDownloadItem.idc
@@ -284,7 +284,7 @@ def develop():  # {{{
             return self._id
 
         def isFinished(self):
-            return self._state not in (QWebEngineDownloadItem.DownloadState.DownloadInProgress, QWebEngineDownloadItem.DownloadState.DownloadRequested)
+            return self._state not in (QWebEngineDownloadRequest.DownloadState.DownloadInProgress, QWebEngineDownloadRequest.DownloadState.DownloadRequested)
 
         def path(self):
             return os.path.join(tempfile.gettempdir(), self.fname)
@@ -302,12 +302,12 @@ def develop():  # {{{
             return QUrl('http://example.com/%s' % self.fname)
 
         def _tick(self):
-            if self._state not in (QWebEngineDownloadItem.DownloadState.DownloadInProgress, QWebEngineDownloadItem.DownloadState.DownloadRequested):
+            if self._state not in (QWebEngineDownloadRequest.DownloadState.DownloadInProgress, QWebEngineDownloadRequest.DownloadState.DownloadRequested):
                 return
             if self._total == -1:
                 self._total = self._size
                 self._received = 0
-                self._state = QWebEngineDownloadItem.DownloadState.DownloadInProgress
+                self._state = QWebEngineDownloadRequest.DownloadState.DownloadInProgress
                 self.stateChanged.emit(self._state)
                 self.downloadProgress.emit(self._received, self._total)
                 QTimer.singleShot(100, self._tick)
@@ -315,14 +315,14 @@ def develop():  # {{{
                 self._received += min(self._total - self._received, self._size // 100)
                 self.downloadProgress.emit(self._received, self._total)
                 if self._received >= self._total:
-                    self._state = QWebEngineDownloadItem.DownloadState.DownloadCompleted
+                    self._state = QWebEngineDownloadRequest.DownloadState.DownloadCompleted
                     self.stateChanged.emit(self._state)
                     self.finished.emit()
                 else:
                     QTimer.singleShot(100, self._tick)
 
         def cancel(self):
-            self._state = QWebEngineDownloadItem.DownloadState.DownloadCancelled
+            self._state = QWebEngineDownloadRequest.DownloadState.DownloadCancelled
             self.stateChanged.emit(self._state)
 
     def create_downloads(*args):

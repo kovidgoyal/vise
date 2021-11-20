@@ -8,12 +8,11 @@ from queue import Queue
 from threading import Thread
 
 from PyQt6 import sip
-from PyQt6.QtCore import QPoint, QSize, Qt, pyqtSignal
+from PyQt6.QtCore import (QAbstractListModel, QModelIndex, QPoint, QSize,
+                          QStringListModel, Qt, pyqtSignal)
 from PyQt6.QtGui import QColor, QKeySequence, QPainter
-from PyQt6.QtWidgets import (QAbstractListModel, QApplication, QFrame,
-                             QLineEdit, QListView, QModelIndex,
-                             QStringListModel, QStyledItemDelegate,
-                             QVBoxLayout, QWidget)
+from PyQt6.QtWidgets import (QApplication, QFrame, QLineEdit, QListView,
+                             QStyledItemDelegate, QVBoxLayout, QWidget)
 
 from .cmd import all_command_names, command_map
 from .config import color

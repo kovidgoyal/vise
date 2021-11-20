@@ -4,8 +4,8 @@
 
 import json
 
-from PyQt6.QtWebEngineWidgets import QWebEngineView, QWebEngineScript
-
+from PyQt6.QtWebEngineCore import QWebEngineScript
+from PyQt6.QtWebEngineWidgets import QWebEngineView
 
 from_js = {}
 
