@@ -391,10 +391,12 @@ class WebView(QWebEngineView):
             return
         key = (qurl.toString(), feature)
         what = {
+            QWebEnginePage.Feature.Notifications: _('notifications'),
             QWebEnginePage.Feature.Geolocation: _('current location'),
             QWebEnginePage.Feature.MediaAudioCapture: _('microphone'),
             QWebEnginePage.Feature.MediaVideoCapture: _('webcam'),
             QWebEnginePage.Feature.MediaAudioVideoCapture: _('microphone and webcam'),
+            QWebEnginePage.Feature.MouseLock: _('mouse lock'),
             QWebEnginePage.Feature.DesktopVideoCapture: _('desktop video capture'),
             QWebEnginePage.Feature.DesktopAudioVideoCapture: _('desktop audio/video capture'),
         }[feature]
