@@ -90,18 +90,13 @@ class Application(QApplication):
         self.handle_unix_signals()
         if not QSslSocket.supportsSsl():
             raise SystemExit('Qt has been compiled without SSL support!')
-        from .config import font_families, font_sizes
+        from .config import font_families
         ff = font_families().get('sans-serif') or 'default'
         if ff == 'default':
             ff = font_families().get('default') or 'default'
         f = self.font()
         if ff != 'default':
             f.setFamily(ff)
-            fs = font_sizes().get('default-size')
-            try:
-                f.setPixelSize(int(fs))
-            except Exception:
-                pass
         self.setFont(f)
         self.password_loaded.connect(self.on_password_load, type=Qt.ConnectionType.QueuedConnection)
         if master_password is not None:
