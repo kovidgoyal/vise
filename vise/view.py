@@ -562,7 +562,7 @@ class WebView(QWebEngineView):
             with QApplication.instance().key_filter.disable_filtering:
                 for ch in text:
                     key = getattr(Qt, f'Key_{ch.upper()}', Qt.Key.Key_A)
-                    QApplication.sendEvent(self.host_widget, QKeyEvent(QKeyEvent.KeyPress, key, Qt.KeyboardModifiers(0), ch))
+                    QApplication.sendEvent(self.host_widget, QKeyEvent(QKeyEvent.KeyPress, key, Qt.KeyboardModifier(0), ch))
                 # Ensure key events are delivered before any other processing
                 while QApplication.instance().processEvents():
                     pass

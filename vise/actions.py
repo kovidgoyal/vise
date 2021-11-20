@@ -206,7 +206,7 @@ def scroll_line(key, window, focus_widget, key_filter, *args, **kwargs):
         with key_filter.disable_filtering:
             QApplication.sendEvent(focus_widget,
                                    QKeyEvent(QEvent.Type.KeyPress, key,
-                                             Qt.KeyboardModifiers(0)))
+                                             Qt.KeyboardModifier(0)))
     return True
 
 
@@ -216,7 +216,7 @@ def scroll_page(up, window, focus_widget, key_filter, *args, **kwargs):
             key = Qt.Key.Key_PageUp if up else Qt.Key.Key_PageDown
             QApplication.sendEvent(focus_widget,
                                    QKeyEvent(QEvent.Type.KeyPress, key,
-                                             Qt.KeyboardModifiers(0)))
+                                             Qt.KeyboardModifier(0)))
     return True
 
 
@@ -226,7 +226,7 @@ def scroll_to_boundary(top, window, focus_widget, key_filter, *args, **kwargs):
             key = Qt.Key.Key_Home if top else Qt.Key.Key_End
             QApplication.sendEvent(focus_widget,
                                    QKeyEvent(QEvent.Type.KeyPress, key,
-                                             Qt.KeyboardModifiers(0)))
+                                             Qt.KeyboardModifier(0)))
     return True
 
 
