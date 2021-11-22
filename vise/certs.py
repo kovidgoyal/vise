@@ -7,7 +7,7 @@ from collections import defaultdict
 from gettext import gettext as _
 
 import apsw
-from PyQt6.QtWidgets import QCheckBox, QGridLayout, QLabel, QStyle
+from PyQt6.QtWidgets import QCheckBox, QGridLayout, QLabel, QStyle, QDialogButtonBox, QDialog
 from PyQt6.QtWebEngineCore import QWebEngineCertificateError
 
 from .constants import config_dir
@@ -38,7 +38,7 @@ class Ask(Dialog):
         p.toggled.connect(self.permanent_toggled)
         l.addWidget(p, 1, 0, 1, -1)
         l.addWidget(self.bb, 2, 0, 1, -1)
-        self.bb.setStandardButtons(self.bb.Yes | self.bb.No)
+        self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Yes | QDialogButtonBox.StandardButton.No)
         l.setColumnStretch(1, 100)
 
     def permanent_toggled(self):
@@ -110,7 +110,7 @@ class CertExceptions:
                 odomain, error_string)
         msg = msg.format('<i>%s</i>' % domain)
         d = Ask(msg, parent=parent)
-        if d.exec() == d.Accepted:
+        if d.exec() == QDialog.DialogCode.Accepted:
             self.add_exception(domain, code, permanent=d.permanent.isChecked())
             return True
         return False

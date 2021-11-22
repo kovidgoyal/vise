@@ -98,7 +98,6 @@ def edit_text(viewref, text, frame_id, eid):  # {{{
 class WebPage(QWebEnginePage):
 
     poll_for_messages = pyqtSignal()
-    ask_on_ssl_error_signal = pyqtSignal(object)
 
     def __init__(self, profile, parent):
         QWebEnginePage.__init__(self, profile, parent)
@@ -107,7 +106,6 @@ class WebPage(QWebEnginePage):
         self.callbacks = {'vise_downloads_page': (self.downloads_callback, (), {})}
         self.poll_for_messages.connect(self.check_for_messages_from_js, type=Qt.ConnectionType.QueuedConnection)
         self.certificateError.connect(self.on_certificate_error)
-        self.ask_on_ssl_error_signal.connect(self.ask_on_ssl_error, type=Qt.ConnectionType.QueuedConnection)
 
     def register_callback(self, name, func, *args, **kw):
         self.callbacks[name] = (func, args, kw)
@@ -146,8 +144,6 @@ class WebPage(QWebEnginePage):
             pass
 
     def on_certificate_error(self, err):
-        err.defer()
-        self.ask_on_ssl_error_signal.emit(err)
         code = err.type()
         qurl = err.url()
         domain = qurl.host()
@@ -160,12 +156,6 @@ class WebPage(QWebEnginePage):
             err.rejectCertificate()
             return
         err.defer()
-        self.ask_on_ssl_error_signal.emit(err)
-
-    def ask_on_ssl_error(self, err):
-        code = err.type()
-        qurl = err.url()
-        domain = qurl.host()
         allow = cert_exceptions.ask(domain, code, err.description(), self.parent())
         if allow:
             certificate_error_domains.add(domain)
@@ -191,7 +181,7 @@ class WebPage(QWebEnginePage):
         self.callbacks.clear()
         for s in ('authenticationRequired proxyAuthenticationRequired linkHovered featurePermissionRequested'
                   ' featurePermissionRequestCanceled fullScreenRequested windowCloseRequested quotaRequested'
-                  ' poll_for_messages audioMutedChanged certificateError ask_on_ssl_error_signal').split():
+                  ' poll_for_messages audioMutedChanged certificateError').split():
             safe_disconnect(getattr(self, s))
         # Without the next two lines we get a crash on exit with Qt 5.8.0
         self.setParent(None)
