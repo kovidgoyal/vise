@@ -289,7 +289,7 @@ def standalone():
     from vise.utils import parse_url
 
     from .main import Application
-    from .places import places
+    from .places import places, QWebEnginePage
     app = Application(no_session=True, run_local_server=False)
     w = Ask()
     ret = 0
@@ -301,7 +301,7 @@ def standalone():
         else:
             text = text.partition(' ')[-1].strip()
             qurl = parse_url(text)
-            places.on_visit(qurl, 1, True)
+            places.on_visit(qurl, QWebEnginePage.NavigationType.NavigationTypeTyped, True)
             sys.stdout.buffer.write(text.encode('utf-8'))
             sys.stdout.flush()
 
