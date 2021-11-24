@@ -10,7 +10,7 @@ from threading import Thread
 from PyQt6 import sip
 from PyQt6.QtCore import (QAbstractListModel, QModelIndex, QPoint, QSize,
                           QStringListModel, Qt, pyqtSignal)
-from PyQt6.QtGui import QColor, QKeySequence, QPainter
+from PyQt6.QtGui import QColor, QKeySequence, QPainter, QClipboard
 from PyQt6.QtWidgets import (QApplication, QFrame, QLineEdit, QListView, QStyle,
                              QStyledItemDelegate, QVBoxLayout, QWidget)
 
@@ -141,7 +141,7 @@ class LineEdit(QLineEdit):
         k = ev.key()
         mods = ev.modifiers()
         if k in (Qt.Key.Key_V, Qt.Key.Key_S) and mods & Qt.KeyboardModifier.ControlModifier and mods & Qt.KeyboardModifier.ShiftModifier:
-            text = QApplication.clipboard().text(k == Qt.Key.Key_S)
+            text = QApplication.clipboard().text(QClipboard.Mode.Selection if k == Qt.Key.Key_S else QClipboard.Mode.Clipboard)
             if text:
                 self.insert(text)
         return QLineEdit.keyPressEvent(self, ev)
