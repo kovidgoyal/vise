@@ -160,12 +160,13 @@ class MessageBox(QDialog):  # {{{
         ret = QDialog.showEvent(self, ev)
         if self.is_question:
             try:
-                self.bb.button(self.bb.Yes if self.default_yes else self.bb.No
-                               ).setFocus(Qt.FocusReason.OtherFocusReason)
-            except:
+                self.bb.button(
+                    QDialogButtonBox.StandardButton.Yes if self.default_yes else QDialogButtonBox.StandardButton.No
+                ).setFocus(Qt.FocusReason.OtherFocusReason)
+            except Exception:
                 pass  # Buttons were changed
         else:
-            self.bb.button(self.bb.Ok).setFocus(Qt.FocusReason.OtherFocusReason)
+            self.bb.button(QDialogButtonBox.StandardButton.Ok).setFocus(Qt.FocusReason.OtherFocusReason)
         return ret
 
     def set_details(self, msg):
@@ -227,7 +228,7 @@ def question_dialog(
         tc.setChecked(bool(skip_dialog_skip_precheck))
         d.resize_needed.emit()
 
-    ret = d.exec() == d.Accepted
+    ret = d.exec() == QDialog.DialogCode.Accepted
 
     if skip_dialog_name is not None and not d.toggle_checkbox.isChecked():
         auto_skip.add(skip_dialog_name)
