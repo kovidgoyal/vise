@@ -344,7 +344,7 @@ class MainWindow(QMainWindow):
     def choose_tab(self, key):
         self.choose_tab_pending = None
         if not self.tab_tree.activate_marked_tab(key):
-            if not key & Qt.Key.Key_Escape:
+            if key != Qt.Key.Key_Escape:
                 key = QKeySequence(key).toString()
                 self.show_status_message(_('No tab with mark: %s') % key, 5, 'error')
         self.tab_tree.mark_tabs(unmark=True)
