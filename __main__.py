@@ -3,7 +3,6 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
-import sys
 
 from vise.main import main
 
@@ -15,9 +14,7 @@ def add_webengine_flag(flag):
     os.environ['QTWEBENGINE_CHROMIUM_FLAGS'] = val + flag
 
 
-while '--force-dark-mode' in sys.argv:
-    add_webengine_flag('--force-dark-mode')
-    sys.argv.remove('--force-dark-mode')
+add_webengine_flag('--force-dark-mode')
 
 if 'auto_proxy' in os.environ:
     add_webengine_flag('--proxy-pac-url=' + os.environ['auto_proxy'])
