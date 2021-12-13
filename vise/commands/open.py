@@ -69,18 +69,18 @@ class CompletionCandidate:
         option.icon = self.icon
         text_rect = style.subElementRect(QStyle.SubElement.SE_ItemViewItemText, option, None)
         x, y = text_rect.x(), text_rect.y()
-        y += (text_rect.height() - self.left.size().height()) // 2
+        y += int(text_rect.height() - self.left.size().height()) // 2
         if not option.icon.isNull():
             icon_rect = style.subElementRect(QStyle.SubElement.SE_ItemViewItemDecoration, option, None)
-            icon_rect.setTop(y), icon_rect.setBottom(text_rect.bottom())
+            icon_rect.setTop(y), icon_rect.setBottom(int(text_rect.bottom()))
             option.icon.paint(painter, icon_rect)
         option.icon = QIcon()
         width = (text_rect.width() // 2) - 10
-        painter.setClipRect(x, text_rect.y(), width, text_rect.height())
-        painter.drawStaticText(QPoint(x, y), self.left)
+        painter.setClipRect(x, int(text_rect.y()), int(width), int(text_rect.height()))
+        painter.drawStaticText(QPoint(int(x), int(y)), self.left)
         painter.setClipRect(text_rect)
         x += width + 20
-        painter.drawStaticText(QPoint(x, y), self.right)
+        painter.drawStaticText(QPoint(int(x), int(y)), self.right)
 
 
 class Open(Command):

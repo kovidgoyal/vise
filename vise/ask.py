@@ -82,8 +82,8 @@ class Candidate:
     def draw_item(self, painter, style, option):
         text_rect = style.subElementRect(QStyle.SubElement.SE_ItemViewItemText, option, None)
         y = text_rect.y()
-        y += (text_rect.height() - self.text.size().height()) // 2
-        painter.drawStaticText(QPoint(text_rect.x(), y), self.text)
+        y += int(text_rect.height() - self.text.size().height()) // 2
+        painter.drawStaticText(QPoint(int(text_rect.x()), y), self.text)
 
     def adjust_size_hint(self, option, sz):
         pass
