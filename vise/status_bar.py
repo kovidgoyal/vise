@@ -151,7 +151,7 @@ class Message(QWidget):
         self.static_text.setTextWidth(self.rect().width())
         sz = self.static_text.size()
         r = self.rect()
-        p.drawStaticText(0, (r.height() - sz.height()) // 2, self.static_text)
+        p.drawStaticText(0, int(r.height() - sz.height()) // 2, self.static_text)
         if sz.width() > r.width():
             g = QLinearGradient(QPointF(self.rect().topLeft()), QPointF(self.rect().topRight()))
             c = QColor(self.sb_background)
