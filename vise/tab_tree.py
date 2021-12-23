@@ -372,7 +372,7 @@ class TabTree(QTreeWidget):
                 pos = event.pos()
                 item = self.itemAt(pos)
                 if item is not None:
-                    item.set_data(CLOSE_HOVER_ROLE, self.over_close(item, pos))
+                    item.setData(0, CLOSE_HOVER_ROLE, self.over_close(item, pos))
             elif etype == QEvent.Type.Leave:
                 item = None
             if item is not last_item:
