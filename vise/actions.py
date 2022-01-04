@@ -6,7 +6,7 @@ from functools import partial
 from gettext import gettext as _
 
 from PyQt6.QtCore import QEvent, Qt, QUrl
-from PyQt6.QtGui import QKeyEvent
+from PyQt6.QtGui import QKeyEvent, QClipboard
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtWebEngineCore import QWebEnginePage
 
@@ -82,7 +82,7 @@ def paste_url(window, *a, **k):
 
 def paste_selection(window, *a, **k):
     if window.current_tab is not None:
-        text = QApplication.clipboard().text(1)
+        text = QApplication.clipboard().text(QClipboard.Mode.Selection)
         if text:
             window.current_tab.send_text_using_keys(text)
 
