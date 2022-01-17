@@ -5,7 +5,7 @@
 from gettext import gettext as _
 
 from PyQt6.QtCore import QUrl
-from PyQt6.QtWidgets import QLineEdit, QCheckBox, QFormLayout, QLabel
+from PyQt6.QtWidgets import QLineEdit, QCheckBox, QFormLayout, QLabel, QDialog
 
 from .utils import Dialog
 from .message_box import error_dialog
@@ -19,7 +19,7 @@ class Credentials(Dialog):
 
     def setup_ui(self):
         self.l = l = QFormLayout(self)
-        l.setFieldGrowthPolicy(l.ExpandingFieldsGrow)
+        l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
         self.la = la = QLabel(self.msg)
         la.setMinimumWidth(450)
         la.setWordWrap(True)
@@ -68,7 +68,7 @@ def get_http_auth_credentials(qurl, authenticator, parent=None):
             return
         d.credentials = ac['username'], ac['password']
 
-    if d.exec() == d.Accepted:
+    if d.exec() == QDialog.DialogCode.Accepted:
         username, password = d.credentials
         authenticator.setUser(username)
         authenticator.setPassword(password)
