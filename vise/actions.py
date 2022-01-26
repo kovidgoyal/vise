@@ -180,7 +180,7 @@ def toggle_muted(window, *args, **kw):
 
 def _paste_and_go(window, in_current_tab=True):
     c = QApplication.clipboard()
-    for mode in c.Clipboard, c.Selection:
+    for mode in QClipboard.Mode.Clipboard, QClipboard.Mode.Selection:
         text = c.text(mode).strip()
         if text:
             if text.partition(':')[
