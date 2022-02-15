@@ -20,7 +20,7 @@ from PyQt6.QtCore import QMarginsF, QSize, Qt, QUrl, pyqtSignal, QEvent
 from PyQt6.QtGui import QKeyEvent, QPageLayout, QPageSize
 from PyQt6.QtWebEngineCore import QWebEnginePage, QWebEngineScript
 from PyQt6.QtWebEngineWidgets import QWebEngineView
-from PyQt6.QtWidgets import QApplication, QCheckBox, QGridLayout, QLabel
+from PyQt6.QtWidgets import QApplication, QCheckBox, QGridLayout, QLabel, QDialogButtonBox
 
 from .auth import get_http_auth_credentials, get_proxy_auth_credentials
 from .certs import cert_exceptions
@@ -62,7 +62,7 @@ class Alert(Dialog):  # {{{
         self.cb = cb = QCheckBox(_('&Suppress future alerts from this site'), self)
         cb.toggled.connect(self.suppress_toggled)
         lay.addWidget(cb, 1, 0)
-        lay.addWidget(self.bb, 1, 1), self.bb.setStandardButtons(self.bb.Close)
+        lay.addWidget(self.bb, 1, 1), self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Close)
 
     def suppress_toggled(self):
         if self.cb.isChecked():
