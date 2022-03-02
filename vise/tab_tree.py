@@ -166,7 +166,7 @@ class TabItem(QTreeWidgetItem):
         tab.loading_status_changed.connect(self._loading_status_changed)
         tab.audio_muted_changed.connect(self.audio_muted_changed)
         tab.urlChanged.connect(self.set_url_role)
-        tab.iconUrlChanged.connect(self.icon_url_changed)
+        self.url_for_last_non_null_icon = None
 
     def set_display_role(self, text):
         self.set_data(DISPLAY_ROLE, text)
@@ -196,6 +196,13 @@ class TabItem(QTreeWidgetItem):
     def icon_changed(self, new_icon):
         if new_icon.isNull():
             new_icon = missing_icon()
+            tab = self.tab
+            if tab is not None:
+                url = tab.url()
+                if self.url_for_last_non_null_icon is not None and url == self.url_for_last_non_null_icon:
+                    return
+        else:
+            self.url_for_last_non_null_icon = self.data(0, URL_ROLE)
         self.set_data(DECORATION_ROLE, new_icon)
 
     @property
