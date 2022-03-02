@@ -404,8 +404,6 @@ def restart(state, env):
     cmd = [sys.executable, sys.argv[0]]
     if '--new-instance' in sys.argv:
         cmd.append('--new-instance')
-    if in_dark_mode:
-        cmd.append('--force-dark-mode')
     print('Restarting with command:', *map(shlex.quote, cmd))
     p = subprocess.Popen(cmd, env=env, stdin=subprocess.PIPE)
     p.stdin.write(state), p.stdin.flush(), p.stdin.close()
@@ -429,7 +427,7 @@ def run_app(
     app = Application(
         master_password=master_password, urls=urls, new_instance=new_instance, shutdown=shutdown, restart_state=restart_state, no_session=no_session)
     os.environ['QTWEBENGINE_DICTIONARIES_PATH'] = os.path.join(config_dir, 'spell')
-    app.original_env = env
+    original_env = env
     style = Style()
     app.setStyle(style)
     try:
@@ -453,7 +451,6 @@ def run_app(
         places.close()
         app.sendPostedEvents()
         restart_state = getattr(app, 'restart_state', None)
-        original_env = app.original_env
         sip.delete(app)
         del app
         gc.collect(), gc.collect(), gc.collect()
