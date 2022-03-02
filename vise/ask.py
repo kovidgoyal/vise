@@ -95,8 +95,10 @@ class ListView(QListView):
         QListView.__init__(self, parent)
         self.setStyleSheet('''
         QListView { color: FG; background: BG }
-        QListView::item:selected { border-radius: 8px; background: HB }
-        '''.replace('HB', color('status bar highlight', 'palette(highlight)')).replace(
+        QListView::item:selected { border-radius: 8px; background: HB; color: HF }
+        '''.replace(
+            'HB', color('tab tree current background', 'palette(highlight)')).replace(
+            'HF', color('tab tree current foreground', 'palette(highlight-text')).replace(
             'FG', color('tab tree foreground', 'palette(window-text)')).replace(
             'BG', color('tab tree background', 'palette(window)'))
         )
