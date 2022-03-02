@@ -461,7 +461,7 @@ class WebView(QWebEngineView):
         self.callback_on_save_edit_text_node = None
         self.popup.break_cycles()
         self._page.break_cycles()
-        for s in ('resized moved icon_changed loading_status_changed link_hovered urlChanged iconChanged renderProcessTerminated'
+        for s in ('resized moved icon_changed loading_status_changed link_hovered urlChanged iconChanged iconUrlChanged renderProcessTerminated'
                   ' loadStarted loadFinished window_close_requested focus_changed passthrough_changed toggle_full_screen dev_tools_requested').split():
             safe_disconnect(getattr(self, s))
 

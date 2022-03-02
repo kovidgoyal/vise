@@ -4,14 +4,15 @@
 
 import string
 import weakref
+from contextlib import closing
 from functools import partial
 from gettext import gettext as _
 
 from PyQt6.QtCore import QEvent, QRect, QRectF, QSize, Qt, QTimer, pyqtSignal
 from PyQt6.QtGui import (QBrush, QColor, QFont, QIcon, QPainter, QPainterPath,
-                         QPen, QPixmap, QPalette)
-from PyQt6.QtWidgets import (QApplication, QMenu, QStyle, QStyledItemDelegate,
-                             QTreeWidget, QTreeWidgetItem, QAbstractItemView)
+                         QPalette, QPen, QPixmap)
+from PyQt6.QtWidgets import (QAbstractItemView, QApplication, QMenu, QStyle,
+                             QStyledItemDelegate, QTreeWidget, QTreeWidgetItem)
 
 from .config import color
 from .downloads import DOWNLOAD_ICON_NAME, DOWNLOADS_URL
@@ -165,12 +166,25 @@ class TabItem(QTreeWidgetItem):
         tab.loading_status_changed.connect(self._loading_status_changed)
         tab.audio_muted_changed.connect(self.audio_muted_changed)
         tab.urlChanged.connect(self.set_url_role)
+        tab.iconUrlChanged.connect(self.icon_url_changed)
 
     def set_display_role(self, text):
         self.set_data(DISPLAY_ROLE, text)
 
     def set_url_role(self, url):
         self.set_data(URL_ROLE, url)
+
+    def icon_url_changed(self, url):
+        dc = QApplication.instance().disk_cache.data(url)
+        if dc is not None:
+            with closing(dc):
+                raw = dc.readAll()
+                p = QPixmap()
+                p.loadFromData(raw)
+                if not p.isNull():
+                    ic = QIcon()
+                    ic.addPixmap(p)
+                    self.set_data(DECORATION_ROLE, ic)
 
     def _loading_status_changed(self, loading):
         self.set_data(LOADING_ROLE, 0 if loading else 1)
