@@ -195,12 +195,12 @@ class TabItem(QTreeWidgetItem):
 
     def icon_changed(self, new_icon):
         if new_icon.isNull():
-            new_icon = missing_icon()
             tab = self.tab
             if tab is not None:
                 url = tab.url()
                 if self.url_for_last_non_null_icon is not None and url == self.url_for_last_non_null_icon:
                     return
+            new_icon = missing_icon()
         else:
             self.url_for_last_non_null_icon = self.data(0, URL_ROLE)
         self.set_data(DECORATION_ROLE, new_icon)
