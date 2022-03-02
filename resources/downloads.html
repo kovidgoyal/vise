@@ -3,7 +3,19 @@
 	<head>
 		<title>_TITLE_</title>
         <meta charset="utf-8" />
-		<style type="text/css"></style>
+        <style type="text/css">
+@media (prefers-color-scheme: dark) {
+  /* Dark theme styles go here */
+    body { background-color: #222; color: #eee;  } 
+    a { color: #6cb4ee; }
+    a:visited { color: #6cb4ee; }
+} 
+@media (prefers-color-scheme: light) {
+    body { background-color: #eee; color: #222;  }
+    a:visited { color: blue; }
+}
+
+        </style>
 	</head>
 	<body style="font-family:sans-serif">
 		<p id="init">No downloads available</p>

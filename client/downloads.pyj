@@ -88,8 +88,7 @@ def update_download(dl_id, state, received, total, rate, avg_rate):
 def main():
     window.create_download = create_download
     window.update_download = update_download
-    document.getElementsByTagName('style')[0].innerText = '''
-    body { color: black; background-color: #eee; }
+    document.getElementsByTagName('style')[0].innerText += '''
     .stop:hover { color: red }
     .fname { cursor: pointer }
     .fname:hover { color: red; font-style: italic }
