@@ -8,7 +8,7 @@ from gettext import gettext as _
 from itertools import count
 
 from PyQt6 import sip
-from PyQt6.QtCore import QEventLoop, Qt, QTimer, QUrl, pyqtSignal
+from PyQt6.QtCore import QEventLoop, Qt, QTimer, QUrl, pyqtSignal, QSize
 from PyQt6.QtGui import QKeySequence
 from PyQt6.QtWebEngineCore import QWebEnginePage
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QSplitter,
@@ -127,8 +127,7 @@ class MainWindow(QMainWindow):
         run_command(self, text)
 
     def sizeHint(self):
-        rect = QApplication.desktop().screenGeometry(self)
-        return rect.size() * 0.9
+        return QSize(800, 600)
 
     def save_state(self):
         self.set_devtools_visibility(False)
