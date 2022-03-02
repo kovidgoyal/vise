@@ -220,7 +220,7 @@ class Places:
                 c.execute('UPDATE favicons SET last_visit_date=? WHERE id=?', (ts, favicon_id))
             except StopIteration:
                 favicon_id = self.insert('favicons', url=favicon, last_visit_date=ts)
-            c.execute('INSERT OR IGNORE INTO favicons_link (favicon_id, place_id) VALUES (?, ?)', (favicon_id, place_id))
+            c.execute('INSERT OR REPLACE INTO favicons_link (favicon_id, place_id) VALUES (?, ?)', (favicon_id, place_id))
 
     def prune(self, days=400):
         limit = now() - (days * DAY)
