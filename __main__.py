@@ -2,9 +2,8 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
+import importlib
 import os
-
-from vise.main import main
 
 
 def add_webengine_flag(flag):
@@ -16,6 +15,7 @@ def add_webengine_flag(flag):
 
 add_webengine_flag('--force-dark-mode')
 
+
 if 'auto_proxy' in os.environ:
     add_webengine_flag('--proxy-pac-url=' + os.environ['auto_proxy'])
 
@@ -26,4 +26,6 @@ except ImportError:
     raise SystemExit(
         'Your system appears to be missing the qt-webengine package')
 
-main()
+
+m = importlib.import_module('vise.main')
+m.main()

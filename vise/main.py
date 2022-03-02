@@ -18,7 +18,7 @@ from gettext import gettext as _
 
 from PyQt6 import sip
 from PyQt6.QtCore import Qt, QTextStream, QTimer, pyqtSignal, QSocketNotifier, QStringConverter
-from PyQt6.QtGui import QFontDatabase
+from PyQt6.QtGui import QFontDatabase, QPalette, QColor
 from PyQt6.QtNetwork import (QAbstractSocket, QLocalServer, QLocalSocket,
                              QNetworkCacheMetaData, QNetworkDiskCache,
                              QSslSocket)
@@ -71,6 +71,35 @@ def create_favicon_cache():
     return c
 
 
+dark_link_color = QColor('#6cb4ee')
+dark_color = QColor(45, 45, 45)
+dark_text_color = QColor('#ddd')
+
+
+def dark_palette():
+    p = QPalette()
+    disabled_color = QColor(127, 127, 127)
+    p.setColor(QPalette.ColorRole.Window, dark_color)
+    p.setColor(QPalette.ColorRole.WindowText, dark_text_color)
+    p.setColor(QPalette.ColorRole.Base, QColor(18, 18, 18))
+    p.setColor(QPalette.ColorRole.AlternateBase, dark_color)
+    p.setColor(QPalette.ColorRole.ToolTipBase, dark_color)
+    p.setColor(QPalette.ColorRole.ToolTipText, dark_text_color)
+    p.setColor(QPalette.ColorRole.Text, dark_text_color)
+    p.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Text, disabled_color)
+    p.setColor(QPalette.ColorRole.Button, dark_color)
+    p.setColor(QPalette.ColorRole.ButtonText, dark_text_color)
+    p.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.ButtonText, disabled_color)
+    p.setColor(QPalette.ColorRole.BrightText, Qt.GlobalColor.red)
+    p.setColor(QPalette.ColorRole.Link, dark_link_color)
+
+    p.setColor(QPalette.ColorRole.Highlight, QColor(0x0b, 0x45, 0xc4))
+    p.setColor(QPalette.ColorRole.HighlightedText, dark_text_color)
+    p.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.HighlightedText, disabled_color)
+
+    return p
+
+
 class Application(QApplication):
 
     password_loaded = pyqtSignal(object, object)
@@ -83,6 +112,8 @@ class Application(QApplication):
             else:
                 QApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True)
         QApplication.__init__(self, [appname, '-name', appname])
+        if in_dark_mode:
+            self.setPalette(dark_palette())
         self.setOrganizationName('kovidgoyal')
         self.setApplicationName(appname)
         self.setApplicationVersion(str_version)
