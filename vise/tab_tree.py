@@ -69,8 +69,8 @@ class TabDelegate(QStyledItemDelegate):
         self.frame_number = 0
         self.dark = pal.color(QPalette.ColorRole.Text)
         self.light = pal.color(QPalette.ColorRole.Base)
-        self.highlighted_text = pal.color(QPalette.ColorRole.HighlightedText)
-        self.current_background = QBrush(QColor(color('tab tree current background', Qt.GlobalColor.lightGray)))
+        self.highlighted_text = QColor(color('tab tree current foreground', Qt.GlobalColor.white))
+        self.current_background = QBrush(QColor(color('tab tree current background', Qt.GlobalColor.black)))
 
     def sizeHint(self, option, index):
         return QSize(300, ICON_SIZE + 2 * self.MARGIN)
@@ -271,7 +271,7 @@ class TabTree(QTreeWidget):
                 }
 
                 QTreeView::branch {
-                    background: darkGray;
+                    background: BG;
                 }
 
                 QTreeView::branch:has-children:!has-siblings:closed, QTreeView::branch:closed:has-children:has-siblings {

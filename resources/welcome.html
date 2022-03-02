@@ -5,13 +5,23 @@
 		<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
         <style type="text/css">
 
-body { background-color: #eee; font-family: sans-serif; max-width: 600px; margin: auto }
+@media (prefers-color-scheme: dark) {
+  /* Dark theme styles go here */
+    body { background-color: #222; color: #eee;  } 
+    a { color: #6cb4ee; }
+    a:visited { color: #6cb4ee; }
+} 
+@media (prefers-color-scheme: light) {
+    body { background-color: #eee; color: #222;  }
+    a:visited { color: blue; }
+}
+
+body { font-family: sans-serif; max-width: 600px; margin: auto }
 
 h1 { text-align: center }
 
 a { text-decoration: none; }
 a:hover { color: red; }
-a:visited { color: blue; }
 
 table.sc td { padding: 1ex 1em }
 table.sc, table.sc td { border-collapse: collapse; border: solid 1px }

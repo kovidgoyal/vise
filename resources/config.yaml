@@ -114,11 +114,12 @@ fonts:
 # A value of "default" means use the colors specified by the desktop environment color scheme.
 
 colors:
-    tab tree background: darkGray
-    tab tree current background: lightGray
-    tab tree foreground: black
-    tab tree hover gradient start: "#e7effd"
-    tab tree hover gradient end: "#cbdaf1"
+    tab tree background: "#222"
+    tab tree current background: black
+    tab tree current foreground: "#eee"
+    tab tree foreground: "#eee"
+    tab tree hover gradient start: "black"
+    tab tree hover gradient end: "black"
     tab tree hover border: "#bfcde4"
     status bar background: black
     status bar private background: "#704214"
