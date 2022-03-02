@@ -290,7 +290,7 @@ class TabTree(QTreeWidget):
         self.itemClicked.connect(self.item_clicked)
         self.current_item = None
         self.emphasis_font = QFont(self.font())
-        self.emphasis_font.setBold(True)
+        self.emphasis_font.setItalic(True)
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.loading_items = set()
         self.delegate = TabDelegate(self)
