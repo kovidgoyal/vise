@@ -320,7 +320,7 @@ class Application(QApplication):
         if not self.windows:
             self.new_window().show()
         w = self.activeWindow() or self.windows[0]
-        if in_current_tab == 'dynamic':
+        if in_current_tab == 'dynamic' and hasattr(w, 'current_tab'):
             in_current_tab = w.current_tab is not None and w.current_tab.url() == WELCOME_URL
         for i, url in enumerate(urls):
             w.open_url(parse_url(url), in_current_tab=in_current_tab and i == 0, switch_to_tab=switch_to_tab and i == 0)
