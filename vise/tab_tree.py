@@ -334,7 +334,10 @@ class TabTree(QTreeWidget):
         self.customContextMenuRequested.connect(self.show_context_menu)
 
     def item_entered(self, item, col):
-        item.set_data(HOVER_ROLE, True)
+        try:
+            item.set_data(HOVER_ROLE, True)
+        except AttributeError:
+            pass
 
     def show_context_menu(self, pos):
         item = self.itemAt(pos)
