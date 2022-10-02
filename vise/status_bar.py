@@ -264,7 +264,7 @@ class PassthroughButton(QWidget):
         painter.setRenderHint(QPainter.RenderHint.TextAntialiasing)
         f = painter.font()
         f.setBold(True)
-        f.setPixelSize(self.height() - 1)
+        f.setPixelSize(max(2, self.height() - 1))
         painter.setFont(f)
         painter.setPen(QColor('red' if self.is_enabled else 'green'))
         painter.drawText(self.rect(), Qt.AlignmentFlag.AlignCenter, 'Z')
@@ -282,10 +282,6 @@ class StatusBar(QStatusBar):
         self.setMaximumHeight(STATUS_BAR_HEIGHT)
         self.setMinimumHeight(STATUS_BAR_HEIGHT)
         self.sb_background = 'status bar private background' if getattr(parent, 'is_private', False) else 'status bar background'
-        if parent:
-            f = parent.font()
-            f.setPixelSize(min(f.pixelSize(), self.maximumHeight() - 4))
-            self.setFont(f)
         self.status_msg = Status(self)
         self.status_msg.hidden.connect(self.search_bar_hidden)
         self.status_msg.search.edit.do_search.connect(self.do_search)
