@@ -5,7 +5,7 @@ from frames import send_action, register_handler, broadcast_action, frame_iter
 from communicate import js_to_python, connect_signal
 
 input_types = {'text', 'email', 'tel'}
-username_names = {'login', 'user', 'mail', 'email', 'username', 'id', 'identification', 'login_email', 'login_id', 'login_username', 'txtUsrName'}
+username_names = {'login', 'user', 'mail', 'email', 'username', 'id', 'identification', 'login_email', 'login_id', 'login_username', 'txtUsrName', 'acct'}
 
 
 def password_changed(ev):
