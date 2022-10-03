@@ -561,7 +561,7 @@ class WebView(QWebEngineView):
     def event(self, event):
         if event.type() == QEvent.Type.ChildPolished:
             child = event.child()
-            if 'HostView' in child.metaObject().className():
+            if 'QQuickWidget' in child.metaObject().className():
                 self.host_widget = child
         return QWebEngineView.event(self, event)
 
@@ -575,13 +575,15 @@ class WebView(QWebEngineView):
                 # Ensure key events are delivered before any other processing
                 while QApplication.instance().processEvents():
                     pass
+                return True
+        return False
 
     @connect_signal()
     def fill_form_field_for(self, url, which, left, top, right, bottom):
         ac = self.get_login_credentials(url)
         if ac is not None:
-            self.send_text_using_keys(ac[which])
-            python_to_js(self, 'form_field_filled', url, which)
+            if self.send_text_using_keys(ac[which]):
+                python_to_js(self, 'form_field_filled', url, which)
 
     def on_login_form_found(self, url, is_current_form):
         ac = self.get_login_credentials(url)
