@@ -18,7 +18,7 @@ def search_engine(q):
     # ans = QUrl('https://duckduckgo.com/lite')
     # ans = QUrl('https://duckduckgo.com')
     qq = QUrlQuery()
-    qq.addQueryItem('q', q)
+    qq.addQueryItem('q', q.replace('+', '%2B'))
     ans.setQuery(qq)
     return ans
 
