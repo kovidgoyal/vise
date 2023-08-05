@@ -60,6 +60,7 @@ def option_parser():
         'Path to a session previously saved with the export command. It will'
         ' be used to startup this instance of vise. Note that if vise is already'
         ' running this will have no effect'))
+    parser.add_argument('--name', default=appname, help=_('Set WM_CLASS_NAME on X11'))
     parser.add_argument('urls', metavar='URL', nargs='*', help='urls to open')
     return parser
 
@@ -104,14 +105,17 @@ class Application(QApplication):
 
     password_loaded = pyqtSignal(object, object)
 
-    def __init__(self, master_password=None, urls=(), new_instance=False, shutdown=False, restart_state=None, no_session=False, run_local_server=True):
+    def __init__(
+            self, master_password=None, urls=(), new_instance=False, shutdown=False,
+            restart_state=None, no_session=False, run_local_server=True, name=appname,
+    ):
         if not isosx:  # OS X turns this on automatically
             for v in ('QT_AUTO_SCREEN_SCALE_FACTOR', 'QT_SCALE_FACTOR', 'QT_SCREEN_SCALE_FACTORS', 'QT_DEVICE_PIXEL_RATIO'):
                 if os.environ.get(v):
                     break
             else:
                 QApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True)
-        QApplication.__init__(self, [appname, '-name', appname])
+        QApplication.__init__(self, [appname, '-name', name])
         if in_dark_mode:
             self.setPalette(dark_palette())
         self.setOrganizationName('kovidgoyal')
@@ -422,10 +426,14 @@ def last_saved_session(no_session):
 
 def run_app(
         urls=(), callback=None, callback_wait=0,
-        master_password=None, new_instance=False, shutdown=False, restart_state=None, no_session=False, startup_session=None):
+        master_password=None, new_instance=False, shutdown=False, restart_state=None,
+        no_session=False, startup_session=None, name=appname):
     env = os.environ.copy()
     app = Application(
-        master_password=master_password, urls=urls, new_instance=new_instance, shutdown=shutdown, restart_state=restart_state, no_session=no_session)
+        master_password=master_password, urls=urls, new_instance=new_instance,
+        shutdown=shutdown, restart_state=restart_state, no_session=no_session,
+        name=name
+    )
     os.environ['QTWEBENGINE_DICTIONARIES_PATH'] = os.path.join(config_dir, 'spell')
     original_env = env
     style = Style()
@@ -481,5 +489,7 @@ def main():
         restart_state = pickle.loads(sys.stdin.buffer.read())
 
     run_app(args.urls, master_password=pw, new_instance=args.new_instance,
-            shutdown=args.shutdown, restart_state=restart_state, no_session=args.no_session,
-            startup_session=args.startup_session)
+            shutdown=args.shutdown, restart_state=restart_state,
+            no_session=args.no_session, startup_session=args.startup_session,
+            name=args.name
+            )
