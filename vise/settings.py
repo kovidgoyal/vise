@@ -218,6 +218,9 @@ def create_profile(parent=None, private=False):
         raise
     ans.url_handler = UrlSchemeHandler(ans)
     ans.installUrlSchemeHandler(VISE_SCHEME.encode('ascii'), ans.url_handler)
+    # We need accept language to bypass cloudflare's stupid bot protection
+    # TODO: Make this configurable/use system settings
+    ans.setHttpAcceptLanguage('en-GB,en-US;q=0.9,en;q=0.8')
     s = ans.settings()
     s.setDefaultTextEncoding('utf-8')
     s.setAttribute(QWebEngineSettings.WebAttribute.FullScreenSupportEnabled, True)
