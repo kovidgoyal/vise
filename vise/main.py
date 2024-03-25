@@ -116,6 +116,7 @@ class Application(QApplication):
             else:
                 QApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True)
         QApplication.__init__(self, [appname, '-name', name])
+        self.setDesktopFileName('vise')
         if in_dark_mode:
             self.setPalette(dark_palette())
         self.setOrganizationName('kovidgoyal')
