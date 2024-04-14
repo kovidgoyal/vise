@@ -26,7 +26,7 @@ from PyQt6.QtWebEngineCore import QWebEngineUrlScheme
 from PyQt6.QtWidgets import QApplication, QDialogButtonBox, QDialog
 
 from .constants import (VISE_SCHEME, appname, cache_dir, config_dir,
-                        in_dark_mode, isosx, iswindows, local_socket_address,
+                        in_dark_mode, iswindows, local_socket_address,
                         str_version)
 from .downloads import Downloads
 from .keys import KeyFilter
@@ -109,12 +109,6 @@ class Application(QApplication):
             self, master_password=None, urls=(), new_instance=False, shutdown=False,
             restart_state=None, no_session=False, run_local_server=True, name=appname,
     ):
-        if not isosx:  # OS X turns this on automatically
-            for v in ('QT_AUTO_SCREEN_SCALE_FACTOR', 'QT_SCALE_FACTOR', 'QT_SCREEN_SCALE_FACTORS', 'QT_DEVICE_PIXEL_RATIO'):
-                if os.environ.get(v):
-                    break
-            else:
-                QApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True)
         QApplication.__init__(self, [appname, '-name', name])
         self.setDesktopFileName('vise')
         if in_dark_mode:
