@@ -256,6 +256,7 @@ class AskForPassword(Dialog):
             self.confirm = c = QLineEdit(self)
             l.addWidget(c)
         l.addWidget(self.bb)
+        self.pw.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def show_password_toggled(self, show):
         self.pw.setEchoMode(QLineEdit.EchoMode.Normal if show else QLineEdit.EchoMode.Password)
