@@ -13,11 +13,6 @@ def add_webengine_flag(flag):
     os.environ['QTWEBENGINE_CHROMIUM_FLAGS'] = val + flag
 
 
-# Only way to get Qt to correctly read the color-scheme setting from the
-# settings XDG portal. Stupid fucking design.
-os.environ['XDG_CURRENT_DESKTOP'] = 'GNOME'
-
-
 if 'auto_proxy' in os.environ:
     add_webengine_flag('--proxy-pac-url=' + os.environ['auto_proxy'])
 
