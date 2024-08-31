@@ -460,7 +460,7 @@ class TabTree(QTreeWidget):
                     parent = q
                     break
         (item.parent() or self.invisibleRootItem()).removeChild(item)
-        if pos > -1 and pos < parent.childCount():
+        if pos is not None and pos > -1 and pos < parent.childCount():
             parent.insertChild(pos, item)
         else:
             parent.addChild(item)
