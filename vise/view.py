@@ -44,7 +44,7 @@ certificate_error_domains = set()
 
 class Alert(Dialog):  # {{{
 
-    suppressed_alerts = set()
+    suppressed_alerts: set[str] = set()
 
     def __init__(self, title, qurl, msg, parent):
         title = title or qurl.host() or qurl.toString()
@@ -406,6 +406,7 @@ class WebView(QWebEngineView):
             QWebEnginePage.Feature.MouseLock: _('mouse lock'),
             QWebEnginePage.Feature.DesktopVideoCapture: _('desktop video capture'),
             QWebEnginePage.Feature.DesktopAudioVideoCapture: _('desktop audio/video capture'),
+            QWebEnginePage.Feature.ClipboardReadWrite: _('clipboard read/write'),
         }[feature]
         self.feature_permission_map[key] = self.popup(
             _('Grant this site access to your <b>%s</b>?') % what,
