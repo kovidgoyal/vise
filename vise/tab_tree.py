@@ -517,10 +517,8 @@ class TabTree(QTreeWidget):
             item.set_data(LOADING_ROLE, n + 2)
 
     def item_clicked(self, item, column):
-        if item is not None:
-            tab = item.tab
-            if tab is not None:
-                self.tab_activated.emit(item.tab)
+        if (tab := getattr(item, 'tab', None)) is not None:
+            self.tab_activated.emit(tab)
 
     def _activate_item(self, item, tab, expand=True):
         self.scrollToItem(item)
