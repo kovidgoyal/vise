@@ -26,7 +26,7 @@ from PyQt6.QtWebEngineCore import QWebEngineUrlScheme
 from PyQt6.QtWidgets import QApplication, QDialogButtonBox, QDialog
 
 from .constants import (VISE_SCHEME, appname, cache_dir, config_dir,
-                        in_dark_mode, iswindows, local_socket_address,
+                        iswindows, local_socket_address,
                         str_version)
 from .downloads import Downloads
 from .keys import KeyFilter
@@ -105,13 +105,20 @@ class Application(QApplication):
 
     password_loaded = pyqtSignal(object, object)
 
+    @property
+    def in_dark_mode(self) -> bool:
+        s = self.styleHints()
+        if s is not None:
+            return s.colorScheme() == Qt.ColorScheme.Dark
+        return False
+
     def __init__(
             self, master_password=None, urls=(), new_instance=False, shutdown=False,
             restart_state=None, no_session=False, run_local_server=True, name=appname,
     ):
         QApplication.__init__(self, [appname, '-name', name])
         self.setDesktopFileName('vise')
-        if in_dark_mode:
+        if self.in_dark_mode:
             self.setPalette(dark_palette())
         self.setOrganizationName('kovidgoyal')
         self.setApplicationName(appname)
@@ -333,7 +340,7 @@ class Application(QApplication):
             pass
 
     def on_unhandled_error(self, etype, value, tb):
-        if etype == KeyboardInterrupt:
+        if etype is KeyboardInterrupt:
             return
         sys.__excepthook__(etype, value, tb)
         try:

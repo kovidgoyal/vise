@@ -7,7 +7,7 @@ from functools import partial
 
 from PyQt6.QtCore import QRectF, Qt
 from PyQt6.QtGui import QColor, QPainter, QPainterPath
-from PyQt6.QtWidgets import QDialogButtonBox, QHBoxLayout, QLabel, QWidget
+from PyQt6.QtWidgets import QApplication, QDialogButtonBox, QHBoxLayout, QLabel, QWidget
 
 Question = namedtuple('Question', 'id text callback extra_buttons')
 
@@ -20,11 +20,11 @@ class Popup(QWidget):
         self.questions = []
         self.move(0, 1)
         self.hide()
-        self.l = l = QHBoxLayout(self)
-        l.setStretch(0, 100)
+        self.l = ly = QHBoxLayout(self)
+        ly.setStretch(0, 100)
         self.msg = msg = QLabel('\xa0')
         self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Close, self)
-        l.addWidget(msg), l.addWidget(bb)
+        ly.addWidget(msg), ly.addWidget(bb)
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
         self.question_id = 0
@@ -108,7 +108,8 @@ class Popup(QWidget):
         try:
             self.paint_background(painter)
         except Exception:
-            pass
+            import traceback
+            traceback.print_exc()
         finally:
             painter.end()
         QWidget.paintEvent(self, ev)
@@ -116,9 +117,10 @@ class Popup(QWidget):
     def paint_background(self, painter):
         br = 12  # border_radius
         bw = 1  # border_width
-        c = QColor('#fdfd96')
+        in_dark_mode = QApplication.instance().in_dark_mode
+        c = QColor('#564a1d' if in_dark_mode else '#fdfd96')
         p = QPainterPath()
         p.addRoundedRect(QRectF(self.rect()), br, br)
         painter.fillPath(p, c)
         p.addRoundedRect(QRectF(self.rect()).adjusted(bw, bw, -bw, -bw), br, br)
-        painter.fillPath(p, QColor('black'))
+        painter.fillPath(p, QColor('white' if in_dark_mode else 'black'))
