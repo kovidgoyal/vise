@@ -256,6 +256,7 @@ class TabTree(QTreeWidget):
     tab_activated = pyqtSignal(object)
     tab_close_requested = pyqtSignal(object)
     delete_tabs = pyqtSignal(object)
+    tab_loading_status_changed = pyqtSignal(int, int, bool)
 
     def __init__(self, parent):
         QTreeWidget.__init__(self, parent)
@@ -510,6 +511,22 @@ class TabTree(QTreeWidget):
             item.set_data(LOADING_ROLE, 0)
             if not self.loading_items:
                 self.loading_animation_timer.stop()
+        self.emit_tab_loading_status_changed()
+
+    def emit_tab_loading_status_changed(self):
+        current_loaded = False
+        if (i := self.current_item) is not None:
+            if (tab := i.tabref()) is not None:
+                current_loaded = not tab.loading_in_progress
+        self.tab_loading_status_changed.emit(len(self.loading_items), self.count_children(), current_loaded)
+
+    def count_children(self, item=None):
+        if item is None:
+            item = self.invisibleRootItem()
+        ans = item.childCount()
+        for i in range(ans):
+            ans += self.count_children(item.child(i))
+        return ans
 
     def repaint_loading_items(self):
         n = self.delegate.next_loading_frame()
@@ -569,6 +586,7 @@ class TabTree(QTreeWidget):
         if item is not None:
             self.current_item = item
             item.set_data(Qt.ItemDataRole.FontRole, self.emphasis_font)
+        self.emit_tab_loading_status_changed()
 
     def mark_tabs(self, unmark=False):
         for item in self:

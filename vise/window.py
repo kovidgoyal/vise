@@ -70,6 +70,7 @@ class MainWindow(QMainWindow):
 
         self.tabs = []
         self.tab_tree = tt = TabTree(self)
+        tt.tab_loading_status_changed.connect(self.status_bar.loading_status_changed)
         tt.tab_activated.connect(self.show_tab)
         tt.tab_close_requested.connect(self.close_tab)
         tt.delete_tabs.connect(self.delete_removed_tabs)

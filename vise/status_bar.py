@@ -54,13 +54,13 @@ class SearchPanel(QWidget):
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
-        self.l = l = QHBoxLayout(self)
-        l.setContentsMargins(0, 0, 0, 0)
+        self.l = h = QHBoxLayout(self)
+        h.setContentsMargins(0, 0, 0, 0)
         self.la = la = QLabel(self)
-        l.addWidget(la)
+        h.addWidget(la)
         self.edit = Search(self)
         la.setBuddy(self.edit)
-        l.addWidget(self.edit)
+        h.addWidget(self.edit)
 
     def sizeHint(self):
         ans = QWidget.sizeHint(self)
@@ -307,6 +307,9 @@ class StatusBar(QStatusBar):
             'FG', color('status bar foreground', 'palette(window-text)')).replace(
             'BG', color(self.sb_background, 'palette(window)'))
         )
+
+    def loading_status_changed(self, loading: int, total: int, current_loaded: bool) -> None:
+        print(11111111, loading, total, current_loaded)
 
     @property
     def current_search_text(self):
