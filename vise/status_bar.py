@@ -271,6 +271,29 @@ class PassthroughButton(QWidget):
         painter.end()
 
 
+class LoadingStatus(QLabel):
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.total = self.loaded = 0
+        self.current_loaded = False
+
+    def __call__(self, loading: int, total: int, current_loaded: bool) -> None:
+        self.loaded = max(0, total - loading)
+        self.total = total
+        self.current_loaded = current_loaded
+        if total < 1:
+            self.setText('')
+            return
+        if self.loaded >= total:
+            text = f'{total}'
+        else:
+            text = f'{self.loaded} / {total}'
+        if not self.current_loaded:
+            text += ' ⌛'
+        self.setText(text)
+
+
 class StatusBar(QStatusBar):
 
     search_bar_hidden = pyqtSignal()
@@ -296,10 +319,12 @@ class StatusBar(QStatusBar):
         self.passthrough_button = PassthroughButton(self)
         self.passthrough_button.toggled.connect(self.change_passthrough)
         self.update_passthrough_state = self.passthrough_button.update_state
+        self.loading_status = LoadingStatus(self)
 
         self.addPermanentWidget(self.mode_label)
         self.addPermanentWidget(downloads_indicator)
         self.addPermanentWidget(self.passthrough_button)
+        self.addPermanentWidget(self.loading_status)
         self.setStyleSheet('''
         QStatusBar { color: FG; background: BG; }
         QStatusBar QLabel { color: FG; background: BG; }
@@ -309,7 +334,7 @@ class StatusBar(QStatusBar):
         )
 
     def loading_status_changed(self, loading: int, total: int, current_loaded: bool) -> None:
-        print(11111111, loading, total, current_loaded)
+        self.loading_status(loading, total, current_loaded)
 
     @property
     def current_search_text(self):
