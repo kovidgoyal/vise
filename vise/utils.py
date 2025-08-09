@@ -417,6 +417,10 @@ class RotatingIcon(QObject):
     def first_frame(self):
         return self.frames[0]
 
+    @property
+    def is_started(self):
+        return self.timer.isActive()
+
     def start(self):
         self.timer.start()
 
@@ -428,9 +432,9 @@ def develop():
     from PyQt6.QtWidgets import QApplication, QLabel
     app = QApplication([])
     r = RotatingIcon(icon_size=64)
-    l = QLabel()
-    l.setPixmap(r.first_frame)
-    r.updated.connect(l.setPixmap)
+    la = QLabel()
+    la.setPixmap(r.first_frame)
+    r.updated.connect(la.setPixmap)
     r.start()
-    l.show()
+    la.show()
     app.exec()

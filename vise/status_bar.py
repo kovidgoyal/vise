@@ -7,14 +7,30 @@ from gettext import gettext as _
 from time import monotonic
 from xml.sax.saxutils import escape
 
-from PyQt6.QtCore import Qt, QTimer, QUrl, pyqtSignal, QPointF
-from PyQt6.QtGui import (QBrush, QColor, QLinearGradient, QPainter, QPalette,
-                         QStaticText, QTextOption)
-from PyQt6.QtWidgets import (QApplication, QHBoxLayout, QLabel, QLineEdit,
-                             QStackedWidget, QStatusBar, QWidget)
+from PyQt6.QtCore import QPointF, QSize, Qt, QTimer, QUrl, pyqtSignal
+from PyQt6.QtGui import (
+    QBrush,
+    QColor,
+    QLinearGradient,
+    QPainter,
+    QPalette,
+    QPixmap,
+    QStaticText,
+    QTextOption,
+)
+from PyQt6.QtWidgets import (
+    QApplication,
+    QHBoxLayout, QSizePolicy,
+    QLabel,
+    QLineEdit,
+    QStackedWidget,
+    QStatusBar,
+    QWidget,
+)
 
 from .config import color
 from .constants import STATUS_BAR_HEIGHT
+from .utils import RotatingIcon
 
 
 class Search(QLineEdit):
@@ -271,27 +287,73 @@ class PassthroughButton(QWidget):
         painter.end()
 
 
-class LoadingStatus(QLabel):
+class LoadingIcon(QWidget):
+
+    def __init__(self, parent: QWidget | None=None):
+        super().__init__(parent)
+        self.pmap: QPixmap | None = None
+        self.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        self.rotating_icon = RotatingIcon(icon_size=self.sizeHint().width(), parent=self)
+        self.rotating_icon.updated.connect(self.setPixmap)
+        self.start = self.rotating_icon.start
+        self.stop = self.rotating_icon.stop
+
+    def sizeHint(self):
+        return QSize(STATUS_BAR_HEIGHT, STATUS_BAR_HEIGHT)
+
+    @property
+    def is_started(self) -> bool:
+        return self.rotating_icon.is_started
+
+    def setPixmap(self, pmap: QPixmap) -> None:
+        self.pmap = pmap
+        self.update()
+
+    def paintEvent(self, ev):
+        p = QPainter(self)
+        p.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform)
+        if self.pmap is not None:
+            p.drawPixmap(self.rect(), self.pmap, self.pmap.rect())
+        p.end()
+
+
+class LoadingStatus(QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.setMinimumHeight(STATUS_BAR_HEIGHT)
+        self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.text = QLabel(self)
+        self.text.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter)
+        self.text.setStyleSheet(f'QLabel {{ font-size: {STATUS_BAR_HEIGHT/1.8}px }}')
+        self.current_loading_indicator = LoadingIcon(self)
+        h = QHBoxLayout(self)
+        h.setContentsMargins(0, 0, 0, 0)
+        h.addWidget(self.text)
+        h.addWidget(self.current_loading_indicator)
         self.total = self.loaded = 0
         self.current_loaded = False
 
     def __call__(self, loading: int, total: int, current_loaded: bool) -> None:
         self.loaded = max(0, total - loading)
         self.total = total
-        self.current_loaded = current_loaded
+        self.current_loaded = current_loaded and total > 0
+        self.update_spinner()
         if total < 1:
-            self.setText('')
+            self.text.setText('')
             return
         if self.loaded >= total:
             text = f'{total}'
         else:
             text = f'{self.loaded} / {total}'
-        if not self.current_loaded:
-            text += ' ⌛'
-        self.setText(text)
+        self.text.setText(text)
+
+    def update_spinner(self) -> None:
+        self.current_loading_indicator.setVisible(not self.current_loaded)
+        if self.current_loaded:
+            self.current_loading_indicator.stop()
+        elif not self.current_loading_indicator.is_started:
+            self.current_loading_indicator.start()
 
 
 class StatusBar(QStatusBar):
