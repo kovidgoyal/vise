@@ -32,7 +32,6 @@ ICON_SIZE = 24
 
 
 _missing_icon = None
-
 mark_map = {}
 for x in string.digits + string.ascii_uppercase:
     mark_map[x] = getattr(Qt.Key, 'Key_' + x)
