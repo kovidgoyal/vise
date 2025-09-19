@@ -18,7 +18,7 @@ from time import monotonic
 from PyQt6 import sip
 from PyQt6.QtCore import QMarginsF, QSize, Qt, QUrl, pyqtSignal, QEvent
 from PyQt6.QtGui import QKeyEvent, QPageLayout, QPageSize
-from PyQt6.QtWebEngineCore import QWebEnginePage, QWebEngineScript, QWebEnginePermission
+from PyQt6.QtWebEngineCore import QWebEnginePage, QWebEngineScript, QWebEnginePermission, QWebEngineFullScreenRequest
 from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtWidgets import QApplication, QCheckBox, QGridLayout, QLabel, QDialogButtonBox
 
@@ -430,25 +430,31 @@ class WebView(QWebEngineView):
     def exit_full_screen(self):
         self._page.triggerAction(QWebEnginePage.WebAction.ExitFullScreen)
 
-    def full_screen_requested(self, req):
-        # Cannot accept this asynchronously in python, see
-        # https://bugreports.qt.io/browse/QTBUG-55064
-        req.accept()
+    def full_screen_requested(self, req: QWebEngineFullScreenRequest) -> None:
+        if not req.toggleOn():
+            req.accept()
+            return
+        # Create a copy, see: https://bugreports.qt.io/browse/QTBUG-55064
+        req = QWebEngineFullScreenRequest(req)
         if site_permissions.has_permission(req.origin(), 'full_screen'):
+            req.accept()
             self.toggle_full_screen.emit(req.toggleOn())
         else:
-            callback = partial(self.on_full_screen_decision, req.origin(), req.toggleOn())
+            callback = partial(self.on_full_screen_decision, req)
             q = _('Allow %s to switch to full screen?')
             if not req.toggleOn():
                 q = _('Allow %s to switch out of full screen?')
             self.popup(q % ascii_lowercase(req.origin().host()),
                        callback, extra_buttons={_('Always'): 'permanent'})
 
-    def on_full_screen_decision(self, origin, toggle_on, ok, during_shutdown):
+    def on_full_screen_decision(self, req: QWebEngineFullScreenRequest, ok, during_shutdown):
         if ok:
-            site_permissions.add_permission(origin, 'full_screen', permanent=ok == 'permanent')
+            req.accept()
+            site_permissions.add_permission(req.origin(), 'full_screen', permanent=ok == 'permanent')
             if not during_shutdown:
-                self.toggle_full_screen.emit(toggle_on)
+                self.toggle_full_screen.emit(req.toggleOn())
+        else:
+            req.reject()
 
     def resizeEvent(self, ev):
         self.resized.emit()
