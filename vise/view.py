@@ -18,7 +18,7 @@ from time import monotonic
 from PyQt6 import sip
 from PyQt6.QtCore import QMarginsF, QSize, Qt, QUrl, pyqtSignal, QEvent
 from PyQt6.QtGui import QKeyEvent, QPageLayout, QPageSize
-from PyQt6.QtWebEngineCore import QWebEnginePage, QWebEngineScript
+from PyQt6.QtWebEngineCore import QWebEnginePage, QWebEngineScript, QWebEnginePermission
 from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtWidgets import QApplication, QCheckBox, QGridLayout, QLabel, QDialogButtonBox
 
@@ -179,8 +179,8 @@ class WebPage(QWebEnginePage):
 
     def break_cycles(self):
         self.callbacks.clear()
-        for s in ('authenticationRequired proxyAuthenticationRequired linkHovered featurePermissionRequested'
-                  ' featurePermissionRequestCanceled fullScreenRequested windowCloseRequested quotaRequested'
+        for s in ('authenticationRequired proxyAuthenticationRequired linkHovered permissionRequested'
+                  ' fullScreenRequested windowCloseRequested quotaRequested'
                   ' poll_for_messages audioMutedChanged certificateError').split():
             safe_disconnect(getattr(self, s))
         # Without the next two lines we get a crash on exit with Qt 5.8.0
@@ -232,11 +232,9 @@ class WebView(QWebEngineView):
         self._page.linkHovered.connect(self.on_link_hovered)
         self._page.windowCloseRequested.connect(self.on_window_close_requested)
         self.popup = Popup(self)
-        self._page.featurePermissionRequested.connect(self.feature_permission_requested)
-        self._page.featurePermissionRequestCanceled.connect(self.feature_permission_request_canceled)
+        self._page.permissionRequested.connect(self.permission_requested)
         self._page.quotaRequested.connect(self.quota_requested)
         self._page.fullScreenRequested.connect(self.full_screen_requested)
-        self.feature_permission_map = {}
         self.text_input_focused = False
         self.loading_in_progress = False
         self._force_passthrough = False
@@ -393,32 +391,35 @@ class WebView(QWebEngineView):
     def copy_to_clipboard(self, text):
         QApplication.clipboard().setText(text)
 
-    def feature_permission_requested(self, qurl, feature):
-        if not feature:
+    def permission_requested(self, p: QWebEnginePermission) -> None:
+        if not p.isValid():
             return
-        key = (qurl.toString(), feature)
+        feature = p.permissionType()
+        e = QWebEnginePermission.PermissionType
+        if feature == e.Unsupported:
+            p.deny()
+            return
         what = {
-            QWebEnginePage.Feature.Notifications: _('notifications'),
-            QWebEnginePage.Feature.Geolocation: _('current location'),
-            QWebEnginePage.Feature.MediaAudioCapture: _('microphone'),
-            QWebEnginePage.Feature.MediaVideoCapture: _('webcam'),
-            QWebEnginePage.Feature.MediaAudioVideoCapture: _('microphone and webcam'),
-            QWebEnginePage.Feature.MouseLock: _('mouse lock'),
-            QWebEnginePage.Feature.DesktopVideoCapture: _('desktop video capture'),
-            QWebEnginePage.Feature.DesktopAudioVideoCapture: _('desktop audio/video capture'),
-            QWebEnginePage.Feature.ClipboardReadWrite: _('clipboard read/write'),
-        }[feature]
-        self.feature_permission_map[key] = self.popup(
-            _('Grant this site access to your <b>%s</b>?') % what,
-            lambda ok, during_shutdown: self.page().setFeaturePermission(qurl, feature, (
-                QWebEnginePage.PermissionPolicy.PermissionGrantedByUser if ok else QWebEnginePage.PermissionPolicy.PermissionDeniedByUser))
-        )
-
-    def feature_permission_request_canceled(self, qurl, feature):
-        key = (qurl.toString(), feature)
-        qid = self.feature_permission_map.pop(key, None)
-        if qid is not None:
-            self.popup.abort_question(qid)
+            e.MediaAudioCapture: _('microphone'),
+            e.MediaVideoCapture: _('webcam'),
+            e.Notifications: _('notifications'),
+            e.Geolocation: _('current location'),
+            e.MediaAudioVideoCapture: _('microphone and webcam'),
+            e.MouseLock: _('mouse lock'),
+            e.DesktopVideoCapture: _('desktop video capture'),
+            e.DesktopAudioVideoCapture: _('desktop audio/video capture'),
+            e.ClipboardReadWrite: _('clipboard read/write'),
+            e.LocalFontsAccess: _('local fonts access'),
+        }.get(feature, str(feature))
+        origin = p.origin()
+        def callback(ok: bool, during_shutdown: bool) -> None:
+            if not during_shutdown and not sip.isdeleted(origin) and not sip.isdeleted(self._page) and (profile := self._page.profile()):
+                p = profile.queryPermission(origin, feature)
+                if ok:
+                    p.grant()
+                else:
+                    p.deny()
+        self.popup(_('Grant the site {0} access to your <b>{1}</b>?').format(origin.toString(), what), callback)
 
     def quota_requested(self, request):
         self.popup(
