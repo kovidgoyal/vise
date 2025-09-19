@@ -16,11 +16,22 @@ from threading import Thread
 from time import monotonic
 
 from PyQt6 import sip
-from PyQt6.QtCore import QMarginsF, QSize, Qt, QUrl, pyqtSignal, QEvent
+from PyQt6.QtCore import QEvent, QMarginsF, QSize, Qt, QUrl, pyqtSignal
 from PyQt6.QtGui import QKeyEvent, QPageLayout, QPageSize
-from PyQt6.QtWebEngineCore import QWebEnginePage, QWebEngineScript, QWebEnginePermission, QWebEngineFullScreenRequest
+from PyQt6.QtWebEngineCore import (
+    QWebEngineFullScreenRequest,
+    QWebEnginePage,
+    QWebEnginePermission,
+    QWebEngineScript,
+)
 from PyQt6.QtWebEngineWidgets import QWebEngineView
-from PyQt6.QtWidgets import QApplication, QCheckBox, QGridLayout, QLabel, QDialogButtonBox
+from PyQt6.QtWidgets import (
+    QApplication,
+    QCheckBox,
+    QDialogButtonBox,
+    QGridLayout,
+    QLabel,
+)
 
 from .auth import get_http_auth_credentials, get_proxy_auth_credentials
 from .certs import cert_exceptions
@@ -35,8 +46,7 @@ from .places import places
 from .popup import Popup
 from .settings import gprefs
 from .site_permissions import site_permissions
-from .utils import (Dialog, ascii_lowercase, icon_to_data, open_local_file,
-                    safe_disconnect)
+from .utils import Dialog, icon_to_data, open_local_file, safe_disconnect
 
 view_id = count()
 certificate_error_domains = set()
@@ -434,18 +444,16 @@ class WebView(QWebEngineView):
         if not req.toggleOn():
             req.accept()
             return
-        # Create a copy, see: https://bugreports.qt.io/browse/QTBUG-55064
-        req = QWebEngineFullScreenRequest(req)
         if site_permissions.has_permission(req.origin(), 'full_screen'):
             req.accept()
             self.toggle_full_screen.emit(req.toggleOn())
         else:
-            callback = partial(self.on_full_screen_decision, req)
-            q = _('Allow %s to switch to full screen?')
+            # Create a copy, see: https://bugreports.qt.io/browse/QTBUG-55064
+            callback = partial(self.on_full_screen_decision, QWebEngineFullScreenRequest(req))
+            q = _('Allow {} to switch to full screen?')
             if not req.toggleOn():
-                q = _('Allow %s to switch out of full screen?')
-            self.popup(q % ascii_lowercase(req.origin().host()),
-                       callback, extra_buttons={_('Always'): 'permanent'})
+                q = _('Allow {} to switch out of full screen?')
+            self.popup(q.format(req.origin().toString()), callback, extra_buttons={_('Always'): 'permanent'})
 
     def on_full_screen_decision(self, req: QWebEngineFullScreenRequest, ok, during_shutdown):
         if ok:
