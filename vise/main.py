@@ -149,7 +149,7 @@ class Application(QApplication):
         f = self.font()
         if (f.family(), f.pointSize()) == ('Sans Serif', 9):  # Hard coded Qt settings, no user preference detected
             f.setPointSize(10)
-            if 'Ubuntu' in QFontDatabase().families():
+            if 'Ubuntu' in QFontDatabase.families():
                 f.setFamily('Ubuntu')
             self.setFont(f)
         self.downloads = Downloads(self)
