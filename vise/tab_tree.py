@@ -477,7 +477,6 @@ class TabTree(QTreeWidget):
                     self.next_tab(wrap=False)
             self.deleted_parent_map[item.view_id] = (getattr(p, 'view_id', -1), p.indexOfChild(item))
             p.removeChild(item)
-        self.emit_tab_loading_status_changed()
         return children_to_close + (tab,)
 
     def loading_status_changed(self, item, loading):

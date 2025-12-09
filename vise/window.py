@@ -71,6 +71,7 @@ class MainWindow(QMainWindow):
         self.tabs = []
         self.tab_tree = tt = TabTree(self)
         tt.tab_loading_status_changed.connect(self.status_bar.loading_status_changed)
+        tt.delete_tabs.connect(self.update_status_bar_state, type=Qt.ConnectionType.QueuedConnection)
         tt.tab_activated.connect(self.show_tab)
         tt.tab_close_requested.connect(self.close_tab)
         tt.delete_tabs.connect(self.delete_removed_tabs)
@@ -160,8 +161,7 @@ class MainWindow(QMainWindow):
         ans.link_hovered.connect(self.link_hovered)
         ans.window_close_requested.connect(self.close_tab, type=Qt.ConnectionType.QueuedConnection)
         ans.focus_changed.connect(self.update_mode)
-        ans.passthrough_changed.connect(self.update_mode)
-        ans.passthrough_changed.connect(self.update_passthrough_state)
+        ans.passthrough_changed.connect(self.update_status_bar_state)
         ans.toggle_full_screen.connect(self.toggle_full_screen)
         ans.dev_tools_requested.connect(self.dev_tools_requested)
         if self.current_tab:
@@ -184,6 +184,11 @@ class MainWindow(QMainWindow):
         tab = self.current_tab
         passthrough = getattr(tab, 'force_passthrough', False)
         self.status_bar.update_passthrough_state(passthrough)
+
+    def update_status_bar_state(self):
+        self.update_mode()
+        self.update_passthrough_state()
+        self.tab_tree.emit_tab_loading_status_changed()
 
     def change_passthrough(self, passthrough):
         tab = self.current_tab
@@ -239,6 +244,7 @@ class MainWindow(QMainWindow):
         if not self.tabs:
             self.open_url(WELCOME_URL, switch_to_tab=True)
             QTimer.singleShot(0, self.current_tab_changed)
+        QTimer.singleShot(0, self.update_status_bar_state)
 
     def close_all_tabs(self):
         if self.current_tab is not None:
@@ -305,7 +311,7 @@ class MainWindow(QMainWindow):
         self.update_window_title()
         self.current_tab = self.stack.currentWidget()
         self.tab_tree.current_changed(self.current_tab)
-        self.update_passthrough_state()
+        self.update_status_bar_state()
         self.url_changed()
         if self.current_tab is not None:
             self.current_tab.on_display_in_stack()
