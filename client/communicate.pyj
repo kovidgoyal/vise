@@ -13,13 +13,16 @@ def notify_python():
     t, document.title = document.title, TITLE_TOKEN
     document.title = t
 
+
 def callback(name, data, console_err):
-    to_python.push({'type':'callback', 'name':name, 'data':data})
+    to_python.push({'type': 'callback', 'name': name, 'data': data})
     notify_python()
 
+
 def js_to_python(name, *args):
-    to_python.push({'type':'js_to_python', 'name':name, 'args':args})
+    to_python.push({'type': 'js_to_python', 'name': name, 'args': args})
     notify_python()
+
 
 def connect_signal(name, func):
     if name in from_python:

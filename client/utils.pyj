@@ -1,6 +1,7 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
+
 def all_frames(doc):
     # Iterate over all frames in document, starting with window corresponding
     # to the document itself. Yields the window objects corresponding to each frame.
@@ -19,6 +20,7 @@ def all_frames(doc):
                 # Happens if security policy does not allow access to a child frame
                 # console.error(e.message)
                 pass
+
 
 def is_visible(elem):
     # Return True iff the element is visible on screen (does not handle
@@ -40,9 +42,10 @@ def is_visible(elem):
         return False  # is zero width or zero height
 
     s = win.getComputedStyle(elem)
-    if not s or s.visibility is not "visible" or s.display is "none":
+    if not s or s.visibility is not 'visible' or s.display is 'none':
         return False
     return True
+
 
 def follow_link(elem, mouse_button=0):
     elem.focus()
@@ -51,7 +54,7 @@ def follow_link(elem, mouse_button=0):
     if rect:
         left, top = rect.left, rect.top
     ev = MouseEvent('click', {
-        'view':elem.ownerDocument.defaultView or window,
+        'view': elem.ownerDocument.defaultView or window,
         'button': mouse_button,
         'screenX': left,
         'screenY': top,
@@ -60,8 +63,10 @@ def follow_link(elem, mouse_button=0):
     })
     elem.dispatchEvent(ev)
 
+
 def text_editing_allowed(node):
     return not node.hasAttribute('readonly') and not node.hasAttribute('disabled')
+
 
 def is_text_input_node(node):
     if node and node.nodeType is Node.ELEMENT_NODE:
@@ -73,4 +78,3 @@ def is_text_input_node(node):
             if itype not in {'hidden', 'image', 'button', 'reset', 'file', 'reset', 'radio', 'submit'}:
                 return text_editing_allowed(node)
     return False
-

@@ -3,14 +3,16 @@
 # noqa: eol-semicolon
 from __python__ import hash_literals, bound_methods
 
-from communicate import connect_signal, js_to_python
 from elementmaker import E
-from utils import is_visible
+
+from communicate import connect_signal, js_to_python
 from frames import broadcast_action, send_action, register_subframe_handler, register_top_handler, frame_iter
+from utils import is_visible
 
 REPLACED_ELEM_TAG = 'vise-replaced-elem-hint'
 ATTR = 'data-vise-hint'
-current_request = {'id':0, 'accumulated_keypresses':[]}
+current_request = {'id': 0, 'accumulated_keypresses': []}
+
 
 def start_follow_link(action):
     frames = list(frame_iter(window.top, is_visible))
@@ -50,6 +52,7 @@ def add_hint_markup(elem, i):
         elem = e
     elem.setAttribute(ATTR, i)
 
+
 def remove_hint_markup(elem):
     tname = elem.tagName.toLowerCase()
     if tname is 'input' or tname is 'textarea':
@@ -61,6 +64,7 @@ def remove_hint_markup(elem):
         if elem.tagName.toLowerCase() is REPLACED_ELEM_TAG:
             elem.parentNode.removeChild(elem)
 
+
 def mark_visible_hints(action, frame_id=0):
     hints = v'[]'
     sel = 'a[href], button, input, textarea'
@@ -70,10 +74,11 @@ def mark_visible_hints(action, frame_id=0):
         if is_visible(elem):
             add_hint_markup(elem, i)
             br = elem.getBoundingClientRect()
-            hints.push({'frame_id':frame_id, 'num':i, 'left':br.left, 'top':br.top})
+            hints.push({'frame_id': frame_id, 'num': i, 'left': br.left, 'top': br.top})
         else:
             remove_hint_markup(elem)
     return hints
+
 
 def assign_hints():
     all_hints = v'[]'
@@ -97,6 +102,7 @@ def assign_hints():
     for text in current_request.accumulated_keypresses:
         follow_link(text)
 
+
 def update_hint_numbers(hint_map):
     for elem in document.querySelectorAll('[' + ATTR + ']'):
         newnum = hint_map[elem.getAttribute(ATTR)]
@@ -116,13 +122,13 @@ def follow_link(text):
         return
     text = text.toLowerCase()
     if text is '|escape':
-        predicate = def():
+        predicate = def ():
             return False
     elif text is '|enter':
-        predicate = def(hint):
+        predicate = def (hint):
             return hint is current_request.all_hints[0]
     else:
-        predicate = def(hint):
+        predicate = def (hint):
             if hint.text_left.startsWith(text):
                 hint.text_left = hint.text_left[text.length:]
                 return True
@@ -156,8 +162,9 @@ def follow_link(text):
         hint.num = hint.text_left
     current_request.all_hints = all_hints
 
+
 def update_filtered_hints(hints, found_target):
-    elem_map = {e.getAttribute(ATTR):e for e in document.querySelectorAll('[' + ATTR + ']')}
+    elem_map = {e.getAttribute(ATTR): e for e in document.querySelectorAll('[' + ATTR + ']')}
     target_elem = None
     for hint in hints:
         elem = elem_map[hint.num]
@@ -180,16 +187,17 @@ def animate_click(elem):
     action = current_request.action
     if action is not 'sametab' and action is not 'copy':
         js_to_python('middle_click_soon')
-    window.setTimeout(def():
+    window.setTimeout(def ():
         elem.classList.remove('vise-animate-click')
         if action is 'sametab':
             elem.click()
         elif action is 'copy':
             js_to_python('copy_to_clipboard', elem.href)
         else:
-            mc = new MouseEvent("click", {'button': 1, 'buttons': 4})
+            mc = new MouseEvent('click', {'button': 1, 'buttons': 4})
             elem.dispatchEvent(mc)
     , 300)
+
 
 def activate_elem(elem):
     tname = elem.tagName.toLowerCase()
@@ -204,7 +212,6 @@ def activate_elem(elem):
 register_subframe_handler(def hints_filtered(current_frame_id, source_frame_id, source_frame, hints, found_target):
     update_filtered_hints(hints, found_target)
 )
-
 
 
 def onload():

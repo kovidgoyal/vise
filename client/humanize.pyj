@@ -1,14 +1,17 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
+
 def normalize_precision(value, base):
     value = Math.round(Math.abs(value))
     return base if isNaN(value) else value
+
 
 def to_fixed(value, precision):
     precision = precision or normalize_precision(precision, 0)
     power = Math.pow(10, precision)
     return (Math.round(value * power) / power).toFixed(precision)
+
 
 def humanize_number(number, precision, thousand, decimal):
     precision = precision or 0
@@ -19,31 +22,33 @@ def humanize_number(number, precision, thousand, decimal):
         return number.substr(0, position) + thousand if position else ''
 
     def commas(number, position):
-      return number.substr(position).replace(/(\d{3})(?=\d)/g, "$1" + thousand)
+        return number.substr(position).replace(/(\d{3})(?=\d)/g, '$1' + thousand)
 
     def decimals(number, use_precision):
-        return decimal + to_fixed(Math.abs(number), use_precision).split(".")[1] if use_precision else ''
+        return decimal + to_fixed(Math.abs(number), use_precision).split('.')[1] if use_precision else ''
 
     use_precision = normalize_precision(precision)
     negative = '-' if number < 0 else ''
-    base = parseInt(to_fixed(Math.abs(number or 0), use_precision), 10) + ""
+    base = parseInt(to_fixed(Math.abs(number or 0), use_precision), 10) + ''
     mod = base.length % 3 if base.length > 3 else 0
     return negative + first_comma(base, mod) + commas(base, mod) + decimals(number, use_precision)
 
 LABELS = [
-    ["P", Math.pow(2, 50)],
-    ["T", Math.pow(2, 40)],
-    ["G", 1 << 30],
-    ["M", 1 << 20],
+    ['P', Math.pow(2, 50)],
+    ['T', Math.pow(2, 40)],
+    ['G', 1 << 30],
+    ['M', 1 << 20],
 ]
+
 
 def humanize_size(size):
     for label, minnum in LABELS:
         if size >= minnum:
-            return humanize_number(size / minnum, 2, "") + " " + label + "B"
+            return humanize_number(size / minnum, 2, '') + ' ' + label + 'B'
     if size >= 1024:
-      return humanize_number(size / 1024, 0) + " KB"
+        return humanize_number(size / 1024, 0) + ' KB'
     return humanize_number(size, 0) + ' B'
+
 
 def relative_time(timestamp):
     timestamp = timestamp or Date.now()

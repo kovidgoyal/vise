@@ -2,13 +2,14 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 from crypto import initialize as init_crypto
-from frames import register_frames
-from focus import onload as focus_onload
 from downloads import main as downloads
-from follow_next import onload as fn_onload
-from passwd import onload as passwd_onload
-from hints import onload as hints_onload
 from edit import onload as edit_onload
+from focus import onload as focus_onload
+from follow_next import onload as fn_onload
+from frames import register_frames
+from hints import onload as hints_onload
+from passwd import onload as passwd_onload
+
 
 def on_document_loaded():
     if document.location.href is '__DOWNLOADS_URL__':

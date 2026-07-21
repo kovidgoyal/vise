@@ -1,8 +1,8 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from frames import send_action, register_handler, broadcast_action, frame_iter
 from communicate import js_to_python, connect_signal
+from frames import send_action, register_handler, broadcast_action, frame_iter
 
 input_types = {'text', 'email', 'tel'}
 username_names = {'login', 'user', 'mail', 'email', 'username', 'id', 'identification', 'login_email', 'login_id', 'login_username', 'txtUsrName', 'acct'}
@@ -14,6 +14,7 @@ def password_changed(ev):
     if pwd:
         pw.dataset.viseLastPasswordValue = pwd
 
+
 def form_submitted(ev):
     form = ev.target
     u, p = get_login_inputs(form)
@@ -24,6 +25,7 @@ def form_submitted(ev):
         # modify/hash the value in the password field before submitting
         password = p.dataset.viseLastPasswordValue
     send_action(window.top, 'login_form_submitted', document.location.href, username, password)
+
 
 def get_login_inputs(form):
     username = password = None
@@ -40,6 +42,7 @@ def get_login_inputs(form):
                     username = inp
     return username, password
 
+
 def submit_form(form):
     buttons = list(form.querySelectorAll('button[type=submit]'))
     inputs = list(form.querySelectorAll('input[type=submit]'))
@@ -50,15 +53,19 @@ def submit_form(form):
     else:
         form.submit()
 
+
 def is_login_form(form):
     un, pw = get_login_inputs(form)
     return un is not None or pw is not None
 
+
 def login_form_found(current_frame_id, source_frame_id, source_frame, url):
     js_to_python('login_form_found_in_page', url)
 
+
 def login_form_submitted(current_frame_id, source_frame_id, source_frame, url, username, password):
     js_to_python('login_form_submitted_in_page', url, username, password)
+
 
 def on_autofill_login_form(url, autosubmit, is_current_form):
     if not do_autofill(url, autosubmit, is_current_form):
@@ -148,6 +155,7 @@ def do_form_field_filled(url, which):
 
 current_login_form_request_id = 0
 
+
 def on_get_url_for_current_login_form():
     nonlocal current_login_form_request_id
     current_login_form_request_id += 1
@@ -156,9 +164,11 @@ def on_get_url_for_current_login_form():
     else:
         broadcast_action(frame_iter(window.self), 'get_url_for_current_login_form_in_subframe', current_login_form_request_id)
 
+
 def get_url_for_current_login_form_in_subframe(current_frame_id, source_frame_id, source_frame, request_id):
     if document.activeElement and document.activeElement.tagName.toLowerCase() is 'input':
         send_action(window.top, 'send_url_for_current_login_form', request_id, document.location.href)
+
 
 def send_url_for_current_login_form(current_frame_id, source_frame_id, source_frame, request_id, url):
     nonlocal current_login_form_request_id

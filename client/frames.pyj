@@ -7,23 +7,27 @@ frame_count = frame_id = 0
 registered = False
 frame_map = WeakMap()
 
+
 def prepare_message(payload, cont):
     payload = JSON.stringify(payload)
     c = encrypt(payload)
-    cont({'type':'ͻvise_frame_message', 'encrypted_payload':c, 'source_frame_id':frame_id})
+    cont({'type': 'ͻvise_frame_message', 'encrypted_payload': c, 'source_frame_id': frame_id})
+
 
 def post_message(win, payload):
-    prepare_message(payload, def(msg):
+    prepare_message(payload, def (msg):
         win.postMessage(msg, '*')
     )
 
+
 def broadcast_message(windows, payload):
-    prepare_message(payload, def(msg):
+    prepare_message(payload, def (msg):
         for win in windows:
             win.postMessage(msg, '*')
     )
 
 handlers = {}
+
 
 def handle_message_from_frame(source, source_id, data):
     nonlocal frame_count, frame_id
@@ -32,7 +36,7 @@ def handle_message_from_frame(source, source_id, data):
         if source is not undefined:
             frame_count += 1
             frame_map.set(source, frame_count)
-            post_message(source, {'action':'*set_id', 'value': frame_count})
+            post_message(source, {'action': '*set_id', 'value': frame_count})
     elif action is '*set_id':
         frame_id = data.value
     else:
@@ -41,6 +45,7 @@ def handle_message_from_frame(source, source_id, data):
             args = data.args or []
             kw = data.kwargs or {}
             f(frame_id, source_id, source, *args, **kw)
+
 
 def decode_message(event):
     if not event.data or event.data.type is not 'ͻvise_frame_message':
@@ -54,6 +59,7 @@ def decode_message(event):
     payload = JSON.parse(raw)
     handle_message_from_frame(event.source, event.data.source_frame_id, payload)
 
+
 def frame_iter(win, filter_func=None):
     win = win or window.top
     for i in range(win.frames.length):
@@ -66,6 +72,7 @@ def frame_iter(win, filter_func=None):
             yield frame
         yield from frame_iter(frame, filter_func=filter_func)
 
+
 def frame_for_id(frame_id):
     if frame_id is 0:
         return window.top
@@ -73,6 +80,7 @@ def frame_for_id(frame_id):
         ans = frame_map.get(frame)
         if ans is not undefined and ans is frame_id:
             return frame
+
 
 def register_frames():
     nonlocal registered
@@ -86,26 +94,32 @@ def register_frames():
         registered = True
         window.addEventListener('message', decode_message, False)
         if window.self is not window.top:
-            post_message(window.top, {'action':'*register'})
+            post_message(window.top, {'action': '*register'})
+
 
 def register_handler(name, func):
     handlers[name] = func
+
 
 def register_subframe_handler(func):
     if window.self is not window.top:
         register_handler(func.name, func)
 
+
 def register_top_handler(func):
     if window.self is window.top:
         register_handler(func.name, func)
 
+
 def prepare_action(name, args, kwargs):
-    return {'action':name, 'args':args, 'kwargs':kwargs}
+    return {'action': name, 'args': args, 'kwargs': kwargs}
+
 
 def send_action(win, name, *args, **kwargs):
     if jstype(win) is 'number':
         win = frame_for_id(win)
     post_message(win, prepare_action(name, args, kwargs))
+
 
 def broadcast_action(windows, name, *args, **kwargs):
     broadcast_message(windows, prepare_action(name, args, kwargs))

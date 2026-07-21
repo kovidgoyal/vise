@@ -12,11 +12,13 @@ prev_regexps = [/^\s*Prev(ious)? Page\s*$/i, /[<«] Prev\s*$/i, /\bprev(ious)?\b
 request_id = 0
 request_serviced = False
 
+
 def find_link_in_win(win, forward):
     regexps = next_regexps if forward else prev_regexps
     rel = 'next' if forward else 'prev'
     for elem in iter_visible_links(win, regexps, rel):
         return elem
+
 
 def follow_next(forward):
     nonlocal request_id, request_serviced
@@ -27,6 +29,7 @@ def follow_next(forward):
         request_id += 1
         request_serviced = False
         broadcast_action(frame_iter(window.self, is_visible), 'follow_next_search', request_id, forward)
+
 
 def follow_next_found(current_frame_id, source_frame_id, source_frame, remote_request_id, was_found):
     nonlocal request_serviced
@@ -41,12 +44,14 @@ def follow_next_found(current_frame_id, source_frame_id, source_frame, remote_re
 
 current_follow_next_candidate = None
 
+
 def follow_next_search(current_frame_id, source_frame_id, source_frame, request_id, forward):
     nonlocal current_follow_next_candidate
     elem = find_link_in_win(window.self, forward)
     if elem:
         current_follow_next_candidate = v'[elem, request_id]'
     send_action(source_frame, 'follow_next_found', request_id, bool(elem))
+
 
 def follow_next_execute(current_frame_id, source_frame_id, source_frame, request_id, do_it):
     nonlocal current_follow_next_candidate
@@ -57,6 +62,7 @@ def follow_next_execute(current_frame_id, source_frame_id, source_frame, request
             follow_link(elem)
 # }}}
 
+
 def onload():
     if window.self is window.top:
         connect_signal('follow_next', follow_next)
@@ -64,4 +70,3 @@ def onload():
     else:
         register_handler('follow_next_search', follow_next_search)
         register_handler('follow_next_execute', follow_next_execute)
-

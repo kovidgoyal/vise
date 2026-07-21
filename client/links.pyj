@@ -3,6 +3,7 @@
 
 from utils import is_visible
 
+
 def iter_links(win, regexps=None, rel=None, selector=None, filter_func=None):
     # Iterate over all link like elements in the window (win) does not traverse
     # child frames.
@@ -39,6 +40,7 @@ def iter_links(win, regexps=None, rel=None, selector=None, filter_func=None):
                             break
         if matches:
             yield elem
+
 
 def iter_visible_links(win, regexps=None, rel=None, selector=None):
     yield from iter_links(win, regexps=regexps, selector=selector, rel=rel, filter_func=is_visible)

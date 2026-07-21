@@ -2,27 +2,31 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 from elementmaker import E
-from humanize import humanize_size
+
 from communicate import callback
+from humanize import humanize_size
 
 CALLBACK_NAME = 'vise_downloads_page'
 
+
 def cancel_download(dl_id):
-    callback(CALLBACK_NAME, {'id':int(dl_id), 'cmd':'cancel'})
+    callback(CALLBACK_NAME, {'id': int(dl_id), 'cmd': 'cancel'})
+
 
 def open_download(dl_id):
-    callback(CALLBACK_NAME, {'id':int(dl_id), 'cmd':'open'})
+    callback(CALLBACK_NAME, {'id': int(dl_id), 'cmd': 'open'})
+
 
 def create_download(dl_id, fname, mime_type, icon_url, hostname):
-    document.getElementById('init').style.display= 'none'
+    document.getElementById('init').style.display = 'none'
     div = E.div(
-        style="padding: 3ex; display: table; width: 90%; border-bottom: solid 1px currentColor",
+        style='padding: 3ex; display: table; width: 90%; border-bottom: solid 1px currentColor',
         E.img(src=icon_url, alt=fname, style='width: 64px; height: 64px; margin-right: 1em; float:left; display:table-cell'),
         E.div(style='float:left; display:table-cell',
             E.p(
                 E.b(fname, id='fname' + dl_id),
                 E.br(),
-                E.span('...', id='status' + dl_id, style="color:gray", data_hostname=hostname, data_created=Date.now() + '')
+                E.span('...', id='status' + dl_id, style='color:gray', data_hostname=hostname, data_created=Date.now() + '')
             )
         ),
         E.div(
@@ -36,7 +40,7 @@ def create_download(dl_id, fname, mime_type, icon_url, hostname):
     document.body.insertBefore(div, document.body.firstChild)
     update_download(dl_id, 'running', -1, -1, 0, 0)
     stop = document.getElementById('stop' + dl_id)
-    stop.addEventListener('click', def(): cancel_download(dl_id);)
+    stop.addEventListener('click', def (): cancel_download(dl_id);)
 
 
 def format_time_left(seconds):
@@ -54,6 +58,7 @@ def format_time_left(seconds):
     if mins > 0:
         return 'in ' + hours + (' hour' if hours is 1 else ' hours') + ' ' + mins + (' minute' if mins is 1 else ' minutes')
     return 'in 1 hour' if hours is 1 else ('in ' + hours + ' hours')
+
 
 def update_download(dl_id, state, received, total, rate, avg_rate):
     status = document.getElementById('status' + dl_id)
@@ -80,7 +85,7 @@ def update_download(dl_id, state, received, total, rate, avg_rate):
         fname = document.getElementById('fname' + dl_id)
         if fname:
             if not fname.getAttribute('class'):
-                fname.addEventListener('click', def(): open_download(dl_id);)
+                fname.addEventListener('click', def (): open_download(dl_id);)
             fname.setAttribute('class', 'fname')
             fname.setAttribute('title', 'Click to open')
         text = ''
@@ -101,6 +106,7 @@ def update_download(dl_id, state, received, total, rate, avg_rate):
     stop = document.getElementById('stop' + dl_id)
     stop.style.display = 'block' if state is 'running' else 'none'
 
+
 def main():
     window.create_download = create_download
     window.update_download = update_download
@@ -109,4 +115,4 @@ def main():
     .fname { cursor: pointer }
     .fname:hover { color: red; font-style: italic }
     '''
-    callback(CALLBACK_NAME, {'cmd':'inited'})
+    callback(CALLBACK_NAME, {'cmd': 'inited'})

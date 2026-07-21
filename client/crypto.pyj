@@ -8,18 +8,21 @@ gcm = None
 # We do not use the WebCrypto API because of
 # https://bugreports.qt.io/browse/QTBUG-50142
 
+
 def initialize(after):
     nonlocal secret_key, gcm
     if '_' in secret_key:
         raise Exception('secret key was not generated')
-    decoded = Uint8Array(len(secret_key)//2)
+    decoded = Uint8Array(len(secret_key) // 2)
     for v'var i = 0, j = 0; i < secret_key.length; i += 2, j++':
-        decoded[j] = parseInt(secret_key[i] + secret_key[i+1], 16)
+        decoded[j] = parseInt(secret_key[i] + secret_key[i + 1], 16)
     gcm = GCM(decoded, random_iv=True)
     after()
 
+
 def encrypt(text):
     return gcm.encrypt(text)
+
 
 def decrypt(output_from_encrypt):
     return gcm.decrypt(output_from_encrypt)
