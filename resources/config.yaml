@@ -55,6 +55,7 @@ normal mode keys:  # The keys used in normal mode
     hard_reload: Shift+R
     restart: Ctrl+R
     choose_tab: T
+    show_tab_overlay: Ctrl+T
     follow_link: F
     follow_link_newtab: Shift+F
     copy_link: Alt+F
@@ -77,6 +78,7 @@ insert mode keys:  # The keys used in insert mode (i.e. when the cursor is in a 
     fill_login_form: Ctrl+L
     paste_url: Ctrl+U
     paste_selection: Ctrl+Shift+S
+    show_tab_overlay: Ctrl+T
 
 ##################### Fonts ############################
 
@@ -118,9 +120,19 @@ colors:
     tab tree current background: "#333"
     tab tree current foreground: "#eee"
     tab tree foreground: "#eee"
-    tab tree hover gradient start: "black"
-    tab tree hover gradient end: "black"
-    tab tree hover border: "#bfcde4"
+    # Colors for the tab overlay (Ctrl+T). Colors can have an alpha channel
+    # specified as #AARRGGBB. The default values depend on whether the
+    # system is in dark or light mode.
+    tab overlay tint: default
+    tab overlay panel: default
+    tab overlay foreground: default
+    tab overlay accent: default
+    tab overlay card: default
+    tab overlay card hover: default
+    tab overlay card selected: default
+    tab overlay icon tile: default
+    tab overlay search background: default
+    tab overlay match: default
     status bar background: black
     status bar private background: "#704214"
     status bar foreground: white

@@ -23,6 +23,7 @@ from .places import places
 from .resources import get_icon
 from .settings import create_profile, gprefs, profile, quickmarks
 from .status_bar import StatusBar
+from .tab_overlay import TabOverlay
 from .tab_tree import TabTree
 from .view import WebView
 from .welcome import WELCOME_URL
@@ -75,7 +76,6 @@ class MainWindow(QMainWindow):
         tt.tab_activated.connect(self.show_tab)
         tt.tab_close_requested.connect(self.close_tab)
         tt.delete_tabs.connect(self.delete_removed_tabs)
-        w.addWidget(tt)
         self.stack = s = StackedWidget(self)
         s.currentChanged.connect(self.current_tab_changed)
         w.addWidget(s)
@@ -84,7 +84,7 @@ class MainWindow(QMainWindow):
         self.prev_devtools_splitter_state = None
         w.addWidget(d)
         d.setVisible(False)
-        w.setCollapsible(0, True), w.setCollapsible(1, False), w.setCollapsible(2, True)
+        w.setCollapsible(0, False), w.setCollapsible(1, True)
         self._ask = a = Ask(s)
         a.setVisible(False), a.run_command.connect(self.run_command)
         a.hidden.connect(self.restore_state_after_popup)
@@ -99,6 +99,7 @@ class MainWindow(QMainWindow):
         else:
             self.unserialize_state(restart_state)
 
+        self.tab_overlay = TabOverlay(self)
         self.restore_state()
         self.current_tab_changed()
 
@@ -135,17 +136,15 @@ class MainWindow(QMainWindow):
         self.set_devtools_visibility(False)
         with gprefs:
             gprefs['main-window-geometry'] = bytearray(self.saveGeometry())
-            gprefs['main-splitter-state'] = bytearray(self.main_splitter.saveState())
+            gprefs['main-splitter-state-v2'] = bytearray(self.main_splitter.saveState())
 
     def restore_state(self):
         geom = gprefs.get('main-window-geometry')
         if geom is not None:
             self.restoreGeometry(geom)
-        ms = gprefs.get('main-splitter-state')
+        ms = gprefs.get('main-splitter-state-v2')
         if ms is not None:
             self.main_splitter.restoreState(ms)
-        else:
-            self.main_splitter.setSizes([300, 700])
 
     def closeEvent(self, ev):
         self.save_state()
@@ -199,11 +198,10 @@ class MainWindow(QMainWindow):
         if self.isFullScreen() == on:
             return
         if on:
-            self.tab_tree.setVisible(False)
+            self.tab_overlay.dismiss()
             self.statusBar().setVisible(False)
             self.showFullScreen()
         else:
-            self.tab_tree.setVisible(True)
             self.statusBar().setVisible(True)
             self.showNormal()
             for tab in self.tabs:
@@ -350,10 +348,19 @@ class MainWindow(QMainWindow):
     def choose_tab(self, key):
         self.choose_tab_pending = None
         if not self.tab_tree.activate_marked_tab(key):
-            if key != Qt.Key.Key_Escape:
+            if key.key() != Qt.Key.Key_Escape:
                 key = QKeySequence(key).toString()
                 self.show_status_message(_('No tab with mark: %s') % key, 5, 'error')
+        self.tab_overlay.dismiss()
         self.tab_tree.mark_tabs(unmark=True)
+
+    def start_choose_tab(self):
+        self.choose_tab_pending = True
+        self.tab_tree.mark_tabs()
+        self.tab_overlay.show_overlay(marks_mode=True)
+
+    def toggle_tab_overlay(self):
+        self.tab_overlay.toggle()
 
     def start_follow_link(self, action):
         if self.current_tab is not None:
@@ -409,7 +416,7 @@ class MainWindow(QMainWindow):
                 self.main_splitter.restoreState(self.prev_devtools_splitter_state)
             else:
                 w = self.main_splitter.width()
-                self.main_splitter.setSizes([int(w * 0.2), int(w * 0.45), int(w * 0.35)])
+                self.main_splitter.setSizes([int(w * 0.6), int(w * 0.4)])
         else:
             self.prev_devtools_splitter_state = self.main_splitter.saveState()
             self.dev_tools_container.setVisible(False)

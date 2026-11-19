@@ -1,7 +1,7 @@
 Vise
 ======
 
-A keyboard driven browser with tabs in a tree. Uses an embedded chromium
+A keyboard driven browser with tabs organized into groups. Uses an embedded chromium
 instance (via QtWebEngine) for the actual rendering. I got tired of
 depending on fragile, cobbled together, poorly integrated solutions based on
 mainstream browsers and extensions. Mainstream browsers are designed for lowest
@@ -15,8 +15,10 @@ Here is a list of features that I intend this browser to have
 
  * Easy navigation through history by substring matching using the keyboard
 
- * A tabbed tree browser with drag and drop to group as well as quick access
-   via keystrokes to individual tabs
+ * Tabs are organized into groups, with tabs opened from links grouped with
+   the tab they were opened from. Press Ctrl+T to show all tabs in a floating
+   overlay with a search box to quickly filter them, or T to switch to a tab
+   via a single keystroke
 
  * The UI is modal, like vim, which means all major UI functions can be quickly
    and easily accessed via single key strokes.

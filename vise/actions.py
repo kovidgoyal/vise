@@ -316,8 +316,12 @@ def quit(window, *a, **k):
 
 
 def choose_tab(window, *args, **kwargs):
-    window.choose_tab_pending = True
-    window.tab_tree.mark_tabs()
+    window.start_choose_tab()
+    return True
+
+
+def show_tab_overlay(window, *args, **kwargs):
+    window.toggle_tab_overlay()
     return True
 
 

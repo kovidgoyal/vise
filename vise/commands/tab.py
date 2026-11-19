@@ -7,9 +7,9 @@ from gettext import gettext as _
 
 from PyQt6.QtCore import QPoint, Qt
 from PyQt6.QtGui import QIcon
-from PyQt6.QtWidgets import QApplication
+from PyQt6.QtWidgets import QApplication, QStyle, QStyleOptionViewItem
 
-from ..utils import make_highlighted_text
+from ..utils import make_highlighted_text, match_positions, split_query, substring_match
 from . import Command
 
 
@@ -17,18 +17,8 @@ class CompletionCandidate:
 
     def __init__(self, tab_item, substrings):
         self.tabref = weakref.ref(tab_item)
-
-        def get_positions(text):
-            ans = set()
-            text = text.lower()
-            for ss in substrings:
-                idx = text.find(ss.lower())
-                if idx > -1:
-                    ans |= set(range(idx, idx + len(ss)))
-            return sorted(ans)
-
         text = tab_item.current_title
-        self.text = make_highlighted_text(text, get_positions(text))
+        self.text = make_highlighted_text(text, match_positions(text, substrings))
 
     @property
     def value(self):
@@ -48,24 +38,20 @@ class CompletionCandidate:
         ans.setHeight(max(option.decorationSize.height() + 6, ans.height()))
 
     def draw_item(self, painter, style, option):
-        option.features |= option.HasDecoration
+        option.features |= QStyleOptionViewItem.ViewItemFeature.HasDecoration
         option.icon = self.icon
-        text_rect = style.subElementRect(style.SE_ItemViewItemText, option, None)
+        text_rect = style.subElementRect(QStyle.SubElement.SE_ItemViewItemText, option, None)
         if not option.icon.isNull():
-            icon_rect = style.subElementRect(style.SE_ItemViewItemDecoration, option, None)
+            icon_rect = style.subElementRect(QStyle.SubElement.SE_ItemViewItemDecoration, option, None)
             option.icon.paint(painter, icon_rect, alignment=Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignHCenter)
         option.icon = QIcon()
         x, y = text_rect.x(), text_rect.y()
-        y += (text_rect.height() - self.text.size().height()) // 2
+        y += int(text_rect.height() - self.text.size().height()) // 2
         painter.drawStaticText(QPoint(x, y), self.text)
 
 
 def tab_matches(item, substrings):
-    text = item.current_title.lower()
-    for ss in substrings:
-        if ss.lower() not in text:
-            return False
-    return True
+    return substring_match(substrings, item.title, item.url)
 
 
 class SwitchToTab(Command):
@@ -74,7 +60,7 @@ class SwitchToTab(Command):
 
     def completions(self, cmd, prefix):
         tt = QApplication.instance().activeWindow().tab_tree
-        substrings = prefix.split(' ')
+        substrings = split_query(prefix)
         items = [CompletionCandidate(item, substrings) for item in tt if tab_matches(item, substrings)]
         return items
 

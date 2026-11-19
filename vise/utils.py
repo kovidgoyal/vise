@@ -7,6 +7,7 @@ import re
 import shutil
 import string
 import sys
+import unicodedata
 from functools import lru_cache
 from gettext import gettext as _
 from xml.sax.saxutils import escape
@@ -308,6 +309,42 @@ def subsequence_score(haystack, needle, level1='/ .', level2='-_0123456789', lev
             final_score = score
             final_positions = positions
     return final_score, final_positions
+
+
+def split_query(text):
+    ''' Split a search query into the substrings used by substring_match(),
+    the same way as the open command does. '''
+    return [x for x in unicodedata.normalize('NFC', text).split() if x]
+
+
+def substring_match(substrings, *texts):
+    ''' Return True iff every substring is present (case-insensitively) in
+    at least one of texts. This is the matching logic used by the open
+    command. '''
+    texts = tuple(unicodedata.normalize('NFC', t or '').lower() for t in texts)
+    for ss in substrings:
+        ss = ss.lower()
+        if not any(ss in t for t in texts):
+            return False
+    return True
+
+
+def match_positions(text, substrings):
+    ''' Return the sorted positions of the characters in text that match the
+    specified substrings, for use with make_highlighted_text() '''
+    ans = set()
+    ltext = (text or '').lower()
+    if len(ltext) != len(text or ''):
+        return []
+    for ss in substrings:
+        if not ss:
+            continue
+        ss = ss.lower()
+        idx = ltext.find(ss)
+        while idx > -1:
+            ans |= set(range(idx, idx + len(ss)))
+            idx = ltext.find(ss, idx + len(ss))
+    return sorted(ans)
 
 
 def make_highlighted_text(text, positions, emph='color:magenta', wrapper=None):

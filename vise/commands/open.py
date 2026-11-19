@@ -9,7 +9,7 @@ from PyQt6.QtGui import QIcon, QPixmap
 from PyQt6.QtWidgets import QApplication, QStyleOptionViewItem, QStyle
 
 from ..places import places
-from ..utils import make_highlighted_text, parse_url
+from ..utils import make_highlighted_text, match_positions, parse_url
 from . import Command
 
 
@@ -28,18 +28,8 @@ class CompletionCandidate:
     def __init__(self, place_id, url, title, substrings):
         self.value = url
         self.place_id = place_id
-
-        def get_positions(text):
-            ans = set()
-            text = text.lower()
-            for ss in substrings:
-                idx = text.find(ss.lower())
-                if idx > -1:
-                    ans |= set(range(idx, idx + len(ss)))
-            return sorted(ans)
-
-        self.left = make_highlighted_text(url, get_positions(url))
-        self.right = make_highlighted_text(title, get_positions(title))
+        self.left = make_highlighted_text(url, match_positions(url, substrings))
+        self.right = make_highlighted_text(title, match_positions(title, substrings))
         self._icon = None
 
     def adjust_size_hint(self, option, ans):
