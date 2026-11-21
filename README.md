@@ -16,9 +16,9 @@ Here is a list of features that I intend this browser to have
  * Easy navigation through history by substring matching using the keyboard
 
  * Tabs are organized into groups, with tabs opened from links grouped with
-   the tab they were opened from. Press Ctrl+T to show all tabs in a floating
-   overlay with a search box to quickly filter them, or T to switch to a tab
-   via a single keystroke
+   the tab they were opened from. Press T to show all tabs in a floating
+   overlay with a search box to quickly filter them, or Shift+T to switch to a
+   tab via a single keystroke. The keys are configurable in config.yaml
 
  * The UI is modal, like vim, which means all major UI functions can be quickly
    and easily accessed via single key strokes.

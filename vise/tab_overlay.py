@@ -8,7 +8,7 @@
 from functools import partial
 from gettext import gettext as _
 
-from PyQt6.QtCore import QEvent, QPointF, QRect, QRectF, QSize, Qt, QTimer
+from PyQt6.QtCore import QEvent, QKeyCombination, QPointF, QRect, QRectF, QSize, Qt, QTimer
 from PyQt6.QtGui import (QColor, QFont, QFontMetrics, QImage,
                          QPainter, QPainterPath, QPen, QPixmap, QTextLayout)
 from PyQt6.QtWidgets import (QApplication, QFrame, QGraphicsBlurEffect,
@@ -763,6 +763,19 @@ class TabOverlay(QWidget):
         if self.isVisible() and not self.marks_mode:
             self.search.setFocus(Qt.FocusReason.OtherFocusReason)
 
+    def is_toggle_key(self, ev):
+        # Whether the key is one of the keys bound to show_tab_overlay in
+        # config.yaml. Keys that generate text, such as a plain T, are
+        # ignored since they are needed for typing in the search box.
+        from .keys import key_from_event, normal_key_map, input_key_map
+        from . import actions
+        text = ev.text()
+        if text and text.isprintable() and not (ev.modifiers() & (
+                Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.AltModifier | Qt.KeyboardModifier.MetaModifier)):
+            return False
+        kc = QKeyCombination.fromCombined(key_from_event(ev))
+        return actions.show_tab_overlay in (normal_key_map.get(kc), input_key_map.get(kc))
+
     def handle_key(self, ev):
         key, mods = ev.key(), ev.modifiers()
         ctrl = bool(mods & Qt.KeyboardModifier.ControlModifier)
@@ -770,7 +783,7 @@ class TabOverlay(QWidget):
         empty = not self.search.text()
         if key == Qt.Key.Key_Escape:
             self.dismiss()
-        elif ctrl and key == Qt.Key.Key_T:
+        elif self.is_toggle_key(ev):
             self.dismiss()
         elif key in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
             if g.selected is not None:
