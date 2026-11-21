@@ -203,13 +203,13 @@ class TabGrid(QWidget):
             if c.item is item:
                 return c
 
-    def select_item(self, item):
+    def select_item(self, item, ensure_visible=True):
         c = self.card_for_item(item) if item is not None else None
-        self.set_selected(c or (self.cards[0] if self.cards else None))
+        self.set_selected(c or (self.cards[0] if self.cards else None), ensure_visible)
 
-    def set_selected(self, card):
+    def set_selected(self, card, ensure_visible=True):
         self.selected = card
-        if card is not None:
+        if card is not None and ensure_visible:
             self.overlay.ensure_visible(card.rect)
         self.update()
     # }}}
@@ -530,7 +530,7 @@ class TabOverlay(QWidget):
         l.setSpacing(14)
         self.search = s = SearchEdit(self.panel)
         s.overlay = self
-        s.textChanged.connect(self.refresh)
+        s.textChanged.connect(self.search_changed)
         l.addWidget(s)
         self.marks_label = ml = QLabel(_('Press the key shown on a tab to switch to it, Esc to cancel'), self.panel)
         ml.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -703,11 +703,18 @@ class TabOverlay(QWidget):
         if self.isVisible():
             self.refresh_timer.start()
 
-    def refresh(self):
+    def search_changed(self):
+        self.refresh(ensure_selected_visible=True)
+
+    def refresh(self, ensure_selected_visible=False):
+        # Only scroll to the selected card when the set of displayed cards
+        # changes because of the search text, otherwise changes to the tabs,
+        # such as closing some tab, would cause the overlay to scroll away
+        # from where the user is.
         self.grid.set_data(self.tab_tree, split_query(self.search.text()), show_marks=self.marks_mode)
         if self.grid.selected is None and self.grid.cards:
-            self.grid.select_item(self.tab_tree.current_item)
-        elif self.grid.selected is not None:
+            self.grid.select_item(self.tab_tree.current_item, ensure_selected_visible)
+        elif self.grid.selected is not None and ensure_selected_visible:
             self.ensure_visible(self.grid.selected.rect)
     # }}}
 
@@ -723,13 +730,15 @@ class TabOverlay(QWidget):
         if tab is None:
             return
         cards = self.grid.cards
+        selection_moved = False
         if self.grid.selected is not None and self.grid.selected.item is item and len(cards) > 1:
             # Select a neighbor of the card being closed
             idx = cards.index(self.grid.selected)
             neighbor = cards[idx + 1] if idx + 1 < len(cards) else cards[idx - 1]
             self.grid.selected = neighbor
+            selection_moved = True
         self.window_.close_tab(tab)
-        self.refresh()
+        self.refresh(ensure_selected_visible=selection_moved)
         # The current tab may have changed, update the blurred background
         self.background_timer.start()
         self.search.setFocus(Qt.FocusReason.OtherFocusReason)
