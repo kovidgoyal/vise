@@ -349,9 +349,11 @@ class WebView(QWebEngineView):
 
     @scroll_position.setter
     def scroll_position(self, val):
+        # scrollPosition() is in CSS pixels multiplied by the zoom factor, it
+        # is independent of the device pixel ratio
         x, y = val
-        factor = self.devicePixelRatioF()
-        x, y = int(x / factor), int(y / factor)
+        factor = self.zoomFactor() or 1
+        x, y = round(x / factor), round(y / factor)
         self.runjs(f'window.scrollTo({x}, {y})')
 
     def on_title_change(self, title):
